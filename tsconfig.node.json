@@ -8,6 +8,10 @@
     "playwright.config.*"
   ],
   "compilerOptions": {
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "target": "ESNext",
+    
     "composite": true,
     "noEmit": true,
     "module": "ESNext",
