@@ -1,5 +1,17 @@
 {
   "files": [],
+  "compilerOptions": {
+    "jsx": "preserve",
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
+    "sourceMap": false,
+    "baseUrl": ".",
+
+  },
   "references": [
     {
       "path": "./tsconfig.node.json"
