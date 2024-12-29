@@ -32,7 +32,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
       {
         path: 'real-time/detail',
         name: 'realTimeDetail',
-        component: RealTimeView,
+        component: ECommerceView,
         meta: {
           title: 'Detail Real Time'
         }
@@ -48,7 +48,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
       {
         path: 'manual/detail',
         name: 'manualDetail',
-        component: ManualView,
+        component: ECommerceView,
         meta: {
           title: 'Detail Manual Machine'
         }
@@ -56,7 +56,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
       {
         path: '/operator',
         name: 'operator',
-        component: TablesView,
+        component: ManualView,
         meta: {
           title: 'Operator'
         }
