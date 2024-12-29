@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
 import SigninView from '@/views/Authentication/SigninView.vue'
 import SignupView from '@/views/Authentication/SignupView.vue'
@@ -12,15 +12,56 @@ import ProfileView from '@/views/ProfileView.vue'
 import TablesView from '@/views/TablesView.vue'
 import AlertsView from '@/views/UiElements/AlertsView.vue'
 import ButtonsView from '@/views/UiElements/ButtonsView.vue'
+import RealTimeView from '@/views/RealTimeView.vue'
+import ManualView from '@/views/ManualView.vue'
 
-const routes = [
+const routes: Readonly<RouteRecordRaw[]> = [
   {
     path: '/',
-    name: 'eCommerce',
-    component: ECommerceView,
-    meta: {
-      title: 'eCommerce Dashboard'
-    }
+    name: 'dashboard',
+    redirect: { name: 'realTime' },
+    children: [
+      {
+        path: 'real-time',
+        name: 'realTime',
+        component: RealTimeView,
+        meta: {
+          title: 'Real Time'
+        }
+      },
+      {
+        path: 'real-time/detail',
+        name: 'realTimeDetail',
+        component: RealTimeView,
+        meta: {
+          title: 'Detail Real Time'
+        }
+      },
+      {
+        path: 'manual',
+        name: 'manual',
+        component: ManualView,
+        meta: {
+          title: 'Manual'
+        }
+      },
+      {
+        path: 'manual/detail',
+        name: 'manualDetail',
+        component: ManualView,
+        meta: {
+          title: 'Detail Manual Machine'
+        }
+      },
+      {
+        path: '/operator',
+        name: 'operator',
+        component: TablesView,
+        meta: {
+          title: 'Operator'
+        }
+      }
+    ]
   },
   {
     path: '/calendar',
@@ -30,14 +71,7 @@ const routes = [
       title: 'Calendar'
     }
   },
-  {
-    path: '/profile',
-    name: 'profile',
-    component: ProfileView,
-    meta: {
-      title: 'Profile'
-    }
-  },
+
   {
     path: '/forms/form-elements',
     name: 'formElements',
@@ -121,7 +155,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  document.title = `Vue.js ${to.meta.title} | TailAdmin - Vue.js Tailwind CSS Dashboard Template`
+  document.title = `${to.meta.title} | Yamaha Dashboard`
   next()
 })
 

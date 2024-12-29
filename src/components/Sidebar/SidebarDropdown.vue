@@ -26,6 +26,7 @@ const handleItemClick = (index: number) => {
             '!text-white': childItem.label === sidebarStore.selected
           }"
         >
+        <span v-html="childItem.icon"></span>
           {{ childItem.label }}
         </router-link>
       </li>
