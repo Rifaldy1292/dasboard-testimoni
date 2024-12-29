@@ -14,6 +14,10 @@ export default defineConfig({
     }),
     vueJsx()
   ],
+  build: {
+    outDir: 'dist'
+  },
+
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
