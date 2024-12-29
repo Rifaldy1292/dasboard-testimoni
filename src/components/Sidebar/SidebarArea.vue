@@ -45,7 +45,10 @@ const menuGroups = [
         label: 'Machine',
         route: '#',
         children: [
-          { label: 'Real Time', route: '/real-time', icon: `<svg
+          {
+            label: 'Real Time',
+            route: '/real-time',
+            icon: `<svg
                   class="fill-current"
                   width="18"
                   height="19"
@@ -64,9 +67,12 @@ const menuGroups = [
                       <rect width="18" height="18" fill="white" transform="translate(0 0.052124)" />
                     </clipPath>
                   </defs>
-                </svg>`,
-               },
-                { label: 'Manual', route: '/manual', icon: `<svg
+                </svg>`
+          },
+          {
+            label: 'Manual',
+            route: '/manual',
+            icon: `<svg
                   class="fill-current"
                   width="18"
                   height="19"
@@ -85,8 +91,9 @@ const menuGroups = [
                       <rect width="18" height="18" fill="white" transform="translate(0 0.052124)" />
                     </clipPath>
                   </defs>
-                </svg>`, },
-              ]
+                </svg>`
+          }
+        ]
       },
       {
         icon: `<svg
@@ -145,10 +152,9 @@ const menuGroups = [
           { label: 'Form Elements', route: '/forms/form-elements' },
           { label: 'Form Layout', route: '/forms/form-layout' }
         ]
-      },
+      }
     ]
-  },
- 
+  }
 ]
 </script>
 
@@ -164,7 +170,7 @@ const menuGroups = [
     <!-- SIDEBAR HEADER -->
     <div class="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
       <router-link to="/">
-        <img src="@/assets/images/logo/logo.svg" alt="Logo" />
+        <img src="@/assets/images/logo/yamaha-gakki.svg" test-id="jon" alt="Logo" />
       </router-link>
 
       <button class="block lg:hidden" @click="sidebarStore.isSidebarOpen = false">
@@ -204,7 +210,6 @@ const menuGroups = [
         </template>
       </nav>
       <!-- Sidebar Menu -->
-
     </div>
   </aside>
 </template>
