@@ -120,5 +120,8 @@ const handleClickIcon = (icon: 'edit' | 'details', data: Machine): void => {
     </Column>
   </DataTable>
 
-  <DialogForm :visibleDialogForm="visibleDialogForm" />
+  <DialogForm
+    v-model:visibleDialogForm="visibleDialogForm"
+    v-model:selected-machine="selectedMachine"
+  />
 </template>

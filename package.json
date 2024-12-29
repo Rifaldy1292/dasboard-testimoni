@@ -13,6 +13,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@primevue/forms": "^4.2.5",
     "@primevue/themes": "^4.2.5",
     "@vueuse/core": "^10.7.1",
     "apexcharts": "^3.45.1",
@@ -21,7 +22,7 @@
     "pinia": "^2.1.7",
     "primeicons": "^7.0.0",
     "primevue": "^4.2.5",
-    "vue": "^3.3.11",
+    "vue": "^3.5.13",
     "vue-router": "^4.2.5",
     "vue3-apexcharts": "^1.4.4"
   },
