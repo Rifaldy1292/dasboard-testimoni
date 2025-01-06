@@ -1,0 +1,41 @@
+name: Auto-Merge Client to Client Branch
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "client/**" # Memicu workflow hanya jika ada perubahan di folder client
+
+jobs:
+  merge-client:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Wajib untuk operasi branch dan merge
+
+      # Step 2: Setup Git
+      - name: Setup Git
+        run: |
+          git config user.name "jonfry1175"
+          git config user.email "jonfrymarbun@gmail.com"
+
+      # Step 3: Switch to client branch
+      - name: Switch to client branch
+        run: |
+          git fetch origin client
+          git checkout client || git checkout -b client
+
+      # Step 4: Merge main branch
+      - name: Merge main branch into client
+        run: |
+          git merge --ff-only origin/main
+
+      # Step 5: Push changes to client branch
+      - name: Push to client branch
+        run: |
+          git push origin client
