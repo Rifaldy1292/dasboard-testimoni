@@ -14,6 +14,7 @@ import AlertsView from '@/views/UiElements/AlertsView.vue'
 import ButtonsView from '@/views/UiElements/ButtonsView.vue'
 import RealTimeView from '@/views/RealTimeView.vue'
 import ManualView from '@/views/ManualView.vue'
+import AuthView from '@/views/Authentication/AuthView.vue'
 
 const routes: Readonly<RouteRecordRaw[]> = [
   {
@@ -62,6 +63,22 @@ const routes: Readonly<RouteRecordRaw[]> = [
         }
       }
     ]
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: AuthView,
+    meta: {
+      title: 'Login'
+    }
+  },
+  {
+    path: '/register',
+    name: 'register',
+    component: AuthView,
+    meta: {
+      title: 'Register'
+    }
   },
   {
     path: '/calendar',
