@@ -57,18 +57,6 @@ class UserController {
             res.status(500).json({ message: error.message, status: 500 });
         }
     }
-    static async getListUserByPreferredTimezone(req, res) {
-        try {
-            const { preferred_timezone } = req.user;
-            if (!preferred_timezone) return res.status(400).json({ message: 'preferred_timezone is required', status: 400 });
-            const users = await User.findAll({
-                where: { preferred_timezone }, attributes: ['id', 'username', 'preferred_timezone']
-            });
-            res.status(200).json({ status: 200, data: users, message: 'success get list user by preferred timezone', user: req.user.preferred_timezone });
-        } catch (error) {
-            res.status(500).json({ message: error.message, status: 500 });
-        }
-    }
 }
 
 module.exports = UserController
