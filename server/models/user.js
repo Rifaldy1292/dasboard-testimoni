@@ -11,6 +11,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      // User has one role
+      User.belongsTo(models.Role, { foreignKey: 'role_id' });
     }
   }
   User.init({
@@ -42,17 +44,22 @@ module.exports = (sequelize, DataTypes) => {
       unique: true,
       validate: {
         isNumeric: true,
-        max: 9,
-        min: 9
+        min: {
+          args: 16,
+          msg: 'NIK must be 16 digits'
+        }
       }
     },
-    machine_id: DataTypes.INTEGER
+    machine_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    }
   }, {
     sequelize,
     modelName: 'User',
   });
   User.beforeCreate(async (user, options) => {
-    const existNIK = await User.findOne({ where: { username: user.NIK } });
+    const existNIK = await User.findOne({ where: { NIK: user.NIK } });
     if (existNIK) {
       throw new Error('NIK already exists');
     }
