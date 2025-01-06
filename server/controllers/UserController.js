@@ -1,6 +1,6 @@
 const { User, Role } = require('../models');
 const { tokenGenerator } = require('../helpers/jsonwebtoken');
-const { encryptPassword } = require('../helpers/bcrypt');
+const { encryptPassword, decryptPassword } = require('../helpers/bcrypt');
 class UserController {
     static async getAll(req, res) {
         try {
@@ -40,13 +40,17 @@ class UserController {
     }
     static async login(req, res) {
         try {
-            const { username } = req.body;
-            const usernameFound = await User.findOne({ where: { username } });
-            if (!usernameFound) {
-                return res.status(401).json({ message: ' username not found' });
+            const { NIK, password } = req.body;
+            const FoundNIK = await User.findOne({ where: { NIK } });
+            if (!FoundNIK) {
+                return res.status(401).json({ message: ' NIK not found' });
             }
-            const { id, name, preferred_timezone } = usernameFound
-            const token = tokenGenerator({ id, name, username: usernameFound.username, preferred_timezone });
+            const matchPassword = await decryptPassword(password, FoundNIK.password);
+            if (!matchPassword) {
+                return res.status(401).json({ message: 'password not match', status: 401 });
+            }
+            const { id, name, role_id } = FoundNIK
+            const token = tokenGenerator({ id, name, NIK, role_id });
             res.status(200).json({ data: { token }, message: 'success login', status: 200 });
         } catch (error) {
             console.log(error)

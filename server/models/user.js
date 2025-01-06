@@ -43,6 +43,12 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true,
       validate: {
+        notEmpty: {
+          msg: 'NIK cannot be empty'
+        },
+        notNull: {
+          msg: 'NIK cannot be null'
+        },
         isNumeric: true,
         len: {
           args: [9, 9],
