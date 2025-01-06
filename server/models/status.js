@@ -14,7 +14,15 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Status.init({
-    name: DataTypes.STRING
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+        notNull: true,
+        min: 3
+      }
+    }
   }, {
     sequelize,
     modelName: 'Status',
