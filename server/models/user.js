@@ -44,9 +44,9 @@ module.exports = (sequelize, DataTypes) => {
       unique: true,
       validate: {
         isNumeric: true,
-        min: {
-          args: 16,
-          msg: 'NIK must be 16 digits'
+        len: {
+          args: [9, 9],
+          msg: 'NIK must be 9 digits'
         }
       }
     },
