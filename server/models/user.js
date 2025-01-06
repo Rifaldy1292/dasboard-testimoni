@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    nik: {
+    NIK: {
       type: DataTypes.INTEGER,
       allowNull: false,
       unique: true,
@@ -51,5 +51,11 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'User',
   });
+  User.beforeCreate(async (user, options) => {
+    const existNIK = await User.findOne({ where: { username: user.NIK } });
+    if (existNIK) {
+      throw new Error('NIK already exists');
+    }
+  })
   return User;
 };

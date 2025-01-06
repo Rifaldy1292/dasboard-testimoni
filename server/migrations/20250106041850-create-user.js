@@ -18,7 +18,7 @@ module.exports = {
       role_id: {
         type: Sequelize.INTEGER
       },
-      nik: {
+      NIK: {
         type: Sequelize.INTEGER
       },
       machine_id: {
