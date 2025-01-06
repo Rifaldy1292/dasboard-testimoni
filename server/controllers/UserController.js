@@ -1,10 +1,16 @@
-const { User } = require('../models');
+const { User, Role } = require('../models');
 const { tokenGenerator } = require('../helpers/jsonwebtoken');
+const { encryptPassword } = require('../helpers/bcrypt');
 class UserController {
     static async getAll(req, res) {
         try {
-            const users = await User.findAll();
-            res.status(200).json({ status: 200, data: users, message: 'success get data' });
+            const users = await User.findAll({
+                include: [{
+                    model: Role,
+                    attributes: ['name']
+                }],
+            });
+            res.status(200).json({ status: 200, message: 'success get user list', data: users });
         } catch (err) {
             res.status(500).json({ message: err.message, status: 500 });
         }
@@ -13,11 +19,14 @@ class UserController {
         try {
             const { name, NIK, role_id, password } = req.body;
 
+            // hash setelah password di validasi
+            const hashedPassword = await encryptPassword(password, 10);
+
             await User.create({
                 name,
                 NIK,
                 role_id,
-                password
+                password: hashedPassword
             });
             res.status(201).json({ status: 201, message: 'success register' });
         } catch (error) {
