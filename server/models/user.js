@@ -50,10 +50,7 @@ module.exports = (sequelize, DataTypes) => {
           msg: 'NIK cannot be null'
         },
         isNumeric: true,
-        len: {
-          args: [9, 9],
-          msg: 'NIK must be 9 digits'
-        }
+
       }
     },
     machine_id: {
@@ -65,6 +62,9 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'User',
   });
   User.beforeCreate(async (user, options) => {
+    if (user.NIK.toString().length !== 9) {
+      throw new Error('NIK must be 9 digits')
+    }
     const existNIK = await User.findOne({ where: { NIK: user.NIK } });
     if (existNIK) {
       throw new Error('NIK already exists');

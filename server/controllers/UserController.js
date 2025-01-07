@@ -45,16 +45,18 @@ class UserController {
     static async login(req, res) {
         try {
             const { NIK, password } = req.body;
+            // Custom validation for length NIK
+
             const FoundNIK = await User.findOne({ where: { NIK } });
             if (!FoundNIK) {
-                return res.status(401).json({ message: ' NIK not found' });
+                return res.status(401).json({ message: ' NIK not found', status: 401 });
             }
             const matchPassword = await decryptPassword(password, FoundNIK.password);
             if (!matchPassword) {
                 return res.status(401).json({ message: 'Wrong password', status: 401 });
             }
             const { id, name, role_id } = FoundNIK
-            const token = tokenGenerator({ id, name, NIK, role_id });
+            const token = tokenGenerator({ id, name, NIK: FoundNIK.NIK, role_id });
             res.status(200).json({ data: { token }, message: 'success login', status: 200 });
         } catch (error) {
             console.log(error)
