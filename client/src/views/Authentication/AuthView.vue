@@ -4,11 +4,11 @@ import { useRoute, useRouter } from 'vue-router'
 import type { RegisterPayload } from '@/dto/user.dto'
 import AuthLayout from '@/layouts/AuthLayout.vue'
 import UserServices from '@/services/user.service'
-import type { FormValue } from '@/types/form.type'
-import { Form, FormField } from '@primevue/forms'
+import { Form, FormField, type FormSubmitEvent } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import { InputNumber, InputText, Message, useToast } from 'primevue'
 import { z } from 'zod'
+import { AxiosError } from 'axios'
 
 const route = useRoute()
 const router = useRouter()
@@ -43,13 +43,13 @@ const resolver = zodResolver(
 const showPassword = shallowRef(false)
 
 // function for submit form login/register
-const submitForm = async (e: FormValue<RegisterPayload>): Promise<void> => {
+const submitForm = async (e: FormSubmitEvent): Promise<void> => {
   console.log(e)
   if (!e.valid) return
   // login
   if (page.value === 'Sign in') {
     try {
-      const { data } = await UserServices.login(e.values)
+      const { data } = await UserServices.login(e.values as Omit<RegisterPayload, 'name'>)
       toast.add({
         severity: 'success',
         summary: 'Success',
@@ -73,7 +73,7 @@ const submitForm = async (e: FormValue<RegisterPayload>): Promise<void> => {
   // register
   else {
     try {
-      const { data } = await UserServices.register(e.values)
+      const { data } = await UserServices.register(e.values as RegisterPayload)
       console.log(data)
       toast.add({
         severity: 'success',
@@ -84,11 +84,21 @@ const submitForm = async (e: FormValue<RegisterPayload>): Promise<void> => {
         router.replace({ name: 'login' })
       }, 500)
     } catch (error) {
+      if (error instanceof AxiosError && error.response && error.response.data) {
+        if (error.response.data.message === 'NIK already exists') {
+          toast.add({
+            severity: 'error',
+            summary: 'Register failed',
+            detail: 'NIK already exists'
+          })
+          return
+        }
+      }
       console.error(error)
       toast.add({
         severity: 'error',
         summary: 'Register failed',
-        detail: ''
+        detail: 'server error'
       })
     }
   }

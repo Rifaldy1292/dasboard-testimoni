@@ -37,7 +37,7 @@ class UserController {
 
             }
             if (error.message === 'NIK already exists') {
-                res.status(400).json({ message: error.message, status: 400 });
+                return res.status(400).json({ message: error.message, status: 400 });
             }
             res.status(500).json({ message: error.message, status: 500 });
         }
