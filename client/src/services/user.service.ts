@@ -9,6 +9,9 @@ const UserServices = {
 
   login: (body: LoginPayload): Promise<AxiosResponse<{ data: { token: string } }>> => {
     return API().post('/users/login', body)
+  },
+  getUsers: (): Promise<AxiosResponse> => {
+    return API().get('/users')
   }
 }
 

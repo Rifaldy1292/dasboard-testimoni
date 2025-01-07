@@ -2,7 +2,7 @@ import axios, { type AxiosInstance } from 'axios'
 
 const API = ({ headers = {}, params = {} } = {}): AxiosInstance => {
   const user = JSON.parse(localStorage.getItem('user') as string) ?? {}
-  const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:2222'
+  const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
   if (!BASE_URL) {
     throw new Error('VITE_API_URL is not defined')

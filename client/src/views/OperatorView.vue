@@ -1,12 +1,12 @@
 <script setup lang="ts">
+import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import ListOperator from '@/components/Modules/ListOperator.vue'
-import TableMachine from '@/components/Tables/TableMachine.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 </script>
 
 <template>
   <DefaultLayout>
-    <TableMachine />
+    <BreadcrumbDefault pageTitle="Operator List" />
     <ListOperator />
   </DefaultLayout>
 </template>
