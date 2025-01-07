@@ -1,6 +1,7 @@
 import type { AxiosResponse } from 'axios'
 import API from './API'
 import type { LoginPayload, RegisterPayload } from '@/dto/user.dto'
+import type { GetUsers } from '@/types/apiResponse.type'
 
 const UserServices = {
   register: (body: RegisterPayload): Promise<AxiosResponse> => {
@@ -10,7 +11,7 @@ const UserServices = {
   login: (body: LoginPayload): Promise<AxiosResponse<{ data: { token: string } }>> => {
     return API().post('/users/login', body)
   },
-  getUsers: (): Promise<AxiosResponse> => {
+  getUsers: (): Promise<AxiosResponse<GetUsers>> => {
     return API().get('/users')
   }
 }

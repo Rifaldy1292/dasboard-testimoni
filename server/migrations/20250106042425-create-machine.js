@@ -24,6 +24,9 @@ module.exports = {
       spindel_rpm: {
         type: Sequelize.STRING
       },
+      user_id: {
+        type: Sequelize.INTEGER
+      },
       status_id: {
         type: Sequelize.INTEGER
       },

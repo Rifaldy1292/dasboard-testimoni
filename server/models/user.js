@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       // User has one role
       User.belongsTo(models.Role, { foreignKey: 'role_id' });
+      User.hasMany(models.Machine, { foreignKey: 'user_id' });
     }
   }
   User.init({
