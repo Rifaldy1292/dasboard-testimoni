@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { User, Role } = require('../models');
 const { tokenGenerator } = require('../helpers/jsonwebtoken');
 const { encryptPassword, decryptPassword } = require('../helpers/bcrypt');
@@ -25,7 +26,7 @@ class UserController {
             await User.create({
                 name,
                 NIK,
-                role_id,
+                role_id: role_id || process.env.ADMIN_ROLE_ID,
                 password: hashedPassword
             });
             res.status(201).json({ status: 201, message: 'success register' });
@@ -34,6 +35,9 @@ class UserController {
                 const message = error.errors.map((err) => err.message);
                 return res.status(400).json({ message, status: 400 });
 
+            }
+            if (error.message === 'NIK already exists') {
+                res.status(400).json({ message: error.message, status: 400 });
             }
             res.status(500).json({ message: error.message, status: 500 });
         }

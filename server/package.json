@@ -9,7 +9,7 @@
     "db:create": "sequelize-cli db:create",
     "db:migrate": "sequelize-cli db:migrate",
     "db:seed": "sequelize-cli db:seed --seed",
-    "db:seed:all": "sequelize-cli db:seed:all",
+    "db:seed-all": "sequelize-cli db:seed:all",
     "db:undo-all": "sequelize-cli db:migrate:undo:all"
   },
   "keywords": [],

@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
-import SigninView from '@/views/Authentication/SigninView.vue'
-import SignupView from '@/views/Authentication/SignupView.vue'
+import SigninView from '@/views/Authentication2/SigninView.vue'
+import SignupView from '@/views/Authentication2/SignupView.vue'
 import CalendarView from '@/views/CalendarView.vue'
 import BasicChartView from '@/views/Charts/BasicChartView.vue'
 import ECommerceView from '@/views/Dashboard/ECommerceView.vue'

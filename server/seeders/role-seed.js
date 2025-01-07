@@ -1,12 +1,16 @@
 
+require("dotenv").config();
 'use strict';
+
 const roles = [
     {
+        id: process.env.ADMIN_ROLE_ID,
         name: 'Admin',
         createdAt: new Date(),
         updatedAt: new Date()
     },
     {
+        id: process.env.ADMIN_OPERATOR_ID,
         name: 'Operator',
         createdAt: new Date(),
         updatedAt: new Date()
