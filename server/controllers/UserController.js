@@ -51,7 +51,7 @@ class UserController {
             }
             const matchPassword = await decryptPassword(password, FoundNIK.password);
             if (!matchPassword) {
-                return res.status(401).json({ message: 'password not match', status: 401 });
+                return res.status(401).json({ message: 'Wrong password', status: 401 });
             }
             const { id, name, role_id } = FoundNIK
             const token = tokenGenerator({ id, name, NIK, role_id });

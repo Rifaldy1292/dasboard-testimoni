@@ -50,10 +50,11 @@ const submitForm = async (e: FormSubmitEvent): Promise<void> => {
   if (page.value === 'Sign in') {
     try {
       const { data } = await UserServices.login(e.values as Omit<RegisterPayload, 'name'>)
+      console.log(data)
       toast.add({
         severity: 'success',
         summary: 'Success',
-        detail: 'Machine updated',
+        detail: 'Login success',
         life: 3000
       })
 
@@ -61,11 +62,18 @@ const submitForm = async (e: FormSubmitEvent): Promise<void> => {
         router.replace({ name: 'dashboard' })
       }, 500)
     } catch (error) {
+      if (error instanceof AxiosError && error.response && error.response.data) {
+        return toast.add({
+          severity: 'error',
+          summary: 'Login failed',
+          detail: error.response.data.message
+        })
+      }
       console.error(error)
       toast.add({
         severity: 'error',
-        summary: 'Error',
-        detail: 'Login failed',
+        summary: 'Login failed',
+        detail: 'server error',
         life: 3000
       })
     }
@@ -86,12 +94,11 @@ const submitForm = async (e: FormSubmitEvent): Promise<void> => {
     } catch (error) {
       if (error instanceof AxiosError && error.response && error.response.data) {
         if (error.response.data.message === 'NIK already exists') {
-          toast.add({
+          return toast.add({
             severity: 'error',
             summary: 'Register failed',
             detail: 'NIK already exists'
           })
-          return
         }
       }
       console.error(error)

@@ -3,3 +3,5 @@ export interface RegisterPayload {
   NIK: number
   password: string
 }
+
+export type LoginPayload = Omit<RegisterPayload, 'name'>
