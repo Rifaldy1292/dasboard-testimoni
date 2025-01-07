@@ -60,7 +60,12 @@ class UserController {
             const { NIK, password } = req.body;
             // Custom validation for length NIK
 
-            const FoundNIK = await User.findOne({ where: { NIK } });
+            const FoundNIK = await User.findOne({
+                where: { NIK }, include: [{
+                    model: Role,
+                    attributes: ['name'],
+                }],
+            });
             if (!FoundNIK) {
                 return res.status(401).json({ message: ' NIK not found', status: 401 });
             }
@@ -69,7 +74,7 @@ class UserController {
                 return res.status(401).json({ message: 'Wrong password', status: 401 });
             }
             const { id, name, role_id } = FoundNIK
-            const token = tokenGenerator({ id, name, NIK: FoundNIK.NIK, role_id });
+            const token = tokenGenerator({ id, name, NIK: FoundNIK.NIK, role_id, role: FoundNIK.Role.name });
             res.status(200).json({ data: { token }, message: 'success login', status: 200 });
         } catch (error) {
             console.log(error)

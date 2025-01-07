@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Machine.belongsTo(models.Brand, { foreignKey: 'brand_id' });
       Machine.belongsTo(models.Status, { foreignKey: 'status_id' });
-      Machine.hasMany(models.User, { foreignKey: 'user_id' });
+      // Machine.hasMany(models.User, { foreignKey: 'user_id' });
     }
   }
   Machine.init({

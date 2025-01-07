@@ -2,21 +2,10 @@
 import { onClickOutside } from '@vueuse/core'
 import { ref } from 'vue'
 
-const ADMIN_ROLE_ID: number = +import.meta.env.VITE_ADMIN_ROLE_ID || 8989898898
-const OPERATOR_ROLE_ID: number = +import.meta.env.VITE_ADMIN_ROLE_ID || 8989898898
+// const ADMIN_ROLE_ID: number = +import.meta.env.VITE_ADMIN_ROLE_ID || 8989898898
+// const OPERATOR_ROLE_ID: number = +import.meta.env.VITE_ADMIN_ROLE_ID || 8989898898
 
 const userData = JSON.parse(localStorage.getItem('user') || '{}')
-const roleName = (): string => {
-  if (userData.role_id === ADMIN_ROLE_ID) {
-    return 'Admin'
-  }
-  if (userData.role_id === OPERATOR_ROLE_ID) {
-    return 'Operator'
-  }
-  // console.log(userData.role_id, ADMIN_ROLE_ID)
-  // console.log(typeof userData.role_id, typeof ADMIN_ROLE_ID)
-  return '-'
-}
 
 const target = ref(null)
 const dropdownOpen = ref(false)
@@ -37,7 +26,7 @@ onClickOutside(target, () => {
         <span class="block text-sm font-medium text-black dark:text-white">{{
           userData.name || '-'
         }}</span>
-        <span class="block text-xs font-medium">{{ roleName() }}</span>
+        <span class="block text-xs font-medium">{{ userData.role ?? '-' }}</span>
       </span>
 
       <span class="h-12 w-12 rounded-full">

@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { Dialog } from 'primevue'
+import type { DialogFormProps } from './DialogForm.type'
+
 defineProps<{
-  description: string
-  header: string
+  data: DialogFormProps
 }>()
 
 const visibleDialogForm = defineModel<boolean>('visibleDialogForm', {
@@ -20,10 +22,11 @@ const handleCloseModal = () => {
       v-model:visible="visibleDialogForm"
       modal
       @hide="handleCloseModal"
-      :header="header"
+      :header="data.header"
       :style="{ width: '25rem' }"
     >
-      <span class="text-surface-500 dark:text-surface-400 block mb-8">{{ description }}</span>
+      <span class="text-surface-500 dark:text-surface-400 block mb-8">{{ data.description }}</span>
+      <slot name="body" />
     </Dialog>
   </div>
 </template>

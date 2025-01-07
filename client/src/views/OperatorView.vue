@@ -6,7 +6,7 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue'
 
 <template>
   <DefaultLayout>
-    <BreadcrumbDefault pageTitle="Operator List" />
+    <BreadcrumbDefault pageTitle="User List" />
     <ListOperator />
   </DefaultLayout>
 </template>
