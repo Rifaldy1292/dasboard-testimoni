@@ -26,7 +26,7 @@ class UserController {
             await User.create({
                 name,
                 NIK,
-                role_id: role_id || process.env.ADMIN_ROLE_ID,
+                role_id: role_id || process.env.OPERATOR_ROLE_ID,
                 password: hashedPassword
             });
             res.status(201).json({ status: 201, message: 'success register' });
