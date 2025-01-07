@@ -5,7 +5,7 @@ import type { Severity } from '@/types/severity.type'
 import { Badge, Column, DataTable } from 'primevue'
 import { shallowRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import DialogForm from '../DialogForm/DialogForm.vue'
+import DialogFormMachine from '../DialogForm/DialogFormMachine.vue'
 
 interface Columns {
   field: string
@@ -120,7 +120,7 @@ const handleClickIcon = (icon: 'edit' | 'details', data: Machine): void => {
     </Column>
   </DataTable>
 
-  <DialogForm
+  <DialogFormMachine
     v-model:visibleDialogForm="visibleDialogForm"
     v-model:selected-machine="selectedMachine"
   />

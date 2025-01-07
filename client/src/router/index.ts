@@ -15,6 +15,7 @@ import ButtonsView from '@/views/UiElements/ButtonsView.vue'
 import RealTimeView from '@/views/RealTimeView.vue'
 import ManualView from '@/views/ManualView.vue'
 import AuthView from '@/views/Authentication/AuthView.vue'
+import OperatorView from '@/views/OperatorView.vue'
 
 const routes: Readonly<RouteRecordRaw[]> = [
   {
@@ -57,7 +58,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
       {
         path: '/operator',
         name: 'operator',
-        component: ManualView,
+        component: OperatorView,
         meta: {
           title: 'Operator'
         }

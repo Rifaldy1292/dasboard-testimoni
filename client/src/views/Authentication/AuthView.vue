@@ -9,6 +9,7 @@ import { zodResolver } from '@primevue/forms/resolvers/zod'
 import { InputNumber, InputText, Message, useToast } from 'primevue'
 import { z } from 'zod'
 import { AxiosError } from 'axios'
+import { jwtDecode } from 'jwt-decode'
 
 const route = useRoute()
 const router = useRouter()
@@ -50,7 +51,9 @@ const submitForm = async (e: FormSubmitEvent): Promise<void> => {
   if (page.value === 'Sign in') {
     try {
       const { data } = await UserServices.login(e.values as Omit<RegisterPayload, 'name'>)
-      console.log(data)
+      const { token } = data.data
+      const decodedToken = jwtDecode(token)
+      localStorage.setItem('user', JSON.stringify({ ...decodedToken, token }))
       toast.add({
         severity: 'success',
         summary: 'Success',
