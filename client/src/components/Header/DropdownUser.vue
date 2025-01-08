@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { onClickOutside } from '@vueuse/core'
 import { ref } from 'vue'
+import { onClickOutside } from '@vueuse/core'
+import { useToast } from 'primevue'
+import { useRouter } from 'vue-router'
 
-// const ADMIN_ROLE_ID: number = +import.meta.env.VITE_ADMIN_ROLE_ID || 8989898898
-// const OPERATOR_ROLE_ID: number = +import.meta.env.VITE_ADMIN_ROLE_ID || 8989898898
-
+const toast = useToast()
+const router = useRouter()
 const userData = JSON.parse(localStorage.getItem('user') || '{}')
 
 const target = ref(null)
@@ -13,6 +14,17 @@ const dropdownOpen = ref(false)
 onClickOutside(target, () => {
   dropdownOpen.value = false
 })
+
+const handleLogout = () => {
+  localStorage.clear()
+  router.replace('/login')
+  toast.add({
+    severity: 'success',
+    summary: 'Success',
+    detail: 'Logged out successfully',
+    life: 3000
+  })
+}
 </script>
 
 <template>
@@ -130,6 +142,7 @@ onClickOutside(target, () => {
         </li>
       </ul>
       <button
+        @click="handleLogout"
         class="flex items-center gap-3.5 py-4 px-6 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
       >
         <svg
