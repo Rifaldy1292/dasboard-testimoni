@@ -1,22 +1,21 @@
-
-require("dotenv").config();
+const { OPERATOR_ROLE_ID, ADMIN_ROLE_ID, REVIEWER_ROLE_ID } = require("../config/config.env");
 'use strict';
 
 const roles = [
     {
-        id: process.env.ADMIN_ROLE_ID,
+        id: ADMIN_ROLE_ID,
         name: 'Admin',
         createdAt: new Date(),
         updatedAt: new Date()
     },
     {
-        id: process.env.OPERATOR_ROLE_ID,
+        id: OPERATOR_ROLE_ID,
         name: 'Operator',
         createdAt: new Date(),
         updatedAt: new Date()
     },
     {
-        id: process.env.REVIEWER_ROLE_ID,
+        id: REVIEWER_ROLE_ID,
         name: 'Reviewer',
         createdAt: new Date(),
         updatedAt: new Date()

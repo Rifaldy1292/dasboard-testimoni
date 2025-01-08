@@ -1,9 +1,7 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-require("dotenv").config();
-
-const port = process.env.PORT || 5000;
+const { PORT } = require("./config/config.env");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
@@ -14,6 +12,6 @@ app.use("/api", router);
 
 
 
-app.listen(port, () => {
-    console.log(`Server started on http://localhost:${port}`);
+app.listen(PORT, () => {
+    console.log(`Server started on http://localhost:${PORT}`);
 });
