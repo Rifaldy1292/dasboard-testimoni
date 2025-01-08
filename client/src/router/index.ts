@@ -15,6 +15,7 @@ import RealTimeView from '@/views/RealTimeView.vue'
 import ManualView from '@/views/ManualView.vue'
 import AuthView from '@/views/Authentication/AuthView.vue'
 import OperatorView from '@/views/OperatorView.vue'
+import ForgotPasswordView from '@/views/Authentication/ForgotPasswordView.vue'
 
 const routes: Readonly<RouteRecordRaw[]> = [
   {
@@ -78,6 +79,14 @@ const routes: Readonly<RouteRecordRaw[]> = [
     component: AuthView,
     meta: {
       title: 'Register'
+    }
+  },
+  {
+    path: '/forgot-password',
+    name: 'forgotPassword',
+    component: ForgotPasswordView,
+    meta: {
+      title: 'Forgot Password'
     }
   },
   {

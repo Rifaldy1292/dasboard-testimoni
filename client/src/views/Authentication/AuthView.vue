@@ -212,7 +212,7 @@ const submitForm = async (e: FormSubmitEvent): Promise<void> => {
 
         <div v-if="page === 'Sign in'" class="flex flex-wrap items-center justify-end gap-4">
           <div class="text-sm">
-            <a href="jajvascript:void(0);" class="text-blue-600 hover:underline font-semibold">
+            <a href="/forgot-password" class="text-blue-600 hover:underline font-semibold">
               Forgot your password?
             </a>
           </div>
@@ -223,7 +223,7 @@ const submitForm = async (e: FormSubmitEvent): Promise<void> => {
             type="submit"
             class="w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
           >
-            Sign in
+            {{ page }}
           </button>
         </div>
         <p class="text-gray-800 text-sm !mt-8 text-center">

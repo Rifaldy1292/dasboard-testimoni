@@ -1,3 +1,4 @@
+import type { UserLocalStorage } from './localStorage.type'
 import type { User } from './user.type'
 
 interface ApiResponse<T> {
@@ -7,3 +8,6 @@ interface ApiResponse<T> {
 }
 
 export interface GetUsers extends ApiResponse<User[]> {}
+
+export type ForgotPasswordData = Pick<UserLocalStorage, 'NIK' | 'name' | 'role'>
+export type FindByNIk = ApiResponse<ForgotPasswordData>
