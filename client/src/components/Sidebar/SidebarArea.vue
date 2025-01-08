@@ -26,7 +26,7 @@ onClickOutside(target, () => {
   sidebarStore.isSidebarOpen = false
 })
 
-const menuGroups = computed<MenuGroup>(() => {
+const menuGroups = computed<MenuGroup[]>(() => {
   return [
     {
       name: 'MENU',
