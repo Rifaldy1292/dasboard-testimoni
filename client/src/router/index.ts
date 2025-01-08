@@ -8,7 +8,6 @@ import ECommerceView from '@/views/Dashboard/ECommerceView.vue'
 import FormElementsView from '@/views/Forms/FormElementsView.vue'
 import FormLayoutView from '@/views/Forms/FormLayoutView.vue'
 import SettingsView from '@/views/Pages/SettingsView.vue'
-import ProfileView from '@/views/ProfileView.vue'
 import TablesView from '@/views/TablesView.vue'
 import AlertsView from '@/views/UiElements/AlertsView.vue'
 import ButtonsView from '@/views/UiElements/ButtonsView.vue'
@@ -56,11 +55,11 @@ const routes: Readonly<RouteRecordRaw[]> = [
         }
       },
       {
-        path: '/operator',
-        name: 'operator',
+        path: '/users',
+        name: 'Users',
         component: OperatorView,
         meta: {
-          title: 'Operator'
+          title: 'User List'
         }
       }
     ]

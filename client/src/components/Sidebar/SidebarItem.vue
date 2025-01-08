@@ -2,10 +2,14 @@
 import { useSidebarStore } from '@/stores/sidebar'
 import { useRoute } from 'vue-router'
 import SidebarDropdown from './SidebarDropdown.vue'
+import type { MenuItem } from './SidebarArea.vue'
 
 const sidebarStore = useSidebarStore()
 
-const props = defineProps(['item', 'index'])
+const props = defineProps<{
+  item: MenuItem
+  index: number
+}>()
 const currentPage = useRoute().name
 
 interface SidebarItem {
@@ -23,7 +27,7 @@ const handleItemClick = () => {
 </script>
 
 <template>
-  <li>
+  <li v-if="item.visible">
     <router-link
       :to="item.route"
       class="group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4"

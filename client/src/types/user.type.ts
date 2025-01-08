@@ -1,13 +1,13 @@
-export type Role = 'Admin' | 'Operator'
+export type Role = 'Admin' | 'Operator' | 'Reviewer'
 
 export interface User {
   id: number
   name: string
-  password: string
   NIK: number
   machine_id: null | number
   createdAt: Date
   updatedAt: Date
-  roleName: Role
+  role: Role
+  role_id: number
   machineName: null | string
 }
