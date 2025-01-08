@@ -11,6 +11,9 @@ userRouter.get(
     UserController.getAll
 );
 
+// delete user by id
+userRouter.delete("/:id", authMiddleware, roleMiddleware.allowRoleId(ADMIN_ROLE_ID), UserController.deleteById);
+
 // find user by NIK
 userRouter.get("/:NIK", UserController.getByNIK);
 

@@ -12,7 +12,7 @@ const authMiddleware = (req, res, next) => {
         }
         const decoded = tokenValidator(token); // Dekode token untuk mendapatkan informasi pengguna
         req.user = decoded; // Menambahkan informasi pengguna yang didekodekan ke req.user
-        console.log('req.user', req.user)
+        // console.log('req.user', req.user)
         next(); // Lanjut ke middleware atau handler berikutnya
     } catch (error) {
         if (error.name === 'JsonWebTokenError') {
