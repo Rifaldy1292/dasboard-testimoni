@@ -11,6 +11,9 @@ userRouter.get(
     UserController.getAll
 );
 
+// find user by NIK
+userRouter.get("/:NIK", UserController.getByNIK);
+
 
 userRouter.post("/register", UserController.register);
 userRouter.post("/login", UserController.login);

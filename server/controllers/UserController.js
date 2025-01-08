@@ -2,6 +2,7 @@ require('dotenv').config();
 const { User, Role, Machine } = require('../models');
 const { tokenGenerator } = require('../helpers/jsonwebtoken');
 const { encryptPassword, decryptPassword } = require('../helpers/bcrypt');
+const { raw } = require('express');
 class UserController {
     static async getAll(req, res) {
         try {
@@ -79,6 +80,29 @@ class UserController {
         } catch (error) {
             console.log(error)
             res.status(500).json({ message: error.message, status: 500 });
+        }
+    }
+
+    static async getByNIK(req, res) {
+        try {
+            const { NIK } = req.params;
+            const user = await User.findOne({
+                where: { NIK },
+                include: [{
+                    model: Role,
+                    attributes: ['name']
+                }],
+                attributes: ['id', 'name', 'NIK', 'createdAt', 'updatedAt'],
+                raw: true
+            });
+            if (!user) {
+                return res.status(404).json({ message: 'User not found', status: 404 });
+            }
+            user.role = user['Role.name'];
+            delete user['Role.name'];
+            res.status(200).json({ status: 200, message: 'success get user by NIK', data: user });
+        } catch (err) {
+            res.status(500).json({ message: err.message, status: 500 });
         }
     }
 
