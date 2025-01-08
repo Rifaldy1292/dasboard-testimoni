@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { User, Role, sequelize, Machine } = require('../models');
+const { User, Role, Machine } = require('../models');
 const { tokenGenerator } = require('../helpers/jsonwebtoken');
 const { encryptPassword, decryptPassword } = require('../helpers/bcrypt');
 class UserController {
@@ -81,6 +81,7 @@ class UserController {
             res.status(500).json({ message: error.message, status: 500 });
         }
     }
+
 }
 
 module.exports = UserController

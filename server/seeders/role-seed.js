@@ -10,11 +10,17 @@ const roles = [
         updatedAt: new Date()
     },
     {
-        id: process.env.ADMIN_OPERATOR_ID,
+        id: process.env.OPERATOR_ROLE_ID,
         name: 'Operator',
         createdAt: new Date(),
         updatedAt: new Date()
     },
+    {
+        id: process.env.REVIEWER_ROLE_ID,
+        name: 'Reviewer',
+        createdAt: new Date(),
+        updatedAt: new Date()
+    }
 ];
 
 /** @type {import('sequelize-cli').Migration} */
