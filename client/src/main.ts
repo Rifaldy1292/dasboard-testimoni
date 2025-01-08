@@ -13,12 +13,13 @@ import Tooltip from 'primevue/tooltip'
 
 import App from './App.vue'
 import router from './router'
-import { ToastService } from 'primevue'
+import { ConfirmationService, ToastService } from 'primevue'
 
 const app = createApp(App)
 
 app.use(createPinia())
 app.use(router)
+app.use(ConfirmationService)
 app.directive('tooltip', Tooltip)
 app.use(VueApexCharts)
 app.use(ToastService)

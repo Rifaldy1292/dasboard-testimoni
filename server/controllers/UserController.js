@@ -2,7 +2,6 @@ require('dotenv').config();
 const { User, Role, Machine } = require('../models');
 const { tokenGenerator } = require('../helpers/jsonwebtoken');
 const { encryptPassword, decryptPassword } = require('../helpers/bcrypt');
-const { raw } = require('express');
 class UserController {
     static async getAll(req, res) {
         try {

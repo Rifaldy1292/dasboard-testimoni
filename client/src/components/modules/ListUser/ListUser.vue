@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref, shallowRef } from 'vue'
-import type { Machine } from '@/types/machine.type'
 import type { Severity } from '@/types/severity.type'
-import { Badge, Button, Column, DataTable, useToast } from 'primevue'
+import { Badge, Button, Column, DataTable, useConfirm, useToast } from 'primevue'
 import type { User } from '@/types/user.type'
 import UserServices from '@/services/user.service'
 import { onMounted } from 'vue'
@@ -19,6 +18,7 @@ interface Columns {
 }
 
 const toast = useToast()
+const confirm = useConfirm()
 const columns: Columns[] = [
   { field: 'name', header: 'Name' },
   { field: 'NIK', header: 'NIK' },
@@ -27,7 +27,7 @@ const columns: Columns[] = [
 ]
 
 const operators = ref<User[]>([])
-const selectedMachine = shallowRef<Machine>()
+const selectedUser = shallowRef<User | undefined>()
 const visibleDialogForm = shallowRef(false)
 
 const badgeSeverity = (role: User['role']): Severity => {
@@ -35,14 +35,52 @@ const badgeSeverity = (role: User['role']): Severity => {
   return 'success'
 }
 
-const handleClickIcon = (icon: 'resetPassword' | 'delete', data: Machine): void => {
-  selectedMachine.value = data
+const handleDeleteUser = async (): Promise<void> => {
+  try {
+    if (!selectedUser.value) return console.error('no user selected')
+    await UserServices.deleteById(selectedUser.value.id)
+    toast.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: `${selectedUser.value.name} has been deleted`
+    })
+    await fetchUsers()
+  } catch (error) {
+    console.error(error)
+    toast.add({
+      severity: 'error',
+      summary: 'error',
+      detail: `failed to delete ${selectedUser.value?.name}`
+    })
+  }
+}
+
+const handleClickIcon = (icon: 'resetPassword' | 'delete', data: User): void => {
+  selectedUser.value = data
   if (icon === 'delete') {
     console.log('delete', visibleDialogForm.value)
+    confirm.require({
+      message: `Are you sure you want to delete ${data.name}?`,
+      header: 'Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      rejectProps: {
+        label: 'Cancel',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptProps: {
+        label: 'Delete',
+        severity: 'danger'
+      },
+      accept: async (): Promise<void> => {
+        await handleDeleteUser()
+        selectedUser.value = undefined
+      }
+    })
   }
-  // detail
+  // reset password
   else {
-    sessionStorage.setItem('selectedMachine', JSON.stringify(data))
+    sessionStorage.setItem('selectedUser', JSON.stringify(data))
     console.log('details')
   }
 }
