@@ -181,8 +181,32 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
+  // Set document title berdasarkan meta.title
   document.title = `${to.meta.title} | Yamaha Dashboard`
+
+  const userData = localStorage.getItem('user') // Ambil userData dari localStorage
+
+  // Temukan route root (routes[0]) dan semua children-nya
+  const dashboardRoute = routes.find((route) => route.name === 'dashboard')
+
+  const protectedRouteName = dashboardRoute
+    ? [dashboardRoute.name, ...(dashboardRoute.children?.map((child) => child.name) || [])]
+    : []
+
+  const authRouteName = ['login', 'register', 'forgotPassword']
+
+  // Cek apakah route yang dituju termasuk dalam protectedRouteName
+  if (to.name && protectedRouteName.includes(to.name) && !userData) {
+    // Jika tidak ada userData, redirect ke login
+    return next({ name: 'login' }) // Redirect ke login jika tidak ada userData
+  }
+
+  // Cek apakah route yang dituju termasuk dalam authRouteName
+  if (to.name && authRouteName.includes(to.name as string) && userData) {
+    // Jika ada userData, redirect ke dashboard
+    return next({ name: 'dashboard' }) // Redirect ke dashboard jika ada userData
+  }
+
   next()
 })
-
 export default router

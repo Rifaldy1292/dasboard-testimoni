@@ -20,7 +20,7 @@ type MenuGroup = {
 
 const target = ref(null)
 const sidebarStore = useSidebarStore()
-const { role }: UserLocalStorage = JSON.parse(localStorage.getItem('user') as string)
+const { role }: UserLocalStorage = JSON.parse(localStorage.getItem('user') || '{}')
 
 onClickOutside(target, () => {
   sidebarStore.isSidebarOpen = false
