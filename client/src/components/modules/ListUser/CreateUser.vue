@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import DialogForm from '@/components/DialogForm/DialogForm.vue'
+import UserServices from '@/services/user.service'
 import { Form, FormField, type FormSubmitEvent } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
-import { Button, InputNumber, InputText, Message, useToast } from 'primevue'
+import { Button, InputNumber, InputText, Message, Select, useToast } from 'primevue'
 import { shallowRef } from 'vue'
 import { z } from 'zod'
 
@@ -29,13 +30,19 @@ const resolver = zodResolver(
       .nonempty('Password is required')
       .min(3, 'Password must be at least 3 characters'),
 
-    name: z.string().min(3, 'Name must be at least 3 characters')
+    name: z.string().min(3, 'Name must be at least 3 characters'),
+    role_id: z.number().int().positive('Role is required')
   })
 )
 
-const handleCreateUser = async (data: FormSubmitEvent): Promise<void> => {
+const handleCreateUser = async (e: FormSubmitEvent): Promise<void> => {
   try {
-    console.log(data)
+    const { data } = await UserServices.register(e.values)
+    toast.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: 'User created'
+    })
   } catch (error) {
     console.error(error)
     toast.add({
@@ -108,6 +115,23 @@ const handleCreateUser = async (data: FormSubmitEvent): Promise<void> => {
               variant="simple"
               >{{ $form.password.error.message }}</Message
             >
+          </div>
+        </FormField>
+        <FormField name="role_id">
+          <div class="gap-4 mb-8">
+            <label for="role_id" class="font-semibold w-24">Role</label>
+            <div class="relative flex items-center">
+              <Select
+                name="role_id"
+                :options="cities"
+                optionLabel="role"
+                placeholder="Select a Role"
+                fluid
+              />
+            </div>
+            <Message v-if="$form.role_id?.invalid" severity="error" size="small" variant="simple">{{
+              $form.role_id.error.message
+            }}</Message>
           </div>
         </FormField>
         <div class="flex justify-end gap-2">
