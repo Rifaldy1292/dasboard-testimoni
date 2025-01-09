@@ -1,11 +1,20 @@
 <script setup lang="ts">
+import { ref, shallowRef } from 'vue'
 import DialogForm from '@/components/DialogForm/DialogForm.vue'
+import type { RegisterPayload } from '@/dto/user.dto'
+import RoleServices from '@/services/role.service'
 import UserServices from '@/services/user.service'
+import type { RoleOption } from '@/types/user.type'
 import { Form, FormField, type FormSubmitEvent } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
-import { Button, InputNumber, InputText, Message, Select, useToast } from 'primevue'
-import { shallowRef } from 'vue'
+import { AxiosError } from 'axios'
+import { Button, InputNumber, InputText, Message, Select } from 'primevue'
 import { z } from 'zod'
+import useToast from '@/utils/useToast'
+
+const emit = defineEmits<{
+  (e: 'refetch'): void
+}>()
 
 const toast = useToast()
 
@@ -19,6 +28,9 @@ const visibleDialogForm = defineModel<boolean>('visibleDialogForm', {
 })
 
 const showPassword = shallowRef(false)
+const roleOption = ref<RoleOption[]>([])
+const loadingDropdown = shallowRef(false)
+const loadingButtonSubmit = shallowRef(false)
 
 const resolver = zodResolver(
   z.object({
@@ -35,21 +47,50 @@ const resolver = zodResolver(
   })
 )
 
-const handleCreateUser = async (e: FormSubmitEvent): Promise<void> => {
+const fetchRoleOption = async (): Promise<void> => {
   try {
-    const { data } = await UserServices.register(e.values)
-    toast.add({
-      severity: 'success',
-      summary: 'Success',
-      detail: 'User created'
-    })
+    loadingDropdown.value = true
+    const { data } = await RoleServices.getAll()
+    roleOption.value = data.data
   } catch (error) {
     console.error(error)
     toast.add({
       severity: 'error',
       summary: 'error',
-      detail: 'failed to create user'
+      detail: 'failed to fetch role option'
     })
+  } finally {
+    loadingDropdown.value = false
+  }
+}
+
+const handleCreateUser = async (e: FormSubmitEvent): Promise<void> => {
+  if (!e.valid) return
+  try {
+    await UserServices.register(e.values as RegisterPayload)
+    toast.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: 'User created'
+    })
+    emit('refetch')
+  } catch (error) {
+    if (error instanceof AxiosError && error.response && error.response.data) {
+      return toast.add({
+        severity: 'error',
+        summary: 'Register failed',
+        detail: error.response.data.message
+      })
+    }
+    console.error(error)
+    toast.add({
+      severity: 'error',
+      summary: 'Register failed',
+      detail: 'Failed to create user'
+    })
+  } finally {
+    loadingButtonSubmit.value = false
+    visibleDialogForm.value = false
   }
 }
 </script>
@@ -58,22 +99,20 @@ const handleCreateUser = async (e: FormSubmitEvent): Promise<void> => {
   <DialogForm v-model:visibleDialogForm="visibleDialogForm" :data="dataDialogConfirm">
     <template #body>
       <Form v-slot="$form" :resolver="resolver" @submit="handleCreateUser" :validateOnBlur="true">
-        <FormField name="NIK">
-          <div class="gap-4 mb-8">
-            <label for="NIK" class="font-semibold w-24">NIK</label>
-            <div class="relative flex items-center">
-              <InputNumber
-                name="NIK"
-                :useGrouping="false"
-                class="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
-                placeholder="Enter NIK"
-              />
-            </div>
-            <Message v-if="$form.NIK?.invalid" severity="error" size="small" variant="simple">{{
-              $form.NIK.error.message
-            }}</Message>
+        <div class="gap-4 mb-8">
+          <label for="NIK" class="font-semibold w-24">NIK</label>
+          <div class="relative flex items-center">
+            <InputNumber
+              name="NIK"
+              :useGrouping="false"
+              class="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
+              placeholder="Enter NIK"
+            />
           </div>
-        </FormField>
+          <Message v-if="$form.NIK?.invalid" severity="error" size="small" variant="simple">{{
+            $form.NIK.error.message
+          }}</Message>
+        </div>
         <FormField name="name">
           <div class="gap-4 mb-8">
             <label for="name" class="font-semibold w-24">Name</label>
@@ -122,9 +161,11 @@ const handleCreateUser = async (e: FormSubmitEvent): Promise<void> => {
             <label for="role_id" class="font-semibold w-24">Role</label>
             <div class="relative flex items-center">
               <Select
-                name="role_id"
-                :options="cities"
-                optionLabel="role"
+                @before-show="fetchRoleOption"
+                :options="roleOption"
+                :loading="loadingDropdown"
+                optionLabel="name"
+                option-value="id"
                 placeholder="Select a Role"
                 fluid
               />

@@ -1,5 +1,9 @@
 export type Role = 'Admin' | 'Operator' | 'Reviewer'
 
+export type RoleOption = {
+  id: number
+  name: Role
+}
 export interface User {
   id: number
   name: string

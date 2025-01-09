@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { watch } from 'vue'
 import type { Machine } from '@/types/machine.type'
-import { Button, Dialog, InputText, Message, useToast } from 'primevue'
+import { Button, Dialog, InputText, Message } from 'primevue'
 import { useRoute } from 'vue-router'
 import { Form, FormField } from '@primevue/forms'
 import { z } from 'zod'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
+import useToast from '@/utils/useToast'
 
 const visibleDialogForm = defineModel<boolean>('visibleDialogForm', {
   required: true

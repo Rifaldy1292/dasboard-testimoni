@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { onClickOutside } from '@vueuse/core'
-import { useToast } from 'primevue'
 import { useRouter } from 'vue-router'
+import useToast from '@/utils/useToast'
 
 const toast = useToast()
 const router = useRouter()

@@ -6,9 +6,10 @@ import type { ForgotPasswordData } from '@/types/apiResponse.type'
 import { Form, type FormSubmitEvent } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import { AxiosError } from 'axios'
-import { Column, DataTable, InputNumber, Message, useToast } from 'primevue'
+import { Column, DataTable, InputNumber, Message } from 'primevue'
 import { z } from 'zod'
 import DialogForm from '@/components/DialogForm/DialogForm.vue'
+import useToast from '@/utils/useToast'
 
 const toast = useToast()
 

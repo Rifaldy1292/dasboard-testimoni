@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref, shallowRef } from 'vue'
 import type { Severity } from '@/types/severity.type'
-import { Badge, Button, Column, DataTable, useConfirm, useToast } from 'primevue'
+import { Badge, Button, Column, DataTable, useConfirm } from 'primevue'
 import type { User } from '@/types/user.type'
 import UserServices from '@/services/user.service'
 import { onMounted } from 'vue'
 import CreateUser from './CreateUser.vue'
+import useToast from '@/utils/useToast'
 
 onMounted(() => {
   fetchUsers()
@@ -158,5 +159,5 @@ const fetchUsers = async (): Promise<void> => {
     </Column>
   </DataTable>
 
-  <CreateUser v-model:visibleDialogForm="visibleDialogForm" />
+  <CreateUser v-model:visibleDialogForm="visibleDialogForm" @refetch="fetchUsers" />
 </template>

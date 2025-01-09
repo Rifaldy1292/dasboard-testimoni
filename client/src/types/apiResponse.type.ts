@@ -1,7 +1,7 @@
 import type { UserLocalStorage } from './localStorage.type'
 import type { User } from './user.type'
 
-interface ApiResponse<T> {
+export interface ApiResponse<T> {
   data: T
   message: string
   status: number

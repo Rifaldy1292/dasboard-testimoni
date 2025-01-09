@@ -6,10 +6,11 @@ import AuthLayout from '@/layouts/AuthLayout.vue'
 import UserServices from '@/services/user.service'
 import { Form, FormField, type FormSubmitEvent } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
-import { InputNumber, InputText, Message, useToast } from 'primevue'
+import { InputNumber, InputText, Message } from 'primevue'
 import { z } from 'zod'
 import { AxiosError } from 'axios'
 import { jwtDecode } from 'jwt-decode'
+import useToast from '@/utils/useToast'
 
 const route = useRoute()
 const router = useRouter()
