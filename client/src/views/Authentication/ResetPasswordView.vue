@@ -12,6 +12,7 @@ import { useRoute } from 'vue-router'
 import { jwtDecode, type JwtPayload } from 'jwt-decode'
 import UserServices from '@/services/user.service'
 import LoadingAnimation from '@/components/modules/ListUser/common/LoadingAnimation.vue'
+import { formatDate } from '@/utils/formatDate.util'
 
 const toast = useToast()
 const route = useRoute()
@@ -44,7 +45,10 @@ const page = computed<{ title: string; description?: string }>(() => {
       return { title: 'Token Expired', description: 'this link has been expired' }
     // default = isFormComponent
     default:
-      return { title: 'Reset Password', description: 'this link expires in 24 hours' }
+      return {
+        title: 'Reset Password',
+        description: `this link expires in ${formatDate(new Date(userData.value?.exp as number))}`
+      }
   }
 })
 
@@ -87,7 +91,7 @@ const submitForm = async (e: FormSubmitEvent): Promise<void> => {
 const getUserData = (token: string): void => {
   try {
     const decodedToken: DecodedToken = jwtDecode(token)
-    // console.log(decodedToken)
+    console.log(decodedToken)
     userData.value = decodedToken
   } catch (error) {
     console.log('not found')

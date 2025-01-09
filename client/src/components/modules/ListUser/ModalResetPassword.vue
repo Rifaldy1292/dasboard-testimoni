@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { DialogFormProps } from '@/components/DialogForm/DialogForm.type'
 import DialogForm from '@/components/DialogForm/DialogForm.vue'
+import useToast from '@/utils/useToast'
 // import useToast from '@/utils/useToast'
-import { Button, InputText, useToast } from 'primevue'
+import { Button, InputText } from 'primevue'
 import { watch } from 'vue'
 import { ref } from 'vue'
 
@@ -25,15 +26,15 @@ const resetPasswordLink = ref<string>(window.location.href)
 watch(visibleDialogResetPassword, (value) => {
   if (value) {
     resetPasswordLink.value = `${window.location.href}/reset-password/${token}`
-    toast.add({
-      severity: 'success',
-      summary: 'copied!'
-    })
   }
 })
 
 const handleCopyLink = () => {
   navigator.clipboard.writeText(resetPasswordLink.value)
+  toast.add({
+    severity: 'success',
+    summary: 'copied!'
+  })
 }
 </script>
 

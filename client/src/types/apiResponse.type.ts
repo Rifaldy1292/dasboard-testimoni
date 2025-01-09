@@ -9,5 +9,5 @@ export interface ApiResponse<T> {
 
 export interface GetUsers extends ApiResponse<User[]> {}
 
-export type ForgotPasswordData = Pick<UserLocalStorage, 'NIK' | 'name' | 'role'>
+export type ForgotPasswordData = Pick<UserLocalStorage, 'NIK' | 'name' | 'role' | 'exp'>
 export type FindByNIk = ApiResponse<ForgotPasswordData>
