@@ -2,7 +2,7 @@
 import { ref, shallowRef } from 'vue'
 import type { Severity } from '@/types/severity.type'
 import { Badge, Button, Column, DataTable, useConfirm } from 'primevue'
-import type { User } from '@/types/user.type'
+import type { Role, User } from '@/types/user.type'
 import UserServices from '@/services/user.service'
 import { onMounted } from 'vue'
 import CreateUser from './CreateUser.vue'
@@ -29,23 +29,24 @@ const columns: Columns[] = [
 ]
 
 const operators = ref<User[]>([])
-const selectedUser = shallowRef<User | undefined>()
 const visibleDialogForm = shallowRef(false)
 const visibleDialogResetPassword = shallowRef(false)
+const tokenResetPassword = shallowRef<string>('')
+const loadingTable = shallowRef(false)
 
-const badgeSeverity = (role: User['role']): Severity => {
+const badgeSeverity = (role: Role): Severity => {
   if (role === 'Admin') return 'warn'
+  if (role === 'Operator') return 'danger'
   return 'success'
 }
 
-const handleDeleteUser = async (): Promise<void> => {
+const handleDeleteUser = async (selectedUser: User): Promise<void> => {
   try {
-    if (!selectedUser.value) return console.error('no user selected')
-    await UserServices.deleteById(selectedUser.value.id)
+    await UserServices.deleteById(selectedUser.id)
     toast.add({
       severity: 'success',
       summary: 'Success',
-      detail: `${selectedUser.value.name} has been deleted`
+      detail: `${selectedUser.name} has been deleted`
     })
     await fetchUsers()
   } catch (error) {
@@ -53,17 +54,19 @@ const handleDeleteUser = async (): Promise<void> => {
     toast.add({
       severity: 'error',
       summary: 'error',
-      detail: `failed to delete ${selectedUser.value?.name}`
+      detail: `failed to delete ${selectedUser.name}`
     })
   }
 }
 
-const handleClickIcon = (icon: 'resetPassword' | 'delete', data: User): void => {
-  selectedUser.value = data
+const handleClickIcon = async (
+  icon: 'resetPassword' | 'delete',
+  selectedUser: User
+): Promise<void> => {
   if (icon === 'delete') {
     console.log('delete', visibleDialogForm.value)
     confirm.require({
-      message: `Are you sure you want to delete ${data.name}?`,
+      message: `Are you sure you want to delete ${selectedUser.name}?`,
       header: 'Confirmation',
       icon: 'pi pi-exclamation-triangle',
       rejectProps: {
@@ -76,24 +79,31 @@ const handleClickIcon = (icon: 'resetPassword' | 'delete', data: User): void => 
         severity: 'danger'
       },
       accept: async (): Promise<void> => {
-        await handleDeleteUser()
-        selectedUser.value = undefined
+        await handleDeleteUser(selectedUser)
       }
     })
   }
   // reset password
   else {
-    visibleDialogResetPassword.value = true
+    // visibleDialogResetPassword.value = true
+    try {
+      const { data } = await UserServices.resetPassword(selectedUser.id)
+      tokenResetPassword.value = data.data.token
+      visibleDialogResetPassword.value = true
+    } catch (error) {
+      console.error(error)
+      toast.add({
+        severity: 'error',
+        summary: 'error',
+        detail: `failed to reset password ${selectedUser.name}`
+      })
+    }
   }
-}
-
-const handleOpenModal = (): void => {
-  visibleDialogForm.value = true
-  console.log(visibleDialogForm.value)
 }
 
 const fetchUsers = async (): Promise<void> => {
   try {
+    loadingTable.value = true
     const { data } = await UserServices.getUsers()
     operators.value = data.data
     console.log(data.data)
@@ -104,17 +114,20 @@ const fetchUsers = async (): Promise<void> => {
       summary: 'error',
       detail: 'failed to get user list'
     })
+  } finally {
+    loadingTable.value = false
   }
 }
 </script>
 
 <template>
   <div class="flex justify-end mb-5">
-    <Button label="Add Operator" severity="contrast" @click="handleOpenModal" />
+    <Button label="Add Operator" severity="contrast" @click="visibleDialogForm = true" />
   </div>
   <DataTable
     :value="operators"
-    :size="'large'"
+    :loading="loadingTable"
+    size="large"
     lazy
     showGridlines
     tableStyle="min-width: 50rem "
@@ -161,5 +174,8 @@ const fetchUsers = async (): Promise<void> => {
   </DataTable>
 
   <CreateUser v-model:visibleDialogForm="visibleDialogForm" @refetch="fetchUsers" />
-  <ModalResetPassword v-model:visible-dialog-reset-password="visibleDialogResetPassword" />
+  <ModalResetPassword
+    v-model:visible-dialog-reset-password="visibleDialogResetPassword"
+    :token="tokenResetPassword"
+  />
 </template>

@@ -19,6 +19,9 @@ const UserServices = {
   },
   deleteById: (id: number): Promise<AxiosResponse> => {
     return API().delete(`/users/${id}`)
+  },
+  resetPassword: (id: number): Promise<AxiosResponse<{ data: { token: string } }>> => {
+    return API().get(`/users/reset-password/${id}`)
   }
 }
 

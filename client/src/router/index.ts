@@ -16,6 +16,7 @@ import ManualView from '@/views/ManualView.vue'
 import AuthView from '@/views/Authentication/AuthView.vue'
 import ForgotPasswordView from '@/views/Authentication/ForgotPasswordView.vue'
 import UsersView from '@/views/UsersView.vue'
+import ResetPasswordView from '@/views/Authentication/ResetPasswordView.vue'
 
 const routes: Readonly<RouteRecordRaw[]> = [
   {
@@ -87,6 +88,22 @@ const routes: Readonly<RouteRecordRaw[]> = [
     component: ForgotPasswordView,
     meta: {
       title: 'Forgot Password'
+    }
+  },
+  {
+    path: '/users/reset-password/:token',
+    name: 'resetPassword',
+    component: ResetPasswordView,
+    meta: {
+      title: 'Reset Password'
+    },
+    beforeEnter: (to, from, next) => {
+      const token = to.params.token
+      if (token) {
+        next()
+      } else {
+        next({ name: 'login' })
+      }
     }
   },
   {
