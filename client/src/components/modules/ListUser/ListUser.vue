@@ -7,6 +7,7 @@ import UserServices from '@/services/user.service'
 import { onMounted } from 'vue'
 import CreateUser from './CreateUser.vue'
 import useToast from '@/utils/useToast'
+import ModalResetPassword from './ModalResetPassword.vue'
 
 onMounted(() => {
   fetchUsers()
@@ -30,6 +31,7 @@ const columns: Columns[] = [
 const operators = ref<User[]>([])
 const selectedUser = shallowRef<User | undefined>()
 const visibleDialogForm = shallowRef(false)
+const visibleDialogResetPassword = shallowRef(false)
 
 const badgeSeverity = (role: User['role']): Severity => {
   if (role === 'Admin') return 'warn'
@@ -81,8 +83,7 @@ const handleClickIcon = (icon: 'resetPassword' | 'delete', data: User): void => 
   }
   // reset password
   else {
-    sessionStorage.setItem('selectedUser', JSON.stringify(data))
-    console.log('details')
+    visibleDialogResetPassword.value = true
   }
 }
 
@@ -160,4 +161,5 @@ const fetchUsers = async (): Promise<void> => {
   </DataTable>
 
   <CreateUser v-model:visibleDialogForm="visibleDialogForm" @refetch="fetchUsers" />
+  <ModalResetPassword v-model:visible-dialog-reset-password="visibleDialogResetPassword" />
 </template>
