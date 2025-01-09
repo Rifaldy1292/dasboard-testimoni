@@ -141,7 +141,7 @@ class UserController {
 
     static async checkToken(req, res) {
         try {
-            res.status(200).json({ status: 200, message: 'success check token', data: req.user });
+            res.status(200).json({ status: 200, message: 'success check token' });
         } catch (error) {
             res.status(500).json({ message: error.message, status: 500 });
         }

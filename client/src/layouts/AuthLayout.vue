@@ -1,6 +1,7 @@
 <script setup lang="ts">
 defineProps<{
   page: string
+  description?: string
 }>()
 </script>
 
@@ -18,6 +19,7 @@ defineProps<{
 
         <div class="p-8 rounded-2xl bg-white shadow">
           <h2 class="text-gray-800 text-center text-2xl font-bold">{{ page }}</h2>
+          <h5 v-if="description" class="text-gray-500 text-center mt-2">{{ description }}</h5>
 
           <slot />
         </div>

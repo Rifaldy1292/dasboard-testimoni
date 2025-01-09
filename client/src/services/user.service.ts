@@ -25,6 +25,9 @@ const UserServices = {
   },
   changePassword: (token: string, body: { password: string }): Promise<AxiosResponse> => {
     return API({ token }).patch('/users/change-password', body)
+  },
+  checkToken: (token: string): Promise<AxiosResponse> => {
+    return API({ token }).get('/users/check-token')
   }
 }
 
