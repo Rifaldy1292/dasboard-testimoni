@@ -23,6 +23,7 @@ userRouter.post("/login", UserController.login);
 
 userRouter.get("/reset-password/:id", UserController.resetPassword);
 userRouter.get('/check-token', authMiddleware, UserController.checkToken);
+userRouter.patch('/change-password', authMiddleware, UserController.changePassword);
 
 
 module.exports = userRouter;

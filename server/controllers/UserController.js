@@ -147,6 +147,25 @@ class UserController {
         }
     }
 
+    static async changePassword(req, res) {
+        try {
+            const { id } = req.user;
+            const { password } = req.body;
+            const hashedPassword = await encryptPassword(password, 10);
+            const updatedCount = await User.update({
+                password: hashedPassword
+            }, {
+                where: { id }
+            });
+            if (updatedCount[0] === 0) {
+                return res.status(404).json({ message: 'User not found', status: 404 });
+            }
+            res.status(200).json({ status: 200, message: 'success update password', updatedCount });
+        } catch (error) {
+            res.status(500).json({ message: error.message, status: 500 });
+        }
+    }
+
 }
 
 module.exports = UserController
