@@ -1,6 +1,12 @@
 import axios, { type AxiosInstance } from 'axios'
 
-const API = ({ headers = {}, params = {} } = {}): AxiosInstance => {
+interface APIOptions {
+  headers?: object
+  params?: object
+  token?: string
+}
+
+const API = ({ headers = {}, params = {}, token }: APIOptions = {}): AxiosInstance => {
   const user = JSON.parse(localStorage.getItem('user') as string) ?? {}
   const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
@@ -12,7 +18,7 @@ const API = ({ headers = {}, params = {} } = {}): AxiosInstance => {
     baseURL: `${BASE_URL}/api`,
     headers: {
       'Content-type': 'application/json',
-      Authorization: `Bearer ${user.token}`,
+      Authorization: `Bearer ${token || user.token}`,
       ...headers
     },
     params

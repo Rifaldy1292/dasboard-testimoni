@@ -22,6 +22,9 @@ const UserServices = {
   },
   resetPassword: (id: number): Promise<AxiosResponse<{ data: { token: string } }>> => {
     return API().get(`/users/reset-password/${id}`)
+  },
+  changePassword: (token: string, body: { password: string }): Promise<AxiosResponse> => {
+    return API({ token }).patch('/users/change-password', body)
   }
 }
 

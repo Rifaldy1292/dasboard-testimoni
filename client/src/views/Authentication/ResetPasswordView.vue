@@ -10,9 +10,11 @@ import { z } from 'zod'
 import useToast from '@/utils/useToast'
 import { useRoute } from 'vue-router'
 import { jwtDecode, type JwtPayload } from 'jwt-decode'
+import UserServices from '@/services/user.service'
 
 const toast = useToast()
 const route = useRoute()
+const { token } = route.params
 
 onMounted(() => {
   getUserData()
@@ -21,6 +23,7 @@ onMounted(() => {
 type DecodedToken = ForgotPasswordData & JwtPayload
 const userData = ref<ForgotPasswordData | undefined>()
 const showPassword = shallowRef<boolean>(false)
+const isSuccesResetPassword = shallowRef<boolean>(false)
 
 const resolver = zodResolver(
   z.object({
@@ -34,10 +37,14 @@ const resolver = zodResolver(
 const submitForm = async (e: FormSubmitEvent): Promise<void> => {
   if (!e.valid) return
   try {
-    console.log(e.values.password)
-    // const { data } = await UserServices.findByNIk(e.values.NIK as number)
-    // userData.value = data.data
-    // console.log(data.data)
+    console.log(e.values)
+    const { data } = await UserServices.changePassword(
+      token as string,
+      e.values as { password: string }
+    )
+    userData.value = data.data
+    isSuccesResetPassword.value = true
+    console.log(data.data)
   } catch (error) {
     if (error instanceof AxiosError && error.response && error.response.data) {
       return toast.add({
@@ -75,7 +82,15 @@ const getUserData = (): void => {
 
 <template>
   <AuthLayout page="Reset Password">
+    <div v-if="isSuccesResetPassword" class="text-center">
+      <h1 class="text-2xl font-semibold text-gray-800">Success Reset Password</h1>
+      <p class="text-gray-800 text-sm mt-4">
+        Your password has been reset successfully. Please login with your new password.
+      </p>
+      <a href="/login" class="text-blue-600 hover:underline mt-4 block">Go to login</a>
+    </div>
     <Form
+      v-if="!isSuccesResetPassword"
       v-slot="$form"
       @submit="submitForm"
       :resolver="resolver"
