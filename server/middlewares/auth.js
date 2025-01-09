@@ -8,7 +8,7 @@ const authMiddleware = (req, res, next) => {
         const token = authHeader.split(" ")[1];
         // console.log(token)
         if (!token) {
-            return res.status(401).json({ message: "Token not found" });
+            return res.status(401).json({ message: "Token not found", status: 401 });
         }
         const decoded = tokenValidator(token); // Dekode token untuk mendapatkan informasi pengguna
         req.user = decoded; // Menambahkan informasi pengguna yang didekodekan ke req.user
@@ -17,10 +17,11 @@ const authMiddleware = (req, res, next) => {
     } catch (error) {
         if (error.name === 'JsonWebTokenError') {
             console.log(error.message)
-            return res.status(401).json({ message: 'Invalid token' });
+            return res.status(401).json({ message: 'Invalid token', status: 401 });
         }
-        return res.status(401).json({ message: error.message });
+        return res.status(401).json({ message: error.message, status: 401 });
     }
 }
+
 
 module.exports = authMiddleware

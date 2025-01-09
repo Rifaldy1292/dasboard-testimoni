@@ -123,6 +123,30 @@ class UserController {
         }
     }
 
+    static async resetPassword(req, res) {
+        try {
+            const { id } = req.params;
+
+            const user = await User.findByPk(id);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found', status: 404 });
+            }
+            // generate token untuk reset password 30 mnt
+            const token = tokenGenerator({ id: user.id, NIK: user.NIK, name: user.name }, '30m');
+            res.status(200).json({ status: 200, message: 'success reset password', data: { token } });
+        } catch (error) {
+            res.status(500).json({ message: error.message, status: 500 });
+        }
+    }
+
+    static async checkToken(req, res) {
+        try {
+            res.status(200).json({ status: 200, message: 'success check token', data: req.user });
+        } catch (error) {
+            res.status(500).json({ message: error.message, status: 500 });
+        }
+    }
+
 }
 
 module.exports = UserController

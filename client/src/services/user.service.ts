@@ -15,7 +15,7 @@ const UserServices = {
     return API().get('/users')
   },
   findByNIk: (nik: number): Promise<AxiosResponse<FindByNIk>> => {
-    return API().get(`/users/${nik}`)
+    return API().get(`/users/find/${nik}`)
   },
   deleteById: (id: number): Promise<AxiosResponse> => {
     return API().delete(`/users/${id}`)

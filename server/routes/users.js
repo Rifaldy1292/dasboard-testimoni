@@ -15,9 +15,14 @@ userRouter.get(
 userRouter.delete("/:id", authMiddleware, roleMiddleware.allowRoleId(ADMIN_ROLE_ID), UserController.deleteById);
 
 // find user by NIK
-userRouter.get("/:NIK", UserController.getByNIK);
+userRouter.get("/find/:NIK", UserController.getByNIK);
 
 
 userRouter.post("/register", UserController.register);
 userRouter.post("/login", UserController.login);
+
+userRouter.get("/reset-password/:id", UserController.resetPassword);
+userRouter.get('/check-token', authMiddleware, UserController.checkToken);
+
+
 module.exports = userRouter;
