@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, shallowRef } from 'vue'
+import { computed, onBeforeMount, onMounted, ref, shallowRef } from 'vue'
 import AuthLayout from '@/layouts/AuthLayout.vue'
 import type { ForgotPasswordData } from '@/types/apiResponse.type'
 import { Form, FormField, type FormSubmitEvent } from '@primevue/forms'
@@ -12,13 +12,56 @@ import { useRoute } from 'vue-router'
 import { jwtDecode, type JwtPayload } from 'jwt-decode'
 import UserServices from '@/services/user.service'
 import LoadingAnimation from '@/components/modules/ListUser/common/LoadingAnimation.vue'
-import { formatDate } from '@/utils/formatDate.util'
+import { formatTimeDifference } from '@/utils/formatDate.util'
 
 const toast = useToast()
 const route = useRoute()
-const { token } = route.params as { token: string }
+const { token } = route.params
+
+onBeforeMount(() => {
+  if (!token || typeof token !== 'string') {
+    isFormComponent.value = false
+    isAccesDenied.value = true
+  }
+})
 
 onMounted(async () => {
+  const checkPermmission = async (): Promise<void> => {
+    try {
+      isLoading.value = true
+      await UserServices.checkToken(token as string)
+      getUserData(token as string)
+    } catch (error) {
+      console.error(error)
+      isFormComponent.value = false
+      if (error instanceof AxiosError && error.response && error.response.data) {
+        const { message, status } = error.response.data
+        console.log(message, status, 22)
+        if (status === 401 && message === 'jwt expired') {
+          isTokenExpired.value = true
+          return toast.add({
+            severity: 'error',
+            summary: 'error',
+            detail: 'Token has been expired'
+          })
+        }
+        isAccesDenied.value = true
+        return toast.add({
+          severity: 'error',
+          summary: 'error',
+          detail: message
+        })
+      }
+      isAccesDenied.value = true
+      toast.add({
+        severity: 'error',
+        summary: 'error',
+        detail: 'Failed to check permission'
+      })
+    } finally {
+      isLoading.value = false
+    }
+  }
   await checkPermmission()
 })
 
@@ -47,7 +90,7 @@ const page = computed<{ title: string; description?: string }>(() => {
     default:
       return {
         title: 'Reset Password',
-        description: `this link expires in ${formatDate(new Date(userData.value?.exp as number))}`
+        description: formatTimeDifference(userData.value?.exp as number)
       }
   }
 })
@@ -100,43 +143,6 @@ const getUserData = (token: string): void => {
       summary: 'Invalid Link'
     })
     console.log(error)
-  }
-}
-
-const checkPermmission = async (): Promise<void> => {
-  try {
-    isLoading.value = true
-    await UserServices.checkToken(token)
-    getUserData(token)
-  } catch (error) {
-    console.error(error)
-    isFormComponent.value = false
-    if (error instanceof AxiosError && error.response && error.response.data) {
-      const { message, status } = error.response.data
-      console.log(message, status, 22)
-      if (status === 401 && message === 'jwt expired') {
-        isTokenExpired.value = true
-        return toast.add({
-          severity: 'error',
-          summary: 'error',
-          detail: 'Token has been expired'
-        })
-      }
-      isAccesDenied.value = true
-      return toast.add({
-        severity: 'error',
-        summary: 'error',
-        detail: message
-      })
-    }
-    isAccesDenied.value = true
-    toast.add({
-      severity: 'error',
-      summary: 'error',
-      detail: 'Failed to check permission'
-    })
-  } finally {
-    isLoading.value = false
   }
 }
 </script>

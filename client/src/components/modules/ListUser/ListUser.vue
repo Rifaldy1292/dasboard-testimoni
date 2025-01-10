@@ -7,7 +7,8 @@ import UserServices from '@/services/user.service'
 import { onMounted } from 'vue'
 import CreateUser from './CreateUser.vue'
 import useToast from '@/utils/useToast'
-import ModalResetPassword from './ModalResetPassword.vue'
+import ModalResetPassword, { type ModalResetPasswordProps } from './ModalResetPassword.vue'
+import { jwtDecode } from 'jwt-decode'
 
 onMounted(() => {
   fetchUsers()
@@ -31,7 +32,11 @@ const columns: Columns[] = [
 const operators = ref<User[]>([])
 const visibleDialogForm = shallowRef(false)
 const visibleDialogResetPassword = shallowRef(false)
-const tokenResetPassword = shallowRef<string>('')
+const tokenResetPassword = ref<ModalResetPasswordProps>({
+  token: '',
+  exp: 0,
+  name: ''
+})
 const loadingTable = shallowRef(false)
 
 const badgeSeverity = (role: Role): Severity => {
@@ -63,6 +68,7 @@ const handleClickIcon = async (
   icon: 'resetPassword' | 'delete',
   selectedUser: User
 ): Promise<void> => {
+  console.log({ icon, selectedUser, id: selectedUser.id })
   if (icon === 'delete') {
     console.log('delete', visibleDialogForm.value)
     confirm.require({
@@ -88,7 +94,14 @@ const handleClickIcon = async (
     // visibleDialogResetPassword.value = true
     try {
       const { data } = await UserServices.resetPassword(selectedUser.id)
-      tokenResetPassword.value = data.data.token
+      const { token } = data.data
+      const decoded = jwtDecode(token)
+      tokenResetPassword.value = {
+        token,
+        exp: decoded.exp as number,
+        name: selectedUser.name
+      }
+      console.log(tokenResetPassword.value.exp, 22)
       visibleDialogResetPassword.value = true
     } catch (error) {
       console.error(error)
@@ -176,6 +189,6 @@ const fetchUsers = async (): Promise<void> => {
   <CreateUser v-model:visibleDialogForm="visibleDialogForm" @refetch="fetchUsers" />
   <ModalResetPassword
     v-model:visible-dialog-reset-password="visibleDialogResetPassword"
-    :token="tokenResetPassword"
+    :data="tokenResetPassword"
   />
 </template>

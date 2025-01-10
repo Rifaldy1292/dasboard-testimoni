@@ -6,12 +6,17 @@ defineProps<{
   data: DialogFormProps
 }>()
 
+const emit = defineEmits<{
+  hide: []
+}>()
+
 const visibleDialogForm = defineModel<boolean>('visibleDialogForm', {
   required: true
 })
 
 const handleCloseModal = () => {
   visibleDialogForm.value = false
+  emit('hide')
 }
 </script>
 

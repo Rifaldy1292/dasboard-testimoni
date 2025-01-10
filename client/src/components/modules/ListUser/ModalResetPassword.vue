@@ -1,15 +1,19 @@
 <script setup lang="ts">
+import { computed, watch, ref } from 'vue'
 import type { DialogFormProps } from '@/components/DialogForm/DialogForm.type'
 import DialogForm from '@/components/DialogForm/DialogForm.vue'
+import { formatTimeDifference } from '@/utils/formatDate.util'
 import useToast from '@/utils/useToast'
 // import useToast from '@/utils/useToast'
 import { Button, InputText } from 'primevue'
-import { watch } from 'vue'
-import { ref } from 'vue'
 
-const { token } = defineProps<{
+export interface ModalResetPasswordProps {
   token: string
-}>()
+  exp: number
+  name: string
+}
+
+const { data } = defineProps<{ data: ModalResetPasswordProps }>()
 
 const visibleDialogResetPassword = defineModel<boolean>('visibleDialogResetPassword', {
   required: true
@@ -17,15 +21,17 @@ const visibleDialogResetPassword = defineModel<boolean>('visibleDialogResetPassw
 
 const toast = useToast()
 
-const dataDialogConfirm: DialogFormProps = {
-  header: 'Reset Password',
-  description: 'Copy this link to reset password for this user'
-}
+const dataDialogConfirm = computed<DialogFormProps>(() => ({
+  header: `Copy this link to reset password for ${data.name}`,
+  description: formatTimeDifference(data.exp)
+}))
 
 const resetPasswordLink = ref<string>(window.location.href)
 watch(visibleDialogResetPassword, (value) => {
-  if (value) {
-    resetPasswordLink.value = `${window.location.href}/reset-password/${token}`
+  if (value === true) {
+    resetPasswordLink.value = `${window.location.href}/reset-password/${data.token}`
+  } else {
+    resetPasswordLink.value = window.location.href
   }
 })
 
