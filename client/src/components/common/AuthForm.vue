@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { shallowRef } from 'vue'
 import { Form, FormField, type FormProps, type FormSubmitEvent } from '@primevue/forms'
 import { InputNumber, InputText, Message } from 'primevue'
-import { shallowRef } from 'vue'
 import { useRoute } from 'vue-router'
 
 interface AuthFormProps extends FormProps {
@@ -19,7 +19,12 @@ defineProps<AuthFormProps>()
 const route = useRoute()
 const page = shallowRef(route.name === 'login' ? 'Sign in' : 'Sign up')
 
+const password = defineModel<string | undefined>('password', {
+  required: true
+})
+
 const showPassword = shallowRef<boolean>(false)
+const showConfirmPassword = shallowRef<boolean>(false)
 </script>
 
 <template>
@@ -187,6 +192,7 @@ const showPassword = shallowRef<boolean>(false)
             <label class="text-gray-800 text-sm mb-2 block">Password</label>
             <div class="relative flex items-center">
               <InputText
+                @update:model-value="password = $event"
                 :type="showPassword ? 'text' : 'password'"
                 required
                 class="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
@@ -206,6 +212,34 @@ const showPassword = shallowRef<boolean>(false)
               size="small"
               variant="simple"
               >{{ $form.password?.error?.message }}</Message
+            >
+          </div>
+        </FormField>
+
+        <FormField v-if="page === 'Sign up'" name="confirmPassword">
+          <div>
+            <label class="text-gray-800 text-sm mb-2 block">Confirm Password</label>
+            <div class="relative flex items-center">
+              <InputText
+                :type="showConfirmPassword ? 'text' : 'password'"
+                required
+                class="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
+                placeholder="Enter confirm password"
+              />
+              <button
+                type="button"
+                @click="showConfirmPassword = !showConfirmPassword"
+                class="w-4 h-4 absolute right-4"
+              >
+                <i :class="showConfirmPassword ? 'fa fa-eye-slash' : 'fa fa-eye'" />
+              </button>
+            </div>
+            <Message
+              v-if="$form.confirmPassword?.invalid"
+              severity="error"
+              size="small"
+              variant="simple"
+              >{{ $form.confirmPassword?.error?.message }}</Message
             >
           </div>
         </FormField>

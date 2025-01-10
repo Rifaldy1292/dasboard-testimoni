@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { shallowRef, watch } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { RegisterPayload } from '@/dto/user.dto'
 import AuthLayout from '@/layouts/AuthLayout.vue'
@@ -16,31 +16,51 @@ const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 const page = shallowRef(route.name === 'login' ? 'Sign in' : 'Sign up')
+const password = ref<string | undefined>()
+watch(
+  () => password.value,
+  () => {
+    console.log(password.value)
+  }
+)
 
 watch(
   () => route.name,
   (newName) => {
     page.value = newName === 'login' ? 'Sign in' : 'Sign up'
-  }
+  },
+  { immediate: true }
 )
 
-const resolver = zodResolver(
-  z.object({
-    NIK: z.number().refine((val) => val.toString().length === 9, {
-      message: 'NIK must be 9 digits'
-    }),
-    password: z
-      .string()
-      .nonempty('Password is required')
-      .min(3, 'Password must be at least 3 characters'),
+const resolver = computed(() => {
+  return zodResolver(
+    z.object({
+      NIK: z.number().refine((val) => val.toString().length === 9, {
+        message: 'NIK must be 9 digits'
+      }),
+      password: z
+        .string()
+        .nonempty('Password is required')
+        .min(3, 'Password must be at least 3 characters'),
 
-    // required if page is sign up
-    name:
-      page.value === 'Sign up'
-        ? z.string().min(3, 'Name must be at least 3 characters')
-        : z.string().optional()
-  })
-)
+      // required if page is sign up
+      name:
+        page.value === 'Sign up'
+          ? z.string().min(3, 'Name must be at least 3 characters')
+          : z.string().optional(),
+      confirmPassword:
+        page.value === 'Sign up'
+          ? z
+              .string()
+              .nonempty('Confirm password is required')
+              .min(3, 'Password must be at least 3 characters')
+              .refine((val) => val === password.value, {
+                message: 'Password not match'
+              })
+          : z.string().optional()
+    })
+  )
+})
 
 // function for submit form login/register
 const submitForm = async (e: FormSubmitEvent): Promise<void> => {
@@ -116,6 +136,6 @@ const submitForm = async (e: FormSubmitEvent): Promise<void> => {
 
 <template>
   <AuthLayout :page="page">
-    <AuthForm :resolver="resolver" :submit="submitForm" />
+    <AuthForm :resolver="resolver" :submit="submitForm" v-model:password="password" />
   </AuthLayout>
 </template>
