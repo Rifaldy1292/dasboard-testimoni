@@ -4,7 +4,6 @@ import type { DialogFormProps } from '@/components/DialogForm/DialogForm.type'
 import DialogForm from '@/components/DialogForm/DialogForm.vue'
 import { formatTimeDifference } from '@/utils/formatDate.util'
 import useToast from '@/utils/useToast'
-// import useToast from '@/utils/useToast'
 import { Button, InputText } from 'primevue'
 
 export interface ModalResetPasswordProps {
