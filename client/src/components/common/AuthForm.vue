@@ -33,13 +33,6 @@ const resolver = computed(() => {
   if (isResetPasswordPage) {
     return zodResolver(
       z.object({
-        // NIK: z.number().refine((val) => val.toString().length === 9, {
-        //   message: 'NIK must be 9 digits'
-        // }),
-        // // required if page is sign up
-        // name: showFormField.value.name
-        //   ? z.string().min(3, 'Name must be at least 3 characters')
-        //   : z.string().optional(),
         password: showFormField.value.password
           ? z
               .string()
@@ -91,12 +84,10 @@ const resolver = computed(() => {
 
 const showFormField = computed<ShowFormField>(() => {
   return {
-    name: page.value === 'Sign up' || isResetPasswordPage,
-    // name: page.value !== 'Sign in' && !isForgotPasswordPage,
+    name: (page.value === 'Sign up' || isResetPasswordPage) && !isForgotPasswordPage,
     NIK: true,
-    // show ketika hanya
-    password: isForgotPasswordPage === false,
-    confirmPassword: page.value === 'Sign up' || isResetPasswordPage
+    password: !isForgotPasswordPage,
+    confirmPassword: (page.value === 'Sign up' || isResetPasswordPage) && !isForgotPasswordPage
   }
 })
 
