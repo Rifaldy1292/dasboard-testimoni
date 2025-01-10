@@ -119,7 +119,6 @@ const fetchUsers = async (): Promise<void> => {
     loadingTable.value = true
     const { data } = await UserServices.getUsers()
     operators.value = data.data
-    console.log(data.data)
   } catch (error) {
     console.error(error)
     toast.add({

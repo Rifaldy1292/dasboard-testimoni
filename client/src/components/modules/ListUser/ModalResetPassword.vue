@@ -29,7 +29,12 @@ const dataDialogConfirm = computed<DialogFormProps>(() => ({
 const resetPasswordLink = ref<string>(window.location.href)
 watch(visibleDialogResetPassword, (value) => {
   if (value === true) {
-    resetPasswordLink.value = `${window.location.href}/reset-password/${data.token}`
+    let url = window.location.href
+    // hapus # dari indeks terakhir jika ada
+    if (url[url.length - 1] === '#') {
+      url = url.slice(0, -1)
+    }
+    resetPasswordLink.value = `${url}/reset-password/${data.token}`
   } else {
     resetPasswordLink.value = window.location.href
   }

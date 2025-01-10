@@ -31,6 +31,8 @@ const showPassword = shallowRef(false)
 const roleOption = ref<RoleOption[]>([])
 const loadingDropdown = shallowRef(false)
 const loadingButtonSubmit = shallowRef(false)
+const showConfirmPassword = shallowRef(false)
+const password = ref<string | undefined>()
 
 const resolver = zodResolver(
   z.object({
@@ -41,6 +43,13 @@ const resolver = zodResolver(
       .string()
       .nonempty('Password is required')
       .min(3, 'Password must be at least 3 characters'),
+    confirmPassword: z
+      .string()
+      .nonempty('Confirm password is required')
+      .min(3, 'Password must be at least 3 characters')
+      .refine((val) => val === password.value, {
+        message: 'Password not match'
+      }),
 
     name: z.string().min(3, 'Name must be at least 3 characters'),
     role_id: z.number().int().positive('Role is required')
@@ -90,7 +99,6 @@ const handleCreateUser = async (e: FormSubmitEvent): Promise<void> => {
     })
   } finally {
     loadingButtonSubmit.value = false
-    visibleDialogForm.value = false
   }
 }
 </script>
@@ -129,11 +137,31 @@ const handleCreateUser = async (e: FormSubmitEvent): Promise<void> => {
             }}</Message>
           </div>
         </FormField>
+        <FormField name="role_id">
+          <div class="gap-4 mb-8">
+            <label for="role_id" class="font-semibold w-24">Role</label>
+            <div class="relative flex items-center">
+              <Select
+                @before-show="fetchRoleOption"
+                :options="roleOption"
+                :loading="loadingDropdown"
+                optionLabel="name"
+                option-value="id"
+                placeholder="Select a Role"
+                fluid
+              />
+            </div>
+            <Message v-if="$form.role_id?.invalid" severity="error" size="small" variant="simple">{{
+              $form.role_id.error.message
+            }}</Message>
+          </div>
+        </FormField>
         <FormField name="password">
           <div class="gap-4 mb-8">
             <label for="password" class="font-semibold w-24">Password</label>
             <div class="relative flex items-center">
               <InputText
+                @update:model-value="password = $event"
                 :type="showPassword ? 'text' : 'password'"
                 class="flex-auto"
                 autocomplete="off"
@@ -156,23 +184,31 @@ const handleCreateUser = async (e: FormSubmitEvent): Promise<void> => {
             >
           </div>
         </FormField>
-        <FormField name="role_id">
+        <FormField name="confirmPassword">
           <div class="gap-4 mb-8">
-            <label for="role_id" class="font-semibold w-24">Role</label>
+            <label for="confirmPassword" class="font-semibold w-24">Confirm Password</label>
             <div class="relative flex items-center">
-              <Select
-                @before-show="fetchRoleOption"
-                :options="roleOption"
-                :loading="loadingDropdown"
-                optionLabel="name"
-                option-value="id"
-                placeholder="Select a Role"
-                fluid
+              <InputText
+                :type="showConfirmPassword ? 'text' : 'password'"
+                class="flex-auto"
+                autocomplete="off"
+                placeholder="Enter confirm password"
               />
+              <button
+                type="button"
+                @click="showConfirmPassword = !showConfirmPassword"
+                class="w-4 h-4 absolute right-4"
+              >
+                <i :class="showConfirmPassword ? 'fa fa-eye-slash' : 'fa fa-eye'" />
+              </button>
             </div>
-            <Message v-if="$form.role_id?.invalid" severity="error" size="small" variant="simple">{{
-              $form.role_id.error.message
-            }}</Message>
+            <Message
+              v-if="$form.confirmPassword?.invalid"
+              severity="error"
+              size="small"
+              variant="simple"
+              >{{ $form.confirmPassword.error.message }}</Message
+            >
           </div>
         </FormField>
         <div class="flex justify-end gap-2">
