@@ -14,4 +14,5 @@ export interface User {
   role: Role
   role_id: number
   machineName: null | string
+  allowDelete: boolean
 }

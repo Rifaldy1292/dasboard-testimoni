@@ -68,8 +68,15 @@ const handleClickIcon = async (
   icon: 'resetPassword' | 'delete',
   selectedUser: User
 ): Promise<void> => {
-  console.log({ icon, selectedUser, id: selectedUser.id })
+  // console.log({ icon, selectedUser, id: selectedUser.id })
   if (icon === 'delete') {
+    if (!selectedUser.allowDelete) {
+      return toast.add({
+        severity: 'error',
+        summary: 'error',
+        detail: 'Cannot Delete Yourself!'
+      })
+    }
     console.log('delete', visibleDialogForm.value)
     confirm.require({
       message: `Are you sure you want to delete ${selectedUser.name}?`,
@@ -144,6 +151,7 @@ const fetchUsers = async (): Promise<void> => {
     showGridlines
     tableStyle="min-width: 50rem "
     selection-mode="single"
+    :row-style="(data: User) => ({ background: !data.allowDelete && 'gray' })"
   >
     <Column
       v-for="col of columns"
@@ -153,6 +161,7 @@ const fetchUsers = async (): Promise<void> => {
       :sortable="col.sortable"
     >
       <template #body="{ data }">
+        <!-- <div></div> -->
         <template v-if="col.field === 'roleName'">
           <Badge
             v-if="col.field === 'roleName'"
