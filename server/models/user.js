@@ -71,5 +71,6 @@ module.exports = (sequelize, DataTypes) => {
       throw new Error('NIK already exists');
     }
   })
+
   return User;
 };

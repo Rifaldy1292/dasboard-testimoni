@@ -17,7 +17,6 @@ userRouter.delete("/:id", authMiddleware, roleMiddleware.allowRoleId(ADMIN_ROLE_
 // find user by NIK
 userRouter.get("/find/:NIK", UserController.getByNIK);
 
-
 userRouter.post("/register", UserController.register);
 userRouter.post("/login", UserController.login);
 

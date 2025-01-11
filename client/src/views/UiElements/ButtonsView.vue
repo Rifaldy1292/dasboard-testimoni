@@ -3,16 +3,12 @@ import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import ButtonDefault from '@/components/Buttons/ButtonDefault.vue'
 import ButtonsCard from '@/components/Buttons/ButtonsCard.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
-
-import { ref } from 'vue'
-
-const pageTitle = ref('Buttons')
 </script>
 
 <template>
   <DefaultLayout>
     <!-- Breadcrumb Start -->
-    <BreadcrumbDefault :pageTitle="pageTitle" />
+    <BreadcrumbDefault pageTitle="Buttons" />
     <!-- Breadcrumb End -->
 
     <ButtonsCard cardTitle="Normal Button">

@@ -18,8 +18,8 @@ const selectedMachine = defineModel<Machine | undefined>('selectedMachine', {
 watch(
   [selectedMachine, visibleDialogForm],
   () => {
-    console.log(selectedMachine.value, 'machine')
-    console.log(visibleDialogForm.value, 'visibleDialogForm')
+    // console.log(selectedMachine.value, 'machine')
+    // console.log(visibleDialogForm.value, 'visibleDialogForm')
   },
   { immediate: true }
 )

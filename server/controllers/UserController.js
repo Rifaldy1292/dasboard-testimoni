@@ -17,7 +17,9 @@ class UserController {
                 attributes: ['id', 'name', 'NIK', 'machine_id', 'createdAt', 'updatedAt'],
                 raw: true
             });
+            // allowDelete = cannot delete yourself
             const formattedResult = users.map(user => {
+                user.allowDelete = user.id !== req.user.id;
                 user.roleName = user['Role.name'];
                 user.machineName = user['Machines.name'];
                 delete user['Role.name'];
@@ -107,7 +109,11 @@ class UserController {
 
     static async deleteById(req, res) {
         try {
-            const { id } = req.params;
+            const id = +req.params.id;
+            // cannot delete yourself
+            if (id === req.user.id) {
+                return res.status(403).json({ message: 'Forbidden', status: 403 });
+            }
             const deletedCount = await User.destroy({
                 where: {
                     id: id, // Primary key

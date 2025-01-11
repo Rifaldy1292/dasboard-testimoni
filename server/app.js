@@ -5,7 +5,10 @@ const { PORT } = require("./config/config.env");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
-app.use(cors());
+app.use(cors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+}));
 
 const router = require("./routes");
 app.use("/api", router);
