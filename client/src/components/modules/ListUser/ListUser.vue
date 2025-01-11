@@ -29,7 +29,7 @@ const columns: Columns[] = [
   { field: 'roleName', header: 'Role' }
 ]
 
-const operators = ref<User[]>([])
+const users = ref<User[]>([])
 const visibleDialogForm = shallowRef(false)
 const visibleDialogResetPassword = shallowRef(false)
 const tokenResetPassword = ref<ModalResetPasswordProps>({
@@ -125,7 +125,7 @@ const fetchUsers = async (): Promise<void> => {
   try {
     loadingTable.value = true
     const { data } = await UserServices.getUsers()
-    operators.value = data.data
+    users.value = data.data
   } catch (error) {
     console.error(error)
     toast.add({
@@ -144,7 +144,7 @@ const fetchUsers = async (): Promise<void> => {
     <Button label="Add Operator" severity="contrast" @click="visibleDialogForm = true" />
   </div>
   <DataTable
-    :value="operators"
+    :value="users"
     :loading="loadingTable"
     size="large"
     lazy
@@ -161,7 +161,7 @@ const fetchUsers = async (): Promise<void> => {
       :sortable="col.sortable"
     >
       <template #body="{ data }">
-        <!-- <div></div> -->
+        <!-- <h1>{{ JSON.stringify(data) }}</h1> -->
         <template v-if="col.field === 'roleName'">
           <Badge
             v-if="col.field === 'roleName'"
