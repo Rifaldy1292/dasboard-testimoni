@@ -1,6 +1,6 @@
 export type Machine = {
   machineName: string
   runningTime: string
-  status: 'running' | 'stopped' | 'pending'
+  status: 'Running' | 'Stopped' | 'Pending'
   quantity: number
 }

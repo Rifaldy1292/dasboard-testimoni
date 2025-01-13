@@ -87,7 +87,7 @@ const menuGroups = computed<MenuGroup[]>(() => {
                   </svg>`
             },
             {
-              label: 'Manual',
+              label: 'For Operators',
               route: '/manual',
               visible: true,
               icon: `<svg

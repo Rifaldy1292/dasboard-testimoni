@@ -4,7 +4,6 @@ import SigninView from '@/views/Authentication2/SigninView.vue'
 import SignupView from '@/views/Authentication2/SignupView.vue'
 import CalendarView from '@/views/CalendarView.vue'
 import BasicChartView from '@/views/Charts/BasicChartView.vue'
-import ECommerceView from '@/views/Dashboard/ECommerceView.vue'
 import FormElementsView from '@/views/Forms/FormElementsView.vue'
 import FormLayoutView from '@/views/Forms/FormLayoutView.vue'
 import SettingsView from '@/views/Pages/SettingsView.vue'
@@ -17,6 +16,7 @@ import AuthView from '@/views/Authentication/AuthView.vue'
 import ForgotPasswordView from '@/views/Authentication/ForgotPasswordView.vue'
 import UsersView from '@/views/UsersView.vue'
 import ResetPasswordView from '@/views/Authentication/ResetPasswordView.vue'
+import DetailMachineView from '@/views/DetailMachineView.vue'
 
 const routes: Readonly<RouteRecordRaw[]> = [
   {
@@ -35,7 +35,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
       {
         path: 'real-time/detail',
         name: 'realTimeDetail',
-        component: ECommerceView,
+        component: DetailMachineView,
         meta: {
           title: 'Detail Real Time'
         }
@@ -46,14 +46,6 @@ const routes: Readonly<RouteRecordRaw[]> = [
         component: ManualView,
         meta: {
           title: 'Manual'
-        }
-      },
-      {
-        path: 'manual/detail',
-        name: 'manualDetail',
-        component: ECommerceView,
-        meta: {
-          title: 'Detail Manual Machine'
         }
       },
       {

@@ -4,7 +4,7 @@ import type { Machine } from '@/types/machine.type'
 import type { Severity } from '@/types/severity.type'
 import { Badge, Column, DataTable } from 'primevue'
 import { shallowRef } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import DialogFormMachine from '../DialogForm/DialogFormMachine.vue'
 
 interface Columns {
@@ -13,34 +13,26 @@ interface Columns {
   sortable?: boolean
 }
 
-const route = useRoute()
 const router = useRouter()
-const pageTitle = route.name === 'realTime' ? 'Real Time' : 'Manual'
 
 const machine: Machine[] = [
   {
     machineName: 'f230fh0g3',
     runningTime: '7 hour 20 minute',
-    status: 'pending',
+    status: 'Running',
     quantity: 25
   },
   {
     machineName: 'f230fh0g4',
     runningTime: '7 hour 20 minute',
-    status: 'stopped',
+    status: 'Stopped',
     quantity: 25
   },
   {
     machineName: 'f230fh0g5',
     runningTime: '7 hour 20 minute',
-    status: 'running',
+    status: 'Pending',
     quantity: 25
-  },
-  {
-    machineName: 'f230fh0g6',
-    runningTime: '7 hour 20 minute',
-    status: 'running',
-    quantity: 20
   }
 ]
 const selectedMachine = shallowRef<Machine>()
@@ -54,8 +46,8 @@ const columns: Columns[] = [
 ]
 
 const badgeSeverity = (status: Machine['status']): Severity => {
-  if (status === 'running') return 'success'
-  if (status === 'stopped') return 'danger'
+  if (status === 'Pending') return 'success'
+  if (status === 'Running') return 'danger'
   return 'warn'
 }
 
@@ -68,14 +60,14 @@ const handleClickIcon = (icon: 'edit' | 'details', data: Machine): void => {
   // detail
   else {
     sessionStorage.setItem('selectedMachine', JSON.stringify(data))
-    router.push({ name: pageTitle === 'Real Time' ? 'realTimeDetail' : 'manualDetail' })
+    router.push({ name: 'realTimeDetail' })
     console.log('details')
   }
 }
 </script>
 
 <template>
-  <BreadcrumbDefault :pageTitle="pageTitle" />
+  <BreadcrumbDefault pageTitle="For Operators" />
   <DataTable
     :value="machine"
     :size="'large'"
@@ -100,10 +92,9 @@ const handleClickIcon = (icon: 'edit' | 'details', data: Machine): void => {
       </template>
     </Column>
     <Column :header="'Actions'" class="w-24 !text-end">
-      <template #body="{ data }">
+      <template #body="{ data }: { data: Machine }">
         <div class="flex gap-3">
           <i
-            v-if="pageTitle === 'Manual'"
             v-tooltip.top="'Edit'"
             @click="handleClickIcon('edit', data)"
             class="pi pi-pencil"

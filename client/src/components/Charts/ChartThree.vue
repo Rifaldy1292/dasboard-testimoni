@@ -1,13 +1,24 @@
 <script setup lang="ts">
+import type { Machine } from '@/types/machine.type'
+import { Button } from 'primevue'
 import { ref } from 'vue'
 // @ts-ignore
 import VueApexCharts from 'vue3-apexcharts'
 
-const chartData = {
-  series: [65, 34, 45, 12],
-  labels: ['Desktop', 'Tablet', 'Mobile', 'Unknown']
+defineProps<{
+  machine: Machine
+}>()
+
+const chartData: { series: number[]; labels: Machine['status'][] } = {
+  series: [65, 34, 45],
+  labels: ['Stopped', 'Running', 'Pending']
 }
 
+function badgeBackground(status: Machine['status']): string {
+  if (status === 'Running') return '#008000'
+  if (status === 'Stopped') return '#FF0000'
+  return '#F2C464'
+}
 const chart = ref(null)
 
 const apexOptions = {
@@ -15,7 +26,7 @@ const apexOptions = {
     type: 'donut',
     width: 380
   },
-  colors: ['#3C50E0', '#6577F3', '#8FD0EF', '#0FADCF'],
+  colors: ['#FF0000', '#008000', '#F2C464'],
   labels: chartData.labels,
   legend: {
     show: false,
@@ -51,7 +62,9 @@ const apexOptions = {
   >
     <div class="mb-3 justify-between gap-4 sm:flex">
       <div>
-        <h4 class="text-xl font-bold text-black dark:text-white">Visitors Analytics</h4>
+        <h4 class="text-xl font-bold text-black dark:text-white">
+          {{ machine?.machineName || '-' }}
+        </h4>
       </div>
       <div>
         <div class="relative z-20 inline-block">
@@ -98,16 +111,31 @@ const apexOptions = {
       </div>
     </div>
     <div class="-mx-8 flex flex-wrap items-center justify-center gap-y-3">
-      <div class="w-full px-8 sm:w-1/2">
-        <div class="flex w-full items-center">
-          <span class="mr-2 block h-3 w-full max-w-3 rounded-full bg-primary"></span>
-          <p class="flex w-full justify-between text-sm font-medium text-black dark:text-white">
-            <span> Desktop </span>
-            <span> 65% </span>
-          </p>
+      <template v-for="(series, index) in chartData.series" :key="series">
+        <div class="w-full px-8 sm:w-1/2">
+          <div class="flex w-full items-center">
+            <span
+              :style="{ background: badgeBackground(chartData.labels[index]) }"
+              class="mr-2 block h-3 w-full max-w-3 rounded-full"
+            ></span>
+            <p class="flex w-full justify-between text-sm font-medium text-black dark:text-white">
+              <span> {{ chartData.labels[index] }} </span>
+              <span> {{ series }}% </span>
+            </p>
+          </div>
         </div>
-      </div>
+      </template>
       <div class="w-full px-8 sm:w-1/2">
+        <Button
+          v-if="$route.name === 'realTime'"
+          label="Detail"
+          outlined
+          size="small"
+          @click="$router.push({ name: 'realTimeDetail' })"
+        />
+      </div>
+
+      <!-- <div class="w-full px-8 sm:w-1/2">
         <div class="flex w-full items-center">
           <span class="mr-2 block h-3 w-full max-w-3 rounded-full bg-[#6577F3]"></span>
           <p class="flex w-full justify-between text-sm font-medium text-black dark:text-white">
@@ -115,8 +143,8 @@ const apexOptions = {
             <span> 34% </span>
           </p>
         </div>
-      </div>
-      <div class="w-full px-8 sm:w-1/2">
+      </div> -->
+      <!-- <div class="w-full px-8 sm:w-1/2">
         <div class="flex w-full items-center">
           <span class="mr-2 block h-3 w-full max-w-3 rounded-full bg-[#8FD0EF]"></span>
           <p class="flex w-full justify-between text-sm font-medium text-black dark:text-white">
@@ -133,7 +161,7 @@ const apexOptions = {
             <span> 12% </span>
           </p>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
