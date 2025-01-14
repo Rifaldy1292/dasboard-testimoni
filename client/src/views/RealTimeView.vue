@@ -41,6 +41,60 @@ const dummyMachine: Machine[] = [
     runningTime: '7 hour 20 minute',
     status: 'Running',
     quantity: 10
+  },
+  {
+    machineName: 'f230fh0g9',
+    runningTime: '7 hour 20 minute',
+    status: 'Pending',
+    quantity: 5
+  },
+  {
+    machineName: 'f230fh0g10',
+    runningTime: '7 hour 20 minute',
+    status: 'Pending',
+    quantity: 5
+  },
+  {
+    machineName: 'f230fh0g11',
+    runningTime: '7 hour 20 minute',
+    status: 'Pending',
+    quantity: 5
+  },
+  {
+    machineName: 'f230fh0g12',
+    runningTime: '7 hour 20 minute',
+    status: 'Pending',
+    quantity: 5
+  },
+  {
+    machineName: 'f230fh0g13',
+    runningTime: '7 hour 20 minute',
+    status: 'Pending',
+    quantity: 5
+  },
+  {
+    machineName: 'f230fh0g14',
+    runningTime: '7 hour 20 minute',
+    status: 'Pending',
+    quantity: 5
+  },
+  {
+    machineName: 'f230fh0g15',
+    runningTime: '7 hour 20 minute',
+    status: 'Pending',
+    quantity: 5
+  },
+  {
+    machineName: 'f230fh0g15',
+    runningTime: '7 hour 20 minute',
+    status: 'Pending',
+    quantity: 5
+  },
+  {
+    machineName: 'f230fh0g15',
+    runningTime: '7 hour 20 minute',
+    status: 'Pending',
+    quantity: 5
   }
 ]
 </script>
@@ -48,6 +102,7 @@ const dummyMachine: Machine[] = [
 <template>
   <DefaultLayout>
     <BreadcrumbDefault page-title="Real Time" />
+    <h1>{{ dummyMachine.length }}</h1>
     <!-- <TableMachine /> -->
     <div class="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
       <ChartThree v-for="machine in dummyMachine" :key="machine.machineName" :machine="machine" />

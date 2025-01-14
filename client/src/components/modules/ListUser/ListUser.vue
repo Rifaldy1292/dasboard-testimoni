@@ -141,7 +141,7 @@ const fetchUsers = async (): Promise<void> => {
 
 <template>
   <div class="flex justify-end mb-5">
-    <Button label="Add Operator" severity="contrast" @click="visibleDialogForm = true" />
+    <Button label="Add New User" severity="contrast" @click="visibleDialogForm = true" />
   </div>
   <DataTable
     :value="users"
