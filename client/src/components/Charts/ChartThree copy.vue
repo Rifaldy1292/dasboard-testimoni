@@ -5,14 +5,14 @@ import { ref } from 'vue'
 // @ts-ignore
 import VueApexCharts from 'vue3-apexcharts'
 
-type RunningCount = number
-type StoppedCount = number
 defineProps<{
   machine: Machine
-  percentage: [RunningCount, StoppedCount]
 }>()
 
- const labels: Machine['status'][] = ['Running', 'Stopped']
+const chartData: { series: number[]; labels: Machine['status'][] } = {
+  series: [65, 34],
+  labels: ['Running', 'Stopped']
+}
 
 function badgeBackground(status: Machine['status']): string {
   if (status === 'Running') return '#008000'
@@ -27,7 +27,7 @@ const apexOptions = {
     width: 380
   },
   colors: ['#008000', '#FF0000'],
-  labels: labels,
+  labels: chartData.labels,
   legend: {
     show: false,
     position: 'bottom'
@@ -105,21 +105,21 @@ const apexOptions = {
           type="donut"
           width="340"
           :options="apexOptions"
-          :series="percentage"
+          :series="chartData.series"
           ref="chart"
         />
       </div>
     </div>
     <div class="-mx-8 flex flex-wrap items-center justify-center gap-y-3">
-      <template v-for="(series, index) in percentage" :key="series">
+      <template v-for="(series, index) in chartData.series" :key="series">
         <div class="w-full px-8 sm:w-1/2">
           <div class="flex w-full items-center">
             <span
-              :style="{ background: badgeBackground(labels[index]) }"
+              :style="{ background: badgeBackground(chartData.labels[index]) }"
               class="mr-2 block h-3 w-full max-w-3 rounded-full"
             ></span>
             <p class="flex w-full justify-between text-sm font-medium text-black dark:text-white">
-              <span> {{ labels[index] }} </span>
+              <span> {{ chartData.labels[index] }} </span>
               <span> {{ series }}% </span>
             </p>
           </div>
