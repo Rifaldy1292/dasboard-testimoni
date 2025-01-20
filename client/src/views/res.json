@@ -1,0 +1,37 @@
+[
+    {
+        "machineName": "kmkmkmkm",
+        "status": 1
+    }
+]
+
+[
+    "mc-1": {
+        "machineName": "kmkmkmkm",
+        "status": 1,
+        "spindleload":'isi'
+    },
+    "mc-2": {
+        "machineName": "kmkmkmkm",
+        "status": 1
+    },
+    "mc-3": {
+        "machineName": "kmkmkmkm",
+        "status": 1
+    },
+    "mc-4": {
+        "machineName": "kmkmkmkm",
+        "status": 1
+    },
+    "mc-5": {
+        "machineName": "kmkmkmkm",
+        "status": 1
+    },
+    "mc-6": {
+        "machineName": "kmkmkmkm",
+        "status": 1
+    },
+    "mc-7": {
+        "machineName": "kmkmkmkm",
+
+]
