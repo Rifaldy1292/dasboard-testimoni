@@ -63,11 +63,12 @@ const handleNumberStatus = (number) => {
 const handleWebsocket = () => {
   // generate random number 0-4
   //   console.log(random);
+  const statuses = ['Running', 'Stopped'];
   const result = dummyresult.map((machine) => {
     const running = Math.floor(Math.random() * 100);
     return {
       ...machine,
-      status: handleNumberStatus(Math.floor(Math.random() * 5)),
+      status: statuses[Math.floor(Math.random() * 5)],
       // percentage[0] = running, [1] = stop
       percentage: [running, 100 - running],
       // percentage: {

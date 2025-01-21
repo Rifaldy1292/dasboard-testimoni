@@ -20,13 +20,8 @@ app.use("/api", router);
 //  status angka random 0-4,  !==3 = stop, === 3 = running
 // buat webscoket yang return {machineName: string, status: number}
 const WSPORT = 3333;
-const machineStatus = {
-  0: "Stop",
-  1: "Stop",
-  2: "Stop",
-  3: "Running",
-  4: "Stop",
-};
+
+
 
 const wss = new Webscoket.Server({ port: WSPORT });
 wss.on("connection", (ws) => {
