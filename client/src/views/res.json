@@ -1,37 +1,62 @@
 [
-    {
-        "machineName": "kmkmkmkm",
-        "status": 1
-    }
-]
-
-[
-    "mc-1": {
-        "machineName": "kmkmkmkm",
-        "status": 1,
-        "spindleload":'isi'
-    },
-    "mc-2": {
-        "machineName": "kmkmkmkm",
-        "status": 1
-    },
-    "mc-3": {
-        "machineName": "kmkmkmkm",
-        "status": 1
-    },
-    "mc-4": {
-        "machineName": "kmkmkmkm",
-        "status": 1
-    },
-    "mc-5": {
-        "machineName": "kmkmkmkm",
-        "status": 1
-    },
-    "mc-6": {
-        "machineName": "kmkmkmkm",
-        "status": 1
-    },
-    "mc-7": {
-        "machineName": "kmkmkmkm",
-
+  {
+    "machineName": "mc-1",
+    "status": "Running"
+  },
+  {
+    "machineName": "mc-2",
+    "status": "Stop"
+  },
+  {
+    "machineName": "mc-3",
+    "status": "Running"
+  },
+  {
+    "machineName": "mc-4",
+    "status": "Stop"
+  },
+  {
+    "machineName": "mc-5",
+    "status": "Running"
+  },
+  {
+    "machineName": "mc-6",
+    "status": "Stop"
+  },
+  {
+    "machineName": "mc-7",
+    "status": "Running"
+  },
+  {
+    "machineName": "mc-8",
+    "status": "Stop"
+  },
+  {
+    "machineName": "mc-9",
+    "status": "Running"
+  },
+  {
+    "machineName": "mc-10",
+    "status": "Stop"
+  },
+  {
+    "machineName": "mc-11",
+    "status": "Running"
+  },
+  {
+    "machineName": "mc-12",
+    "status": "Stop"
+  },
+  {
+    "machineName": "mc-13",
+    "status": "Running"
+  },
+  {
+    "machineName": "mc-14",
+    "status": "Stop"
+  },
+  {
+    "machineName": "mc-15",
+    "status": "Running"
+  }
 ]
