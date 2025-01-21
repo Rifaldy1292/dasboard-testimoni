@@ -2,7 +2,6 @@
 import type { Machine } from '@/types/machine.type'
 import { Button } from 'primevue'
 import { ref } from 'vue'
-// @ts-ignore
 import VueApexCharts from 'vue3-apexcharts'
 
 type RunningCount = number
@@ -12,7 +11,7 @@ defineProps<{
   percentage: [RunningCount, StoppedCount]
 }>()
 
- const labels: Machine['status'][] = ['Running', 'Stopped']
+const labels: Machine['status'][] = ['Running', 'Stopped']
 
 function badgeBackground(status: Machine['status']): string {
   if (status === 'Running') return '#008000'

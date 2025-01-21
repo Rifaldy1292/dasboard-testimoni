@@ -17,7 +17,6 @@ const router = require("./routes");
 const handleWebsocket = require("./helpers/handleWebsocket");
 app.use("/api", router);
 
-//  status angka random 0-4,  !==3 = stop, === 3 = running
 // buat webscoket yang return {machineName: string, status: number}
 const WSPORT = 3333;
 
