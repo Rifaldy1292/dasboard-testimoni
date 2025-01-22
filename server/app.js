@@ -1,8 +1,13 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const Webscoket = require("ws");
+const WebSocket = require("ws");
+const mqtt = require('mqtt');
 const { PORT } = require("./config/config.env");
+
+const WSPORT = 3333;
+const mqttClient = mqtt.connect('mqtt://localhost:1883');
+const wss = new WebSocket.Server({ port: WSPORT });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -14,22 +19,42 @@ app.use(
 );
 
 const router = require("./routes");
-const handleWebsocket = require("./helpers/handleWebsocket");
 app.use("/api", router);
 
-// buat webscoket yang return {machineName: string, status: number}
-const WSPORT = 3333;
+// buat WebSocket yang return {machineName: string, status: number}
 
+wss.on('connection', (ws) => {
+  console.log('Client connected');
 
+  // Ketika ada pesan dari WebSocket, kirim ke semua klien
+  ws.on('message', (message) => {
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
+  });
+});
 
-const wss = new Webscoket.Server({ port: WSPORT });
-wss.on("connection", (ws) => {
-  console.log("Client connected");
-  // Kirim response setiap 3 detik
-  setInterval(() => {
-    const result = handleWebsocket();
-    ws.send(JSON.stringify(result));
-  }, 3000); // 3000 milidetik = 3 detik
+mqttClient.on('connect', () => {
+  console.log('MQTT client connected');
+  mqttClient.subscribe('machines/status');
+});
+
+mqttClient.on('message', (topic, message) => {
+  // Ketika ada pesan MQTT, siarkan ke semua klien WebSocket
+  console.log('Client connected', message.toString());
+  wss.clients.forEach((client) => {
+    const parseMessage = JSON.parse(message.toString());
+    const running = Math.floor(Math.random() * 100);
+    const formattedMessage = parseMessage.map((item) => ({
+      ...item,
+      percentage: [running, 100 - running],
+    }))
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify(formattedMessage));
+    }
+  });
 });
 
 app.listen(PORT, () => {

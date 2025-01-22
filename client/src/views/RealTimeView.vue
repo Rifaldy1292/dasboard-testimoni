@@ -112,6 +112,7 @@ const connectWebsocket = () => {
   ws.value = new WebSocket('ws://localhost:3333')
 
   ws.value.onmessage = (event) => {
+    // const data = JSON.parse(event.data) as Machine[]
     const data = JSON.parse(event.data) as Machine[]
     machines.value = data
     console.log(machines.value, 'data from ws', typeof event.data)

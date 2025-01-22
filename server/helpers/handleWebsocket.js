@@ -3,12 +3,12 @@ const dummyresult = Array.from({ length: 15 }, (_, i) => ({
   machineName: `mc-${i + 1}`,
 }));
 
-
 // return [{ machineName: "mc-1", status: "Running" }]
 const handleWebsocket = () => {
   const statuses = ['Running', 'Stopped'];
   const result = dummyresult.map((machine) => {
     const running = Math.floor(Math.random() * 100);
+    // console.log('running', running);
     return {
       ...machine,
       status: statuses[Math.floor(Math.random() * 5)],
