@@ -29,7 +29,7 @@ wss.on("connection", (ws) => {
   setInterval(() => {
     const result = handleWebsocket();
     ws.send(JSON.stringify(result));
-  }, 2000); // 3000 milidetik = 3 detik
+  }, 3000); // 3000 milidetik = 3 detik
 });
 
 app.listen(PORT, () => {
