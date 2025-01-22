@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import ChartThree from '@/components/Charts/ChartThree.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
@@ -6,7 +7,6 @@ import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import type { Machine } from '@/types/machine.type'
 // import TestWebsocket from './TestWebsocket.vue'
-import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 // const dummyMachine: Machine[] = [
 //   {
