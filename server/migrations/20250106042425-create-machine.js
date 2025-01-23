@@ -30,6 +30,9 @@ module.exports = {
       status: {
         type: Sequelize.STRING
       },
+      total_running_hours: {
+        type: Sequelize.INTEGER
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

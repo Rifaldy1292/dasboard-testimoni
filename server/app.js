@@ -22,6 +22,7 @@ app.use(
 
 
 const router = require("./routes");
+const getRUnningTime = require("./utils/getRunningTime");
 app.use("/api", router);
 
 
@@ -61,8 +62,7 @@ mqttClient.on('message', async (topic, message) => {
     console.time('Proses');
     try {
       // performance optimization
-
-
+      // create machine first
       if (bulkCreateMachine) {
         await Machine.bulkCreate(parseMachine);
         bulkCreateMachine = false
@@ -73,7 +73,7 @@ mqttClient.on('message', async (topic, message) => {
         const machine = await Machine.findOne({ where: { name } });
 
         if (machine) {
-
+          // create machine log
           if (machine.status !== status) {
             await MachineLog.create({
               machine_id: machine.id,
@@ -82,6 +82,20 @@ mqttClient.on('message', async (topic, message) => {
               timestamp: new Date()
             })
           }
+
+          const runningHour = await getRUnningTime(machine.id)
+
+          // update machine running hours
+          // await Machine.update({
+          //   total_running_hours: runningHour
+          // }, {
+          //   where: {
+          //     id: machine.id
+          //   }
+          // })
+          machine.total_running_hours = runningHour
+          console.log(runningHour, 'runningHour', typeof runningHour)
+          // update machine status from previous to current status
           machine.status = status
           await machine.save()
 

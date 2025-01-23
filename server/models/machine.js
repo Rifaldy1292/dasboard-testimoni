@@ -26,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    total_running_hours: DataTypes.INTEGER,
     brand_id: DataTypes.INTEGER,
     power_input: DataTypes.INTEGER,
     stroke_axxis: DataTypes.STRING,
