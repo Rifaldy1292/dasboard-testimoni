@@ -40,7 +40,7 @@ setInterval(() => {
     // Publikasikan data ke broker MQTT
     console.log('Data published to MQTT:', machines);
     client.publish(mqttTopic, JSON.stringify(machines));
-}, 3 * 1000);
+}, 20 * 1000);
 
 
 app.listen(port, () => {

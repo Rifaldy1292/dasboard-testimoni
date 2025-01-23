@@ -10,7 +10,8 @@ const { Machine, MachineLog } = require("./models");
 const WSPORT = 3333;
 const mqttClient = mqtt.connect('mqtt://localhost:1883');
 const wss = new WebSocket.Server({ port: WSPORT });
-const perfect = 10
+const perfectTime = 0.50
+const totalMachine = 15
 
 
 app.use(express.json());
@@ -24,29 +25,32 @@ app.use(
 
 
 const router = require("./routes");
-const getRUnningTime = require("./utils/getRunningTime");
+const getRunningTime = require("./utils/getRunningTime");
 app.use("/api", router);
 
+
+let machineCount = 0
 
 wss.on('connection', (ws) => {
   console.log('Client connected');
 
   // send default data
   wss.clients.forEach(async (client) => {
-    const machines = await Machine.findAll({
-      attributes: ['name', 'status', 'total_running_hours']
-    });
-    const formattedMessage =
-      machines.map(machine => {
-        const runningTime = (machine.total_running_hours / perfect) * 100
-        return {
-          name: machine.name,
-          status: machine.status,
-          percentage: [runningTime, 100 - runningTime]
-        }
-      })
+    if (client.readyState === WebSocket.OPEN && machineCount !== 0) {
+      const machines = await Machine.findAll({
+        attributes: ['name', 'status', 'total_running_hours']
+      });
 
-    if (client.readyState === WebSocket.OPEN) {
+      const formattedMessage =
+        machines.map(machine => {
+          const runningTime = (machine.total_running_hours / perfectTime) * 100
+          return {
+            name: machine.name,
+            status: machine.status,
+            percentage: [runningTime, 100 - runningTime],
+          }
+        })
+
       client.send(JSON.stringify(formattedMessage));
     }
   });
@@ -58,7 +62,7 @@ mqttClient.on('connect', async () => {
   console.log('MQTT client connected');
   mqttClient.subscribe('machines/status');
   try {
-    const machineCount = await Machine.count();
+    machineCount = await Machine.count();
     if (machineCount === 0) {
       bulkCreateMachine = true
     }
@@ -85,13 +89,15 @@ mqttClient.on('message', async (topic, message) => {
         bulkCreateMachine = false
       }
 
+
+
+      const logCount = await MachineLog.count();
       await Promise.all(parseMachine.map(async (item) => {
         const { name, status } = item
         const machine = await Machine.findOne({ where: { name } });
-
         if (machine) {
           // create machine log
-          if (machine.status !== status) {
+          if (machine.status !== status || logCount < totalMachine) {
             await MachineLog.create({
               machine_id: machine.id,
               previous_status: machine.status,
@@ -100,32 +106,32 @@ mqttClient.on('message', async (topic, message) => {
             })
           }
 
-          const runningHour = await getRUnningTime(machine.id)
+          const runningHour = await getRunningTime(machine.id)
           machine.total_running_hours = runningHour
           // update machine status from previous to current status
+          // await machine.update({ total_running_hours: runningHour })
           machine.status = status
           await machine.save()
 
+        } else {
+          console.log('machine not found')
         }
 
       }))
     } catch (error) {
       console.log(error)
     }
-
-
-
   }
 
   wss.clients.forEach(async (client) => {
-    // sort by name
     const machines = await Machine.findAll({
       attributes: ['name', 'status', 'total_running_hours']
     });
 
     const formattedMessage =
       machines.map(machine => {
-        const runningTime = Math.round((machine.total_running_hours / perfect) * 100)
+        const runningTime = Math.round((machine.total_running_hours / perfectTime) * 100)
+        // const running = Math.floor(Math.random() * 100);
         return {
           name: machine.name,
           status: machine.status,
@@ -138,8 +144,9 @@ mqttClient.on('message', async (topic, message) => {
     }
   });
 
-  const test = await MachineLog.count()
-  console.log(test, 'test')
+  // const test = await Machine.count()
+  // console.log(test, 'test')
+  console.log({ machineCount })
   console.timeEnd('Proses');
 
 });
