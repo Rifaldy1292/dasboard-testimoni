@@ -4,11 +4,8 @@ import { Button } from 'primevue'
 import { ref } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
 
-type RunningCount = number
-type StoppedCount = number
 defineProps<{
   machine: Machine
-  percentage: [RunningCount, StoppedCount]
 }>()
 
 const labels: Machine['status'][] = ['Running', 'Stopped']
@@ -104,13 +101,13 @@ const apexOptions = {
           type="donut"
           width="340"
           :options="apexOptions"
-          :series="percentage"
+          :series="machine.percentage"
           ref="chart"
         />
       </div>
     </div>
     <div class="-mx-8 flex flex-wrap items-center justify-center gap-y-3">
-      <template v-for="(series, index) in percentage" :key="series">
+      <template v-for="(series, index) in machine.percentage" :key="series">
         <div class="w-full px-8 sm:w-1/2">
           <div class="flex w-full items-center">
             <span

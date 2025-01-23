@@ -112,10 +112,16 @@ const connectWebsocket = () => {
   ws.value = new WebSocket('ws://localhost:3333')
 
   ws.value.onmessage = (event) => {
-    // const data = JSON.parse(event.data) as Machine[]
     const data = JSON.parse(event.data) as Machine[]
-    machines.value = data
-    console.log(machines.value, 'data from ws', typeof event.data)
+    const sortedData = data.sort((a, b) => {
+      const numberA = parseInt(a.name.slice(3))
+      const numberB = parseInt(b.name.slice(3))
+
+      return numberA - numberB
+    })
+    machines.value = sortedData
+    // console.log(data, 'data from ws')
+    // console.log({ sortedData })
   }
 }
 

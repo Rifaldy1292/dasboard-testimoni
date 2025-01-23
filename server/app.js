@@ -10,6 +10,8 @@ const { Machine, MachineLog } = require("./models");
 const WSPORT = 3333;
 const mqttClient = mqtt.connect('mqtt://localhost:1883');
 const wss = new WebSocket.Server({ port: WSPORT });
+const perfect = 10
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -29,13 +31,24 @@ app.use("/api", router);
 wss.on('connection', (ws) => {
   console.log('Client connected');
 
-  // Ketika ada pesan dari WebSocket, kirim ke semua klien
-  ws.on('message', (message) => {
-    wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(message);
-      }
+  // send default data
+  wss.clients.forEach(async (client) => {
+    const machines = await Machine.findAll({
+      attributes: ['name', 'status', 'total_running_hours']
     });
+    const formattedMessage =
+      machines.map(machine => {
+        const runningTime = (machine.total_running_hours / perfect) * 100
+        return {
+          name: machine.name,
+          status: machine.status,
+          percentage: [runningTime, 100 - runningTime]
+        }
+      })
+
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify(formattedMessage));
+    }
   });
 });
 
@@ -49,17 +62,21 @@ mqttClient.on('connect', async () => {
     if (machineCount === 0) {
       bulkCreateMachine = true
     }
-  } catch (error) {
 
+  } catch (error) {
+    console.error(error)
   }
 });
 
 mqttClient.on('message', async (topic, message) => {
+  console.time('Proses');
+  if (!message) {
+    console.log('no message')
+  }
   // Ketika ada pesan MQTT, siarkan ke semua klien WebSocket
   const parseMachine = JSON.parse(message.toString());
   if (parseMachine) {
     // console.log(parseMachine, 'message')
-    console.time('Proses');
     try {
       // performance optimization
       // create machine first
@@ -84,17 +101,7 @@ mqttClient.on('message', async (topic, message) => {
           }
 
           const runningHour = await getRUnningTime(machine.id)
-
-          // update machine running hours
-          // await Machine.update({
-          //   total_running_hours: runningHour
-          // }, {
-          //   where: {
-          //     id: machine.id
-          //   }
-          // })
           machine.total_running_hours = runningHour
-          console.log(runningHour, 'runningHour', typeof runningHour)
           // update machine status from previous to current status
           machine.status = status
           await machine.save()
@@ -105,26 +112,36 @@ mqttClient.on('message', async (topic, message) => {
     } catch (error) {
       console.log(error)
     }
-    console.timeEnd('Proses');
 
 
 
   }
-  wss.clients.forEach((client) => {
 
-    const formattedMessage = parseMachine.map((item) => {
-      const running = Math.floor(Math.random() * 100);
-      return {
-        ...item,
-        percentage: [running, 100 - running],
-      };
+  wss.clients.forEach(async (client) => {
+    // sort by name
+    const machines = await Machine.findAll({
+      attributes: ['name', 'status', 'total_running_hours']
     });
 
+    const formattedMessage =
+      machines.map(machine => {
+        const runningTime = Math.round((machine.total_running_hours / perfect) * 100)
+        return {
+          name: machine.name,
+          status: machine.status,
+          percentage: [runningTime, 100 - runningTime]
+        }
+      })
 
     if (client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify(formattedMessage));
     }
   });
+
+  const test = await MachineLog.count()
+  console.log(test, 'test')
+  console.timeEnd('Proses');
+
 });
 
 app.listen(PORT, () => {

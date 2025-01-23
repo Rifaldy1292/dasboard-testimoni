@@ -33,13 +33,14 @@ client.on('connect', () => {
 setInterval(() => {
     machines = machines.map(machine => ({
         ...machine,
-        status: getRandomStatus(),
+        // status: getRandomStatus(),
+        status: "Running"
     }));
 
     // Publikasikan data ke broker MQTT
     console.log('Data published to MQTT:', machines);
     client.publish(mqttTopic, JSON.stringify(machines));
-}, 30 * 1000);
+}, 3 * 1000);
 
 
 app.listen(port, () => {

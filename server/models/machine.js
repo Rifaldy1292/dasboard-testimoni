@@ -26,7 +26,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    total_running_hours: DataTypes.INTEGER,
+    total_running_hours: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true
+    },
     brand_id: DataTypes.INTEGER,
     power_input: DataTypes.INTEGER,
     stroke_axxis: DataTypes.STRING,

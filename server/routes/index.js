@@ -5,7 +5,9 @@ const { User, Role, Machine } = require('../models');
 
 router.get("/", async (req, res) => {
     // res.send("Hello World!");
-    const result = await Machine.findAll()
+    const result = await Machine.findAll({
+        attributes: ['name', 'status', 'total_running_hours']
+    })
     res.send(result)
 
 });

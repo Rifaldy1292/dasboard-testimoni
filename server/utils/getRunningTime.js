@@ -29,12 +29,25 @@ const getRunningTime = async (machineId) => {
     if (lastRunningTimestamp) {
         totalRunningTime += new Date() - new Date(lastRunningTimestamp);
     }
-    console.log({
-        totalRunningTime,
-        lastRunningTimestamp
-    })
-    return totalRunningTime // milisecond
+    // console.log({
+    //     totalRunningTime,
+    //     lastRunningTimestamp
+    // })
+    const totalJam = Math.floor(totalRunningTime / (1000 * 60 * 60));
+    const totalMenit = Math.floor((totalRunningTime % (1000 * 60 * 60)) / (1000 * 60));
+
+    const jamDenganKoma = `${totalJam}.${totalMenit.toString().padStart(2, '0')}`;
+    // console.log({ jamDenganKoma: Number(jamDenganKoma), totalRunningTime })
+
+    return Number(jamDenganKoma);
 }
 
 module.exports = getRunningTime
 
+// // convert to %
+// const perfect = 10
+// const test = 9
+
+// const percentage = (test / perfect) * 100
+
+// console.log(`${percentage}%`)
