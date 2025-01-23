@@ -1,12 +1,12 @@
 const router = require("express").Router();
 const roleRouter = require("./roles");
 const userRouter = require("./users");
-// const { User, Role, Machine } = require('../models');
+const { User, Role, Machine } = require('../models');
 
 router.get("/", async (req, res) => {
-    res.send("Hello World!");
-    // const result = await Role.findAll()
-    // res.json(result)
+    // res.send("Hello World!");
+    const result = await Machine.findAll()
+    res.send(result)
 
 });
 

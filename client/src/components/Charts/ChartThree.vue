@@ -62,7 +62,7 @@ const apexOptions = {
     <div class="mb-3 justify-between gap-4 sm:flex">
       <div>
         <h4 class="text-xl font-bold text-black dark:text-white">
-          {{ machine?.machineName || '-' }}
+          {{ machine?.name || '-' }}
         </h4>
       </div>
       <div>

@@ -2,7 +2,7 @@ type RunningCount = number
 type StoppedCount = number
 
 export type Machine = {
-  machineName: string
+  name: string
   percentage: [RunningCount, StoppedCount]
   runningTime: string
   status: 'Running' | 'Stopped'

@@ -1,6 +1,7 @@
 'use strict';
 const {
-  Model
+  Model,
+  Op
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Machine extends Model {
@@ -12,21 +13,42 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Machine.belongsTo(models.Brand, { foreignKey: 'brand_id' });
-      Machine.belongsTo(models.Status, { foreignKey: 'status_id' });
       // Machine.hasMany(models.User, { foreignKey: 'user_id' });
     }
   }
   Machine.init({
-    name: DataTypes.STRING,
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     brand_id: DataTypes.INTEGER,
     power_input: DataTypes.INTEGER,
     stroke_axxis: DataTypes.STRING,
     spindel_rpm: DataTypes.STRING,
-    status_id: DataTypes.INTEGER,
+
     user_id: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Machine',
   });
+
+  // unique name machine
+  Machine.beforeBulkCreate(async (machines, options) => {
+    const existingMachines = await Machine.findAll({
+      where: {
+        name: {
+          [Op.in]: machines.map(machine => machine.name)
+        }
+      }
+    });
+    if (existingMachines.length > 0) {
+      throw new Error('Machine name already exists');
+    }
+  })
+
   return Machine;
 };

@@ -140,7 +140,7 @@ onUnmounted(() => {
     >
       <ChartThree
         v-for="machine in machines"
-        :key="machine.machineName"
+        :key="machine.name"
         :machine="machine"
         :percentage="machine.percentage"
       />

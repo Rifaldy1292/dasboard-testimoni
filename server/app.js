@@ -4,6 +4,8 @@ const cors = require("cors");
 const WebSocket = require("ws");
 const mqtt = require('mqtt');
 const { PORT } = require("./config/config.env");
+const { Machine } = require("./models");
+
 
 const WSPORT = 3333;
 const mqttClient = mqtt.connect('mqtt://localhost:1883');
@@ -18,10 +20,10 @@ app.use(
   })
 );
 
+
 const router = require("./routes");
 app.use("/api", router);
 
-// buat WebSocket yang return {machineName: string, status: number}
 
 wss.on('connection', (ws) => {
   console.log('Client connected');
@@ -36,21 +38,53 @@ wss.on('connection', (ws) => {
   });
 });
 
-mqttClient.on('connect', () => {
+let bulkCreateMachine = false
+
+mqttClient.on('connect', async () => {
   console.log('MQTT client connected');
   mqttClient.subscribe('machines/status');
+  try {
+    const machineCount = await Machine.count();
+    if (machineCount === 0) {
+      bulkCreateMachine = true
+    }
+  } catch (error) {
+
+  }
 });
 
-mqttClient.on('message', (topic, message) => {
+mqttClient.on('message', async (topic, message) => {
   // Ketika ada pesan MQTT, siarkan ke semua klien WebSocket
-  console.log('Client connected', message.toString());
+  const parseMessage = JSON.parse(message.toString());
+  if (parseMessage) {
+    // console.log(parseMessage, 'message')
+    console.time('Proses');
+    try {
+      // performance optimization
+
+      if (bulkCreateMachine) {
+        await Machine.bulkCreate(parseMessage);
+        bulkCreateMachine = false
+      }
+    } catch (error) {
+      console.log(error)
+    }
+    console.timeEnd('Proses');
+
+
+
+  }
   wss.clients.forEach((client) => {
-    const parseMessage = JSON.parse(message.toString());
-    const running = Math.floor(Math.random() * 100);
-    const formattedMessage = parseMessage.map((item) => ({
-      ...item,
-      percentage: [running, 100 - running],
-    }))
+
+    const formattedMessage = parseMessage.map((item) => {
+      const running = Math.floor(Math.random() * 100);
+      return {
+        ...item,
+        percentage: [running, 100 - running],
+      };
+    });
+
+
     if (client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify(formattedMessage));
     }
