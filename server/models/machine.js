@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Machine.belongsTo(models.Brand, { foreignKey: 'brand_id' });
-      Machine.belongsTo(models.MachineLog, { foreignKey: 'machine_id' });
+      Machine.hasMany(models.MachineLog, { foreignKey: 'machine_id' });
       // Machine.hasMany(models.User, { foreignKey: 'user_id' });
     }
   }
@@ -38,6 +38,16 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   // unique name machine
+  Machine.beforeCreate(async (machine, options) => {
+    const existingMachine = await Machine.findOne({
+      where: {
+        name: machine.name
+      }
+    });
+    if (existingMachine) {
+      throw new Error('Machine name already exists');
+    }
+  })
   Machine.beforeBulkCreate(async (machines, options) => {
     const existingMachines = await Machine.findAll({
       where: {

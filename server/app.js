@@ -4,7 +4,7 @@ const cors = require("cors");
 const WebSocket = require("ws");
 const mqtt = require('mqtt');
 const { PORT } = require("./config/config.env");
-const { Machine } = require("./models");
+const { Machine, MachineLog } = require("./models");
 
 
 const WSPORT = 3333;
@@ -55,17 +55,39 @@ mqttClient.on('connect', async () => {
 
 mqttClient.on('message', async (topic, message) => {
   // Ketika ada pesan MQTT, siarkan ke semua klien WebSocket
-  const parseMessage = JSON.parse(message.toString());
-  if (parseMessage) {
-    // console.log(parseMessage, 'message')
+  const parseMachine = JSON.parse(message.toString());
+  if (parseMachine) {
+    // console.log(parseMachine, 'message')
     console.time('Proses');
     try {
       // performance optimization
 
+
       if (bulkCreateMachine) {
-        await Machine.bulkCreate(parseMessage);
+        await Machine.bulkCreate(parseMachine);
         bulkCreateMachine = false
       }
+
+      await Promise.all(parseMachine.map(async (item) => {
+        const { name, status } = item
+        const machine = await Machine.findOne({ where: { name } });
+
+        if (machine) {
+
+          if (machine.status !== status) {
+            await MachineLog.create({
+              machine_id: machine.id,
+              previous_status: machine.status,
+              current_status: status,
+              timestamp: new Date()
+            })
+          }
+          machine.status = status
+          await machine.save()
+
+        }
+
+      }))
     } catch (error) {
       console.log(error)
     }
@@ -76,7 +98,7 @@ mqttClient.on('message', async (topic, message) => {
   }
   wss.clients.forEach((client) => {
 
-    const formattedMessage = parseMessage.map((item) => {
+    const formattedMessage = parseMachine.map((item) => {
       const running = Math.floor(Math.random() * 100);
       return {
         ...item,
