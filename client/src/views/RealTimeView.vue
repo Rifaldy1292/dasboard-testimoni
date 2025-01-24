@@ -6,6 +6,7 @@ import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 // import TableMachine from '@/components/Tables/TableMachine.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import type { Machine } from '@/types/machine.type'
+import { Select } from 'primevue'
 // import TestWebsocket from './TestWebsocket.vue'
 
 // const dummyMachine: Machine[] = [
@@ -101,8 +102,14 @@ import type { Machine } from '@/types/machine.type'
 //   }
 // ]
 
+const selectOptions = [
+  { label: 'Day', value: 'day' },
+  { label: 'Month', value: 'month' }
+]
+
 const ws = ref<WebSocket | null>(null)
 const machines = ref<Machine[]>([])
+const responseType = ref<'day' | 'month'>('day')
 
 const isLoading = computed<boolean>(() => {
   return machines.value.length === 0
@@ -140,16 +147,32 @@ onUnmounted(() => {
     <!-- <TestWebsocket/> -->
     <!-- <TableMachine /> -->
     <LoadingAnimation :state="isLoading" />
+
+    <!-- agar tanpa scroll dan muncul semua -->
+    <!-- <div class="max-h-screen" > -->
+    <div class="mb-3 justify-end gap-4 sm:flex">
+      <Select
+        :model-value="responseType"
+        @update:model-value="responseType = $event"
+        :options="selectOptions"
+        option-label="label"
+        option-value="value"
+        :default-value="responseType"
+      />
+    </div>
     <div
       v-if="!isLoading"
-      class="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5"
+      class="mt-4 grid grid-cols-8 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5"
     >
+      <!-- <div class="mt-2 grid grid-cols-4 gap-4"> -->
       <ChartThree
         v-for="machine in machines"
         :key="machine.name"
         :machine="machine"
         :percentage="machine.percentage"
+        class="h-[350px]"
       />
     </div>
+    <!-- </div> -->
   </DefaultLayout>
 </template>

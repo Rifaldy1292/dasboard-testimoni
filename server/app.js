@@ -27,7 +27,7 @@ app.listen(PORT, () => {
 const WSPORT = 3333;
 const mqttClient = mqtt.connect('mqtt://localhost:1883');
 const wss = new WebSocket.Server({ port: WSPORT });
-const perfectTime = 10 //hour
+const perfectTime = 20 //hour
 const totalMachine = 15
 
 const { percentage, totalHour } = require("./utils/countHour")
