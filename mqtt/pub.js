@@ -13,7 +13,8 @@ const client = mqtt.connect(mqttBroker);
 // Data awal mesin
 let machines = Array.from({ length: 15 }, (_, i) => ({
     name: `mc-${i + 1}`,
-    status: getRandomStatus()
+    // status: getRandomStatus()
+    status: 'Running'
 }));
 
 // Fungsi untuk mendapatkan status acak
@@ -40,7 +41,8 @@ setInterval(() => {
     // Publikasikan data ke broker MQTT
     console.log('Data published to MQTT:', machines);
     client.publish(mqttTopic, JSON.stringify(machines));
-}, 20 * 1000);
+    // per 1 menit
+}, 1000 * 5);
 
 
 app.listen(port, () => {

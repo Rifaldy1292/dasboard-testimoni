@@ -38,8 +38,11 @@ const getRunningTime = async (machineId) => {
 
     const combineResult = `${totalHour}.${totalMinute.toString().padStart(2, '0')}`;
     // console.log({ jamDenganKoma: Number(jamDenganKoma), totalRunningTime })
+    const test = `${totalHour}.${totalMinute.toString()}`
+    console.log({ combineResult, test })
 
-    return Number(combineResult);
+    return totalRunningTime;
+    // return Number(test)
 }
 
 module.exports = getRunningTime

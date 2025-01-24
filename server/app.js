@@ -10,8 +10,19 @@ const { Machine, MachineLog } = require("./models");
 const WSPORT = 3333;
 const mqttClient = mqtt.connect('mqtt://localhost:1883');
 const wss = new WebSocket.Server({ port: WSPORT });
-const perfectTime = 0.50
+const perfectTime = 10 //hour
 const totalMachine = 15
+
+// runningHour = miliseconds
+function getRunningHours(runningHour) {
+  const hour = Math.round(runningHour / (1000 * 60 * 60));
+  const minute = Math.round((runningHour / (1000 * 60)) % 60);
+  // return runningHour
+  const totalHour = Number(`${hour}.${minute}`)
+  // return totalHour / 10
+  const percentage = Math.round((totalHour / perfectTime) * 100)
+  return percentage
+}
 
 
 app.use(express.json());
@@ -31,11 +42,13 @@ app.use("/api", router);
 
 let machineCount = 0
 
-wss.on('connection', (ws) => {
+wss.on('connection', async (ws) => {
   console.log('Client connected');
 
   // send default data
+  machineCount = await Machine.count();
   wss.clients.forEach(async (client) => {
+    console.log(client.readyState === WebSocket.OPEN && machineCount !== 0)
     if (client.readyState === WebSocket.OPEN && machineCount !== 0) {
       const machines = await Machine.findAll({
         attributes: ['name', 'status', 'total_running_hours']
@@ -43,7 +56,7 @@ wss.on('connection', (ws) => {
 
       const formattedMessage =
         machines.map(machine => {
-          const runningTime = (machine.total_running_hours / perfectTime) * 100
+          const runningTime = getRunningHours(machine.total_running_hours)
           return {
             name: machine.name,
             status: machine.status,
@@ -82,14 +95,11 @@ mqttClient.on('message', async (topic, message) => {
   if (parseMachine) {
     // console.log(parseMachine, 'message')
     try {
-      // performance optimization
       // create machine first
       if (bulkCreateMachine) {
         await Machine.bulkCreate(parseMachine);
         bulkCreateMachine = false
       }
-
-
 
       const logCount = await MachineLog.count();
       await Promise.all(parseMachine.map(async (item) => {
@@ -130,7 +140,7 @@ mqttClient.on('message', async (topic, message) => {
 
     const formattedMessage =
       machines.map(machine => {
-        const runningTime = Math.round((machine.total_running_hours / perfectTime) * 100)
+        const runningTime = getRunningHours(machine.total_running_hours)
         // const running = Math.floor(Math.random() * 100);
         return {
           name: machine.name,
