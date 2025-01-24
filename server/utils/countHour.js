@@ -3,7 +3,7 @@ class countHour {
         const hour = Math.round(runningHour / (1000 * 60 * 60));
         const minute = Math.round((runningHour / (1000 * 60)) % 60);
         // return runningHour
-        const totalHour = Number(`${hour}.${minute}`)
+        const totalHour = `${hour}.${minute}`
         return totalHour
     }
     static percentage(runningHour, perfectTime) {

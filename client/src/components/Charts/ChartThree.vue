@@ -61,6 +61,10 @@ const apexOptions = {
         <h4 class="text-xl font-bold text-black dark:text-white">
           {{ machine?.name || '-' }}
         </h4>
+
+        <h4 class="text-xl font-bold text-black dark:text-white">
+          {{ machine?.description || '-' }}
+        </h4>
       </div>
       <div>
         <div class="relative z-20 inline-block">

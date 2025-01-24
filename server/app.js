@@ -6,21 +6,6 @@ const mqtt = require('mqtt');
 const { PORT } = require("./config/config.env");
 const { Machine, MachineLog } = require("./models");
 
-
-const WSPORT = 3333;
-const mqttClient = mqtt.connect('mqtt://localhost:1883');
-const wss = new WebSocket.Server({ port: WSPORT });
-const perfectTime = 10 //hour
-const totalMachine = 15
-
-const { percentage, totalHour } = require("./utils/countHour")
-
-// runningHour = miliseconds
-function getRunningHours(runningHour) {
-  return percentage(runningHour, perfectTime)
-}
-
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
@@ -30,13 +15,40 @@ app.use(
   })
 );
 
-
 const router = require("./routes");
-const getRunningTime = require("./utils/getRunningTime");
 app.use("/api", router);
 
 
+app.listen(PORT, () => {
+  console.log(`Server started on http://localhost:${PORT}`);
+  console.log(`ws on port ${WSPORT}`);
+});
+
+const WSPORT = 3333;
+const mqttClient = mqtt.connect('mqtt://localhost:1883');
+const wss = new WebSocket.Server({ port: WSPORT });
+const perfectTime = 10 //hour
+const totalMachine = 15
+
+const { percentage, totalHour } = require("./utils/countHour")
+const getRunningTime = require("./utils/getRunningTime");
+
+// runningHour = miliseconds
+function getRunningHours(runningHour) {
+  return percentage(runningHour, perfectTime)
+}
+
+function countDescription(totalRunningHours) {
+  const count = totalHour(totalRunningHours)
+  const hour = count.split('.')[0]
+  const minute = count.split('.')[1]
+  return `${hour} hour ${minute} minute / ${perfectTime} hour`
+}
+
+
 let machineCount = 0
+let bulkCreateMachine = false
+
 
 wss.on('connection', async (ws) => {
   console.log('Client connected');
@@ -57,6 +69,7 @@ wss.on('connection', async (ws) => {
             name: machine.name,
             status: machine.status,
             percentage: [runningTime, 100 - runningTime],
+            description: countDescription(machine.total_running_hours),
           }
         })
 
@@ -64,8 +77,6 @@ wss.on('connection', async (ws) => {
     }
   });
 });
-
-let bulkCreateMachine = false
 
 mqttClient.on('connect', async () => {
   console.log('MQTT client connected');
@@ -102,7 +113,7 @@ mqttClient.on('message', async (topic, message) => {
         const { name, status } = item
         const machine = await Machine.findOne({ where: { name } });
         if (machine) {
-          // create machine log
+          // if machine status change or log count less than total machine
           if (machine.status !== status || logCount < totalMachine) {
             await MachineLog.create({
               machine_id: machine.id,
@@ -141,7 +152,8 @@ mqttClient.on('message', async (topic, message) => {
         return {
           name: machine.name,
           status: machine.status,
-          percentage: [runningTime, 100 - runningTime]
+          percentage: [runningTime, 100 - runningTime],
+          description: countDescription(machine.total_running_hours),
         }
       })
 
@@ -157,7 +169,3 @@ mqttClient.on('message', async (topic, message) => {
 
 });
 
-app.listen(PORT, () => {
-  console.log(`Server started on http://localhost:${PORT}`);
-  console.log(`ws on port ${WSPORT}`);
-});
