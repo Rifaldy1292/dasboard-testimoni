@@ -13,15 +13,11 @@ const wss = new WebSocket.Server({ port: WSPORT });
 const perfectTime = 10 //hour
 const totalMachine = 15
 
+const { percentage, totalHour } = require("./utils/countHour")
+
 // runningHour = miliseconds
 function getRunningHours(runningHour) {
-  const hour = Math.round(runningHour / (1000 * 60 * 60));
-  const minute = Math.round((runningHour / (1000 * 60)) % 60);
-  // return runningHour
-  const totalHour = Number(`${hour}.${minute}`)
-  // return totalHour / 10
-  const percentage = Math.round((totalHour / perfectTime) * 100)
-  return percentage
+  return percentage(runningHour, perfectTime)
 }
 
 

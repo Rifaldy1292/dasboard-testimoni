@@ -36,10 +36,10 @@ const getRunningTime = async (machineId) => {
     const totalHour = Math.floor(totalRunningTime / (1000 * 60 * 60));
     const totalMinute = Math.floor((totalRunningTime % (1000 * 60 * 60)) / (1000 * 60));
 
-    const combineResult = `${totalHour}.${totalMinute.toString().padStart(2, '0')}`;
+    // const combineResult = `${totalHour}.${totalMinute.toString().padStart(2, '0')}`;
     // console.log({ jamDenganKoma: Number(jamDenganKoma), totalRunningTime })
-    const test = `${totalHour}.${totalMinute.toString()}`
-    console.log({ combineResult, test })
+    // const test = `${totalHour}.${totalMinute.toString()}`
+    // console.log({ combineResult, test })
 
     return totalRunningTime;
     // return Number(test)
