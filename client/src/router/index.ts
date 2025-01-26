@@ -17,6 +17,7 @@ import ForgotPasswordView from '@/views/Authentication/ForgotPasswordView.vue'
 import UsersView from '@/views/UsersView.vue'
 import ResetPasswordView from '@/views/Authentication/ResetPasswordView.vue'
 import DetailMachineView from '@/views/DetailMachineView.vue'
+import OperatorsView from '@/views/OperatorsView.vue'
 
 const routes: Readonly<RouteRecordRaw[]> = [
   {
@@ -54,6 +55,14 @@ const routes: Readonly<RouteRecordRaw[]> = [
         component: UsersView,
         meta: {
           title: 'User List'
+        }
+      },
+      {
+        path: '/operators',
+        name: 'Operators',
+        component: OperatorsView,
+        meta: {
+          title: 'Operator List'
         }
       }
     ]
