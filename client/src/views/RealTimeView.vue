@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, shallowRef } from 'vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import ChartThree from '@/components/Charts/ChartThree.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
@@ -7,6 +7,7 @@ import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import type { Machine } from '@/types/machine.type'
 import { Select } from 'primevue'
+import { watch } from 'vue'
 // import TestWebsocket from './TestWebsocket.vue'
 
 // const dummyMachine: Machine[] = [
@@ -107,18 +108,27 @@ const selectOptions = [
   { label: 'Month', value: 'month' }
 ]
 
-const ws = ref<WebSocket | null>(null)
+const ws = new WebSocket('ws://localhost:3333')
 const machines = ref<Machine[]>([])
-const responseType = ref<'day' | 'month'>('day')
+const type = shallowRef<'day' | 'month'>('day')
+// mothValue = now month
+
+watch(
+  () => type.value,
+  () => {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: type.value }))
+      console.log({ type: type.value })
+    }
+  }
+)
 
 const isLoading = computed<boolean>(() => {
   return machines.value.length === 0
 })
 
 const connectWebsocket = () => {
-  ws.value = new WebSocket('ws://localhost:3333')
-
-  ws.value.onmessage = (event) => {
+  ws.onmessage = (event) => {
     const data = JSON.parse(event.data) as Machine[]
     const sortedData = data.sort((a, b) => {
       const numberA = parseInt(a.name.slice(3))
@@ -137,7 +147,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  ws.value?.close()
+  ws.close()
 })
 </script>
 
@@ -152,12 +162,12 @@ onUnmounted(() => {
     <!-- <div class="max-h-screen" > -->
     <div class="mb-3 justify-end gap-4 sm:flex">
       <Select
-        :model-value="responseType"
-        @update:model-value="responseType = $event"
+        :model-value="type"
+        @update:model-value="type = $event"
         :options="selectOptions"
         option-label="label"
         option-value="value"
-        :default-value="responseType"
+        :default-value="type"
       />
     </div>
     <div

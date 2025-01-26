@@ -18,7 +18,6 @@ app.use(
 const router = require("./routes");
 app.use("/api", router);
 
-
 app.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);
   console.log(`ws on port ${WSPORT}`);
@@ -45,18 +44,20 @@ function countDescription(totalRunningHours) {
   return `${hour} hour ${minute} minute / ${perfectTime} hour`
 }
 
-
 let machineCount = 0
 let bulkCreateMachine = false
+
+// day or month, default day
+let type = 'day'
 
 
 wss.on('connection', async (ws) => {
   console.log('Client connected');
 
-  // send default data
+  // send default data(day)
   machineCount = await Machine.count();
   wss.clients.forEach(async (client) => {
-    console.log(client.readyState === WebSocket.OPEN && machineCount !== 0)
+    // console.log(client.readyState === WebSocket.OPEN && machineCount !== 0)
     if (client.readyState === WebSocket.OPEN && machineCount !== 0) {
       const machines = await Machine.findAll({
         attributes: ['name', 'status', 'total_running_hours']
@@ -76,7 +77,16 @@ wss.on('connection', async (ws) => {
       client.send(JSON.stringify(formattedMessage));
     }
   });
+
+  ws.on('message', (message) => {
+    const parse = JSON.parse(message)
+    type = parse.type
+    console.log({ type })
+  })
 });
+
+
+
 
 mqttClient.on('connect', async () => {
   console.log('MQTT client connected');
@@ -145,6 +155,10 @@ mqttClient.on('message', async (topic, message) => {
       attributes: ['name', 'status', 'total_running_hours']
     });
 
+    wss.on('message', (clientMessage) => {
+      console.log('message', clientMessage)
+    })
+
     const formattedMessage =
       machines.map(machine => {
         const runningTime = getRunningHours(machine.total_running_hours)
@@ -164,7 +178,7 @@ mqttClient.on('message', async (topic, message) => {
 
   // const test = await Machine.count()
   // console.log(test, 'test')
-  console.log({ machineCount })
+  // console.log({ machineCount })
   console.timeEnd('Proses');
 
 });

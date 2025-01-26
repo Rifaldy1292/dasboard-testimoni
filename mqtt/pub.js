@@ -43,6 +43,7 @@ setInterval(() => {
     client.publish(mqttTopic, JSON.stringify(machines));
     // per 30 menit
 }, 1000 * 60 * 30);
+// }, 1000 * 5);
 
 
 app.listen(port, () => {
