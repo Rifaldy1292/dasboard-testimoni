@@ -23,7 +23,6 @@ function getRandomStatus() {
     return statuses[Math.floor(Math.random() * statuses.length)];
 }
 
-
 client.on('connect', () => {
     console.log('Connected to MQTT broker');
     client.publish(mqttTopic, JSON.stringify(machines));

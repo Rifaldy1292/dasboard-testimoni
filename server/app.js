@@ -26,11 +26,11 @@ app.listen(PORT, () => {
 const WSPORT = 3333;
 const mqttClient = mqtt.connect('mqtt://localhost:1883');
 const wss = new WebSocket.Server({ port: WSPORT });
-const perfectTime = 20 //hour
+const perfectTime = 24 //hour
 const totalMachine = 15
 
 const { percentage, totalHour } = require("./utils/countHour")
-const getRunningTime = require("./utils/getRunningTime");
+const { getRunningTime, getRunningTimeMonth } = require("./utils/getRunningTime");
 
 // runningHour = miliseconds
 function getRunningHours(runningHour) {
@@ -78,14 +78,19 @@ wss.on('connection', async (ws) => {
     }
   });
 
-  ws.on('message', (message) => {
+  ws.on('message', async (message) => {
     const parse = JSON.parse(message)
     type = parse.type
-    console.log({ type })
+    // console.log({ parse })
+    if (type === 'month') {
+      const { data, error } = await getRunningTimeMonth()
+      if (!error) {
+        console.log(data, 'data from month')
+      }
+    }
+
   })
 });
-
-
 
 
 mqttClient.on('connect', async () => {
@@ -122,27 +127,25 @@ mqttClient.on('message', async (topic, message) => {
       await Promise.all(parseMachine.map(async (item) => {
         const { name, status } = item
         const machine = await Machine.findOne({ where: { name } });
-        if (machine) {
-          // if machine status change or log count less than total machine
-          if (machine.status !== status || logCount < totalMachine) {
-            await MachineLog.create({
-              machine_id: machine.id,
-              previous_status: machine.status,
-              current_status: status,
-              timestamp: new Date()
-            })
-          }
-
-          const runningHour = await getRunningTime(machine.id)
-          machine.total_running_hours = runningHour
-          // update machine status from previous to current status
-          // await machine.update({ total_running_hours: runningHour })
-          machine.status = status
-          await machine.save()
-
-        } else {
-          console.log('machine not found')
+        if (!machine) console.log('machine not found')
+        // if machine status change or log count less than total machine
+        if (machine.status !== status || logCount < totalMachine) {
+          await MachineLog.create({
+            machine_id: machine.id,
+            previous_status: machine.status,
+            current_status: status,
+            timestamp: new Date()
+          })
         }
+
+        const runningHour = await getRunningTime(machine.id)
+        machine.total_running_hours = runningHour
+        // update machine status from previous to current status
+        // await machine.update({ total_running_hours: runningHour })
+        machine.status = status
+        await machine.save()
+
+
 
       }))
     } catch (error) {
@@ -166,6 +169,7 @@ mqttClient.on('message', async (topic, message) => {
         return {
           name: machine.name,
           status: machine.status,
+          // percentage: [runningTime, 100 - runningTime],/
           percentage: [runningTime, 100 - runningTime],
           description: countDescription(machine.total_running_hours),
         }

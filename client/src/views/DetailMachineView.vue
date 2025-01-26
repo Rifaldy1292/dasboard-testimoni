@@ -28,6 +28,7 @@ function getDaysInMonth(today: Date) {
 
 const handleChangeMonth = (date: Date) => {
   monthValue.value = date
+  console.log(new Date(monthValue.value))
   console.log(monthValue.value, typeof monthValue.value)
 }
 </script>

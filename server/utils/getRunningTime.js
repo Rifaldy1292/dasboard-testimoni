@@ -45,4 +45,53 @@ const getRunningTime = async (machineId) => {
     // return Number(test)
 }
 
-module.exports = getRunningTime
+const getRunningTimeMonth = async () => {
+    let error = null
+    let data;
+    try {
+
+        const tanggalSaatIni = new Date();
+        const bulanSaatIni = tanggalSaatIni.getMonth();
+        const tahunSaatIni = tanggalSaatIni.getFullYear();
+
+        const logs = await MachineLog.findAll({
+            where: {
+                timestamp: {
+                    [Op.gte]: new Date(tahunSaatIni, bulanSaatIni, 1),
+                    [Op.lte]: new Date(tahunSaatIni, bulanSaatIni + 1, 0)
+                }
+            }
+        });
+
+        let totalRunningTime = 0; // Dalam milidetik
+        let lastRunningTimestamp = null;
+
+        logs.forEach((log) => {
+            if (log.current_status === "Running") {
+                lastRunningTimestamp = log.timestamp;
+            } else if (lastRunningTimestamp) {
+                const duration = new Date(log.timestamp) - new Date(lastRunningTimestamp);
+                totalRunningTime += duration;
+                lastRunningTimestamp = null;
+            }
+        });
+
+        // Jika masih dalam status running hingga sekarang
+        if (lastRunningTimestamp) {
+            totalRunningTime += new Date() - new Date(lastRunningTimestamp);
+        }
+
+        data = totalRunningTime
+    } catch (err) {
+        error = err
+        console.log(err)
+    }
+
+    return {
+        data,
+        error
+    };
+
+}
+
+module.exports = { getRunningTime, getRunningTimeMonth }

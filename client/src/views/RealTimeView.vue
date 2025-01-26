@@ -8,100 +8,6 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import type { Machine } from '@/types/machine.type'
 import { Select } from 'primevue'
 import { watch } from 'vue'
-// import TestWebsocket from './TestWebsocket.vue'
-
-// const dummyMachine: Machine[] = [
-//   {
-//     machineName: 'f230fh0g3',
-//     runningTime: '7 hour 20 minute',
-//     status: 'Stopped',
-//     quantity: 25
-//   },
-//   {
-//     machineName: 'f230fh0g4',
-//     runningTime: '7 hour 20 minute',
-//     status: 'Running',
-//     quantity: 25
-//   },
-//   {
-//     machineName: 'f230fh0g5',
-//     runningTime: '7 hour 20 minute',
-//     status: 'Running',
-//     quantity: 25
-//   },
-//   {
-//     machineName: 'f230fh0g6',
-//     runningTime: '7 hour 20 minute',
-//     status: 'Stopped',
-//     quantity: 20
-//   },
-//   {
-//     machineName: 'f230fh0g7',
-//     runningTime: '7 hour 20 minute',
-//     status: 'Stopped',
-//     quantity: 15
-//   },
-//   {
-//     machineName: 'f230fh0g8',
-//     runningTime: '7 hour 20 minute',
-//     status: 'Running',
-//     quantity: 10
-//   },
-//   {
-//     machineName: 'f230fh0g9',
-//     runningTime: '7 hour 20 minute',
-//     status: 'Stopped',
-//     quantity: 5
-//   },
-//   {
-//     machineName: 'f230fh0g10',
-//     runningTime: '7 hour 20 minute',
-//     status: 'Stopped',
-//     quantity: 5
-//   },
-//   {
-//     machineName: 'f230fh0g11',
-//     runningTime: '7 hour 20 minute',
-//     status: 'Stopped',
-//     quantity: 5
-//   },
-//   {
-//     machineName: 'f230fh0g12',
-//     runningTime: '7 hour 20 minute',
-//     status: 'Stopped',
-//     quantity: 5
-//   },
-//   {
-//     machineName: 'f230fh0g13',
-//     runningTime: '7 hour 20 minute',
-//     status: 'Stopped',
-//     quantity: 5
-//   },
-//   {
-//     machineName: 'f230fh0g14',
-//     runningTime: '7 hour 20 minute',
-//     status: 'Stopped',
-//     quantity: 5
-//   },
-//   {
-//     machineName: 'f230fh0g15',
-//     runningTime: '7 hour 20 minute',
-//     status: 'Stopped',
-//     quantity: 5
-//   },
-//   {
-//     machineName: 'f230fh0g15',
-//     runningTime: '7 hour 20 minute',
-//     status: 'Stopped',
-//     quantity: 5
-//   },
-//   {
-//     machineName: 'f230fh0g15',
-//     runningTime: '7 hour 20 minute',
-//     status: 'Stopped',
-//     quantity: 5
-//   }
-// ]
 
 const selectOptions = [
   { label: 'Day', value: 'day' },
@@ -117,15 +23,13 @@ watch(
   () => type.value,
   () => {
     if (ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ type: type.value }))
+      ws.send(JSON.stringify({ type: type.value, date: new Date() }))
       console.log({ type: type.value })
     }
   }
 )
 
-const isLoading = computed<boolean>(() => {
-  return machines.value.length === 0
-})
+const isLoading = computed<boolean>(() => machines.value.length === 0)
 
 const connectWebsocket = () => {
   ws.onmessage = (event) => {
