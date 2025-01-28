@@ -30,6 +30,22 @@ client.on('connect', () => {
     });
 });
 
+// Update status setiap 30 detik
+setInterval(() => {
+    mqttTopics.forEach(topic => {
+        const machineName = topic.replaceAll('/data', '')
+        const message = {
+            name: machineName,
+            status: getRandomStatus()
+            // status: 'Running'
+        }
+        client.publish(topic, JSON.stringify(message));
+        console.log({ message })
+    });
+}, 1000 * 3);
+// }, 1000 * 5);
+
+
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
