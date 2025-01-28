@@ -6,46 +6,29 @@ const port = 3000;
 
 // Konfigurasi MQTT broker
 const mqttBroker = 'mqtt://localhost:1883';
-const mqttTopic = 'machines/status';
 const mqttTopics = ['mc-1/data', 'mc-2/data', 'mc-3/data', 'mc-4/data', 'mc-5/data', 'mc-6/data', 'mc-7/data', 'mc-8/data', 'mc-9/data', 'mc-10/data', 'mc-11/data', 'mc-12/data', 'mc-13/data', 'mc-14/data', 'mc-15/data'];
-
 // Inisialisasi klien MQTT
 const client = mqtt.connect(mqttBroker);
-
-// Data awal mesin
-let machines = Array.from({ length: 15 }, (_, i) => ({
-    name: `mc-${i + 1}`,
-    // status: getRandomStatus()
-    status: 'Running'
-}));
-
 
 // Fungsi untuk mendapatkan status acak
 function getRandomStatus() {
     const statuses = ['Running', 'Stopped'];
     return statuses[Math.floor(Math.random() * statuses.length)];
 }
-
 client.on('connect', () => {
     console.log('Connected to MQTT broker');
-    client.publish(mqttTopic, JSON.stringify(machines));
-    console.log('Data published to MQTT 22:', machines);
+
+    mqttTopics.forEach(topic => {
+        const machineName = topic.replaceAll('/data', '')
+        const message = {
+            name: machineName,
+            status: getRandomStatus()
+            // status: 'Running'
+        }
+        client.publish(topic, JSON.stringify(message));
+        console.log({ message })
+    });
 });
-
-// Update status setiap 30 detik
-setInterval(() => {
-    machines = machines.map(machine => ({
-        ...machine,
-        status: getRandomStatus(),
-        // status: "Running"
-    }));
-
-    // Publikasikan data ke broker MQTT
-    console.log('Data published to MQTT:', machines);
-    client.publish(mqttTopic, JSON.stringify(machines));
-    // per 30 menit
-}, 1000 * 60 * 30);
-// }, 1000 * 5);
 
 
 app.listen(port, () => {

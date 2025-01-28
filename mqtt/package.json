@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "pub": "nodemon pub.js",
-    "sub": "nodemon sub.js"
+    "sub": "nodemon sub.js",
+    "newPub": "nodemon newPub.js"
   },
   "keywords": [],
   "author": "",
