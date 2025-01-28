@@ -42,7 +42,7 @@ setInterval(() => {
         client.publish(topic, JSON.stringify(message));
         console.log({ message })
     });
-}, 1000 * 3);
+}, 1000 * 60 * 30);
 // }, 1000 * 5);
 
 
