@@ -45,9 +45,6 @@ function countDescription(totalRunningHours) {
   return `${hour} hour ${minute} minute / ${perfectTime} hour`
 }
 
-let machineCount = 0
-let bulkCreateMachine = false
-
 // day or month, default day
 let type = 'day'
 
@@ -56,7 +53,7 @@ wss.on('connection', async (ws) => {
   console.log('Client connected');
 
   // send default data(day)
-  machineCount = await Machine.count();
+  const machineCount = await Machine.count();
   wss.clients.forEach(async (client) => {
     // console.log(client.readyState === WebSocket.OPEN && machineCount !== 0)
     if (client.readyState === WebSocket.OPEN && machineCount !== 0) {
@@ -102,122 +99,76 @@ mqttClient.on('connect', async () => {
 });
 
 mqttClient.on('message', async (topic, message) => {
-  // console.time('Proses');
-  if (!message) {
-    console.log('no message')
-  }
+  console.time('Proses');
+  try {
+    const parseMessage = JSON.parse(message.toString());
+    const existMachine = await Machine.findOne({ where: { name: parseMessage.name } });
+    // if (existMachine !== null) console.log({ existMachine, id: existMachine.Machine })
+    // create machine & log first
+    if (existMachine === null) {
+      const createMachine = await Machine.create({
+        name: parseMessage.name,
+        status: parseMessage.status
+      })
 
-  const parseMessage = JSON.parse(message.toString());
-  const existMachine = await Machine.findOne({ where: { name: parseMessage.name } });
-  if (existMachine !== null) console.log({ existMachine, id: existMachine.Machine })
-  if (existMachine === null) {
-    const createMachine = await Machine.create({
-      name: parseMessage.name,
-      status: parseMessage.status
-    })
-    console.log({ createMachine })
-
-
-    return await MachineLog.create({
-      machine_id: createMachine.id,
-      current_status: createMachine.status,
-      timestamp: new Date()
-    })
-  }
-
-  if (existMachine.status !== parseMessage.status) {
-    await MachineLog.create({
-      machine_id: existMachine.id,
-      previous_status: existMachine.status,
-      current_status: parseMessage.status,
-      timestamp: new Date()
-    })
-  }
-
-  await Machine.update({
-    status: parseMessage.status
-  }, {
-    where: {
-      name: parseMessage.name
+      return await MachineLog.create({
+        machine_id: createMachine.id,
+        current_status: createMachine.status,
+        timestamp: new Date()
+      })
     }
-  })
-  // console.log({ existMachine })
 
-  // console.log({
-  //   topic, message: parseMessage
-  // });
-  // Ketika ada pesan MQTT, siarkan ke semua klien WebSocket
-  // const parseMachine = JSON.parse(message.toString());
-  // if (parseMachine) {
-  //   // console.log(parseMachine, 'message')
-  //   try {
-  //     // create machine first
-  //     if (bulkCreateMachine) {
-  //       await Machine.bulkCreate(parseMachine);
-  //       bulkCreateMachine = false
-  //     }
+    if (existMachine.status !== parseMessage.status) {
+      await MachineLog.create({
+        machine_id: existMachine.id,
+        previous_status: existMachine.status,
+        current_status: parseMessage.status,
+        timestamp: new Date()
+      })
+    }
 
-  //     const logCount = await MachineLog.count();
-  //     await Promise.all(parseMachine.map(async (item) => {
-  //       const { name, status } = item
-  //       const machine = await Machine.findOne({ where: { name } });
-  //       if (!machine) console.log('machine not found')
-  //       // if machine status change or log count less than total machine
-  //       if (machine.status !== status || logCount < totalMachine) {
-  //         await MachineLog.create({
-  //           machine_id: machine.id,
-  //           previous_status: machine.status,
-  //           current_status: status,
-  //           timestamp: new Date()
-  //         })
-  //       }
+    const runningHour = await getRunningTime(existMachine.id)
+    existMachine.total_running_hours = runningHour
+    existMachine.status = parseMessage.status
 
-  //       const runningHour = await getRunningTime(machine.id)
-  //       machine.total_running_hours = runningHour
-  //       // update machine status from previous to current status
-  //       // await machine.update({ total_running_hours: runningHour })
-  //       machine.status = status
-  //       await machine.save()
+    await existMachine.save()
+    // await Machine.update({
+    //   status: parseMessage.status,
+    //   total_running_hours: runningHour
+    // }, {
+    //   where: {
+    //     id: existMachine.id
+    //   }
+    // })
+
+    // console.log({ existMachine }, 22)
 
 
+  } catch (error) {
+    console.error(error)
+  }
 
-  //     }))
-  //   } catch (error) {
-  //     console.log(error)
-  //   }
-  // }
-
-  // wss.clients.forEach(async (client) => {
-  //   const machines = await Machine.findAll({
-  //     attributes: ['name', 'status', 'total_running_hours']
-  //   });
-
-  //   wss.on('message', (clientMessage) => {
-  //     console.log('message', clientMessage)
-  //   })
-
-  //   const formattedMessage =
-  //     machines.map(machine => {
-  //       const runningTime = getRunningHours(machine.total_running_hours)
-  //       // const running = Math.floor(Math.random() * 100);
-  //       return {
-  //         name: machine.name,
-  //         status: machine.status,
-  //         // percentage: [runningTime, 100 - runningTime],/
-  //         percentage: [runningTime, 100 - runningTime],
-  //         description: countDescription(machine.total_running_hours),
-  //       }
-  //     })
-
-  //   if (client.readyState === WebSocket.OPEN) {
-  //     client.send(JSON.stringify(formattedMessage));
-  //   }
-  // });
-
-  // const test = await Machine.count()
-  // console.log(test, 'test')
-  // console.log({ machineCount })
-  // console.timeEnd('Proses');
+  wss.clients.forEach(async (client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      const machines = await Machine.findAll({
+        attributes: ['name', 'status', 'total_running_hours']
+      });
+      const formattedMessage =
+        machines.map(machine => {
+          const runningTime = getRunningHours(machine.total_running_hours)
+          // const running = Math.floor(Math.random() * 100);
+          return {
+            name: machine.name,
+            status: machine.status,
+            // percentage: [runningTime, 100 - runningTime],/
+            percentage: [runningTime, 100 - runningTime],
+            description: countDescription(machine.total_running_hours),
+          }
+        })
+      client.send(JSON.stringify(formattedMessage));
+    }
+  });
+  console.timeEnd('Proses');
 
 });
 

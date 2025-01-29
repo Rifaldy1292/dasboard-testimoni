@@ -33,6 +33,24 @@ const machine: Machine[] = [
     runningTime: '7 hour 20 minute',
     status: 'Pending',
     quantity: 25
+  },
+  {
+    machineName: 'f230fh0g6',
+    runningTime: '7 hour 20 minute',
+    status: 'Running',
+    quantity: 25
+  },
+  {
+    machineName: 'f230fh0g7',
+    runningTime: '7 hour 20 minute',
+    status: 'Stopped',
+    quantity: 25
+  },
+  {
+    machineName: 'f230fh0g8',
+    runningTime: '7 hour 20 minute',
+    status: 'Pending',
+    quantity: 25
   }
 ]
 const selectedMachine = shallowRef<Machine>()
@@ -69,7 +87,7 @@ const handleClickIcon = (icon: 'edit' | 'details', data: Machine): void => {
 <template>
   <BreadcrumbDefault pageTitle="For Operators" />
   <DataTable
-    :value="machine"
+    :value="[...machine, ...machine, ...machine, ...machine, ...machine]"
     :size="'large'"
     lazy
     showGridlines

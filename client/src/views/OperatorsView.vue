@@ -23,6 +23,16 @@ const operators = [
     remaining: '0 Program',
     time: '00:00:00',
     lastUpdate: '05 Jun 2023 09:58:34'
+  },
+  {
+    machine: 'OKK VP1200',
+    name: 'Andi Gunanta Barus',
+    photo: 'https://dummyimage.com/600x400/000/fff.png',
+    process: '00001',
+    status: 'RUN',
+    remaining: '0 Program',
+    time: '00:00:00',
+    lastUpdate: '05 Jun 2023 09:58:34'
   }
   // Tambahkan data lain sesuai kebutuhan...
 ]
