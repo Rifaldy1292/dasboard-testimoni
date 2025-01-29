@@ -172,6 +172,26 @@ class UserController {
         }
     }
 
+    static async editProfile(req, res) {
+        try {
+            const { id } = req.user;
+            const { name } = req.body;
+            const updatedCount = await User.update({
+                name
+            }, {
+                where: { id }
+            });
+            if (updatedCount[0] === 0) {
+                return res.status(404).json({ message: 'User not found', status: 404 });
+            }
+            res.status(200).json({ status: 200, message: 'success update profile', updatedCount });
+        } catch (error) {
+            console.log({ error, message: error.message })
+            res.status(500).json({ message: 'Internal Server Error', status: 500 });
+        }
+    }
+
+
 }
 
 module.exports = UserController

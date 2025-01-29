@@ -21,6 +21,9 @@ module.exports = {
       NIK: {
         type: Sequelize.INTEGER
       },
+      image_path: {
+        type: Sequelize.STRING
+      },
       machine_id: {
         type: Sequelize.INTEGER
       },

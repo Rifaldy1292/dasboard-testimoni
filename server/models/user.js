@@ -57,6 +57,10 @@ module.exports = (sequelize, DataTypes) => {
     machine_id: {
       type: DataTypes.INTEGER,
       allowNull: true
+    },
+    image_path: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {
     sequelize,
