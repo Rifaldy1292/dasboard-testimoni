@@ -1,8 +1,65 @@
 require('dotenv').config();
+const fs = require('fs-extra');
+const path = require('path');
 const { User, Role, Machine } = require('../models');
 const { tokenGenerator } = require('../helpers/jsonwebtoken');
 const { encryptPassword, decryptPassword } = require('../helpers/bcrypt');
+
+const uploadPath = path.join(__dirname, '..', 'public', 'uploads'); // naik satu folder dari routes
 class UserController {
+    static async editProfile(req, res) {
+        try {
+            console.log({ file: req.file })
+            const { id, name } = req.user;
+
+            // Construct the relative path for the uploaded image.
+            const relativeImagePath = `uploads/${id}_${name}_profile.jpg`;
+
+            // Construct the base URL of the application.
+            const baseUrl = `${req.protocol}://${req.get('host')}`;
+
+            // Construct the full image URL by combining the base URL and relative path.
+            const imageUrl = `${baseUrl}/${relativeImagePath}`;
+
+            // Construct the absolute path to the old profile image (if it exists).
+            const oldImagePath = path.join(uploadPath, `${id}_${name}_profile.jpg`);
+
+            // Remove the old profile image file if it exists.
+            // fs.removeSync(oldImagePath, (err) => {
+            //     if (err) {
+            //         console.error("Error deleting old profile image:", err);
+            //         return res.status(500).json({ message: 'Internal Server Error', status: 500 });
+            //     }
+            // });
+
+            // Update the user's profile information in the database, including the new relative image path.
+            const updatedCount = await User.update({
+                name: req.body.name, // Update the user's name from the request body.
+                image_path: relativeImagePath // Store the relative image path in the database.
+            }, {
+                where: { id } // Update the user with the matching ID.
+            });
+
+            // Check if the user was found and updated.
+            if (updatedCount[0] === 0) {
+                return res.status(404).json({ message: 'User not found', status: 404 });
+            }
+
+            // Send a success response with the updated image URL.
+            res.status(200).json({
+                status: 200,
+                message: 'Successfully updated profile',
+                data: {
+                    imageUrl // Send the full image URL in the response.
+                }
+            });
+
+        } catch (error) {
+            console.error("Error updating profile:", error); // Log the error for debugging.
+            res.status(500).json({ message: 'Internal Server Error', status: 500 });
+        }
+    }
+
     static async getAll(req, res) {
         try {
             const users = await User.findAll({
@@ -171,27 +228,6 @@ class UserController {
             res.status(500).json({ message: error.message, status: 500 });
         }
     }
-
-    static async editProfile(req, res) {
-        try {
-            const { id } = req.user;
-            const { name } = req.body;
-            const updatedCount = await User.update({
-                name
-            }, {
-                where: { id }
-            });
-            if (updatedCount[0] === 0) {
-                return res.status(404).json({ message: 'User not found', status: 404 });
-            }
-            res.status(200).json({ status: 200, message: 'success update profile', updatedCount });
-        } catch (error) {
-            console.log({ error, message: error.message })
-            res.status(500).json({ message: 'Internal Server Error', status: 500 });
-        }
-    }
-
-
 }
 
 module.exports = UserController
