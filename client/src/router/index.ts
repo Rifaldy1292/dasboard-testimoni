@@ -6,7 +6,6 @@ import CalendarView from '@/views/CalendarView.vue'
 import BasicChartView from '@/views/Charts/BasicChartView.vue'
 import FormElementsView from '@/views/Forms/FormElementsView.vue'
 import FormLayoutView from '@/views/Forms/FormLayoutView.vue'
-import SettingsView from '@/views/Pages/SettingsView.vue'
 import TablesView from '@/views/TablesView.vue'
 import AlertsView from '@/views/UiElements/AlertsView.vue'
 import ButtonsView from '@/views/UiElements/ButtonsView.vue'
@@ -18,6 +17,7 @@ import UsersView from '@/views/UsersView.vue'
 import ResetPasswordView from '@/views/Authentication/ResetPasswordView.vue'
 import DetailMachineView from '@/views/DetailMachineView.vue'
 import OperatorsView from '@/views/OperatorsView.vue'
+import EditProfileView from '@/views/EditProfileView.vue'
 
 const routes: Readonly<RouteRecordRaw[]> = [
   {
@@ -63,6 +63,14 @@ const routes: Readonly<RouteRecordRaw[]> = [
         component: OperatorsView,
         meta: {
           title: 'Operator List'
+        }
+      },
+      {
+        path: 'edit-profile',
+        name: 'editProfile',
+        component: EditProfileView,
+        meta: {
+          title: 'Edit Profile'
         }
       }
     ]
@@ -140,14 +148,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
       title: 'Tables'
     }
   },
-  {
-    path: '/pages/settings',
-    name: 'settings',
-    component: SettingsView,
-    meta: {
-      title: 'Settings'
-    }
-  },
+
   {
     path: '/charts/basic-chart',
     name: 'basicChart',

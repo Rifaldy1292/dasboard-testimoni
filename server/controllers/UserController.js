@@ -5,7 +5,6 @@ const { tokenGenerator } = require('../helpers/jsonwebtoken');
 const { encryptPassword, decryptPassword } = require('../helpers/bcrypt');
 
 class UserController {
-
     static async getAll(req, res) {
         try {
             const users = await User.findAll({
@@ -186,7 +185,7 @@ class UserController {
     static async editProfile(req, res) {
         try {
             const { id } = req.user;
-            const { name } = req.body;
+            const name = req.body.name || req.user.name;
 
             const fileName = `${id}_${name}_profile${path.extname(req.file.originalname)}`
 

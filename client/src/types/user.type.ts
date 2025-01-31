@@ -15,4 +15,5 @@ export interface User {
   role_id: number
   machineName: null | string
   allowDelete: boolean
+  profileImage: null | string
 }

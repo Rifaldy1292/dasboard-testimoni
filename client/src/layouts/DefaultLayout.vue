@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import HeaderArea from '@/components/Header/HeaderArea.vue'
 import SidebarArea from '@/components/Sidebar/SidebarArea.vue'
+import type { UserLocalStorage } from '@/types/localStorage.type'
+import { provide } from 'vue'
+
+const userData: UserLocalStorage = JSON.parse(localStorage.getItem('user') || '{}')
+provide('userData', userData)
 </script>
 
 <template>

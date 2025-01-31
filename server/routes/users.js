@@ -8,7 +8,6 @@ const { allowRoleId } = require("../middlewares/role");
 
 userRouter.patch('/edit-profile',
     authMiddleware,
-    (req) => allowRoleId(req.user.id),
     upload.single('profilePicture'),
     editProfile);
 
