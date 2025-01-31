@@ -7,6 +7,16 @@ const roleMiddleware = {
                 res.status(403).json({ message: 'You are not allowed' });
             }
         }
+    },
+    // hanya bisa untuk id user yang sama
+    allowId: (id) => {
+        return (req, res, next) => {
+            if (req.user.id === id) {
+                next();
+            } else {
+                res.status(403).json({ message: 'You are not allowed' });
+            }
+        }
     }
 }
 
