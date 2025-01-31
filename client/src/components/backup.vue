@@ -22,6 +22,10 @@ const handleSubmit = (e: FormSubmitEvent) => {
   // Handle form submission for personal information
 }
 
+const handlePhotoSubmit = () => {
+  // Handle form submission for user photo
+}
+
 const handleFileChange = () => {
   // Handle file change for user photo
 }
@@ -53,11 +57,6 @@ const updatePhoto = () => {
           :validate-on-submit="true"
           :validate-on-value-update="true"
         >
-          <!-- disini polanya -->
-          <!-- <div class="grid grid-cols-5">
-            <div class="col-span-5 xl:col-span-3"></div>
-          </div> -->
-
           <div class="p-7">
             <!-- NIK Section -->
             <div class="mb-5.5 cursor-not-allowed">
@@ -169,9 +168,20 @@ const updatePhoto = () => {
               </button>
             </div>
           </div>
+        </Form>
+      </div>
+    </div>
 
-          <!-- upload foto -->
-          <div class="p-7">
+    <!-- Your Photo Section -->
+    <div class="col-span-5 xl:col-span-2">
+      <div
+        class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark"
+      >
+        <div class="border-b border-stroke py-4 px-7 dark:border-strokedark">
+          <h3 class="font-medium text-black dark:text-white">Your Photo</h3>
+        </div>
+        <div class="p-7">
+          <form @submit.prevent="handlePhotoSubmit">
             <!-- User Photo Section -->
             <div class="mb-4 flex items-center gap-3">
               <div class="h-14 w-14 rounded-full">
@@ -239,8 +249,8 @@ const updatePhoto = () => {
                 <p class="text-sm font-medium">(max, 800 X 800px)</p>
               </div>
             </div>
-          </div>
-        </Form>
+          </form>
+        </div>
       </div>
     </div>
   </div>
