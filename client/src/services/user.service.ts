@@ -1,6 +1,6 @@
 import type { AxiosResponse } from 'axios'
 import API from './API'
-import type { EditProfile, LoginPayload, RegisterPayload } from '@/dto/user.dto'
+import type { EditProfile, LoginPayload, ParamsGetUsers, RegisterPayload } from '@/dto/user.dto'
 import type { ApiResponse, FindByNIk, GetUsers } from '@/types/apiResponse.type'
 
 const UserServices = {
@@ -11,8 +11,8 @@ const UserServices = {
   login: (body: LoginPayload): Promise<AxiosResponse<{ data: { token: string } }>> => {
     return API().post('/users/login', body)
   },
-  getUsers: (): Promise<AxiosResponse<GetUsers>> => {
-    return API().get('/users')
+  getUsers: (params?: ParamsGetUsers): Promise<AxiosResponse<GetUsers>> => {
+    return API({ params }).get('/users')
   },
   findByNIk: (nik: number): Promise<AxiosResponse<FindByNIk>> => {
     return API().get(`/users/find/${nik}`)

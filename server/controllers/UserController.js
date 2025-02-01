@@ -3,11 +3,18 @@ const path = require('path');
 const { User, Role, Machine } = require('../models');
 const { tokenGenerator } = require('../helpers/jsonwebtoken');
 const { encryptPassword, decryptPassword } = require('../helpers/bcrypt');
+const { OPERATOR_ROLE_ID } = require('../config/config.env');
 
 class UserController {
     static async getAll(req, res) {
         try {
+            const { role } = req.query;
+            const whereCondition = {};
+            if (role === 'Operator') {
+                whereCondition.role_id = OPERATOR_ROLE_ID
+            }
             const users = await User.findAll({
+                where: whereCondition,
                 include: [{
                     model: Role,
                     attributes: ['name']

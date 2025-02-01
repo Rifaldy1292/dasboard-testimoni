@@ -7,6 +7,10 @@ const { allowRoleId } = require("../middlewares/role");
 
 userRouter.get(
     "/",
+    (req, res, next) => {
+        console.log({ query: req.query });
+        next();
+    },
     authMiddleware,
     allowRoleId(ADMIN_ROLE_ID),
     getAll

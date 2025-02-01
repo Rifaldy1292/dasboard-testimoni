@@ -3,7 +3,7 @@ import { inject, ref } from 'vue'
 import userPhoto from '@/assets/images/user/user-03.png'
 import type { UserLocalStorage } from '@/types/localStorage.type'
 import { InputNumber, InputText, Message } from 'primevue'
-import { Form, FormField, type FormSubmitEvent } from '@primevue/forms'
+import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import { z } from 'zod'
 import useToast from '@/utils/useToast'
@@ -35,7 +35,7 @@ const formValues = ref<EditProfile & { imageUrl: string | null }>(defaultFormVal
 
 console.log({ userData })
 
-const handleSubmit = async (e: FormSubmitEvent) => {
+const handleSubmit = async () => {
   try {
     console.log(formValues.value === defaultFormValue)
     if (formValues.value === defaultFormValue) return

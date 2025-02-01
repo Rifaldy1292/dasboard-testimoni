@@ -11,3 +11,7 @@ export interface EditProfile {
   name?: string
   profilePicture?: null | File
 }
+
+export interface ParamsGetUsers {
+  role?: 'Operator' | 'Reviewer' | 'Admin'
+}
