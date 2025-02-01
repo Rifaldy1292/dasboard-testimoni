@@ -5,12 +5,6 @@ const authMiddleware = require("../middlewares/auth");
 const upload = require("../middlewares/multer");
 const { allowRoleId } = require("../middlewares/role");
 
-
-userRouter.patch('/edit-profile',
-    authMiddleware,
-    upload.single('profilePicture'),
-    editProfile);
-
 userRouter.get(
     "/",
     authMiddleware,
@@ -31,6 +25,9 @@ userRouter.get("/reset-password/:id", resetPassword);
 userRouter.get('/check-token', authMiddleware, checkToken);
 userRouter.patch('/change-password', authMiddleware, changePassword);
 
-
+userRouter.patch('/edit-profile',
+    authMiddleware,
+    upload.single('profilePicture'),
+    editProfile);
 
 module.exports = userRouter;

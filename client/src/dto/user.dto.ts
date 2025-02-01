@@ -6,3 +6,8 @@ export interface RegisterPayload {
 }
 
 export type LoginPayload = Omit<RegisterPayload, 'name'>
+
+export interface EditProfile {
+  name?: string
+  profilePicture?: null | File
+}

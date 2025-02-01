@@ -81,8 +81,9 @@ class UserController {
             if (!matchPassword) {
                 return res.status(401).json({ message: 'Wrong password', status: 401 });
             }
-            const { id, name, role_id } = FoundNIK
-            const token = tokenGenerator({ id, name, NIK: FoundNIK.NIK, role_id, role: FoundNIK.Role.name });
+            const { id, name, role_id, profile_image } = FoundNIK
+            const imageUrl = profile_image ? `${req.protocol}://${req.get('host')}/${profile_image}` : null
+            const token = tokenGenerator({ id, name, NIK: FoundNIK.NIK, role_id, role: FoundNIK.Role.name, imageUrl });
             res.status(200).json({ data: { token }, message: 'success login', status: 200 });
         } catch (error) {
             console.log({ error, message: error.message });
@@ -186,6 +187,19 @@ class UserController {
         try {
             const { id } = req.user;
             const name = req.body.name || req.user.name;
+
+            if (!req.file) {
+                console.log(22)
+                const updatedCount = await User.update({
+                    name: name
+                }, {
+                    where: { id }
+                })
+                if (updatedCount[0] === 0) {
+                    return res.status(404).json({ message: 'User not found', status: 404 });
+                }
+                return res.status(200).json({ status: 200, message: 'success update profile' });
+            }
 
             const fileName = `${id}_${name}_profile${path.extname(req.file.originalname)}`
 

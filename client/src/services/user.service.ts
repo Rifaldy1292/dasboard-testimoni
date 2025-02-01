@@ -1,7 +1,7 @@
 import type { AxiosResponse } from 'axios'
 import API from './API'
-import type { LoginPayload, RegisterPayload } from '@/dto/user.dto'
-import type { FindByNIk, GetUsers } from '@/types/apiResponse.type'
+import type { EditProfile, LoginPayload, RegisterPayload } from '@/dto/user.dto'
+import type { ApiResponse, FindByNIk, GetUsers } from '@/types/apiResponse.type'
 
 const UserServices = {
   register: (body: RegisterPayload): Promise<AxiosResponse> => {
@@ -28,6 +28,12 @@ const UserServices = {
   },
   checkToken: (token: string): Promise<AxiosResponse> => {
     return API({ token }).get('/users/check-token')
+  },
+  editprofile: (body: EditProfile): Promise<AxiosResponse<ApiResponse<{ imageUrl: string }>>> => {
+    const headers = {
+      'Content-Type': 'multipart/form-data'
+    }
+    return API({ headers }).patch('/users/edit-profile', body)
   }
 }
 
