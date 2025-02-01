@@ -1,18 +1,12 @@
 <script setup lang="ts">
-import { ref, shallowRef } from 'vue'
+import { shallowRef } from 'vue'
 import type { Severity } from '@/types/severity.type'
-import { Badge, Button, Column, DataTable, useConfirm } from 'primevue'
+import { Badge, Button, Column, DataTable } from 'primevue'
 import type { Role, User } from '@/types/user.type'
-import UserServices from '@/services/user.service'
-import { onMounted } from 'vue'
 import CreateUser from './CreateUser.vue'
 import useToast from '@/utils/useToast'
-import ModalResetPassword, { type ModalResetPasswordProps } from './ModalResetPassword.vue'
-import { jwtDecode } from 'jwt-decode'
-
-onMounted(() => {
-  fetchUsers()
-})
+import ModalResetPassword from './ModalResetPassword.vue'
+import { useUsers } from '@/composables/useUsers'
 
 interface Columns {
   field: string
@@ -20,8 +14,17 @@ interface Columns {
   sortable?: boolean
 }
 
+const {
+  fetchUsers,
+  loadingFetch,
+  users,
+  handleDeleteUser,
+  handleResetPassword,
+  tokenResetPassword,
+  visibleDialogResetPassword
+} = useUsers()
+
 const toast = useToast()
-const confirm = useConfirm()
 const columns: Columns[] = [
   { field: 'name', header: 'Name' },
   { field: 'NIK', header: 'NIK' },
@@ -29,39 +32,12 @@ const columns: Columns[] = [
   { field: 'roleName', header: 'Role' }
 ]
 
-const users = ref<User[]>([])
 const visibleDialogForm = shallowRef(false)
-const visibleDialogResetPassword = shallowRef(false)
-const tokenResetPassword = ref<ModalResetPasswordProps>({
-  token: '',
-  exp: 0,
-  name: ''
-})
-const loadingTable = shallowRef(false)
 
 const badgeSeverity = (role: Role): Severity => {
   if (role === 'Admin') return 'warn'
   if (role === 'Operator') return 'danger'
   return 'success'
-}
-
-const handleDeleteUser = async (selectedUser: User): Promise<void> => {
-  try {
-    await UserServices.deleteById(selectedUser.id)
-    toast.add({
-      severity: 'success',
-      summary: 'Success',
-      detail: `${selectedUser.name} has been deleted`
-    })
-    await fetchUsers()
-  } catch (error) {
-    console.error(error)
-    toast.add({
-      severity: 'error',
-      summary: 'error',
-      detail: `failed to delete ${selectedUser.name}`
-    })
-  }
 }
 
 const handleClickIcon = async (
@@ -77,64 +53,11 @@ const handleClickIcon = async (
         detail: 'Cannot Delete Yourself!'
       })
     }
-    console.log('delete', visibleDialogForm.value)
-    confirm.require({
-      message: `Are you sure you want to delete ${selectedUser.name}?`,
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      rejectProps: {
-        label: 'Cancel',
-        severity: 'secondary',
-        outlined: true
-      },
-      acceptProps: {
-        label: 'Delete',
-        severity: 'danger'
-      },
-      accept: async (): Promise<void> => {
-        await handleDeleteUser(selectedUser)
-      }
-    })
+    return handleDeleteUser(selectedUser)
   }
   // reset password
   else {
-    // visibleDialogResetPassword.value = true
-    try {
-      const { data } = await UserServices.resetPassword(selectedUser.id)
-      const { token } = data.data
-      const decoded = jwtDecode(token)
-      tokenResetPassword.value = {
-        token,
-        exp: decoded.exp as number,
-        name: selectedUser.name
-      }
-      console.log(tokenResetPassword.value.exp, 22)
-      visibleDialogResetPassword.value = true
-    } catch (error) {
-      console.error(error)
-      toast.add({
-        severity: 'error',
-        summary: 'error',
-        detail: `failed to reset password ${selectedUser.name}`
-      })
-    }
-  }
-}
-
-const fetchUsers = async (): Promise<void> => {
-  try {
-    loadingTable.value = true
-    const { data } = await UserServices.getUsers()
-    users.value = data.data
-  } catch (error) {
-    console.error(error)
-    toast.add({
-      severity: 'error',
-      summary: 'error',
-      detail: 'failed to get user list'
-    })
-  } finally {
-    loadingTable.value = false
+    return handleResetPassword(selectedUser)
   }
 }
 </script>
@@ -145,7 +68,7 @@ const fetchUsers = async (): Promise<void> => {
   </div>
   <DataTable
     :value="users"
-    :loading="loadingTable"
+    :loading="loadingFetch"
     size="large"
     lazy
     showGridlines

@@ -71,14 +71,6 @@ const handleFileChange = (event: Event) => {
     formValues.value.profilePicture = target.files[0]
   }
 }
-
-const deletePhoto = () => {
-  formValues.value.profilePicture = null
-}
-
-const updatePhoto = () => {
-  // Handle update action for user photo
-}
 </script>
 
 <template>
@@ -162,16 +154,8 @@ const updatePhoto = () => {
             <div class="h-14 w-14 rounded-full">
               <img :src="formValues.imageUrl || userPhoto" alt="User" />
             </div>
-            <div>
+            <div class="h-14">
               <span class="mb-1.5 font-medium text-black dark:text-white">Edit your photo</span>
-              <span class="flex gap-2.5">
-                <button class="text-sm font-medium hover:text-primary" @click="deletePhoto">
-                  Delete
-                </button>
-                <button class="text-sm font-medium hover:text-primary" @click="updatePhoto">
-                  Update
-                </button>
-              </span>
             </div>
           </div>
 

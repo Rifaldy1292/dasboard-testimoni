@@ -2,6 +2,7 @@
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import { Card } from 'primevue'
+import { watchEffect } from 'vue'
 
 const operators = [
   {
@@ -36,12 +37,17 @@ const operators = [
   }
   // Tambahkan data lain sesuai kebutuhan...
 ]
+// ntar pake composable
+
+watchEffect(() => {
+  console.log('trigger')
+})
 </script>
 
 <template>
   <DefaultLayout>
     <BreadcrumbDefault pageTitle="Operator List" />
-    <div class="grid gap-4">
+    <div class="grid grid-cols-3 gap-4">
       <Card
         v-for="(operator, index) in operators"
         :key="index"

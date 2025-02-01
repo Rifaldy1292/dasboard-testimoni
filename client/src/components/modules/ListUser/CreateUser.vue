@@ -83,6 +83,7 @@ const handleCreateUser = async (e: FormSubmitEvent): Promise<void> => {
       detail: 'User created'
     })
     emit('refetch')
+    visibleDialogForm.value = false
   } catch (error) {
     if (error instanceof AxiosError && error.response && error.response.data) {
       return toast.add({
