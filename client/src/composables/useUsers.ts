@@ -1,16 +1,13 @@
-import { onMounted, ref, shallowRef } from 'vue'
+import { ref, shallowRef } from 'vue'
 import type { ModalResetPasswordProps } from '@/components/modules/ListUser/ModalResetPassword.vue'
 import UserServices from '@/services/user.service'
 import type { User } from '@/types/user.type'
 import useToast from '@/utils/useToast'
 import { jwtDecode } from 'jwt-decode'
 import { useConfirm } from 'primevue'
+import type { ParamsGetUsers } from '@/dto/user.dto'
 
 export const useUsers = () => {
-  onMounted(() => {
-    fetchUsers()
-  })
-
   const toast = useToast()
   const confirm = useConfirm()
 
@@ -23,10 +20,10 @@ export const useUsers = () => {
     name: ''
   })
 
-  const fetchUsers = async (): Promise<void> => {
+  const fetchUsers = async (params?: ParamsGetUsers): Promise<void> => {
     try {
       loadingFetch.value = true
-      const { data } = await UserServices.getUsers()
+      const { data } = await UserServices.getUsers(params)
       users.value = data.data
     } catch (error) {
       console.error(error)

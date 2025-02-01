@@ -1,55 +1,57 @@
 <script setup lang="ts">
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
+import DataNotFound from '@/components/common/DataNotFound.vue'
+import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
+import { useUsers } from '@/composables/useUsers'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import type { User } from '@/types/user.type'
 import { Card } from 'primevue'
-import { watchEffect } from 'vue'
+import { computed, onMounted } from 'vue'
 
-const operators = [
-  {
-    machine: 'OKK VM5',
-    name: 'Abdul Shomad',
-    photo: 'https://dummyimage.com/100x100/000/fff.png',
-    process: 'O0317 (Kalibrasi)',
-    status: 'IDLE',
-    remaining: '0 Program',
-    time: '00:00:00',
-    lastUpdate: '05 Jun 2023 09:59:37'
-  },
-  {
-    machine: 'OKK VP1200',
-    name: 'Andi Gunanta Barus',
-    photo: 'https://dummyimage.com/600x400/000/fff.png',
-    process: '00001',
-    status: 'RUN',
-    remaining: '0 Program',
-    time: '00:00:00',
-    lastUpdate: '05 Jun 2023 09:58:34'
-  },
-  {
-    machine: 'OKK VP1200',
-    name: 'Andi Gunanta Barus',
-    photo: 'https://dummyimage.com/600x400/000/fff.png',
-    process: '00001',
-    status: 'RUN',
-    remaining: '0 Program',
-    time: '00:00:00',
-    lastUpdate: '05 Jun 2023 09:58:34'
-  }
-  // Tambahkan data lain sesuai kebutuhan...
-]
-// ntar pake composable
+onMounted(() => {
+  fetchUsers({ role: 'Operator' })
+})
 
-watchEffect(() => {
-  console.log('trigger')
+const { fetchUsers, loadingFetch, users } = useUsers()
+
+interface ExtendedUser extends User {
+  status: string
+  remaining: string
+  time: string
+  lastUpdate: string
+  photo: string
+  process: string
+  machine: string
+}
+const extendendUsers = computed<ExtendedUser[]>(() => {
+  const result = users.value.map((user) => {
+    const random = Math.floor(Math.random() * 10)
+    const temp = {
+      ...user,
+      status: random % 2 === 0 ? 'RUN' : 'IDLE',
+      remaining: '0 Program',
+      time: '00:00:00',
+      lastUpdate: '05 Jun 2023 09:58:34',
+      photo: 'https://dummyimage.com/600x400/000/fff.png',
+      process: '00001',
+      machine: random % 2 === 0 ? 'OKK VM5' : 'OKK VP1200'
+    }
+    return temp
+  })
+  const multipleResult = Array.from({ length: 10 }, () => result)
+
+  return multipleResult.flat()
 })
 </script>
 
 <template>
   <DefaultLayout>
     <BreadcrumbDefault pageTitle="Operator List" />
-    <div class="grid grid-cols-3 gap-4">
+    <LoadingAnimation :state="loadingFetch" />
+    <DataNotFound :condition="users.length === 0" tittle="Operators" />
+    <div v-if="users.length > 0" class="grid grid-cols-3 gap-4">
       <Card
-        v-for="(operator, index) in operators"
+        v-for="(operator, index) in extendendUsers"
         :key="index"
         class="p-2 shadow-lg"
         style="max-width: 18rem"

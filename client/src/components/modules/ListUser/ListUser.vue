@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { shallowRef } from 'vue'
+import { onMounted, shallowRef } from 'vue'
 import type { Severity } from '@/types/severity.type'
 import { Badge, Button, Column, DataTable } from 'primevue'
 import type { Role, User } from '@/types/user.type'
@@ -8,11 +8,9 @@ import useToast from '@/utils/useToast'
 import ModalResetPassword from './ModalResetPassword.vue'
 import { useUsers } from '@/composables/useUsers'
 
-interface Columns {
-  field: string
-  header: string
-  sortable?: boolean
-}
+onMounted(() => {
+  fetchUsers()
+})
 
 const {
   fetchUsers,
@@ -23,6 +21,12 @@ const {
   tokenResetPassword,
   visibleDialogResetPassword
 } = useUsers()
+
+interface Columns {
+  field: string
+  header: string
+  sortable?: boolean
+}
 
 const toast = useToast()
 const columns: Columns[] = [

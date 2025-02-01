@@ -1,5 +1,5 @@
 const userRouter = require("express").Router();
-const { ADMIN_ROLE_ID, FOLDER_UPLOAD } = require("../config/config.env");
+const { ADMIN_ROLE_ID } = require("../config/config.env");
 const { changePassword, checkToken, deleteById, editProfile, getAll, getByNIK, login, register, resetPassword } = require("../controllers/UserController")
 const authMiddleware = require("../middlewares/auth");
 const upload = require("../middlewares/multer");
@@ -7,10 +7,6 @@ const { allowRoleId } = require("../middlewares/role");
 
 userRouter.get(
     "/",
-    (req, res, next) => {
-        console.log({ query: req.query });
-        next();
-    },
     authMiddleware,
     allowRoleId(ADMIN_ROLE_ID),
     getAll
