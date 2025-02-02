@@ -1,6 +1,6 @@
 const userRouter = require("express").Router();
 const { ADMIN_ROLE_ID } = require("../config/config.env");
-const { changePassword, checkToken, deleteById, editProfile, getAll, getByNIK, login, register, resetPassword } = require("../controllers/UserController")
+const { changePassword, checkToken, deleteById, editProfile, getAll, getByNIK, login, register, resetPassword, getById } = require("../controllers/UserController")
 const authMiddleware = require("../middlewares/auth");
 const upload = require("../middlewares/multer");
 const { allowRoleId } = require("../middlewares/role");
@@ -8,7 +8,7 @@ const { allowRoleId } = require("../middlewares/role");
 userRouter.get(
     "/",
     authMiddleware,
-    allowRoleId(ADMIN_ROLE_ID),
+    // allowRoleId(ADMIN_ROLE_ID),
     getAll
 );
 
@@ -17,6 +17,9 @@ userRouter.delete("/:id", authMiddleware, allowRoleId(ADMIN_ROLE_ID), deleteById
 
 // find user by NIK
 userRouter.get("/find/:NIK", getByNIK);
+userRouter.get("/find",
+    authMiddleware,
+    getById);
 
 userRouter.post("/register", register);
 userRouter.post("/login", login);

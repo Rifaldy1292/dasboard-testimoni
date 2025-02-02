@@ -2,6 +2,7 @@ import type { AxiosResponse } from 'axios'
 import API from './API'
 import type { EditProfile, LoginPayload, ParamsGetUsers, RegisterPayload } from '@/dto/user.dto'
 import type { ApiResponse, FindByNIk, GetUsers } from '@/types/apiResponse.type'
+import type { User } from '@/types/user.type'
 
 const UserServices = {
   register: (body: RegisterPayload): Promise<AxiosResponse> => {
@@ -13,6 +14,9 @@ const UserServices = {
   },
   getUsers: (params?: ParamsGetUsers): Promise<AxiosResponse<GetUsers>> => {
     return API({ params }).get('/users')
+  },
+  findById: (): Promise<AxiosResponse<ApiResponse<User>>> => {
+    return API().get(`/users/find`)
   },
   findByNIk: (nik: number): Promise<AxiosResponse<FindByNIk>> => {
     return API().get(`/users/find/${nik}`)

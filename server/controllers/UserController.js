@@ -31,7 +31,7 @@ class UserController {
                 user.allowDelete = user.id !== req.user.id;
                 user.roleName = user['Role.name'];
                 user.machineName = user['Machines.name'];
-                user.profileImage = user.profile_image ? `${req.protocol}://${req.get('host')}/${user.profile_image}` : null;
+                user.imageUrl = user.profile_image ? `${req.protocol}://${req.get('host')}/${user.profile_image}` : null;
                 delete user['Role.name'];
                 delete user['Machines.name'];
                 delete user['profile_image'];
@@ -66,7 +66,7 @@ class UserController {
             if (error.message === 'NIK already exists') {
                 return res.status(400).json({ message: error.message, status: 400 });
             }
-            console.error({ error, message: error.message });
+            console.error({ message: error.message, error });
             res.status(500).json({ message: 'Internal Server Error', status: 500 });
         }
     }
@@ -94,6 +94,28 @@ class UserController {
             res.status(200).json({ data: { token }, message: 'success login', status: 200 });
         } catch (error) {
             console.log({ error, message: error.message });
+            res.status(500).json({ message: 'Internal Server Error', status: 500 });
+        }
+    }
+
+    static async getById(req, res) {
+        try {
+            const { id } = req.user;
+            console.log('after, id', id)
+            const user = await User.findByPk(id, {
+                attributes: ['id', 'name', 'NIK', 'createdAt', 'updatedAt', 'profile_image'],
+                raw: true
+            });
+            console.log('before, user', user)
+            if (!user) {
+                return res.status(404).json({ message: 'User not found', status: 404 });
+            }
+            user.imageUrl = user.profile_image ? `${req.protocol}://${req.get('host')}/${user.profile_image}` : null;
+            delete user['profile_image'];
+            console.log({ user })
+            res.status(200).json({ status: 200, message: 'success get user by id', data: user });
+        } catch (err) {
+            console.error({ err, message: err.message });
             res.status(500).json({ message: 'Internal Server Error', status: 500 });
         }
     }

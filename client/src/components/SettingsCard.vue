@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, ref } from 'vue'
+import { inject, onMounted, ref } from 'vue'
 import userPhoto from '@/assets/images/user/user-03.png'
 import type { UserLocalStorage } from '@/types/localStorage.type'
 import { InputNumber, InputText, Message } from 'primevue'
@@ -10,12 +10,41 @@ import useToast from '@/utils/useToast'
 import { AxiosError } from 'axios'
 import UserServices from '@/services/user.service'
 import type { EditProfile } from '@/dto/user.dto'
+import type { User } from '@/types/user.type'
 
 const toast = useToast()
-const userData = inject('userData') as UserLocalStorage
+const userStorageData = inject('userData') as UserLocalStorage
+const userData = ref<User | null>(null)
+
+onMounted(() => {
+  getUserData()
+})
+
+const getUserData = async () => {
+  try {
+    const { data } = await UserServices.findById(userStorageData.id)
+    userData.value = data.data
+    console.log({ data })
+  } catch (error) {
+    console.error(error)
+    if (error instanceof AxiosError) {
+      return toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: error.response?.data.message
+      })
+    }
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Something went wrong'
+    })
+  }
+}
+
 const defaultFormValue = {
-  name: userData.name || '',
-  imageUrl: userData.imageUrl,
+  name: userData.value?.name || '',
+  imageUrl: userData.value?.imageUrl || null,
   profilePicture: null
 }
 
@@ -40,7 +69,7 @@ const handleSubmit = async () => {
     console.log(formValues.value === defaultFormValue)
     if (formValues.value === defaultFormValue) return
     const { data } = await UserServices.editprofile(formValues.value)
-    formValues.value.imageUrl = data.data.imageUrl
+    formValues.value.imageUrl = data.data?.imageUrl
     toast.add({
       severity: 'success',
       summary: 'Success',

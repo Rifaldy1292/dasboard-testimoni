@@ -5,7 +5,7 @@ import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import { useUsers } from '@/composables/useUsers'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import type { User } from '@/types/user.type'
-import { Card } from 'primevue'
+import { Button, Card } from 'primevue'
 import { computed, onMounted } from 'vue'
 
 onMounted(() => {
@@ -32,7 +32,7 @@ const extendendUsers = computed<ExtendedUser[]>(() => {
       remaining: '0 Program',
       time: '00:00:00',
       lastUpdate: '05 Jun 2023 09:58:34',
-      photo: 'https://dummyimage.com/600x400/000/fff.png',
+      photo: user.imageUrl || 'https://dummyimage.com/600x400/000/fff.png',
       process: '00001',
       machine: random % 2 === 0 ? 'OKK VM5' : 'OKK VP1200'
     }
@@ -85,6 +85,13 @@ const extendendUsers = computed<ExtendedUser[]>(() => {
           <div class="text-right mt-2 text-xs text-gray-400">
             Last Update: {{ operator.lastUpdate }}
           </div>
+          <Button
+            :label="operator.status"
+            :severity="operator.status === 'RUN' ? 'success' : 'warn'"
+            class="w-full mt-2"
+            outlined
+            size="small"
+          />
         </template>
       </Card>
     </div>
