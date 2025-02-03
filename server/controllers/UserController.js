@@ -101,18 +101,15 @@ class UserController {
     static async getById(req, res) {
         try {
             const { id } = req.user;
-            console.log('after, id', id)
             const user = await User.findByPk(id, {
                 attributes: ['id', 'name', 'NIK', 'createdAt', 'updatedAt', 'profile_image'],
                 raw: true
             });
-            console.log('before, user', user)
             if (!user) {
                 return res.status(404).json({ message: 'User not found', status: 404 });
             }
             user.imageUrl = user.profile_image ? `${req.protocol}://${req.get('host')}/${user.profile_image}` : null;
             delete user['profile_image'];
-            console.log({ user })
             res.status(200).json({ status: 200, message: 'success get user by id', data: user });
         } catch (err) {
             console.error({ err, message: err.message });

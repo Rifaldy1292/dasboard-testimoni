@@ -6,12 +6,14 @@ import useToast from '@/utils/useToast'
 import { jwtDecode } from 'jwt-decode'
 import { useConfirm } from 'primevue'
 import type { ParamsGetUsers } from '@/dto/user.dto'
+import { AxiosError } from 'axios'
 
 export const useUsers = () => {
   const toast = useToast()
   const confirm = useConfirm()
 
   const users = ref<User[]>([])
+  const user = ref<User | undefined>()
   const loadingFetch = shallowRef(false)
   const visibleDialogResetPassword = shallowRef(false)
   const tokenResetPassword = ref<ModalResetPasswordProps>({
@@ -20,6 +22,30 @@ export const useUsers = () => {
     name: ''
   })
 
+  const getDetailUser = async () => {
+    try {
+      loadingFetch.value = true
+      const { data } = await UserServices.findById()
+      user.value = data.data
+      console.log({ value: user.value })
+    } catch (error) {
+      console.error(error)
+      if (error instanceof AxiosError) {
+        return toast.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.response?.data.message
+        })
+      }
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Something went wrong'
+      })
+    } finally {
+      loadingFetch.value = false
+    }
+  }
   const fetchUsers = async (params?: ParamsGetUsers): Promise<void> => {
     try {
       loadingFetch.value = true
@@ -104,6 +130,8 @@ export const useUsers = () => {
     handleDeleteUser,
     handleResetPassword,
     visibleDialogResetPassword,
-    tokenResetPassword
+    tokenResetPassword,
+    getDetailUser,
+    user
   }
 }

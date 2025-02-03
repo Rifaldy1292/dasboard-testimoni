@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { inject, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import userPhoto from '@/assets/images/user/user-03.png'
-import type { UserLocalStorage } from '@/types/localStorage.type'
 import { InputNumber, InputText, Message } from 'primevue'
 import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
@@ -10,43 +9,15 @@ import useToast from '@/utils/useToast'
 import { AxiosError } from 'axios'
 import UserServices from '@/services/user.service'
 import type { EditProfile } from '@/dto/user.dto'
-import type { User } from '@/types/user.type'
+import { useUsers } from '@/composables/useUsers'
+import LoadingAnimation from './common/LoadingAnimation.vue'
 
-const toast = useToast()
-const userStorageData = inject('userData') as UserLocalStorage
-const userData = ref<User | null>(null)
-
-onMounted(() => {
-  getUserData()
+onMounted(async () => {
+  await getDetailUser()
 })
 
-const getUserData = async () => {
-  try {
-    const { data } = await UserServices.findById(userStorageData.id)
-    userData.value = data.data
-    console.log({ data })
-  } catch (error) {
-    console.error(error)
-    if (error instanceof AxiosError) {
-      return toast.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: error.response?.data.message
-      })
-    }
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'Something went wrong'
-    })
-  }
-}
-
-const defaultFormValue = {
-  name: userData.value?.name || '',
-  imageUrl: userData.value?.imageUrl || null,
-  profilePicture: null
-}
+const { getDetailUser, user, loadingFetch } = useUsers()
+const toast = useToast()
 
 const resolver = zodResolver(
   z.object({
@@ -60,14 +31,31 @@ const resolver = zodResolver(
   })
 )
 
-const formValues = ref<EditProfile & { imageUrl: string | null }>(defaultFormValue)
+const defaultFormValue = computed<EditProfile & { imageUrl: string | null }>(() => {
+  return {
+    name: user.value?.name || '',
+    imageUrl: user.value?.imageUrl || null,
+    profilePicture: null
+  }
+})
 
-console.log({ userData })
+const formValues = ref<EditProfile & { imageUrl: string | null }>(defaultFormValue.value)
+watch(
+  () => user.value,
+  () => {
+    formValues.value = {
+      imageUrl: user.value?.imageUrl || null,
+      name: user.value?.name,
+      profilePicture: null
+    }
+  }
+)
 
 const handleSubmit = async () => {
   try {
-    console.log(formValues.value === defaultFormValue)
-    if (formValues.value === defaultFormValue) return
+    console.log(formValues.value === defaultFormValue.value)
+    if (formValues.value === defaultFormValue.value) return
+    console.log({ payload: formValues.value })
     const { data } = await UserServices.editprofile(formValues.value)
     formValues.value.imageUrl = data.data?.imageUrl
     toast.add({
@@ -103,7 +91,9 @@ const handleFileChange = (event: Event) => {
 </script>
 
 <template>
+  <LoadingAnimation :state="loadingFetch" />
   <div
+    v-if="!loadingFetch"
     class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark"
   >
     <div class="border-b border-stroke py-4 px-7 dark:border-strokedark">
@@ -126,7 +116,7 @@ const handleFileChange = (event: Event) => {
             >
             <InputNumber
               name="NIK"
-              :default-value="userData?.NIK"
+              :default-value="user?.NIK"
               :useGrouping="false"
               class="w-full rounded border border-stroke bg-gray font-normal text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
               placeholder="Enter NIK"
@@ -146,7 +136,8 @@ const handleFileChange = (event: Event) => {
                 >
                 <div class="relative flex items-center">
                   <InputText
-                    :default-value="formValues.name"
+                    :default-value="defaultFormValue?.name"
+                    v-model:model-value="formValues.name"
                     type="text"
                     required
                     class="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
@@ -181,7 +172,7 @@ const handleFileChange = (event: Event) => {
           <!-- User Photo Section -->
           <div class="mb-4 flex items-center gap-3">
             <div class="h-14 w-14 rounded-full">
-              <img :src="formValues.imageUrl || userPhoto" alt="User" />
+              <img :src="defaultFormValue.imageUrl || userPhoto" alt="User" />
             </div>
             <div class="h-14">
               <span class="mb-1.5 font-medium text-black dark:text-white">Edit your photo</span>
