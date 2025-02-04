@@ -212,7 +212,7 @@ class UserController {
     static async editProfile(req, res) {
         try {
             const { id } = req.user;
-            const name = req.body.name || req.user.name;
+            const name = req.body.name
 
             if (!req.file) {
                 console.log(22)

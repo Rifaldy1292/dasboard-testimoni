@@ -15,9 +15,10 @@ import AuthView from '@/views/Authentication/AuthView.vue'
 import ForgotPasswordView from '@/views/Authentication/ForgotPasswordView.vue'
 import UsersView from '@/views/UsersView.vue'
 import ResetPasswordView from '@/views/Authentication/ResetPasswordView.vue'
-import DetailMachineView from '@/views/DetailMachineView.vue'
 import OperatorsView from '@/views/OperatorsView.vue'
 import EditProfileView from '@/views/EditProfileView.vue'
+import TimelineView from '@/views/TimelineView.vue'
+import CuttingTimeView from '@/views/CuttingTimeView.vue'
 
 const routes: Readonly<RouteRecordRaw[]> = [
   {
@@ -34,11 +35,19 @@ const routes: Readonly<RouteRecordRaw[]> = [
         }
       },
       {
-        path: 'real-time/detail',
-        name: 'realTimeDetail',
-        component: DetailMachineView,
+        path: 'timeline',
+        name: 'timeline',
+        component: TimelineView,
         meta: {
-          title: 'Detail Real Time'
+          title: 'Timeline'
+        }
+      },
+      {
+        path: 'cutting-time',
+        name: 'cuttingTime',
+        component: CuttingTimeView,
+        meta: {
+          title: 'Cutting Time'
         }
       },
       {
