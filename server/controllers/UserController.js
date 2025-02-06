@@ -40,7 +40,7 @@ class UserController {
             res.status(200).json({ status: 200, message: 'success get user list', data: formattedResult });
         } catch (err) {
             console.error({ err, message: err.message });
-            res.status(500).json({ message: 'Internal Server Error', status: 500 });
+            res.status(500).json({ message: 'Failed to get user list', status: 500 });
         }
     }
     static async register(req, res) {
@@ -67,7 +67,7 @@ class UserController {
                 return res.status(400).json({ message: error.message, status: 400 });
             }
             console.error({ message: error.message, error });
-            res.status(500).json({ message: 'Internal Server Error', status: 500 });
+            res.status(500).json({ message: 'Failed to register', status: 500 });
         }
     }
     static async login(req, res) {
@@ -94,7 +94,7 @@ class UserController {
             res.status(200).json({ data: { token }, message: 'success login', status: 200 });
         } catch (error) {
             console.log({ error, message: error.message });
-            res.status(500).json({ message: 'Internal Server Error', status: 500 });
+            res.status(500).json({ message: 'Failed to login', status: 500 });
         }
     }
 
@@ -113,7 +113,7 @@ class UserController {
             res.status(200).json({ status: 200, message: 'success get user by id', data: user });
         } catch (err) {
             console.error({ err, message: err.message });
-            res.status(500).json({ message: 'Internal Server Error', status: 500 });
+            res.status(500).json({ message: 'Failed to get user', status: 500 });
         }
     }
 
@@ -137,7 +137,7 @@ class UserController {
             res.status(200).json({ status: 200, message: 'success get user by NIK', data: user });
         } catch (err) {
             console.error({ err, message: err.message });
-            res.status(500).json({ message: 'Internal Server Error', status: 500 });
+            res.status(500).json({ message: 'Failed to get user', status: 500 });
         }
     }
 
@@ -160,7 +160,7 @@ class UserController {
             res.status(200).json({ status: 200, message: 'success delete user by id', deletedCount });
         } catch (err) {
             console.error({ err, message: err.message });
-            res.status(500).json({ message: 'Internal Server Error', status: 500 });
+            res.status(500).json({ message: 'Failed to delete user', status: 500 });
         }
     }
 
@@ -177,7 +177,7 @@ class UserController {
             res.status(200).json({ status: 200, message: 'success reset password', data: { token } });
         } catch (error) {
             console.error({ error, message: error.message });
-            res.status(500).json({ message: 'Internal Server Error', status: 500 });
+            res.status(500).json({ message: 'Failed to reset password', status: 500 });
         }
     }
 
@@ -186,7 +186,7 @@ class UserController {
             res.status(200).json({ status: 200, message: 'success check token' });
         } catch (error) {
             console.error({ error, message: error.message });
-            res.status(500).json({ message: 'Internal Server Error', status: 500 });
+            res.status(500).json({ message: 'Failed to check token', status: 500 });
         }
     }
 
@@ -206,7 +206,7 @@ class UserController {
             res.status(200).json({ status: 200, message: 'success update password', updatedCount });
         } catch (error) {
             console.error({ error, message: error.message });
-            res.status(500).json({ message: 'Internal Server Error', status: 500 });
+            res.status(500).json({ message: 'Failed to update password', status: 500 });
         }
     }
     static async editProfile(req, res) {
@@ -262,7 +262,7 @@ class UserController {
             });
 
         } catch (error) {
-            console.error("Error updating profile:", error); // Log the error for debugging.
+            console.error({ error, message: error.message }) // Log the error for debugging.
             res.status(500).json({ message: 'Internal Server Error', status: 500 });
         }
     }

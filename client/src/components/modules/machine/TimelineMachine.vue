@@ -5,7 +5,6 @@ import type { Machine, MachineTimeline } from '@/types/machine.type'
 const { machine } = defineProps<{
   machine: MachineTimeline
 }>()
-console.log({ length: machine.MachineLogs.length })
 
 const iconTimeline = (status: Machine['status']): { icon: string; color: string } => {
   if (status === 'Running') {

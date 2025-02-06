@@ -2,7 +2,7 @@
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import TimelineMachine from '@/components/modules/machine/TimelineMachine.vue'
-import { onMounted, ref, shallowRef } from 'vue'
+import { onMounted, ref, shallowRef, watchEffect } from 'vue'
 import type { MachineTimeline } from '@/types/machine.type'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import useToast from '@/utils/useToast'
@@ -16,7 +16,11 @@ onMounted(async () => {
 
 const toast = useToast()
 
-const value1 = ref<Date | null>(null)
+const value1 = ref<Date>(new Date())
+watchEffect(() => {
+  console.log('test', new Date())
+  console.log(value1.value)
+})
 
 const machines = ref<MachineTimeline[]>([])
 const isLoading = shallowRef<boolean>(false)
@@ -27,6 +31,7 @@ const fetchMachines = async () => {
     const { data } = await MachineServices.getTimeline()
     machines.value = data.data
   } catch (error) {
+    console.log(error)
     if (error instanceof AxiosError) {
       return toast.add({
         severity: 'error',
@@ -34,11 +39,6 @@ const fetchMachines = async () => {
         detail: error.response?.data.message
       })
     }
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'Failed to fetch machines'
-    })
   } finally {
     isLoading.value = false
   }

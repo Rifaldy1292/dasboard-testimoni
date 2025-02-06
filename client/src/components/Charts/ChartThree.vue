@@ -100,11 +100,11 @@ const apexOptions = {
       </template>
       <div class="w-full px-8 sm:w-1/2">
         <Button
-          v-if="$route.name === 'realTime'"
-          label="Detail"
+          :label="machine.status"
+          :severity="machine.status === 'Running' ? 'success' : 'warn'"
           outlined
           size="small"
-          @click="$router.push({ name: 'realTimeDetail' })"
+          disabled
         />
       </div>
 
