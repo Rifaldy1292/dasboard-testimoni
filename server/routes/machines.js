@@ -5,7 +5,7 @@ const authMiddleware = require("../middlewares/auth");
 machineRouter.get(
     "/timeline",
     authMiddleware,
-    MachineController.getAll
+    MachineController.timelines
 );
 
 module.exports = machineRouter;

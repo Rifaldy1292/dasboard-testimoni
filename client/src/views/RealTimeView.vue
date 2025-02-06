@@ -6,13 +6,7 @@ import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 // import TableMachine from '@/components/Tables/TableMachine.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import type { Machine } from '@/types/machine.type'
-import { Select } from 'primevue'
 import { watch } from 'vue'
-
-const selectOptions = [
-  { label: 'Day', value: 'day' },
-  { label: 'Month', value: 'month' }
-]
 
 const ws = new WebSocket('ws://localhost:3333')
 const machines = ref<Machine[]>([])
