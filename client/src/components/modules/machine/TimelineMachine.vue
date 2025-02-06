@@ -16,7 +16,9 @@ const iconTimeline = (status: Machine['status']): { icon: string; color: string 
 
 <template>
   <div class="card">
-    <span class="text-xl font-semibold text-black dark:text-white"> {{ machine.name }}</span>
+    <span class="flex justify-center text-xl font-semibold text-black dark:text-white">
+      {{ machine.name }}</span
+    >
     <Timeline :value="machine.MachineLogs" layout="horizontal" align="bottom">
       <template #marker="{ item }">
         <span

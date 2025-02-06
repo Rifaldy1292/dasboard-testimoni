@@ -53,7 +53,13 @@ const fetchMachines = async () => {
       <div class="flex flex-col gap-5 mb-2">
         <div class="flex justify-end">
           <FloatLabel>
-            <DatePicker v-model="value1" inputId="over_label" showIcon iconDisplay="input" />
+            <DatePicker
+              v-model="value1"
+              inputId="over_label"
+              showIcon
+              iconDisplay="input"
+              date-format="dd/mm/yy"
+            />
             <label for="over_label">Select Date</label>
           </FloatLabel>
         </div>
