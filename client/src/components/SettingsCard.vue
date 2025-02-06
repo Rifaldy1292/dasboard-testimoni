@@ -73,11 +73,6 @@ const handleSubmit = async () => {
         detail: error.response?.data.message
       })
     }
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'Something went wrong'
-    })
   }
 }
 
