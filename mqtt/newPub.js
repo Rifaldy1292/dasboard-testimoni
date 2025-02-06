@@ -21,7 +21,7 @@ client.on('connect', () => {
     mqttTopics.forEach(topic => {
         const machineName = topic.replaceAll('/data', '')
         const message = {
-            name: machineName,
+            name: machineName.toUpperCase(),
             status: getRandomStatus()
             // status: 'Running'
         }
