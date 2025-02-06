@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const roleRouter = require("./roles");
 const userRouter = require("./users");
+const machineRouter = require("./machines");
 const { User, Role, Machine } = require('../models');
 
 router.get("/", async (req, res) => {
@@ -14,5 +15,6 @@ router.get("/", async (req, res) => {
 
 router.use("/users", userRouter);
 router.use('/roles', roleRouter)
+router.use('/machines', machineRouter)
 
 module.exports = router;

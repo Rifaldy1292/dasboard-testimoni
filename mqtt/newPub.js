@@ -19,9 +19,9 @@ client.on('connect', () => {
     console.log('Connected to MQTT broker');
 
     mqttTopics.forEach(topic => {
-        const machineName = topic.replaceAll('/data', '')
+        const machineName = topic.replaceAll('/data', '').toUpperCase()
         const message = {
-            name: machineName.toUpperCase(),
+            name: machineName,
             status: getRandomStatus()
             // status: 'Running'
         }
@@ -33,7 +33,7 @@ client.on('connect', () => {
 // Update status setiap 30 detik
 setInterval(() => {
     mqttTopics.forEach(topic => {
-        const machineName = topic.replaceAll('/data', '')
+        const machineName = topic.replaceAll('/data', '').toUpperCase()
         const message = {
             name: machineName,
             status: getRandomStatus()
