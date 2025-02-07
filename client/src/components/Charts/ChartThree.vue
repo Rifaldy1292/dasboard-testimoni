@@ -98,11 +98,10 @@ const apexOptions = {
           </div>
         </div>
       </template>
-      <div class="w-full px-8 sm:w-1/2">
+      <div class="w-full px-8 sm:w-1/2 text-black dark:text-white">
         <Button
           :label="machine.status"
           :severity="machine.status === 'Running' ? 'success' : 'warn'"
-          outlined
           size="small"
           disabled
         />
