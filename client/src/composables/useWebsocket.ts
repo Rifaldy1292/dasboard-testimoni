@@ -23,29 +23,30 @@ const useWebSocket = () => {
     socket.value = new WebSocket(SOCKET_URL)
 
     socket.value.onopen = () => console.log('Connected to WebSocket server')
-
     socket.value.onmessage = (event) => {
       try {
         loadingWebsocket.value = true
-        const parsedData = JSON.parse(event.data)
+        const parsedData = JSON.parse(event.data) as { type?: string; data: Array<any> }
+        // console.log('Received WebSocket message', parsedData)
         const { type, data } = parsedData
-        if (type) {
-          switch (type) {
-            case 'timeline':
-              console.log('from server timeline', data)
-              break
-            case 'percentage': {
-              const sortedData = data.sort((a: Machine, b: Machine) => {
-                const numberA = parseInt(a.name.slice(3))
-                const numberB = parseInt(b.name.slice(3))
-                return numberA - numberB
-              })
-              percentageMachines.value = sortedData
-              break
-            }
+        if (!type) return console.log('Unknown type', type, data)
+        switch (type) {
+          case 'timeline':
+            console.log('from server timeline', data)
+            break
+          case 'percentage': {
+            const sortedData = data.sort((a: Machine, b: Machine) => {
+              const numberA = parseInt(a.name.slice(3))
+              const numberB = parseInt(b.name.slice(3))
+              return numberA - numberB
+            }) as Machine[]
+            percentageMachines.value = sortedData
+            break
           }
+          default:
+            console.log('Unknown type', type, data)
+            break
         }
-        console.log('Received WebSocket message', parsedData)
       } catch (error) {
         console.error('Invalid WebSocket message', error)
       } finally {

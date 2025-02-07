@@ -8,7 +8,7 @@ const path = require('path');
 const { createServer } = require('http')
 const { percentage, totalHour } = require("./utils/countHour")
 const { getRunningTime, getRunningTimeMonth } = require("./utils/getRunningTime");
-const { handleWebsocket } = require("./websocket/handleWebsocket");
+const { handleWebsocket } = require("./websocket/");
 
 
 const app = express();
@@ -57,7 +57,7 @@ let type = 'day'
 
 
 wss.on('connection', async (ws) => {
-  console.log('Client connected');
+  // console.log('Client connected');
 
   // send default data(day)
   const machineCount = await Machine.count();
@@ -83,18 +83,18 @@ wss.on('connection', async (ws) => {
     }
   });
 
-  ws.on('message', async (message) => {
-    const parse = JSON.parse(message)
-    type = parse.type
-    // console.log({ parse })
-    if (type === 'month') {
-      const { data, error } = await getRunningTimeMonth()
-      if (!error) {
-        console.log(data, 'data from month')
-      }
-    }
+  // ws.on('message', async (message) => {
+  //   const parse = JSON.parse(message)
+  //   type = parse.type
+  //   console.log({ parse })
+  //   if (type === 'month') {
+  //     const { data, error } = await getRunningTimeMonth()
+  //     if (!error) {
+  //       console.log(data, 'data from month')
+  //     }
+  //   }
 
-  })
+  // })
 });
 
 
@@ -139,16 +139,6 @@ mqttClient.on('message', async (topic, message) => {
     existMachine.status = parseMessage.status
 
     await existMachine.save()
-    // await Machine.update({
-    //   status: parseMessage.status,
-    //   total_running_hours: runningHour
-    // }, {
-    //   where: {
-    //     id: existMachine.id
-    //   }
-    // })
-
-    // console.log({ existMachine }, 22)
 
 
   } catch (error) {

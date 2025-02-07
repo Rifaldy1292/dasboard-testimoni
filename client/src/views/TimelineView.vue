@@ -11,10 +11,12 @@ import MachineServices from '@/services/machine.service'
 import { DatePicker, FloatLabel } from 'primevue'
 import useWebsocket from '@/composables/useWebsocket'
 
-const { loadingWebsocket } = useWebsocket()
+const { sendMessage } = useWebsocket()
 
 onMounted(async () => {
   await fetchMachines()
+  console.log('send message')
+  sendMessage({ type: 'timeline', message: 'timeline' })
 })
 
 const toast = useToast()
