@@ -1,12 +1,18 @@
 const express = require("express");
-const app = express();
 const cors = require("cors");
 const WebSocket = require("ws");
 const mqtt = require('mqtt');
 const { PORT } = require("./config/config.env");
 const { Machine, MachineLog } = require("./models");
 const path = require('path');
+const { createServer } = require('http')
+const { percentage, totalHour } = require("./utils/countHour")
+const { getRunningTime, getRunningTimeMonth } = require("./utils/getRunningTime");
+const { handleWebsocket } = require("./websocket/handleWebsocket");
 
+
+const app = express();
+const server = createServer(app)
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -18,23 +24,21 @@ app.use(
   })
 );
 
+
+const wss = new WebSocket.Server({ server });
+handleWebsocket(wss)
+
+
 const router = require("./routes");
 app.use("/api", router);
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);
-  console.log(`ws on port ${WSPORT}`);
 });
 
-const WSPORT = 3333;
 const mqttClient = mqtt.connect('mqtt://localhost:1883');
-const wss = new WebSocket.Server({ port: WSPORT });
 const mqttTopics = ['mc-1/data', 'mc-2/data', 'mc-3/data', 'mc-4/data', 'mc-5/data', 'mc-6/data', 'mc-7/data', 'mc-8/data', 'mc-9/data', 'mc-10/data', 'mc-11/data', 'mc-12/data', 'mc-13/data', 'mc-14/data', 'mc-15/data'];
 const perfectTime = 24 //hour
-const totalMachine = 15
-
-const { percentage, totalHour } = require("./utils/countHour")
-const { getRunningTime, getRunningTimeMonth } = require("./utils/getRunningTime");
 
 // runningHour = miliseconds
 function getRunningHours(runningHour) {
@@ -75,7 +79,7 @@ wss.on('connection', async (ws) => {
           }
         })
 
-      client.send(JSON.stringify(formattedMessage));
+      client.send(JSON.stringify({ type: 'percentage', data: formattedMessage }));
     }
   });
 
@@ -168,7 +172,7 @@ mqttClient.on('message', async (topic, message) => {
             description: countDescription(machine.total_running_hours),
           }
         })
-      client.send(JSON.stringify(formattedMessage));
+      client.send(JSON.stringify({ type: 'percentage', data: formattedMessage }));
     }
   });
   console.timeEnd('Proses');

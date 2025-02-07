@@ -9,6 +9,9 @@ import useToast from '@/utils/useToast'
 import { AxiosError } from 'axios'
 import MachineServices from '@/services/machine.service'
 import { DatePicker, FloatLabel } from 'primevue'
+import useWebsocket from '@/composables/useWebsocket'
+
+const { loadingWebsocket } = useWebsocket()
 
 onMounted(async () => {
   await fetchMachines()
