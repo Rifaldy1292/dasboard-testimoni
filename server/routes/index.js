@@ -15,6 +15,6 @@ router.get("/", async (req, res) => {
 
 router.use("/users", userRouter);
 router.use('/roles', roleRouter)
-router.use('/machines', machineRouter)
+// router.use('/machines', machineRouter)
 
 module.exports = router;
