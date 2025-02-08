@@ -1,46 +1,65 @@
-import type { Machine } from '@/types/machine.type'
+import type { Machine, MachineTimeline } from '@/types/machine.type'
+import useToast from '@/utils/useToast'
 import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
 const PORT = +import.meta.env.VITE_PORT || 3000
 const SOCKET_URL = `ws://localhost:${PORT}`
 
+type PayloadType = 'timeline' | 'percentage'
 type payloadWebsocket = {
-  type: string
-  message: string
+  type: PayloadType
+  message?: string
 }
 
-const useWebSocket = () => {
+interface WebsocketResponse {
+  type: PayloadType | 'error'
+  data: Array<any>
+  message?: string
+}
+
+const useWebSocket = (payloadType: PayloadType | null) => {
+  const toast = useToast()
+
   const socket = ref<WebSocket | null>(null)
   const percentageMachines = ref<Machine[]>([])
+  const timelineMachines = ref<MachineTimeline[]>([])
+  // const errorMessage = shallowRef<string | undefined>()
   const loadingWebsocket = shallowRef<boolean>(false)
 
   const sendMessage = (payload: payloadWebsocket) => {
     if (socket.value?.readyState === WebSocket.OPEN) {
-      socket.value.send(JSON.stringify(payload))
+      console.log('send message')
+      return socket.value.send(JSON.stringify(payload))
     }
   }
 
   onMounted(() => {
     socket.value = new WebSocket(SOCKET_URL)
 
-    socket.value.onopen = () => console.log('Connected to WebSocket server')
+    socket.value.onopen = () => {
+      console.log('Connected to WebSocket server')
+      if (payloadType) sendMessage({ type: payloadType })
+    }
     socket.value.onmessage = (event) => {
       try {
         loadingWebsocket.value = true
-        const parsedData = JSON.parse(event.data) as { type?: string; data: Array<any> }
+        const parsedData = JSON.parse(event.data) as WebsocketResponse
         // console.log('Received WebSocket message', parsedData)
-        const { type, data } = parsedData
-        if (!type) return console.log('Unknown type', type, data)
+        const { type, data, message } = parsedData
+        if (!type) return console.log('Unknown format', parsedData)
         switch (type) {
+          case 'error':
+            toast.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: message
+            })
+            break
           case 'timeline':
             console.log('from server timeline', data)
+            timelineMachines.value = data
             break
           case 'percentage': {
-            const sortedData = data.sort((a: Machine, b: Machine) => {
-              const numberA = parseInt(a.name.slice(3))
-              const numberB = parseInt(b.name.slice(3))
-              return numberA - numberB
-            }) as Machine[]
-            percentageMachines.value = sortedData
+            percentageMachines.value = data
             break
           }
           default:
@@ -63,7 +82,7 @@ const useWebSocket = () => {
     }
   })
 
-  return { sendMessage, loadingWebsocket, percentageMachines }
+  return { sendMessage, loadingWebsocket, percentageMachines, timelineMachines }
 }
 
 export default useWebSocket

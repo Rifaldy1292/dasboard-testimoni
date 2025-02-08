@@ -4,7 +4,7 @@ import ChartThree from '@/components/Charts/ChartThree.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import useWebSocket from '@/composables/useWebsocket'
-const { percentageMachines, loadingWebsocket } = useWebSocket()
+const { percentageMachines, loadingWebsocket } = useWebSocket('percentage')
 </script>
 
 <template>

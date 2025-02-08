@@ -8,7 +8,7 @@ const path = require('path');
 const { createServer } = require('http')
 const { percentage, totalHour } = require("./utils/countHour")
 const { getRunningTime, getRunningTimeMonth } = require("./utils/getRunningTime");
-const { handleWebsocket } = require("./websocket/");
+const handleWebsocket = require("./websocket/");
 
 
 const app = express();
@@ -24,10 +24,8 @@ app.use(
   })
 );
 
-
 const wss = new WebSocket.Server({ server });
 handleWebsocket(wss)
-
 
 const router = require("./routes");
 app.use("/api", router);
@@ -56,45 +54,16 @@ function countDescription(totalRunningHours) {
 let type = 'day'
 
 
-wss.on('connection', async (ws) => {
+wss.on('connection', (ws) => {
   // console.log('Client connected');
 
-  // send default data(day)
-  const machineCount = await Machine.count();
-  wss.clients.forEach(async (client) => {
-    // console.log(client.readyState === WebSocket.OPEN && machineCount !== 0)
-    if (client.readyState === WebSocket.OPEN && machineCount !== 0) {
-      const machines = await Machine.findAll({
-        attributes: ['name', 'status', 'total_running_hours']
-      });
-
-      const formattedMessage =
-        machines.map(machine => {
-          const runningTime = getRunningHours(machine.total_running_hours)
-          return {
-            name: machine.name,
-            status: machine.status,
-            percentage: [runningTime, 100 - runningTime],
-            description: countDescription(machine.total_running_hours),
-          }
-        })
-
-      client.send(JSON.stringify({ type: 'percentage', data: formattedMessage }));
+  ws.on('message', (message) => {
+    console.log({ message: JSON.parse(message) })
+    const { type } = JSON.parse(message)
+    if (type === 'month') {
+      ws.send(JSON.stringify({ message: 'aakkmkmk' }))
     }
-  });
-
-  // ws.on('message', async (message) => {
-  //   const parse = JSON.parse(message)
-  //   type = parse.type
-  //   console.log({ parse })
-  //   if (type === 'month') {
-  //     const { data, error } = await getRunningTimeMonth()
-  //     if (!error) {
-  //       console.log(data, 'data from month')
-  //     }
-  //   }
-
-  // })
+  })
 });
 
 
@@ -161,7 +130,12 @@ mqttClient.on('message', async (topic, message) => {
             percentage: [runningTime, 100 - runningTime],
             description: countDescription(machine.total_running_hours),
           }
+        }).sort((a, b) => {
+          const numberA = parseInt(a.name.slice(3))
+          const numberB = parseInt(b.name.slice(3))
+          return numberA - numberB
         })
+
       client.send(JSON.stringify({ type: 'percentage', data: formattedMessage }));
     }
   });
