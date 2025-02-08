@@ -1,3 +1,4 @@
+const MachineWebsocket = require('./machine')
 /**
  * Handles WebSocket connections and messages, providing endpoints for retrieving
  * machine timelines and percentages.
@@ -22,13 +23,13 @@ const handleWebsocket = (wss) => {
                     /**
                      * Retrieves machine timelines.
                      */
-                    await timelines(ws)
+                    await MachineWebsocket.timelines(ws)
                     break
                 case 'percentage':
                     /**
                      * Retrieves machine percentages.
                      */
-                    await percentages(ws)
+                    await MachineWebsocket.percentages(ws)
                     break
                 default:
                     console.log('Unknown type', type, messageType)
