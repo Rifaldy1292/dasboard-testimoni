@@ -1,6 +1,6 @@
 const { Op } = require('sequelize');
-const { Machine, MachineLog } = require('../../models');
-const { percentage, totalHour } = require('../../utils/countHour');
+const { Machine, MachineLog } = require('../models');
+const { percentage, totalHour } = require('../utils/countHour');
 
 /**
  * Perfect time constant.

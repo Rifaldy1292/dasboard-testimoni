@@ -1,4 +1,4 @@
-const MachineWebsocket = require('./machine')
+const MachineWebsocket = require('./MachineWebsocket')
 /**
  * Handles WebSocket connections and messages, providing endpoints for retrieving
  * machine timelines and percentages.

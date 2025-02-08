@@ -7,7 +7,7 @@
  */
 const { Machine, MachineLog } = require('../models');
 const { getRunningTime } = require('../utils/getRunningTime');
-const MachineWebsocket = require('../websocket/machine');
+const MachineWebsocket = require('../websocket/MachineWebsocket');
 
 const mqttTopics = [
     'mc-1/data', 'mc-2/data', 'mc-3/data', 'mc-4/data', 'mc-5/data',
