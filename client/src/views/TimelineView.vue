@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue'
+import { ref, watch } from 'vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import TimelineMachine from '@/components/modules/machine/TimelineMachine.vue'
@@ -7,13 +7,20 @@ import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import { DatePicker, FloatLabel } from 'primevue'
 import useWebsocket from '@/composables/useWebsocket'
 
-const { loadingWebsocket, timelineMachines } = useWebsocket('timeline')
+const { loadingWebsocket, timelineMachines, sendMessage } = useWebsocket('timeline')
 
-const value1 = ref<Date>(new Date())
-watchEffect(() => {
-  // console.log('test', new Date())
-  // console.log(value1.value)
-})
+const dateOption = ref<Date>(new Date())
+watch(
+  () => dateOption.value,
+  () => {
+    sendMessage({
+      type: 'timeline',
+      data: {
+        date: dateOption.value.toISOString()
+      }
+    })
+  }
+)
 </script>
 
 <template>
@@ -25,7 +32,7 @@ watchEffect(() => {
         <div class="flex justify-end">
           <FloatLabel>
             <DatePicker
-              v-model="value1"
+              v-model="dateOption"
               inputId="over_label"
               showIcon
               iconDisplay="input"

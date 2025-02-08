@@ -55,15 +55,20 @@ module.exports = class MachineWebsocket {
      * Retrieves machine timelines and sends them to the client.
      * 
      * @param {WebSocket} client - The WebSocket client instance.
+     * @param {string} date - The date to retrieve the timeline for.
      */
-    static async timelines(client) {
+    static async timelines(client, date) {
         try {
+            if (!date) throw new Error('Date is required');
+            const dateOption = new Date(date);
             const machines = await Machine.findAll({
                 include: [{
                     model: MachineLog,
                     where: {
+                        // ambil data sesuai hari ini
                         timestamp: {
-                            [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0))
+                            [Op.gte]: new Date(dateOption.setHours(0, 0, 0, 0)),
+                            [Op.lte]: new Date(dateOption.setHours(23, 59, 59, 999))
                         }
                     },
                     order: [['timestamp', 'ASC']],

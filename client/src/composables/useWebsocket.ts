@@ -8,6 +8,9 @@ type PayloadType = 'timeline' | 'percentage'
 type payloadWebsocket = {
   type: PayloadType
   message?: string
+  data?: {
+    date?: string
+  }
 }
 
 interface WebsocketResponse {
@@ -16,7 +19,7 @@ interface WebsocketResponse {
   message?: string
 }
 
-const useWebSocket = (payloadType: PayloadType | null) => {
+const useWebSocket = (payloadType?: PayloadType) => {
   const toast = useToast()
 
   const socket = ref<WebSocket | null>(null)
@@ -37,7 +40,13 @@ const useWebSocket = (payloadType: PayloadType | null) => {
 
     socket.value.onopen = () => {
       console.log('Connected to WebSocket server')
-      if (payloadType) sendMessage({ type: payloadType })
+      if (payloadType)
+        sendMessage({
+          type: payloadType,
+          data: {
+            date: new Date().toISOString()
+          }
+        })
     }
     socket.value.onmessage = (event) => {
       try {

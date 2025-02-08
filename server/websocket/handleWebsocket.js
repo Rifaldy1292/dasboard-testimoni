@@ -14,16 +14,16 @@ const handleWebsocket = (wss) => {
          *
          * @param {string} message - The message received from the client.
          */
-        ws.on('message', async (message) => {
-            const { type, message: messageType } = JSON.parse(message)
-            console.log({ type, messageType })
+        ws.on('message', async (msg) => {
+            const { type, message, data } = JSON.parse(msg)
+            console.log(type, message, data)
             if (!type) return console.log('Unknown format', message)
             switch (type) {
                 case 'timeline':
                     /**
                      * Retrieves machine timelines.
                      */
-                    await MachineWebsocket.timelines(ws)
+                    await MachineWebsocket.timelines(ws, data.date)
                     break
                 case 'percentage':
                     /**
