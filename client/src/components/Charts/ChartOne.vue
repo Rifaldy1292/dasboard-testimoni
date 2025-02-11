@@ -1,22 +1,61 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-// @ts-ignore
-import VueApexCharts from 'vue3-apexcharts'
+const chartData: ChartData = { series: [ { name: 'Product One', data: [23, 11, 22, 27, 13, 22, 37,
+21, 44, 22, 30, 45] }, { name: 'Product One', data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30, 45]
+}, { name: 'Product One', data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30, 45] }, { name: 'Product
+Two', data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39, 51] } ], labels: ['Sep', 'Oct', 'Nov',
+'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'] }
 
-const chartData = {
+<script setup lang="ts">
+import { ref, watchEffect } from 'vue'
+import VueApexCharts from 'vue3-apexcharts'
+import DatePickerMonth from '../Forms/DatePicker/DatePickerMonth.vue'
+
+type ChartData = {
+  series: Array<{
+    name: string
+    data: number[]
+  }>
+  labels: string[] | number[]
+}
+
+const dummyData: ChartData = {
+  // 31 days
+  labels: [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+    27, 28, 29, 30, 31
+  ],
   series: [
     {
       name: 'Product One',
-      data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30, 45]
+      data: [
+        30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39, 51, 30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39,
+        51, 30, 25, 36, 30, 45, 35, 64
+      ]
+    },
+    {
+      name: 'Product Two',
+      data: [
+        23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30, 45, 23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30,
+        45, 23, 11, 22, 27, 13, 22, 37
+      ]
+    },
+    {
+      name: 'Product Three',
+      data: [
+        23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30, 45, 23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30,
+        45, 23, 11, 22, 27, 13, 22, 37
+      ]
     },
 
     {
-      name: 'Product Two',
-      data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39, 51]
+      name: 'Product Four',
+      data: [
+        30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39, 51, 30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39,
+        51, 30, 25, 36, 30, 45, 35, 64
+      ] // 31 days
     }
-  ],
-  labels: ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug']
+  ]
 }
+console.log({ dummyData })
 
 const chart = ref(null)
 
@@ -87,7 +126,7 @@ const apexOptions = {
     enabled: false
   },
   markers: {
-    size: 4,
+    size: 8,
     colors: '#fff',
     strokeColors: ['#3056D3', '#80CAEE'],
     strokeWidth: 3,
@@ -102,7 +141,7 @@ const apexOptions = {
   },
   xaxis: {
     type: 'category',
-    categories: chartData.labels,
+    categories: dummyData.labels,
     axisBorder: {
       show: false
     },
@@ -120,6 +159,11 @@ const apexOptions = {
     max: 100
   }
 }
+
+const monthValue = ref<Date>(new Date())
+watchEffect(() => {
+  console.log('monthValue', monthValue.value)
+})
 </script>
 
 <template>
@@ -153,7 +197,7 @@ const apexOptions = {
       </div>
       <div class="flex w-full max-w-45 justify-end">
         <div class="inline-flex items-center rounded-md bg-whiter p-1.5 dark:bg-meta-4">
-          <button
+          <!-- <button
             class="rounded bg-white py-1 px-3 text-xs font-medium text-black shadow-card hover:bg-white hover:shadow-card dark:bg-boxdark dark:text-white dark:hover:bg-boxdark"
           >
             Day
@@ -167,7 +211,8 @@ const apexOptions = {
             class="rounded py-1 px-3 text-xs font-medium text-black hover:bg-white hover:shadow-card dark:text-white dark:hover:bg-boxdark"
           >
             Month
-          </button>
+          </button> -->
+          <DatePickerMonth v-model:month-value="monthValue" />
         </div>
       </div>
     </div>
@@ -177,7 +222,7 @@ const apexOptions = {
           type="area"
           height="350"
           :options="apexOptions"
-          :series="chartData.series"
+          :series="dummyData.series"
           ref="chart"
         />
       </div>
