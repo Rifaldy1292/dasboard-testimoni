@@ -29,20 +29,7 @@ const getRunningTime = async (machineId) => {
     if (lastRunningTimestamp) {
         totalRunningTime += new Date() - new Date(lastRunningTimestamp);
     }
-    // console.log({
-    //     totalRunningTime,
-    //     lastRunningTimestamp
-    // })
-    // const totalHour = Math.floor(totalRunningTime / (1000 * 60 * 60));
-    // const totalMinute = Math.floor((totalRunningTime % (1000 * 60 * 60)) / (1000 * 60));
-
-    // const combineResult = `${totalHour}.${totalMinute.toString().padStart(2, '0')}`;
-    // console.log({ jamDenganKoma: Number(jamDenganKoma), totalRunningTime })
-    // const test = `${totalHour}.${totalMinute.toString()}`
-    // console.log({ combineResult, test })
-
     return totalRunningTime;
-    // return Number(test)
 }
 
 const getRunningTimeMonth = async () => {

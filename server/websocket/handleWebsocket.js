@@ -1,3 +1,4 @@
+const getLastMachineLog = require('../mqtt/MachineMqtt');
 const MachineWebsocket = require('./MachineWebsocket')
 /**
  * Handles WebSocket connections and messages, providing endpoints for retrieving
@@ -31,6 +32,10 @@ const handleWebsocket = (wss) => {
                      */
                     await MachineWebsocket.percentages(ws)
                     break
+                case 'test': {
+                    console.log(22)
+                    break
+                }
                 default:
                     console.log('Unknown type', type, messageType)
                     break

@@ -31,7 +31,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       total_running_hours: {
-        type: Sequelize.DECIMAL(10, 2),
+        type: Sequelize.INTEGER,
         allowNull: true
       },
       createdAt: {

@@ -4,7 +4,7 @@ import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
 const PORT = +import.meta.env.VITE_PORT || 3000
 const SOCKET_URL = `ws://localhost:${PORT}`
 
-type PayloadType = 'timeline' | 'percentage'
+type PayloadType = 'timeline' | 'percentage' | 'test'
 type payloadWebsocket = {
   type: PayloadType
   message?: string

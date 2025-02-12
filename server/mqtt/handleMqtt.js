@@ -8,6 +8,7 @@
 const { Machine, MachineLog } = require('../models');
 const { getRunningTime } = require('../utils/getRunningTime');
 const MachineWebsocket = require('../websocket/MachineWebsocket');
+const getLastMachineLog = require('./MachineMqtt');
 
 const mqttTopics = [
     'mc-1/data', 'mc-2/data', 'mc-3/data', 'mc-4/data', 'mc-5/data',
@@ -24,24 +25,24 @@ const handleMqtt = (mqttClient, wss) => {
     });
 
     mqttClient.on('message', async (topic, message) => {
-        console.time('Proses');
+        // console.time('Proses');
         try {
             const parseMessage = JSON.parse(message.toString());
-            const existMachine = await Machine.findOne({ where: { name: parseMessage.name } });
+            const existMachine = await Machine.findOne({ where: { name: parseMessage.name }, include: MachineLog });
 
+            // create machine & log if machine not exist
             if (existMachine === null) {
                 const createMachine = await Machine.create({
                     name: parseMessage.name,
                     status: parseMessage.status
                 });
 
-                await MachineLog.create({
+                // running_today default 0
+                return await MachineLog.create({
                     machine_id: createMachine.id,
                     current_status: createMachine.status,
                     timestamp: new Date()
                 });
-
-                return;
             }
 
             if (existMachine.status !== parseMessage.status) {
@@ -57,7 +58,10 @@ const handleMqtt = (mqttClient, wss) => {
             existMachine.total_running_hours = runningHour;
             existMachine.status = parseMessage.status;
 
+
             await existMachine.save();
+            await getLastMachineLog(existMachine.id);
+
 
         } catch (error) {
             console.error({ error, message: error.message });
@@ -69,7 +73,7 @@ const handleMqtt = (mqttClient, wss) => {
                 await MachineWebsocket.percentages(client);
             }
         });
-        console.timeEnd('Proses');
+        // console.timeEnd('Proses');
     });
 }
 

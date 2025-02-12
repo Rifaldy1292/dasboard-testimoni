@@ -19,7 +19,11 @@ module.exports = (sequelize, DataTypes) => {
     previous_status: DataTypes.STRING,
     current_status: DataTypes.STRING,
     timestamp: DataTypes.DATE,
-    running_today: DataTypes.INTEGER
+    running_today: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      allowNull: false
+    }
   }, {
     sequelize,
     modelName: 'MachineLog',

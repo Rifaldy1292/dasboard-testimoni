@@ -11,6 +11,8 @@ module.exports = {
      */
     await queryInterface.addColumn('MachineLogs', 'running_today', {
       type: Sequelize.INTEGER,
+      defaultValue: 0,
+      allowNull: false
     });
   },
 

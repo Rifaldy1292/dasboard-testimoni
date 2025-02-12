@@ -10,5 +10,3 @@ export const getAllDayInMonth = () => {
   }
   return result
 }
-
-console.log(getAllDayInMonth())

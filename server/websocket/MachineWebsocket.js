@@ -59,8 +59,9 @@ module.exports = class MachineWebsocket {
      */
     static async timelines(client, date) {
         try {
-            if (!date) throw new Error('Date is required');
-            const dateOption = new Date(date);
+            // default date is today
+            const currentDate = date || new Date();
+            const dateOption = new Date(currentDate);
             const machines = await Machine.findAll({
                 include: [{
                     model: MachineLog,

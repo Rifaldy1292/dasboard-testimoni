@@ -6,6 +6,9 @@ import { Select } from 'primevue'
 import { ref } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
 import { getAllDayInMonth } from './getAllDayInMonth'
+import useWebSocket from '@/composables/useWebsocket'
+
+const { loadingWebsocket } = useWebSocket('test')
 
 const monthValue = ref(new Date())
 /**
