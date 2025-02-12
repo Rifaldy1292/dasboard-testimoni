@@ -78,6 +78,8 @@ module.exports = class MachineWebsocket {
                 attributes: ['name', 'status']
             });
 
+            client.send(JSON.stringify({ type: 'asd', data: machines }));
+
             const formattedMachines = machines.map(machine => {
                 const logs = machine.MachineLogs.map(log => {
                     return {
