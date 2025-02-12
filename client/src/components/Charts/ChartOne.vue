@@ -5,9 +5,9 @@ Two', data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39, 51] } ], labels: ['Sep'
 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'] }
 
 <script setup lang="ts">
+import type { ApexOptions } from 'apexcharts'
 import { ref, watchEffect } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
-import DatePickerMonth from '../Forms/DatePicker/DatePickerMonth.vue'
 
 type ChartData = {
   series: Array<{
@@ -59,13 +59,13 @@ console.log({ dummyData })
 
 const chart = ref(null)
 
-const apexOptions = {
+const apexOptions: ApexOptions = {
   legend: {
     show: false,
     position: 'top',
     horizontalAlign: 'left'
   },
-  colors: ['#3C50E0', '#80CAEE'],
+  colors: ['#3C50E0', '#80CAEE', '#FF0000', '#FF9900'],
   chart: {
     fontFamily: 'Satoshi, sans-serif',
     height: 335,
@@ -212,7 +212,7 @@ watchEffect(() => {
           >
             Month
           </button> -->
-          <DatePickerMonth v-model:month-value="monthValue" />
+          <slot name="header"></slot>
         </div>
       </div>
     </div>
