@@ -4,7 +4,7 @@ import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
 const PORT = +import.meta.env.VITE_PORT || 3000
 const SOCKET_URL = `ws://localhost:${PORT}`
 
-type PayloadType = 'timeline' | 'percentage' | 'test'
+type PayloadType = 'timeline' | 'percentage' | 'test' | 'cuttingTime'
 type payloadWebsocket = {
   type: PayloadType
   message?: string
@@ -82,7 +82,11 @@ const useWebSocket = (payloadType?: PayloadType) => {
       }
     }
 
-    socket.value.onclose = () => console.log('Disconnected from WebSocket server')
+    socket.value.onclose = () => {
+      percentageMachines.value = []
+      timelineMachines.value = []
+      console.log('Disconnected from WebSocket server')
+    }
   })
 
   onUnmounted(() => {

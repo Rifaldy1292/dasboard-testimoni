@@ -8,7 +8,7 @@ import VueApexCharts from 'vue3-apexcharts'
 import { getAllDayInMonth } from './getAllDayInMonth'
 import useWebSocket from '@/composables/useWebsocket'
 
-const { loadingWebsocket } = useWebSocket('test')
+const { loadingWebsocket } = useWebSocket('cuttingTime')
 
 const monthValue = ref(new Date())
 /**

@@ -42,6 +42,8 @@ KONFIGURASI POSTGRES MENGGUNAKAN SEQUELIZE
 
 9. pnpx sequelize-cli model:generate --name MachineLog --attributes machine_id:number,previous_status:string,current_status:string,timestamp:date
 
+- 10. pnpx sequelize-cli model:generate --name CuttingTime --attributes machine_id:integer, target: integer,
+
 - untuk membuat class dan juga migrations
 
 5. pnpx sequelize-cli db:migrate

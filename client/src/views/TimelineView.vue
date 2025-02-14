@@ -20,6 +20,8 @@ watch(
         date: dateOption.value.toISOString()
       }
     })
+    const test = new Date(dateOption.value).getDate()
+    console.log({ test, typeof: typeof test })
   }
 )
 </script>

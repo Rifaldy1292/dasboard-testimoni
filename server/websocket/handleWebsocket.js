@@ -32,12 +32,15 @@ const handleWebsocket = (wss) => {
                      */
                     await MachineWebsocket.percentages(ws)
                     break
+                case 'cuttingTime':
+                    await MachineWebsocket.cuttingTime(ws)
+                    break
                 case 'test': {
                     console.log(22)
                     break
                 }
                 default:
-                    console.log('Unknown type', type, messageType)
+                    console.log('Unknown type', type)
                     break
             }
         })

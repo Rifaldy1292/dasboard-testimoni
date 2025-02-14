@@ -2,6 +2,24 @@ const { Op } = require('sequelize');
 const { Machine, MachineLog } = require('../models');
 const { percentage, totalHour } = require('../utils/countHour');
 
+const target = 600; // Total target hours for the month
+
+function getTarget() {
+    const date = new Date();
+    const month = date.getMonth();
+    const year = date.getFullYear();
+    const totalDayInMonth = new Date(year, month + 1, 0).getDate(); // Get number of days in the current month
+
+    const targetPerDay = target / totalDayInMonth; // Calculate target hours per day
+
+    const calculatedTargets = Array.from({ length: totalDayInMonth }, (_, i) => (i + 1) * targetPerDay); // Calculate cumulative target for each day
+
+    const formattedResult = calculatedTargets.map((item) => Math.round(item))
+    // console.log({ test, length: test.length });
+
+    return formattedResult;
+}
+
 /**
  * Perfect time constant.
  * @type {number}
@@ -12,7 +30,7 @@ const perfectTime = 24; // hour
  * Converts a date to a formatted time string.
  * 
  * @param {Date} date - The date to convert.
- * @returns {string} The formatted time string.
+ * @returns {string} The formatted time string. ex: 10:00
  */
 function convertDateTime(date) {
     const dateTime = new Date(date);
@@ -131,6 +149,17 @@ module.exports = class MachineWebsocket {
         } catch (e) {
             console.log({ e, message: e.message });
             client.send(JSON.stringify({ type: 'error', message: 'Failed to get percentage' }));
+        }
+    }
+
+    static async cuttingTime(client) {
+        try {
+            const result = getTarget();
+            console.log(result)
+            client.send(JSON.stringify({ type: 'cuttingTime', data: result }));
+        } catch (error) {
+            console.error({ error, message: error.message });
+            client.send(JSON.stringify({ type: 'error', message: 'Failed to get cutting time' }));
         }
     }
 }
