@@ -15,6 +15,10 @@ module.exports = (sequelize, DataTypes) => {
   }
   CuttingTime.init({
     machine_id: DataTypes.INTEGER,
+    period: { // period represents the month and year, e.g. 2020-01
+      type: DataTypes.DATEONLY,
+      allowNull: false
+    },
     target: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -24,5 +28,15 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'CuttingTime',
   });
+
+  // unique period
+  CuttingTime.beforeCreate(async (cuttingTime, options) => {
+    const existCuttingTime = await CuttingTime.findOne({ where: { period: cuttingTime.period } });
+    console.log('from validate', existCuttingTime, 777777)
+    if (existCuttingTime) {
+      throw new Error('Cutting time for this month already exists');
+    }
+  });
   return CuttingTime;
+
 };

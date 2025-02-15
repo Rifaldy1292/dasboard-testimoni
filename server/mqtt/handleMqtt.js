@@ -5,10 +5,11 @@
  * @param {mqtt.Client} mqttClient - The MQTT client instance.
  * @param {WebSocket.Server} wss - The WebSocket server instance.
  */
-const { Machine, MachineLog } = require('../models');
+const { Machine, MachineLog, CuttingTime } = require('../models');
 const { getRunningTime } = require('../utils/getRunningTime');
 const MachineWebsocket = require('../websocket/MachineWebsocket');
-const getLastMachineLog = require('./MachineMqtt');
+const { createCuttingTime } = require('./handleCuttingTime');
+const { getLastMachineLog } = require('./MachineMqtt');
 
 const mqttTopics = [
     'mc-1/data', 'mc-2/data', 'mc-3/data', 'mc-4/data', 'mc-5/data',
@@ -28,6 +29,10 @@ const handleMqtt = (mqttClient, wss) => {
         // console.time('Proses');
         try {
             const parseMessage = JSON.parse(message.toString());
+
+            // create cutting time here
+            await createCuttingTime();
+
             const existMachine = await Machine.findOne({ where: { name: parseMessage.name }, include: MachineLog });
 
             // create machine & log if machine not exist
@@ -54,6 +59,9 @@ const handleMqtt = (mqttClient, wss) => {
                 });
             }
 
+
+
+
             const runningHour = await getRunningTime(existMachine.id);
             existMachine.total_running_hours = runningHour;
             existMachine.status = parseMessage.status;
@@ -64,6 +72,9 @@ const handleMqtt = (mqttClient, wss) => {
 
 
         } catch (error) {
+            if (error.message === 'Unexpected token < in JSON at position 0') {
+                return console.error({ error, message: 'Invalid JSON' });
+            }
             console.error({ error, message: error.message });
         }
 

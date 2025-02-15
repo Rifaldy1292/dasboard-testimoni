@@ -1,4 +1,3 @@
-const getLastMachineLog = require('../mqtt/MachineMqtt');
 const MachineWebsocket = require('./MachineWebsocket')
 /**
  * Handles WebSocket connections and messages, providing endpoints for retrieving

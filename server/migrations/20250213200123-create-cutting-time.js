@@ -9,6 +9,10 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      period: {
+        type: Sequelize.DATEONLY,
+        allowNull: false
+      },
       machine_id: {
         type: Sequelize.INTEGER
       },

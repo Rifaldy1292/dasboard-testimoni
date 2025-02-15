@@ -15,33 +15,35 @@ function getRandomStatus() {
     const statuses = ['Running', 'Stopped'];
     return statuses[Math.floor(Math.random() * statuses.length)];
 }
-client.on('connect', () => {
-    console.log('Connected to MQTT broker');
 
-    mqttTopics.forEach(topic => {
+const pubMessage = () => {
+    mqttTopics.forEach((topic, index) => {
         const machineName = topic.replaceAll('/data', '').toUpperCase()
         const message = {
             name: machineName,
             status: getRandomStatus()
             // status: 'Running'
         }
-        client.publish(topic, JSON.stringify(message));
+        // delay 90 detik
+        setTimeout(() => {
+            client.publish(topic, JSON.stringify(message));
+            console.log({ message }, 222)
+        }, 90 * index);
+
+        // client.publish(topic, JSON.stringify(message));  
         console.log({ message })
     });
+}
+client.on('connect', () => {
+    console.log('Connected to MQTT broker');
+
+    // Publish message
+    pubMessage();
 });
 
 // Update status setiap 30 detik
 setInterval(() => {
-    mqttTopics.forEach(topic => {
-        const machineName = topic.replaceAll('/data', '').toUpperCase()
-        const message = {
-            name: machineName,
-            status: getRandomStatus()
-            // status: 'Running'
-        }
-        client.publish(topic, JSON.stringify(message));
-        console.log({ message })
-    });
+    pubMessage();
 }, 1000 * 60 * 30);
 // }, 1000 * 2);
 

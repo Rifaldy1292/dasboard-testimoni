@@ -27,6 +27,21 @@ const monthValue = ref(new Date())
 //     name: 'Machine 1',
 //     data: [20, 40, 60, ...600],
 //     dayInMonth: [1, 2, 3, ...31]
+//   },
+//   {
+//     name: 'Machine 2',
+//     data: [20, 40, 60, ...600],
+//     dayInMonth: [1, 2, 3, ...31]
+//   },
+//   {
+//     name: 'Machine 3',
+//     data: [20, 40, 60, ...600],
+//     dayInMonth: [1, 2, 3, ...31]
+//   },
+//   {
+//     name: 'Machine 4',
+//     data: [20, 40, 60, ...600],
+//     dayInMonth: [1, 2, 3, ...31]
 //   }
 // ]
 
