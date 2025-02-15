@@ -1,12 +1,9 @@
 const { CuttingTime } = require('../models');
+const dateCuttingTime = require('../utils/dateCuttingTime');
 
 const createCuttingTime = async () => {
     try {
-        const nowDate = new Date();
-        const month = nowDate.getMonth() + 1;
-        const year = nowDate.getFullYear();
-        const date = new Date(year, month, 0);
-
+        const { date } = dateCuttingTime();
         const existCuttingTime = await CuttingTime.findOne({ where: { period: date } });
         if (existCuttingTime === null) {
             return await CuttingTime.create({

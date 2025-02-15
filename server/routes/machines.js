@@ -3,9 +3,9 @@ const MachineController = require("../controllers/MachineController");
 const authMiddleware = require("../middlewares/auth");
 
 machineRouter.get(
-    "/timeline",
+    "/cutting-time",
     authMiddleware,
-    // MachineController.timelines
+    MachineController.getCuttingTime
 );
 
 module.exports = machineRouter;

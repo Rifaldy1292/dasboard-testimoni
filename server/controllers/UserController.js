@@ -4,6 +4,7 @@ const { User, Role, Machine } = require('../models');
 const { tokenGenerator } = require('../helpers/jsonwebtoken');
 const { encryptPassword, decryptPassword } = require('../helpers/bcrypt');
 const { OPERATOR_ROLE_ID } = require('../config/config.env');
+const { serverError } = require('../utils/serverError');
 
 class UserController {
     static async getAll(req, res) {
@@ -39,8 +40,7 @@ class UserController {
             });
             res.status(200).json({ status: 200, message: 'success get user list', data: formattedResult });
         } catch (err) {
-            console.error({ err, message: err.message });
-            res.status(500).json({ message: 'Failed to get user list', status: 500 });
+            serverError(err, res, 'Failed to get user list');
         }
     }
     static async register(req, res) {
@@ -66,8 +66,7 @@ class UserController {
             if (error.message === 'NIK already exists') {
                 return res.status(400).json({ message: error.message, status: 400 });
             }
-            console.error({ message: error.message, error });
-            res.status(500).json({ message: 'Failed to register', status: 500 });
+            serverError(error, res, 'Failed to register user');
         }
     }
     static async login(req, res) {
@@ -93,8 +92,7 @@ class UserController {
             const token = tokenGenerator({ id, name, NIK: FoundNIK.NIK, role_id, role: FoundNIK.Role.name, imageUrl });
             res.status(200).json({ data: { token }, message: 'success login', status: 200 });
         } catch (error) {
-            console.log({ error, message: error.message });
-            res.status(500).json({ message: 'Failed to login', status: 500 });
+            serverError(error, res, 'Failed to login user');
         }
     }
 
@@ -112,8 +110,7 @@ class UserController {
             delete user['profile_image'];
             res.status(200).json({ status: 200, message: 'success get user by id', data: user });
         } catch (err) {
-            console.error({ err, message: err.message });
-            res.status(500).json({ message: 'Failed to get user', status: 500 });
+            serverError(err, res, 'Failed to get user');
         }
     }
 
@@ -136,8 +133,7 @@ class UserController {
             delete user['Role.name'];
             res.status(200).json({ status: 200, message: 'success get user by NIK', data: user });
         } catch (err) {
-            console.error({ err, message: err.message });
-            res.status(500).json({ message: 'Failed to get user', status: 500 });
+            serverError(err, res, 'Failed to get user ');
         }
     }
 
@@ -157,10 +153,9 @@ class UserController {
             if (deletedCount === 0) {
                 return res.status(404).json({ message: 'User not found', status: 404 });
             }
-            res.status(200).json({ status: 200, message: 'success delete user by id', deletedCount });
+            res.status(200).json({ status: 200, message: 'success delete user ', deletedCount });
         } catch (err) {
-            console.error({ err, message: err.message });
-            res.status(500).json({ message: 'Failed to delete user', status: 500 });
+            serverError(err, res, 'Failed to delete user');
         }
     }
 
@@ -176,8 +171,7 @@ class UserController {
             const token = tokenGenerator({ id: user.id, NIK: user.NIK, name: user.name }, '30m');
             res.status(200).json({ status: 200, message: 'success reset password', data: { token } });
         } catch (error) {
-            console.error({ error, message: error.message });
-            res.status(500).json({ message: 'Failed to reset password', status: 500 });
+            serverError(error, res, 'Failed to reset password');
         }
     }
 
@@ -185,8 +179,7 @@ class UserController {
         try {
             res.status(200).json({ status: 200, message: 'success check token' });
         } catch (error) {
-            console.error({ error, message: error.message });
-            res.status(500).json({ message: 'Failed to check token', status: 500 });
+            serverError(error, res, 'Failed to check token');
         }
     }
 
@@ -205,8 +198,7 @@ class UserController {
             }
             res.status(200).json({ status: 200, message: 'success update password', updatedCount });
         } catch (error) {
-            console.error({ error, message: error.message });
-            res.status(500).json({ message: 'Failed to update password', status: 500 });
+            serverError(error, res, 'Failed to change password');
         }
     }
     static async editProfile(req, res) {
@@ -215,7 +207,6 @@ class UserController {
             const name = req.body.name
 
             if (!req.file) {
-                console.log(22)
                 const updatedCount = await User.update({
                     name: name
                 }, {
@@ -262,8 +253,7 @@ class UserController {
             });
 
         } catch (error) {
-            console.error({ error, message: error.message }) // Log the error for debugging.
-            res.status(500).json({ message: 'Internal Server Error', status: 500 });
+            serverError(error, res, 'Failed to edit profile');
         }
     }
 

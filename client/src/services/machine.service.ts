@@ -1,10 +1,10 @@
 import type { AxiosResponse } from 'axios'
 import API from './API'
-import type { GetTimeLineMachine } from '@/types/apiResponse.type'
+import type { ApiResponse } from '@/types/apiResponse.type'
 
 const MachineServices = {
-  getTimeline: (): Promise<AxiosResponse<GetTimeLineMachine>> => {
-    return API().get('/machines/timeline')
+  getCuttingTime: (params: { period: Date }): Promise<AxiosResponse<ApiResponse<any>>> => {
+    return API({ params }).get('/machines/cutting-time')
   }
 }
 

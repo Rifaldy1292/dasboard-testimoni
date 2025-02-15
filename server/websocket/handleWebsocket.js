@@ -35,7 +35,7 @@ const handleWebsocket = (wss) => {
                     await MachineWebsocket.cuttingTime(ws)
                     break
                 case 'test': {
-                    console.log(22)
+                    console.log('test')
                     break
                 }
                 default:

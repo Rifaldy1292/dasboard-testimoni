@@ -59,13 +59,9 @@ const handleMqtt = (mqttClient, wss) => {
                 });
             }
 
-
-
-
             const runningHour = await getRunningTime(existMachine.id);
             existMachine.total_running_hours = runningHour;
             existMachine.status = parseMessage.status;
-
 
             await existMachine.save();
             await getLastMachineLog(existMachine.id);

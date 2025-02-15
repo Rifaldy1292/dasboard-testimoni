@@ -6,7 +6,7 @@ import useToast from '@/utils/useToast'
 import { jwtDecode } from 'jwt-decode'
 import { useConfirm } from 'primevue'
 import type { ParamsGetUsers } from '@/dto/user.dto'
-import { AxiosError } from 'axios'
+import { handleErrorAPI } from '@/utils/handleErrorAPI'
 
 export const useUsers = () => {
   const toast = useToast()
@@ -29,14 +29,7 @@ export const useUsers = () => {
       user.value = data.data
       console.log({ value: user.value })
     } catch (error) {
-      console.error(error)
-      if (error instanceof AxiosError) {
-        return toast.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: error.response?.data.message
-        })
-      }
+      handleErrorAPI(error, toast)
     } finally {
       loadingFetch.value = false
     }
@@ -47,12 +40,7 @@ export const useUsers = () => {
       const { data } = await UserServices.getUsers(params)
       users.value = data.data
     } catch (error) {
-      console.error(error)
-      toast.add({
-        severity: 'error',
-        summary: 'error',
-        detail: 'failed to get user list'
-      })
+      handleErrorAPI(error, toast)
     } finally {
       loadingFetch.value = false
     }
@@ -87,12 +75,7 @@ export const useUsers = () => {
       })
       await fetchUsers()
     } catch (error) {
-      console.error(error)
-      toast.add({
-        severity: 'error',
-        summary: 'error',
-        detail: `failed to delete ${selectedUser.name}`
-      })
+      handleErrorAPI(error, toast)
     }
   }
 
@@ -110,11 +93,7 @@ export const useUsers = () => {
       visibleDialogResetPassword.value = true
     } catch (error) {
       console.error(error)
-      toast.add({
-        severity: 'error',
-        summary: 'error',
-        detail: `failed to reset password ${selectedUser.name}`
-      })
+      handleErrorAPI(error, toast)
     }
   }
 
