@@ -5,7 +5,12 @@ import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import useWebSocket from '@/composables/useWebsocket'
 import DataNotFound from '@/components/common/DataNotFound.vue'
+import { watchEffect } from 'vue'
 const { percentageMachines, loadingWebsocket } = useWebSocket('percentage')
+
+watchEffect(() => {
+  console.log({ percentageMachines: percentageMachines.value })
+})
 </script>
 
 <template>

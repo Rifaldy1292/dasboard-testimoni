@@ -9,7 +9,7 @@ class countHour {
      * @returns {string} The total hours and minutes as a string in 'hour.minute' format.
      */
     static totalHour(runningHour) {
-        const hour = Math.round(runningHour / (1000 * 60 * 60));
+        const hour = Math.floor(runningHour / (1000 * 60 * 60));
         const minute = Math.round((runningHour / (1000 * 60)) % 60);
         const totalHour = `${hour}.${minute}`;
         return totalHour;
@@ -23,11 +23,23 @@ class countHour {
      * @returns {number} The percentage of running hours.
      */
     static percentage(runningHour, perfectTime) {
-        const hour = Math.round(runningHour / (1000 * 60 * 60));
+        const hour = Math.floor(runningHour / (1000 * 60 * 60));
         const minute = Math.round((runningHour / (1000 * 60)) % 60);
         const totalHour = Number(`${hour}.${minute}`);
         const percentage = Math.round((totalHour / perfectTime) * 100);
         return percentage;
+    }
+
+    /**
+     * Converts milliseconds to hours and returns it as a string with one decimal place.
+     * @param {number} milliseconds - The time in milliseconds.
+     * @returns {string} The time in hours with one decimal place.
+     */
+    static convertMilisecondToHour(milliseconds) {
+        const seconds = milliseconds / 1000;
+        const minute = seconds / 60;
+        const hours = minute / 60;
+        return Number(hours.toFixed(1));
     }
 }
 

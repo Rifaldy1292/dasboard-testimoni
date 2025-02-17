@@ -122,6 +122,7 @@ module.exports = class MachineWebsocket {
                 return {
                     name: machine.name,
                     status: machine.status,
+                    total_running_hours: machine.total_running_hours,
                     percentage: [runningTime, 100 - runningTime],
                     description: countDescription(machine.total_running_hours),
                 };

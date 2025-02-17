@@ -2,6 +2,7 @@ const { Op } = require('sequelize');
 const { Machine, MachineLog, CuttingTime } = require('../models');
 const dateCuttingTime = require('../utils/dateCuttingTime');
 const { serverError } = require('../utils/serverError');
+const countHour = require('../utils/countHour');
 
 
 class MachineController {
@@ -78,7 +79,7 @@ class MachineController {
         try {
             const id = 290;
             const { date, month } = dateCuttingTime()
-            console.log(dateCuttingTime())
+            // console.log(dateCuttingTime())
             const totalDayInMonth = date.getDate()
 
             // [1,2,3...31]
@@ -90,7 +91,7 @@ class MachineController {
                 return day
             });
 
-            const getLogInAllDateInMonth = await Promise.all(allDateInMonth.map(async (dateValue) => {
+            const getLogAllDateInMonth = await Promise.all(allDateInMonth.map(async (dateValue) => {
                 const log = await MachineLog.findOne({
                     where: {
                         machine_id: id,
@@ -103,84 +104,68 @@ class MachineController {
                 });
 
                 const numberOfLog = log?.running_today ?? 0
+
                 return numberOfLog;
             }))
 
-            const nowDate = new Date()
 
-            const test = await MachineLog.findOne({
+            // const example = [1, 2, 3, 4, 9, 0, 2, 0, 1, 0]
+            // expect res[1, 3, 6, 10, 19, 19, 21, 21, 22, 22]
+            // [value index 0, value index 0 + 1, value index 0, 1, 2]
+            const formattedCountLog = []
+            for (let i = 0; i < getLogAllDateInMonth.length; i++) {
+                let sum = 0
+                for (let j = 0; j <= i; j++) {
+                    sum += getLogAllDateInMonth[j]
+                }
+                formattedCountLog.push(sum)
+
+            }
+
+            const convertCountLogToHours = formattedCountLog.map((count) => countHour.convertMilisecondToHour(count))
+
+            const machinName = await Machine.findOne({
                 where: {
-                    machine_id: id,
-                    timestamp: {
-                        [Op.between]: [new Date(nowDate.setHours(0, 0, 0, 0)), new Date(nowDate.setHours(23, 59, 59, 999))],
-                    },
+                    id
                 },
-                attributes: ['running_today'],
-                order: [['timestamp', 'DESC']]
+                attributes: ['name']
             })
-            // const test = await Promise.all(allDayInMonth.map(async (dayValue) => {
-            //     const lastLogInDay = await MachineLog.findOne({
-            //         where: {
-            //             machine_id: id,
-            //             timestamp: {
-            //                 [Op.between]: [new Date(date.getFullYear(), date.getMonth(), dayValue, 0, 0, 0), new Date(date.getFullYear(), date.getMonth(), dayValue, 23, 59, 59)],
-            //             },
-            //         },
-            //     });
 
-            // get log
-            // const machine = await MachineLog.findAll({
-            //     where:
-            //     {
-            //         machine_id: id,
-            //         // timestamp: {
-            //         //     [Op.between]: [new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0), new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59)],
-            //         // },
-
-            //         // data hari ini
-            //         timestamp: {
-            //             [Op.between]: [date.setHours(0, 0, 0, 0), date.setHours(23, 59, 59, 999)],
-            //         },
-            //     },
-            //     attributes: [
-            //         'id',
-            //         'machine_id',
-            //         'current_status',
-            //         'timestamp',
-            //         'running_today',
-            //     ],
-            //     order: [['timestamp', 'DESC']]
-            // });
-
-            const all = await MachineLog.findAll({
-                where: {
-                    machine_id: id,
-                    timestamp: {
-                        [Op.between]: [new Date(nowDate.setHours(0, 0, 0, 0)), new Date(nowDate.setHours(23, 59, 59, 999))],
-                    },
-                },
-                attributes: [
-                    'running_today',
-                ],
-                order: [['timestamp', 'DESC']]
-            });
+            const formattedResult = {
+                name: machinName.name,
+                data: convertCountLogToHours,
+                length: getLogAllDateInMonth.length,
+                lengthFormat: formattedCountLog.length,
+            }
 
 
             res.json({
                 status: 200,
                 message: 'success get cutting time by machine id',
-                data: {
-                    getLogInAllDateInMonth,
-                    length: getLogInAllDateInMonth.length,
-                    // test,
-                    // all,
-                    // allDayInMonth,
-                    // allDateInMonth,
-                }
+                data: formattedResult
             });
         } catch (error) {
             console.log({ error, message: error.message })
             serverError(error, res, 'failed to get cutting time by machine id');
+        }
+    }
+
+    static async getMachine(req, res) {
+        try {
+            const id = 290
+            const nowDate = new Date()
+            const data = await MachineLog.findOne({
+                where: {
+                    machine_id: id,
+                    timestamp: {
+                        [Op.between]: [new Date(nowDate.setHours(0, 0, 0, 0)), new Date(nowDate.setHours(23, 59, 59, 999))],
+                    }
+                },
+                order: [['timestamp', 'DESC']]
+            })
+            res.status(200).json({ status: 200, message: 'success get machine', data });
+        } catch (error) {
+            serverError(error, res, 'failed to get machine');
         }
     }
 }
