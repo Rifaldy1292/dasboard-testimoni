@@ -59,7 +59,6 @@ watchEffect(() => {
 //     {
 //       name: 'Machine 4',
 //       data: [20, 40, 60, ...600],
-//       dayInMonth: [1, 2, 3, ...31]
 //     }
 //   ]
 // }

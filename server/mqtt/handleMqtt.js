@@ -10,6 +10,7 @@ const { getRunningTime } = require('../utils/getRunningTime');
 const MachineWebsocket = require('../websocket/MachineWebsocket');
 const { createCuttingTime } = require('./handleCuttingTime');
 const { getLastMachineLog } = require('./MachineMqtt');
+const WebSocket = require('ws');
 
 const mqttTopics = [
     'mc-1/data', 'mc-2/data', 'mc-3/data', 'mc-4/data', 'mc-5/data',

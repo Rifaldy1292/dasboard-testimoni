@@ -9,7 +9,7 @@ const dateCuttingTime = (dateParam) => {
     const month = nowDate.getMonth() + 1;
     const year = nowDate.getFullYear();
     const date = new Date(year, month, 0);
-    return { date, month };
+    return { date, month, year };
 }
 
 module.exports =
