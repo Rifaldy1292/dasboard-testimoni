@@ -12,7 +12,12 @@ class MachineController {
             const { date } = dateCuttingTime(period)
 
             const cuttingTime = await CuttingTime.findOne({ where: { period: date }, attributes: ['period', 'target'] });
+
             const machineIds = await Machine.findAll({ attributes: ['id', 'name'] });
+
+            if (!cuttingTime || !machineIds.length) {
+                return res.status(204).send()
+            }
 
             const sortedMachineIds = machineIds.sort((a, b) => {
                 const numberA = parseInt(a.name.slice(3));
@@ -20,13 +25,10 @@ class MachineController {
                 return numberA - numberB;
             });
 
-
-            if (!cuttingTime || !sortedMachineIds.length) {
-                return res.status(204).send()
-            }
-
             // 28
             const totalDayInMonth = date.getDate()
+
+            const objTargetCuttingTime = objectTargetCuttingTime(cuttingTime.target, totalDayInMonth)
 
             // [1,2,3...31]
             const allDayInMonth = Array.from({ length: totalDayInMonth }, (_, i) => i + 1);
@@ -42,8 +44,8 @@ class MachineController {
                 return { name: machine.name, ...data }
             }));
 
-            const targetObj = objectTargetCuttingTime(cuttingTime.target, totalDayInMonth)
-            const extendedCuttingTimeInMonth = [targetObj, ...cuttingTimeInMonth]
+
+            const extendedCuttingTimeInMonth = [objTargetCuttingTime, ...cuttingTimeInMonth]
 
 
             const data = {
@@ -101,8 +103,21 @@ class MachineController {
             throw new Error(error);
         }
     }
-}
 
+    static async getMachineOption(req, res) {
+        try {
+            const machines = await Machine.findAll({ attributes: ['id', 'name'] });
+            const sortedMachine = machines.sort((a, b) => {
+                const numberA = parseInt(a.name.slice(3));
+                const numberB = parseInt(b.name.slice(3));
+                return numberA - numberB;
+            })
+            res.status(200).json({ status: 200, message: 'success get machine option', data: sortedMachine });
+        } catch (error) {
+            serverError(error, res, 'Failed to get machine option');
+        }
+    }
+}
 
 const objectTargetCuttingTime = (target, totalDayInMonth) => {
 

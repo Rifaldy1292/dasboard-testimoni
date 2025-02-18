@@ -27,3 +27,8 @@ export interface CuttingTimeMachine {
     data: number[]
   }[]
 }
+
+export type MachineOption = {
+  id: number
+  name: string
+}

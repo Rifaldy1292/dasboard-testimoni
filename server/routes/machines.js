@@ -8,10 +8,16 @@ machineRouter.get(
     MachineController.getCuttingTime
 );
 
+// machineRouter.get(
+//     "/cutting-time/id",
+//     authMiddleware,
+//     MachineController.getCuttingTimeByMachineId
+// );
+
 machineRouter.get(
-    "/cutting-time/id",
+    "/options",
     authMiddleware,
-    MachineController.getCuttingTimeByMachineId
-);
+    MachineController.getMachineOption
+)
 
 module.exports = machineRouter;

@@ -1,14 +1,22 @@
 <script setup lang="ts">
 import DatePickerMonth from '@/components/Forms/DatePicker/DatePickerMonth.vue'
 import type { ApexOptions } from 'apexcharts'
-import { Select } from 'primevue'
+import { MultiSelect, Select } from 'primevue'
 import { computed, ref, watchEffect } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
 import { useMachine } from '@/composables/useMachine'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DataNotFound from '@/components/common/DataNotFound.vue'
+import type { Machine } from '@/types/machine.type'
 
-const { cuttingTimeMachines, getCuttingTime, loadingFetch } = useMachine()
+const {
+  cuttingTimeMachines,
+  getCuttingTime,
+  loadingFetch,
+  loadingDropdown,
+  machineOptions,
+  getMachineOptions
+} = useMachine()
 
 const monthValue = ref<Date>(new Date())
 
@@ -50,15 +58,14 @@ watchEffect(() => {
 //   ]
 // }
 
-const machines = ['All Machines', 'Machine 1', 'Machine 2', 'Machine 3', 'Machine 4']
+const selectedMachine = ref<Machine | undefined>()
+watchEffect(() => {
+  console.log(selectedMachine.value, 22)
+})
 
-const selectedMachine = ref<string>(machines[0])
-const target = 600
-const length28 = [
-  89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110,
-  111, 112, 113, 114, 115, 600
-]
-const length18 = [89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 600]
+const handleSelectMachine = () => {
+  console.log('first')
+}
 
 const apexOptions = computed<ApexOptions>(() => {
   return {
@@ -115,14 +122,18 @@ const apexOptions = computed<ApexOptions>(() => {
 
   <template v-if="!loadingFetch">
     <div class="flex justify-between gap-4">
-      <Select
-        v-model="selectedMachine"
-        :options="machines"
-        :default-value="selectedMachine"
-        placeholder="Select a Machine"
-        checkmark
-        :highlightOnSelect="false"
-        class="w-full md:w-56"
+      <MultiSelect
+        v-model:model-value="selectedMachine"
+        @before-show="getMachineOptions"
+        @before-hide="handleSelectMachine"
+        display="chip"
+        :options="machineOptions"
+        :loading="loadingDropdown"
+        optionLabel="name"
+        filter
+        placeholder="All Machine"
+        :maxSelectedLabels="3"
+        class="w-full md:w-80"
       />
       <DatePickerMonth v-model:month-value="monthValue" />
     </div>
