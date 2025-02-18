@@ -16,12 +16,12 @@ export const useMachine = () => {
   const selectedMachine = ref<MachineOption[]>([])
 
   const getCuttingTime = async (params: ParamsGetCuttingTime) => {
-    console.log({ params })
+    // console.log({ params })
     loadingFetch.value = true
     try {
       const { data } = await MachineServices.getCuttingTime(params)
+      console.log(data?.data)
       cuttingTimeMachines.value = data?.data
-      // console.log(data.data)
     } catch (error) {
       handleErrorAPI(error, toast)
     } finally {

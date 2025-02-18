@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import DatePickerMonth from '@/components/Forms/DatePicker/DatePickerMonth.vue'
 import type { ApexOptions } from 'apexcharts'
-import { MultiSelect } from 'primevue'
+import { Column, DataTable, MultiSelect } from 'primevue'
 import { computed, ref, watchEffect } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
 import { useMachine } from '@/composables/useMachine'
@@ -27,6 +27,16 @@ const paramsGetCuttingTime = computed<ParamsGetCuttingTime>(() => {
     period: monthValue.value,
     machineIds
   }
+})
+
+const dataTableValue = computed(() => {
+  if (!cuttingTimeMachines?.value) return undefined
+  const { allDayInMonth, cuttingTime, cuttingTimeInMonth } = cuttingTimeMachines.value
+  const stringAllDay = allDayInMonth.map((item) => item.toString())
+  const key = ['name', ...stringAllDay]
+  const value = cuttingTimeInMonth.map((item) => item.data)
+  const name = cuttingTimeInMonth.map((item) => item.name)
+  return { key, value }
 })
 
 watchEffect(() => {
@@ -145,5 +155,20 @@ const apexOptions = computed<ApexOptions>(() => {
       height="350"
       :series="apexOptions.series"
     />
+
+    <DataTable
+      :value="dataTableValue?.value"
+      :loading="loadingFetch"
+      scrollable
+      size="small"
+      lazy
+      showGridlines
+    >
+      <Column v-for="col of dataTableValue?.key" :key="col" :field="col" :header="col">
+        <!-- <template #body="{ data }" v-if="col === 'name'">
+          <template v-if="col === 'name'"> {{ data[col] }} </template>
+        </template> -->
+      </Column>
+    </DataTable>
   </template>
 </template>
