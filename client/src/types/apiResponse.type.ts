@@ -1,5 +1,5 @@
 import type { UserLocalStorage } from './localStorage.type'
-import type { Machine, MachineTimeline } from './machine.type'
+import type { CuttingTimeMachine, Machine, MachineTimeline } from './machine.type'
 import type { User } from './user.type'
 
 export interface ApiResponse<T> {
@@ -14,3 +14,5 @@ export type ForgotPasswordData = Pick<UserLocalStorage, 'NIK' | 'name' | 'role' 
 export type FindByNIk = ApiResponse<ForgotPasswordData>
 
 export interface GetTimeLineMachine extends ApiResponse<MachineTimeline[]> {}
+
+export type GetCuttingTimeMachine = ApiResponse<CuttingTimeMachine>

@@ -1,28 +1,15 @@
 <script setup lang="ts">
-// import ChartOne from '@/components/Charts/ChartOne.vue'
 import DatePickerMonth from '@/components/Forms/DatePicker/DatePickerMonth.vue'
 import type { ApexOptions } from 'apexcharts'
 import { Select } from 'primevue'
 import { computed, ref, watchEffect } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
-import MachineServices from '@/services/machine.service'
-import { handleErrorAPI } from '@/utils/handleErrorAPI'
-import useToast from '@/utils/useToast'
+import { useMachine } from '@/composables/useMachine'
+import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 
-// const { loadingWebsocket } = useWebSocket('cuttingTime')
-const toast = useToast()
-const cuttingTimeData = ref<any>(undefined)
+const { cuttingTimeMachines, getCuttingTime, loadingFetch } = useMachine()
 
 const monthValue = ref<Date>(new Date())
-const getCuttingTime = async (period: Date) => {
-  try {
-    const { data } = await MachineServices.getCuttingTime({ period })
-    cuttingTimeData.value = data.data
-    console.log(data.data)
-  } catch (error) {
-    handleErrorAPI(error, toast)
-  }
-}
 
 watchEffect(() => {
   getCuttingTime(monthValue.value)
@@ -74,24 +61,7 @@ const length18 = [89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103
 
 const apexOptions = computed<ApexOptions>(() => {
   return {
-    series: [
-      {
-        name: 'Target',
-        data: length18
-      },
-      {
-        name: 'MC-1',
-        data: [45, 52, 38, 24, 33, 26, 21, 20, 6, 8, 15, 10]
-      },
-      {
-        name: 'MC-2',
-        data: [35, 41, 62, 42, 13, 18, 29, 37, 36, 51, 32, 35]
-      },
-      {
-        name: 'MC-3',
-        data: [87, 57, 74, 99, 75, 38, 62, 47, 82, 56, 45, 47]
-      }
-    ],
+    series: cuttingTimeMachines.value?.cuttingTimeInMonth,
     chart: {
       height: 350,
       type: 'line',
@@ -128,32 +98,7 @@ const apexOptions = computed<ApexOptions>(() => {
       }
     },
     xaxis: {
-      categories: cuttingTimeData.value?.allDayInMonth
-    },
-    tooltip: {
-      y: [
-        {
-          title: {
-            formatter: function (val) {
-              return val + ' (mins)'
-            }
-          }
-        },
-        {
-          title: {
-            formatter: function (val) {
-              return val + ' per session'
-            }
-          }
-        },
-        {
-          title: {
-            formatter: function (val) {
-              return val
-            }
-          }
-        }
-      ]
+      categories: cuttingTimeMachines.value?.allDayInMonth
     },
     grid: {
       borderColor: '#f1f1f1'
@@ -163,18 +108,21 @@ const apexOptions = computed<ApexOptions>(() => {
 </script>
 
 <template>
-  <div class="flex justify-between gap-4">
-    <Select
-      v-model="selectedMachine"
-      :options="machines"
-      :default-value="selectedMachine"
-      placeholder="Select a Machine"
-      checkmark
-      :highlightOnSelect="false"
-      class="w-full md:w-56"
-    />
-    <DatePickerMonth v-model:month-value="monthValue" />
-  </div>
+  <LoadingAnimation :state="loadingFetch" />
+  <template v-if="!loadingFetch">
+    <div class="flex justify-between gap-4">
+      <Select
+        v-model="selectedMachine"
+        :options="machines"
+        :default-value="selectedMachine"
+        placeholder="Select a Machine"
+        checkmark
+        :highlightOnSelect="false"
+        class="w-full md:w-56"
+      />
+      <DatePickerMonth v-model:month-value="monthValue" />
+    </div>
 
-  <VueApexCharts :options="apexOptions" height="350" :series="apexOptions.series" />
+    <VueApexCharts :options="apexOptions" height="350" :series="apexOptions.series" />
+  </template>
 </template>

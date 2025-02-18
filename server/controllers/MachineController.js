@@ -15,7 +15,14 @@ class MachineController {
             const cuttingTime = await CuttingTime.findOne({ where: { period: date }, attributes: ['period', 'target'] });
             const machineIds = await Machine.findAll({ attributes: ['id', 'name'] });
 
-            if (!cuttingTime || !machineIds.length) {
+            const sortedMachineIds = machineIds.sort((a, b) => {
+                const numberA = parseInt(a.name.slice(3));
+                const numberB = parseInt(b.name.slice(3));
+                return numberA - numberB;
+            });
+
+
+            if (!cuttingTime || !sortedMachineIds.length) {
                 return res.status(404).json({ status: 404, message: 'cutting time not found', data: [] });
             }
 
@@ -31,7 +38,7 @@ class MachineController {
                 return day
             });
 
-            const cuttingTimeInMonth = await Promise.all(machineIds.map(async (machine) => {
+            const cuttingTimeInMonth = await Promise.all(sortedMachineIds.map(async (machine) => {
                 const data = await MachineController.getCuttingTimeByMachineId({ machine_id: machine.id, allDateInMonth })
                 return { name: machine.name, ...data }
             }));
