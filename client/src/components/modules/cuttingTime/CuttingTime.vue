@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import DatePickerMonth from '@/components/Forms/DatePicker/DatePickerMonth.vue'
 import type { ApexOptions } from 'apexcharts'
-import { MultiSelect, Select } from 'primevue'
+import { MultiSelect } from 'primevue'
 import { computed, ref, watchEffect } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
 import { useMachine } from '@/composables/useMachine'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DataNotFound from '@/components/common/DataNotFound.vue'
-import type { Machine } from '@/types/machine.type'
+import type { ParamsGetCuttingTime } from '@/dto/machine.dto'
 
 const {
   cuttingTimeMachines,
@@ -15,13 +15,22 @@ const {
   loadingFetch,
   loadingDropdown,
   machineOptions,
-  getMachineOptions
+  getMachineOptions,
+  handleSelectMachine,
+  selectedMachine
 } = useMachine()
 
 const monthValue = ref<Date>(new Date())
+const paramsGetCuttingTime = computed<ParamsGetCuttingTime>(() => {
+  const machineIds = selectedMachine.value.length ? selectedMachine.value : undefined
+  return {
+    period: monthValue.value,
+    machineIds
+  }
+})
 
 watchEffect(() => {
-  getCuttingTime(monthValue.value)
+  getCuttingTime(paramsGetCuttingTime.value)
 })
 
 /**
@@ -57,15 +66,6 @@ watchEffect(() => {
 //     }
 //   ]
 // }
-
-const selectedMachine = ref<Machine | undefined>()
-watchEffect(() => {
-  console.log(selectedMachine.value, 22)
-})
-
-const handleSelectMachine = () => {
-  console.log('first')
-}
 
 const apexOptions = computed<ApexOptions>(() => {
   return {

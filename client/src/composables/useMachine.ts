@@ -1,5 +1,6 @@
+import type { ParamsGetCuttingTime } from '@/dto/machine.dto'
 import MachineServices from '@/services/machine.service'
-import type { CuttingTimeMachine, MachineOption } from '@/types/machine.type'
+import type { CuttingTimeMachine, Machine, MachineOption } from '@/types/machine.type'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import useToast from '@/utils/useToast'
 import { ref, shallowRef } from 'vue'
@@ -12,11 +13,13 @@ export const useMachine = () => {
 
   const loadingDropdown = shallowRef<boolean>(false)
   const machineOptions = ref<MachineOption[]>([])
+  const selectedMachine = ref<MachineOption[]>([])
 
-  const getCuttingTime = async (period: Date) => {
+  const getCuttingTime = async (params: ParamsGetCuttingTime) => {
+    console.log({ params })
     loadingFetch.value = true
     try {
-      const { data } = await MachineServices.getCuttingTime({ period })
+      const { data } = await MachineServices.getCuttingTime(params)
       cuttingTimeMachines.value = data?.data
       // console.log(data.data)
     } catch (error) {
@@ -30,12 +33,21 @@ export const useMachine = () => {
     loadingDropdown.value = true
     try {
       const { data } = await MachineServices.getMachineOptions()
-      console.log(data.data)
+      // console.log(data.data)
       machineOptions.value = data.data
     } catch (error) {
       handleErrorAPI(error, toast)
     } finally {
       loadingDropdown.value = false
+    }
+  }
+
+  const handleSelectMachine = () => {
+    if (!selectedMachine.value.length) return
+    try {
+      console.log('first', selectedMachine.value)
+    } catch (error) {
+      handleErrorAPI(error, toast)
     }
   }
 
@@ -45,6 +57,8 @@ export const useMachine = () => {
     cuttingTimeMachines,
     loadingDropdown,
     getMachineOptions,
-    machineOptions
+    machineOptions,
+    selectedMachine,
+    handleSelectMachine
   }
 }

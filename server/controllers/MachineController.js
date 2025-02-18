@@ -13,7 +13,8 @@ class MachineController {
 
             const cuttingTime = await CuttingTime.findOne({ where: { period: date }, attributes: ['period', 'target'] });
 
-            const machineIds = await Machine.findAll({ attributes: ['id', 'name'] });
+            // machineIds from query, default all
+            const machineIds = req.query.machineIds ?? await Machine.findAll({ attributes: ['id', 'name'] });
 
             if (!cuttingTime || !machineIds.length) {
                 return res.status(204).send()
