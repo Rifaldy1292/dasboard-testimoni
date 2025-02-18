@@ -1,9 +1,6 @@
 const { Op } = require('sequelize');
 const { Machine, MachineLog } = require('../models');
 const { percentage, totalHour } = require('../utils/countHour');
-const { getTarget } = require('../mqtt/MachineMqtt');
-
-
 
 /**
  * Perfect time constant.
@@ -138,15 +135,5 @@ module.exports = class MachineWebsocket {
         }
     }
 
-    static async cuttingTime(client) {
-        try {
-            const result = getTarget();
-            console.log(result)
-            client.send(JSON.stringify({ type: 'cuttingTime', data: result }));
-        } catch (error) {
-            console.error({ error, message: error.message });
-            client.send(JSON.stringify({ type: 'error', message: 'Failed to get cutting time' }));
-        }
-    }
 }
 

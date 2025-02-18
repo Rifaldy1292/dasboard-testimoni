@@ -79,7 +79,6 @@ const handleMqtt = (mqttClient, wss) => {
             if (client.readyState === WebSocket.OPEN) {
                 await MachineWebsocket.timelines(client);
                 await MachineWebsocket.percentages(client);
-                await MachineWebsocket.cuttingTime(client);
             }
         });
         // console.timeEnd('Proses');

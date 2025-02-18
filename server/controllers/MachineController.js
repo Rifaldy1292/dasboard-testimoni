@@ -3,83 +3,23 @@ const { Machine, MachineLog, CuttingTime } = require('../models');
 const dateCuttingTime = require('../utils/dateCuttingTime');
 const { serverError } = require('../utils/serverError');
 const countHour = require('../utils/countHour');
+const { cuttingTime } = require('../websocket/MachineWebsocket');
 
 
 class MachineController {
     static async getCuttingTime(req, res) {
         try {
             const { period } = req.body;
-            const { date, month } = dateCuttingTime(period)
+            const { date } = dateCuttingTime(period)
 
-            const cuttingTime = await CuttingTime.findOne({ where: { period: date } });
+            const cuttingTime = await CuttingTime.findOne({ where: { period: date }, attributes: ['period', 'target'] });
             const machineIds = await Machine.findAll({ attributes: ['id', 'name'] });
 
             if (!cuttingTime || !machineIds.length) {
                 return res.status(404).json({ status: 404, message: 'cutting time not found', data: [] });
             }
-            const totalDayInMonth = date.getDate()
-            const allDayInMonth = Array.from({ length: totalDayInMonth }, (_, i) => i + 1);
 
-            const allCuttingTime = await Promise.all(machineIds.map(async (machine) => {
-                const mappedAllDay = allDayInMonth.map(async (day) => {
-                    const cuttingTime = await MachineLog.findOne({
-                        order: [['timestamp', 'DESC']],
-                        where: {
-                            machine_id: machine.id,
-                            timestamp: {
-                                [Op.between]: [new Date(date.getFullYear(), date.getMonth(), day, 0, 0, 0), new Date(date.getFullYear(), date.getMonth(), day, 23, 59, 59)],
-                            },
-                        },
-                    });
-                    // console.log(222222222222222, { cuttingTime: cuttingTime.dataValues })
-                    return await cuttingTime;
-                })
-                const result = await { ...machine.dataValues, cuttingTime: await Promise.all(mappedAllDay) }
-                return result;
-            }));
-
-            // const getAllMachineLog = machineIds.map((machine) => {
-            //     const getLogInDay = allDayInMonth.map(async (day) => {
-            //         const log = await MachineLog.findOne({
-            //             where: {
-            //                 machine_id: machine.id,
-            //                 date: {
-            //                     [Op.between]: [new Date(date.getFullYear(), date.getMonth(), day, 0, 0, 0), new Date(date.getFullYear(), date.getMonth(), day, 23, 59, 59)],
-            //                 },
-            //             },
-            //         });
-            //         return log;
-            //     })
-            //     return getLogInDay;
-            // })
-
-            // const getLogInDay = allDayInMonth.map(async (day) => {
-            //     const log = await MachineLog.findOne({
-            //         where: {
-            //             date: {
-            //                 [Op.between]: [new Date(date.getFullYear(), date.getMonth(), day, 0, 0, 0), new Date(date.getFullYear(), date.getMonth(), day, 23, 59, 59)],
-            //             },
-            //         },
-            //     });
-            //     return log;
-            // });
-
-            const data = {
-                date,
-                allDayInMonth,
-                allCuttingTime
-            }
-            res.status(200).json({ status: 200, message: 'success get cutting time', data });
-        } catch (error) {
-            serverError(error, res, 'failed to get cutting time');
-        }
-    }
-
-    static async getCuttingTimeByMachineId(req, res) {
-        try {
-            const id = 290;
-            const { date, month } = dateCuttingTime()
-            // console.log(dateCuttingTime())
+            // 28
             const totalDayInMonth = date.getDate()
 
             // [1,2,3...31]
@@ -91,10 +31,35 @@ class MachineController {
                 return day
             });
 
+            const cuttingTimeInMonth = await Promise.all(machineIds.map(async (machine) => {
+                const data = await MachineController.getCuttingTimeByMachineId({ machine_id: machine.id, allDateInMonth })
+                return { name: machine.name, ...data }
+            }));
+
+            const targetObj = objectTargetCuttingTime(cuttingTime.target, totalDayInMonth)
+            const extendedCuttingTimeInMonth = [targetObj, ...cuttingTimeInMonth]
+
+
+            const data = {
+                cuttingTime,
+                allDayInMonth,
+                cuttingTimeInMonth: extendedCuttingTimeInMonth
+            }
+            res.status(200).json({ status: 200, message: 'success get cutting time', data });
+        } catch (error) {
+            serverError(error, res, 'Failed to get cutting time');
+        }
+    }
+
+    static async getCuttingTimeByMachineId({ machine_id, allDateInMonth }) {
+        try {
+            if (!machine_id || !allDateInMonth) throw new Error('machine_id or allDateInMonth is required')
+
+
             const getLogAllDateInMonth = await Promise.all(allDateInMonth.map(async (dateValue) => {
                 const log = await MachineLog.findOne({
                     where: {
-                        machine_id: id,
+                        machine_id,
                         timestamp: {
                             [Op.between]: [new Date(dateValue.setHours(0, 0, 0, 0)), new Date(dateValue.setHours(23, 59, 59, 999))],
                         },
@@ -124,50 +89,28 @@ class MachineController {
 
             const convertCountLogToHours = formattedCountLog.map((count) => countHour.convertMilisecondToHour(count))
 
-            const machinName = await Machine.findOne({
-                where: {
-                    id
-                },
-                attributes: ['name']
-            })
-
-            const formattedResult = {
-                name: machinName.name,
-                data: convertCountLogToHours,
-                length: getLogAllDateInMonth.length,
-                lengthFormat: formattedCountLog.length,
-            }
-
-
-            res.json({
-                status: 200,
-                message: 'success get cutting time by machine id',
-                data: formattedResult
-            });
+            return { data: convertCountLogToHours }
         } catch (error) {
-            console.log({ error, message: error.message })
-            serverError(error, res, 'failed to get cutting time by machine id');
-        }
-    }
-
-    static async getMachine(req, res) {
-        try {
-            const id = 290
-            const nowDate = new Date()
-            const data = await MachineLog.findOne({
-                where: {
-                    machine_id: id,
-                    timestamp: {
-                        [Op.between]: [new Date(nowDate.setHours(0, 0, 0, 0)), new Date(nowDate.setHours(23, 59, 59, 999))],
-                    }
-                },
-                order: [['timestamp', 'DESC']]
-            })
-            res.status(200).json({ status: 200, message: 'success get machine', data });
-        } catch (error) {
-            serverError(error, res, 'failed to get machine');
+            console.log({ error }, 88888888888888)
+            throw new Error(error);
         }
     }
 }
+
+
+const objectTargetCuttingTime = (target, totalDayInMonth) => {
+
+    const targetPerDay = target / totalDayInMonth; // Calculate target hours per day
+
+    const calculatedTargets = Array.from({ length: totalDayInMonth }, (_, i) => (i + 1) * targetPerDay); // Calculate cumulative target for each day
+
+    const formattedResult = calculatedTargets.map((item) => Math.round(item))
+    // console.log({ test, length: test.length });
+    return {
+        name: 'Target',
+        data: formattedResult
+    };
+}
+
 
 module.exports = MachineController;
