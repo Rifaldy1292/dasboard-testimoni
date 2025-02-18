@@ -6,6 +6,7 @@ import { computed, ref, watchEffect } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
 import { useMachine } from '@/composables/useMachine'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
+import DataNotFound from '@/components/common/DataNotFound.vue'
 
 const { cuttingTimeMachines, getCuttingTime, loadingFetch } = useMachine()
 
@@ -78,7 +79,7 @@ const apexOptions = computed<ApexOptions>(() => {
       dashArray: [0, 8, 5]
     },
     title: {
-      text: 'Machine Cutting Time',
+      text: `Cutting Time ${cuttingTimeMachines.value?.cuttingTime.period}`,
       align: 'left'
     },
     legend: {
@@ -108,7 +109,10 @@ const apexOptions = computed<ApexOptions>(() => {
 </script>
 
 <template>
-  <LoadingAnimation :state="loadingFetch" />
+  <template v-if="loadingFetch">
+    <LoadingAnimation :state="loadingFetch" />
+  </template>
+
   <template v-if="!loadingFetch">
     <div class="flex justify-between gap-4">
       <Select
@@ -122,7 +126,13 @@ const apexOptions = computed<ApexOptions>(() => {
       />
       <DatePickerMonth v-model:month-value="monthValue" />
     </div>
+    <DataNotFound :condition="!loadingFetch && !cuttingTimeMachines" tittle="Cutting Time" />
 
-    <VueApexCharts :options="apexOptions" height="350" :series="apexOptions.series" />
+    <VueApexCharts
+      v-if="cuttingTimeMachines"
+      :options="apexOptions"
+      height="350"
+      :series="apexOptions.series"
+    />
   </template>
 </template>

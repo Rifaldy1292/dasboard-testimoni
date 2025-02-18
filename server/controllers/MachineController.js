@@ -3,13 +3,12 @@ const { Machine, MachineLog, CuttingTime } = require('../models');
 const dateCuttingTime = require('../utils/dateCuttingTime');
 const { serverError } = require('../utils/serverError');
 const countHour = require('../utils/countHour');
-const { cuttingTime } = require('../websocket/MachineWebsocket');
 
 
 class MachineController {
     static async getCuttingTime(req, res) {
         try {
-            const { period } = req.body;
+            const { period } = req.query;
             const { date } = dateCuttingTime(period)
 
             const cuttingTime = await CuttingTime.findOne({ where: { period: date }, attributes: ['period', 'target'] });
@@ -23,7 +22,7 @@ class MachineController {
 
 
             if (!cuttingTime || !sortedMachineIds.length) {
-                return res.status(404).json({ status: 404, message: 'cutting time not found', data: [] });
+                return res.status(204).send()
             }
 
             // 28

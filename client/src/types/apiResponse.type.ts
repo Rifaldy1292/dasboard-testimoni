@@ -15,4 +15,4 @@ export type FindByNIk = ApiResponse<ForgotPasswordData>
 
 export interface GetTimeLineMachine extends ApiResponse<MachineTimeline[]> {}
 
-export type GetCuttingTimeMachine = ApiResponse<CuttingTimeMachine>
+export type GetCuttingTimeMachine = ApiResponse<CuttingTimeMachine> | undefined

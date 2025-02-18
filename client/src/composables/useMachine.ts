@@ -14,8 +14,8 @@ export const useMachine = () => {
     loadingFetch.value = true
     try {
       const { data } = await MachineServices.getCuttingTime({ period })
-      cuttingTimeMachines.value = data.data
-      console.log(data.data)
+      cuttingTimeMachines.value = data?.data
+      // console.log(data.data)
     } catch (error) {
       handleErrorAPI(error, toast)
     } finally {

@@ -5,7 +5,7 @@
  * @returns {{ date: Date }} - Object with date property.
  */
 const dateCuttingTime = (dateParam) => {
-    const nowDate = dateParam || new Date();
+    const nowDate = dateParam ? new Date(dateParam) : new Date();
     const month = nowDate.getMonth() + 1;
     const year = nowDate.getFullYear();
     const date = new Date(year, month, 0);
