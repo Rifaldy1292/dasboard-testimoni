@@ -8,11 +8,20 @@ machineRouter.get(
     MachineController.getCuttingTime
 );
 
-// machineRouter.get(
-//     "/cutting-time/id",
-//     authMiddleware,
-//     MachineController.getCuttingTimeByMachineId
-// );
+const date = new Date()
+const allDateInMonth = Array.from({ length: 28 }, (_, i) => {
+    i++
+    const day = new Date(date.getFullYear(), date.getMonth(), i + 1)
+    return day
+});
+machineRouter.get(
+    "/cutting-time/id",
+    authMiddleware,
+    async (req, res) => {
+        const data = await MachineController.getCuttingTimeByMachineId({ machine_id: 290, allDateInMonth });
+        res.send({ length: data.data.length, data })
+    }
+);
 
 machineRouter.get(
     "/options",

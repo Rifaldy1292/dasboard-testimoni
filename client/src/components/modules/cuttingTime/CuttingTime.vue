@@ -43,9 +43,12 @@ function formatValueDataTable(cuttingTimeInMonth: cuttingTimeInMonth): ValueData
 
   cuttingTimeInMonth.data.forEach((item, index) => {
     result[index + 1] = {
-      runningTime: item,
-      idleTime: 18
+      runningTime: item
+      // runningToday: 18
     }
+  })
+  cuttingTimeInMonth.runningToday.forEach((item, index) => {
+    result[index + 1].runningToday = item
   })
 
   return result
@@ -60,7 +63,7 @@ const dataTableValue = computed<{ key: string[]; value: ValueDataTable[] } | und
   const stringAllDay = allDayInMonth.map((item) => item.toString())
   const key: string[] = ['name', ...stringAllDay]
   const value: ValueDataTable[] = cuttingTimeInMonth.map((item) => formatValueDataTable(item))
-  console.log(value)
+  // console.log(value)
   return { key, value }
 })
 
@@ -157,7 +160,7 @@ const getColorColumn = (value: number) => {
     <DataNotFound :condition="!loadingFetch && !cuttingTimeMachines" tittle="Cutting Time" />
 
     <div v-if="cuttingTimeMachines" class="flex flex-col gap-5">
-      <VueApexCharts :options="apexOptions" height="350" :series="apexOptions.series" />
+      <!-- <VueApexCharts :options="apexOptions" height="350" :series="apexOptions.series" /> -->
 
       <DataTable
         :value="dataTableValue?.value"
@@ -170,15 +173,13 @@ const getColorColumn = (value: number) => {
         group-rows-by="name"
       >
         <template v-for="col of dataTableValue?.key" :key="col">
-          <Column v-if="col === 'name'" :field="col" :header="col"></Column>
-          <Column v-if="col !== 'name'" :field="col" :header="col" class="text-center items-center">
-            <template #body="{ data }">
+          <Column :field="col" :header="col" class="text-center items-center">
+            <template v-if="col !== 'name'" #body="{ data }">
               <span>{{ data[col].runningTime }}</span>
               <Divider />
-              <span :style="{ color: getColorColumn(data[col].idleTime) }">{{
-                data[col].idleTime
+              <span :style="{ color: getColorColumn(data[col].runningToday) }">{{
+                data[col].runningToday
               }}</span>
-              <!-- {{ [data[col].runningTime, data[col].idleTime] }} -->
             </template>
           </Column>
         </template>

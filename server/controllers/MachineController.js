@@ -45,7 +45,6 @@ class MachineController {
                 return { name: machine.name, ...data }
             }));
 
-
             const extendedCuttingTimeInMonth = [objTargetCuttingTime, ...cuttingTimeInMonth]
 
 
@@ -97,10 +96,11 @@ class MachineController {
             }
 
             const convertCountLogToHours = formattedCountLog.map((count) => countHour.convertMilisecondToHour(count))
+            const runningToday = getLogAllDateInMonth.map((count) => countHour.convertMilisecondToHour(count))
 
-            return { data: convertCountLogToHours }
+            return { data: convertCountLogToHours, runningToday }
         } catch (error) {
-            console.log({ error }, 88888888888888)
+            console.error({ error }, 88888888888888)
             throw new Error(error);
         }
     }
@@ -130,7 +130,8 @@ const objectTargetCuttingTime = (target, totalDayInMonth) => {
     // console.log({ test, length: test.length });
     return {
         name: 'Target',
-        data: formattedResult
+        data: formattedResult,
+        runningToday: formattedResult
     };
 }
 
