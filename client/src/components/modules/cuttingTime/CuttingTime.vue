@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import type { ApexOptions } from 'apexcharts'
-import { Column, DataTable, DatePicker, MultiSelect } from 'primevue'
-import { computed, ref, watchEffect } from 'vue'
+import { Column, DataTable, Divider, MultiSelect, ToggleSwitch } from 'primevue'
+import { computed, ref, shallowRef, watchEffect } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
 import { useMachine } from '@/composables/useMachine'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DataNotFound from '@/components/common/DataNotFound.vue'
 import type { ParamsGetCuttingTime } from '@/dto/machine.dto'
 import DatePickerMonth from '@/components/Forms/DatePicker/DatePickerMonth.vue'
-import type { cuttingTimeInMonth, CuttingTimeMachine } from '@/types/machine.type'
+import type { cuttingTimeInMonth } from '@/types/machine.type'
+
+type ValueDataTable = Record<'name', string> & Record<number, number>
 
 const {
   cuttingTimeMachines,
@@ -22,6 +24,8 @@ const {
 } = useMachine()
 
 const monthValue = ref<Date>(new Date())
+const showLabel = shallowRef<boolean>(true)
+
 const paramsGetCuttingTime = computed<ParamsGetCuttingTime>(() => {
   const machineIds = selectedMachine.value.length ? selectedMachine.value : undefined
   return {
@@ -30,63 +34,35 @@ const paramsGetCuttingTime = computed<ParamsGetCuttingTime>(() => {
   }
 })
 
-type ValueDataTable = Record<number | 'name', number | string>
+watchEffect(() => {
+  getCuttingTime(paramsGetCuttingTime.value)
+})
+
 function formatValueDataTable(cuttingTimeInMonth: cuttingTimeInMonth): ValueDataTable {
   const result: ValueDataTable = { name: cuttingTimeInMonth.name }
 
   cuttingTimeInMonth.data.forEach((item, index) => {
-    result[index + 1] = item
+    result[index + 1] = {
+      runningTime: item,
+      idleTime: 18
+    }
   })
 
   return result
 }
-
+/**
+ *
+ * @return
+ */
 const dataTableValue = computed<{ key: string[]; value: ValueDataTable[] } | undefined>(() => {
   if (!cuttingTimeMachines?.value) return undefined
   const { allDayInMonth, cuttingTimeInMonth } = cuttingTimeMachines.value
   const stringAllDay = allDayInMonth.map((item) => item.toString())
   const key: string[] = ['name', ...stringAllDay]
   const value: ValueDataTable[] = cuttingTimeInMonth.map((item) => formatValueDataTable(item))
+  console.log(value)
   return { key, value }
 })
-
-watchEffect(() => {
-  getCuttingTime(paramsGetCuttingTime.value)
-})
-
-/**
- * format yang dibutuhkan nantinya adalah
- * [
- * {
- * name: 'Machine 1',\
- * data: [89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 600]
- *
- * ]
- */
-
-//  target cukup simpan di db aja
-// const dto = {
-//   allDayInMonhth: [1, 2, 3, ...31],
-//   target: 600,
-//   machines: [
-//     {
-//       name: 'Machine 1',
-//       data: [20, 40, 60, ...600]
-//     },
-//     {
-//       name: 'Machine 2',
-//       data: [20, 40, 60, ...600]
-//     },
-//     {
-//       name: 'Machine 3',
-//       data: [20, 40, 60, ...600]
-//     },
-//     {
-//       name: 'Machine 4',
-//       data: [20, 40, 60, ...600],
-//     }
-//   ]
-// }
 
 const apexOptions = computed<ApexOptions>(() => {
   return {
@@ -99,7 +75,7 @@ const apexOptions = computed<ApexOptions>(() => {
       }
     },
     dataLabels: {
-      enabled: true
+      enabled: showLabel.value
     },
     stroke: {
       width: [5, 7, 5],
@@ -134,6 +110,15 @@ const apexOptions = computed<ApexOptions>(() => {
     }
   }
 })
+
+const getColorColumn = (value: number) => {
+  // green
+  if (value >= 16) return '#22c55e'
+  // yellow
+  if (value >= 14) return '#f59e0b'
+  // red
+  if (value < 14) return '#ef4444'
+}
 </script>
 
 <template>
@@ -143,26 +128,36 @@ const apexOptions = computed<ApexOptions>(() => {
 
   <template v-if="!loadingFetch">
     <div class="flex justify-between gap-2">
-      <MultiSelect
-        v-model:model-value="selectedMachine"
-        @before-show="getMachineOptions"
-        @before-hide="handleSelectMachine"
-        display="chip"
-        :options="machineOptions"
-        :loading="loadingDropdown"
-        optionLabel="name"
-        filter
-        placeholder="All Machine"
-        :maxSelectedLabels="3"
-        class="w-full md:w-80"
-      />
+      <div class="flex gap-5">
+        <MultiSelect
+          v-model:model-value="selectedMachine"
+          @before-show="getMachineOptions"
+          @before-hide="handleSelectMachine"
+          display="chip"
+          :options="machineOptions"
+          :loading="loadingDropdown"
+          optionLabel="name"
+          filter
+          placeholder="All Machine"
+          :maxSelectedLabels="3"
+          class="w-full md:w-80"
+        />
+        <div class="flex flex-col items-center">
+          <label for="toggle-label">Show Label</label>
+          <ToggleSwitch v-model="showLabel" ariaLabel="toggle-label">
+            <template #handle="{ checked }">
+              <i :class="['!text-xs pi', { 'pi-check': checked, 'pi-times': !checked }]" />
+            </template>
+          </ToggleSwitch>
+        </div>
+      </div>
 
       <DatePickerMonth v-model:month-value="monthValue" />
     </div>
     <DataNotFound :condition="!loadingFetch && !cuttingTimeMachines" tittle="Cutting Time" />
 
     <div v-if="cuttingTimeMachines" class="flex flex-col gap-5">
-      <!-- <VueApexCharts :options="apexOptions" height="350" :series="apexOptions.series" /> -->
+      <VueApexCharts :options="apexOptions" height="350" :series="apexOptions.series" />
 
       <DataTable
         :value="dataTableValue?.value"
@@ -171,12 +166,22 @@ const apexOptions = computed<ApexOptions>(() => {
         size="small"
         lazy
         showGridlines
+        row-group-mode="rowspan"
+        group-rows-by="name"
       >
-        <Column v-for="col of dataTableValue?.key" :key="col" :field="col" :header="col">
-          <!-- <template #body="{ data }" v-if="col === 'name'">
-            <template v-if="col === 'name'"> {{ data[col] }} </template>
-          </template> -->
-        </Column>
+        <template v-for="col of dataTableValue?.key" :key="col">
+          <Column v-if="col === 'name'" :field="col" :header="col"></Column>
+          <Column v-if="col !== 'name'" :field="col" :header="col" class="text-center items-center">
+            <template #body="{ data }">
+              <span>{{ data[col].runningTime }}</span>
+              <Divider />
+              <span :style="{ color: getColorColumn(data[col].idleTime) }">{{
+                data[col].idleTime
+              }}</span>
+              <!-- {{ [data[col].runningTime, data[col].idleTime] }} -->
+            </template>
+          </Column>
+        </template>
       </DataTable>
     </div>
   </template>
