@@ -10,7 +10,21 @@ import type { ParamsGetCuttingTime } from '@/dto/machine.dto'
 import DatePickerMonth from '@/components/Forms/DatePicker/DatePickerMonth.vue'
 import type { cuttingTimeInMonth } from '@/types/machine.type'
 
-type ValueDataTable = Record<'name', string> & Record<number, number>
+type Obj = {
+  actual: number
+  runningToday: number
+}
+
+/**
+ * 
+ * @return example: 
+ * {
+   name: 'Machine 1',
+   1: { actual: 30, runningToday: 10 },
+   2: { actual: 40, runningToday: 20 }
+ }
+ */
+type ValueDataTable = { name: string } & Record<number, Obj>
 
 const {
   cuttingTimeMachines,
@@ -43,14 +57,13 @@ function formatValueDataTable(cuttingTimeInMonth: cuttingTimeInMonth): ValueData
 
   cuttingTimeInMonth.data.forEach((item, index) => {
     result[index + 1] = {
+      ...result[index + 1],
       actual: item
-      // runningToday: 18
     }
   })
   cuttingTimeInMonth.runningToday.forEach((item, index) => {
     result[index + 1].runningToday = item
   })
-
   return result
 }
 /**
@@ -160,7 +173,7 @@ const getColorColumn = (value: number) => {
     <DataNotFound :condition="!loadingFetch && !cuttingTimeMachines" tittle="Cutting Time" />
 
     <div v-if="cuttingTimeMachines" class="flex flex-col gap-5">
-      <!-- <VueApexCharts :options="apexOptions" height="350" :series="apexOptions.series" /> -->
+      <VueApexCharts :options="apexOptions" height="350" :series="apexOptions.series" />
 
       <DataTable
         :value="dataTableValue?.value"
