@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import DatePickerMonth from '@/components/Forms/DatePicker/DatePickerMonth.vue'
 import type { ApexOptions } from 'apexcharts'
-import { Column, DataTable, MultiSelect } from 'primevue'
+import { Column, DataTable, DatePicker, MultiSelect } from 'primevue'
 import { computed, ref, watchEffect } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
 import { useMachine } from '@/composables/useMachine'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DataNotFound from '@/components/common/DataNotFound.vue'
 import type { ParamsGetCuttingTime } from '@/dto/machine.dto'
+import DatePickerMonth from '@/components/Forms/DatePicker/DatePickerMonth.vue'
+import type { cuttingTimeInMonth, CuttingTimeMachine } from '@/types/machine.type'
 
 const {
   cuttingTimeMachines,
@@ -29,13 +30,23 @@ const paramsGetCuttingTime = computed<ParamsGetCuttingTime>(() => {
   }
 })
 
-const dataTableValue = computed(() => {
+type ValueDataTable = Record<number | 'name', number | string>
+function formatValueDataTable(cuttingTimeInMonth: cuttingTimeInMonth): ValueDataTable {
+  const result: ValueDataTable = { name: cuttingTimeInMonth.name }
+
+  cuttingTimeInMonth.data.forEach((item, index) => {
+    result[index + 1] = item
+  })
+
+  return result
+}
+
+const dataTableValue = computed<{ key: string[]; value: ValueDataTable[] } | undefined>(() => {
   if (!cuttingTimeMachines?.value) return undefined
-  const { allDayInMonth, cuttingTime, cuttingTimeInMonth } = cuttingTimeMachines.value
+  const { allDayInMonth, cuttingTimeInMonth } = cuttingTimeMachines.value
   const stringAllDay = allDayInMonth.map((item) => item.toString())
-  const key = ['name', ...stringAllDay]
-  const value = cuttingTimeInMonth.map((item) => item.data)
-  const name = cuttingTimeInMonth.map((item) => item.name)
+  const key: string[] = ['name', ...stringAllDay]
+  const value: ValueDataTable[] = cuttingTimeInMonth.map((item) => formatValueDataTable(item))
   return { key, value }
 })
 
@@ -131,7 +142,7 @@ const apexOptions = computed<ApexOptions>(() => {
   </template>
 
   <template v-if="!loadingFetch">
-    <div class="flex justify-between gap-4">
+    <div class="flex justify-between gap-2">
       <MultiSelect
         v-model:model-value="selectedMachine"
         @before-show="getMachineOptions"
@@ -145,30 +156,28 @@ const apexOptions = computed<ApexOptions>(() => {
         :maxSelectedLabels="3"
         class="w-full md:w-80"
       />
+
       <DatePickerMonth v-model:month-value="monthValue" />
     </div>
     <DataNotFound :condition="!loadingFetch && !cuttingTimeMachines" tittle="Cutting Time" />
 
-    <VueApexCharts
-      v-if="cuttingTimeMachines"
-      :options="apexOptions"
-      height="350"
-      :series="apexOptions.series"
-    />
+    <div v-if="cuttingTimeMachines" class="flex flex-col gap-5">
+      <!-- <VueApexCharts :options="apexOptions" height="350" :series="apexOptions.series" /> -->
 
-    <DataTable
-      :value="dataTableValue?.value"
-      :loading="loadingFetch"
-      scrollable
-      size="small"
-      lazy
-      showGridlines
-    >
-      <Column v-for="col of dataTableValue?.key" :key="col" :field="col" :header="col">
-        <!-- <template #body="{ data }" v-if="col === 'name'">
-          <template v-if="col === 'name'"> {{ data[col] }} </template>
-        </template> -->
-      </Column>
-    </DataTable>
+      <DataTable
+        :value="dataTableValue?.value"
+        :loading="loadingFetch"
+        :scrollable="true"
+        size="small"
+        lazy
+        showGridlines
+      >
+        <Column v-for="col of dataTableValue?.key" :key="col" :field="col" :header="col">
+          <!-- <template #body="{ data }" v-if="col === 'name'">
+            <template v-if="col === 'name'"> {{ data[col] }} </template>
+          </template> -->
+        </Column>
+      </DataTable>
+    </div>
   </template>
 </template>

@@ -16,16 +16,18 @@ export type MachineTimeline = {
   MachineLogs: Array<{ current_status: Machine['status']; timestamp: string }>
 }
 
+export type cuttingTimeInMonth = {
+  name: string
+  data: number[]
+}
+
 export interface CuttingTimeMachine {
   allDayInMonth: number[]
   cuttingTime: {
     period: Date
     target: number
   }
-  cuttingTimeInMonth: {
-    name: string
-    data: number[]
-  }[]
+  cuttingTimeInMonth: cuttingTimeInMonth[]
 }
 
 export type MachineOption = {
