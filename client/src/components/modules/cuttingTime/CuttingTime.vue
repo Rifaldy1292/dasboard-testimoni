@@ -43,7 +43,7 @@ function formatValueDataTable(cuttingTimeInMonth: cuttingTimeInMonth): ValueData
 
   cuttingTimeInMonth.data.forEach((item, index) => {
     result[index + 1] = {
-      runningTime: item
+      actual: item
       // runningToday: 18
     }
   })
@@ -171,11 +171,12 @@ const getColorColumn = (value: number) => {
         showGridlines
         row-group-mode="rowspan"
         group-rows-by="name"
+        selection-mode="multiple"
       >
         <template v-for="col of dataTableValue?.key" :key="col">
           <Column :field="col" :header="col" class="text-center items-center">
             <template v-if="col !== 'name'" #body="{ data }">
-              <span>{{ data[col].runningTime }}</span>
+              <span>{{ data[col].actual }}</span>
               <Divider />
               <span :style="{ color: getColorColumn(data[col].runningToday) }">{{
                 data[col].runningToday

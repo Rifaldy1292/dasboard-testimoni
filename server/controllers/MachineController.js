@@ -130,7 +130,7 @@ const objectTargetCuttingTime = (target, totalDayInMonth) => {
     // console.log({ test, length: test.length });
     return {
         name: 'Target',
-        data: formattedResult,
+        data: formattedResult, // data ubah jadi actual
         runningToday: formattedResult
     };
 }
