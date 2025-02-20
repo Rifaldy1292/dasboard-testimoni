@@ -9,7 +9,6 @@ import FormLayoutView from '@/views/Forms/FormLayoutView.vue'
 import TablesView from '@/views/TablesView.vue'
 import AlertsView from '@/views/UiElements/AlertsView.vue'
 import ButtonsView from '@/views/UiElements/ButtonsView.vue'
-import RealTimeView from '@/views/RealTimeView.vue'
 import ManualView from '@/views/ManualView.vue'
 import AuthView from '@/views/Authentication/AuthView.vue'
 import ForgotPasswordView from '@/views/Authentication/ForgotPasswordView.vue'
@@ -19,19 +18,20 @@ import OperatorsView from '@/views/OperatorsView.vue'
 import EditProfileView from '@/views/EditProfileView.vue'
 import TimelineView from '@/views/TimelineView.vue'
 import CuttingTimeView from '@/views/CuttingTimeView.vue'
+import RunningTimeView from '@/views/RunningTimeView.vue'
 
 const routes: Readonly<RouteRecordRaw[]> = [
   {
     path: '/',
     name: 'dashboard',
-    redirect: { name: 'realTime' },
+    redirect: { name: 'runningTime' },
     children: [
       {
-        path: 'real-time',
-        name: 'realTime',
-        component: RealTimeView,
+        path: 'running-time',
+        name: 'runningTime',
+        component: RunningTimeView,
         meta: {
-          title: 'Real Time'
+          title: 'Running Time'
         }
       },
       {

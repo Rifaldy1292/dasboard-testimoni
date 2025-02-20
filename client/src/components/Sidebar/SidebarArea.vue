@@ -62,8 +62,8 @@ const menuGroups = computed<MenuGroup[]>(() => {
                   </svg>`,
           children: [
             {
-              label: 'Real Time',
-              route: '/real-time',
+              label: 'Running Time',
+              route: '/running-time',
               visible: true,
               icon: `<svg
                     class="fill-current"
