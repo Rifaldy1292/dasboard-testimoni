@@ -1,28 +1,26 @@
 <script setup lang="ts">
 import DatePickerMonth from '@/components/Forms/DatePicker/DatePickerMonth.vue'
 import { useMachine } from '@/composables/useMachine'
-import type { MachineOption } from '@/types/machine.type'
 import { MultiSelect, ToggleSwitch } from 'primevue'
-import { watchEffect } from 'vue'
 
-const { machineOptions, loadingDropdown, getMachineOptions, handleSelectMachine } = useMachine()
+const {
+  machineOptions,
+  loadingDropdown,
+  getMachineOptions,
+  handleSelectMachine,
+  selectedMachine,
+  cuttingTimeMachines
+} = useMachine()
 
-const selectedMachine = defineModel<MachineOption[]>('selectedMachine', {
-  required: true
-})
 const showLabel = defineModel<boolean>('showLabel', { required: true })
 const monthValue = defineModel<Date>('monthValue', {
   required: true
-})
-
-watchEffect(() => {
-  console.log(selectedMachine.value)
 })
 </script>
 
 <template>
   <div class="flex justify-between gap-2">
-    <div class="flex gap-5">
+    <div :class="`flex gap-5 ${!cuttingTimeMachines && 'opacity-0'}`">
       <MultiSelect
         v-model:model-value="selectedMachine"
         @before-show="getMachineOptions"

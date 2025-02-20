@@ -8,12 +8,11 @@ import { ref, shallowRef } from 'vue'
 const loadingFetch = shallowRef<boolean>(false)
 const cuttingTimeMachines = ref<CuttingTimeMachine | undefined>(undefined)
 const selectedMachine = ref<MachineOption[]>([])
+const loadingDropdown = shallowRef<boolean>(false)
+const machineOptions = ref<MachineOption[]>([])
 
 export const useMachine = () => {
   const toast = useToast()
-
-  const loadingDropdown = shallowRef<boolean>(false)
-  const machineOptions = ref<MachineOption[]>([])
 
   const getCuttingTime = async (params: ParamsGetCuttingTime) => {
     loadingFetch.value = true

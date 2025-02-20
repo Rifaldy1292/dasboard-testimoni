@@ -11,21 +11,6 @@ import CuttingTimeTable from './CuttingTimeTable.vue'
 
 const { cuttingTimeMachines, getCuttingTime, loadingFetch, selectedMachine } = useMachine()
 
-const colorInformation: { color: string; label: string }[] = [
-  {
-    color: '#22c55e',
-    label: 'Target'
-  },
-  {
-    color: '#f59e0b',
-    label: 'Mendekati'
-  },
-  {
-    color: '#ef4444',
-    label: 'Tidak Target'
-  }
-]
-
 const monthValue = ref<Date>(new Date())
 const showLabel = shallowRef<boolean>(true)
 
@@ -87,6 +72,21 @@ const apexOptions = computed<ApexOptions>(() => {
     }
   }
 })
+
+const colorInformation: { color: string; label: string }[] = [
+  {
+    color: '#22c55e',
+    label: 'Target'
+  },
+  {
+    color: '#f59e0b',
+    label: 'Mendekati'
+  },
+  {
+    color: '#ef4444',
+    label: 'Tidak Target'
+  }
+]
 </script>
 
 <template>
@@ -95,11 +95,7 @@ const apexOptions = computed<ApexOptions>(() => {
   </template>
 
   <template v-if="!loadingFetch">
-    <CuttingTimeHeader
-      v-model:selected-machine="selectedMachine"
-      v-model:month-value="monthValue"
-      v-model:show-label="showLabel"
-    />
+    <CuttingTimeHeader v-model:month-value="monthValue" v-model:show-label="showLabel" />
     <DataNotFound :condition="!loadingFetch && !cuttingTimeMachines" tittle="Cutting Time" />
 
     <div v-if="cuttingTimeMachines" class="flex flex-col gap-5">

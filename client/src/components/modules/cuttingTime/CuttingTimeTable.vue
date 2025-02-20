@@ -2,11 +2,9 @@
 import { useMachine } from '@/composables/useMachine'
 import type { cuttingTimeInMonth } from '@/types/machine.type'
 import { Column, DataTable, Divider } from 'primevue'
-import { computed, watchEffect } from 'vue'
+import { computed } from 'vue'
 
 const { loadingFetch, cuttingTimeMachines } = useMachine()
-
-watchEffect(() => console.log({ cuttingTimeMachines: cuttingTimeMachines.value }, 888))
 
 type Obj = {
   data: number
