@@ -12,7 +12,7 @@ import type { cuttingTimeInMonth } from '@/types/machine.type'
 
 type Obj = {
   actual: number
-  runningToday: number
+  runningToday?: number
 }
 
 /**
@@ -61,7 +61,7 @@ function formatValueDataTable(cuttingTimeInMonth: cuttingTimeInMonth): ValueData
       actual: item
     }
   })
-  cuttingTimeInMonth.runningToday.forEach((item, index) => {
+  cuttingTimeInMonth.runningToday?.forEach((item, index) => {
     result[index + 1].runningToday = item
   })
   return result
@@ -135,6 +135,21 @@ const getColorColumn = (value: number) => {
   // red
   if (value < 14) return '#ef4444'
 }
+
+const colorInformation = [
+  {
+    color: '#22c55e',
+    label: 'Target'
+  },
+  {
+    color: '#f59e0b',
+    label: 'Mendekati'
+  },
+  {
+    color: '#ef4444',
+    label: 'Tidak Target'
+  }
+]
 </script>
 
 <template>
@@ -175,6 +190,12 @@ const getColorColumn = (value: number) => {
     <div v-if="cuttingTimeMachines" class="flex flex-col gap-5">
       <VueApexCharts :options="apexOptions" height="350" :series="apexOptions.series" />
 
+      <div class="flex gap-15 border-y border-stroke px-6 py-7.5 dark:border-strokedark">
+        <div v-for="item of colorInformation" :key="item.label" class="flex gap-2">
+          <div class="w-10 h-10" :style="{ backgroundColor: item.color }" />
+          <span>{{ item.label }}</span>
+        </div>
+      </div>
       <DataTable
         :value="dataTableValue?.value"
         :loading="loadingFetch"
@@ -190,10 +211,17 @@ const getColorColumn = (value: number) => {
           <Column :field="col" :header="col" class="text-center items-center">
             <template v-if="col !== 'name'" #body="{ data }">
               <span>{{ data[col].actual }}</span>
-              <Divider />
-              <span :style="{ color: getColorColumn(data[col].runningToday) }">{{
-                data[col].runningToday
-              }}</span>
+              <template
+                v-if="
+                  typeof data[col].runningToday === 'number' ||
+                  typeof data[col].runningToday === 'string'
+                "
+              >
+                <Divider />
+                <span :style="{ color: getColorColumn(data[col].runningToday) }">{{
+                  data[col].runningToday
+                }}</span>
+              </template>
             </template>
           </Column>
         </template>
