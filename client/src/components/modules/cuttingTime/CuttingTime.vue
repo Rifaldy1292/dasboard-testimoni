@@ -215,7 +215,7 @@ const colorInformation = [
                 v-if="typeof data[col].actual === 'number' || typeof data[col].actual === 'string'"
               >
                 <Divider />
-                <span :style="{ color: getColorColumn(data[col].data) }">{{
+                <span :style="{ color: getColorColumn(data[col].actual) }">{{
                   data[col].actual
                 }}</span>
               </template>
