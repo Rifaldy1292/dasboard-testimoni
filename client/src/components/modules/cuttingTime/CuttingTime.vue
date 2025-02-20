@@ -11,8 +11,8 @@ import DatePickerMonth from '@/components/Forms/DatePicker/DatePickerMonth.vue'
 import type { cuttingTimeInMonth } from '@/types/machine.type'
 
 type Obj = {
-  actual: number
-  runningToday?: number
+  data: number
+  actual?: number
 }
 
 /**
@@ -20,8 +20,8 @@ type Obj = {
  * @return example: 
  * {
    name: 'Machine 1',
-   1: { actual: 30, runningToday: 10 },
-   2: { actual: 40, runningToday: 20 }
+   1: { actual: 30, data: 10 },
+   2: { actual: 40, data: 20 }
  }
  */
 type ValueDataTable = { name: string } & Record<number, Obj>
@@ -61,8 +61,8 @@ function formatValueDataTable(cuttingTimeInMonth: cuttingTimeInMonth): ValueData
       actual: item
     }
   })
-  cuttingTimeInMonth.runningToday?.forEach((item, index) => {
-    result[index + 1].runningToday = item
+  cuttingTimeInMonth.actual?.forEach((item, index) => {
+    result[index + 1].actual = item
   })
   return result
 }
@@ -209,17 +209,14 @@ const colorInformation = [
       >
         <template v-for="col of dataTableValue?.key" :key="col">
           <Column :field="col" :header="col" class="text-center items-center">
-            <template v-if="col !== 'name'" #body="{ data }">
-              <span>{{ data[col].actual }}</span>
+            <template v-if="col !== 'name'" #body="{ data }: { data: any }">
+              <span>{{ data[col].data }}</span>
               <template
-                v-if="
-                  typeof data[col].runningToday === 'number' ||
-                  typeof data[col].runningToday === 'string'
-                "
+                v-if="typeof data[col].actual === 'number' || typeof data[col].actual === 'string'"
               >
                 <Divider />
-                <span :style="{ color: getColorColumn(data[col].runningToday) }">{{
-                  data[col].runningToday
+                <span :style="{ color: getColorColumn(data[col].data) }">{{
+                  data[col].actual
                 }}</span>
               </template>
             </template>

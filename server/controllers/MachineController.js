@@ -98,7 +98,7 @@ class MachineController {
             const convertCountLogToHours = formattedCountLog.map((count) => countHour.convertMilisecondToHour(count))
             const runningToday = getLogAllDateInMonth.map((count) => countHour.convertMilisecondToHour(count))
 
-            return { data: convertCountLogToHours, runningToday }
+            return { data: convertCountLogToHours, actual: runningToday }
         } catch (error) {
             console.error({ error }, 88888888888888)
             throw new Error(error);

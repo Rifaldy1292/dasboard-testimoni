@@ -19,7 +19,7 @@ export type MachineTimeline = {
 export type cuttingTimeInMonth = {
   name: string
   data: number[]
-  runningToday?: number[]
+  actual?: number[]
 }
 
 export interface CuttingTimeMachine {
