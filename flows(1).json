@@ -1,0 +1,181 @@
+[
+    {
+        "id": "5fe4e285b03610e3",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "347e42a6a46aef70",
+        "type": "tab",
+        "label": "Flow 2",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "8402a36728a1a1f8",
+        "type": "OPCUA-IIoT-Connector",
+        "discoveryUrl": "",
+        "endpoint": "opc.tcp://DESKTOP-QAOMGPV:4840/",
+        "endpointMustExist": false,
+        "keepSessionAlive": true,
+        "loginEnabled": false,
+        "name": "LOCAL SERVER",
+        "showErrors": false,
+        "securityPolicy": "None",
+        "securityMode": "None",
+        "individualCerts": false,
+        "publicCertificateFile": "",
+        "privateKeyFile": "",
+        "defaultSecureTokenLifetime": "",
+        "autoSelectRightEndpoint": false,
+        "strategyMaxRetry": "",
+        "strategyInitialDelay": "",
+        "strategyMaxDelay": "",
+        "strategyRandomisationFactor": "",
+        "requestedSessionTimeout": "",
+        "connectionStartDelay": "",
+        "reconnectDelay": "",
+        "maxBadSessionRequests": 10
+    },
+    {
+        "id": "281bb8063a85bef9",
+        "type": "mqtt-broker",
+        "name": "pub mc 9",
+        "broker": "mqtt://localhost:1883",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "2",
+        "birthRetain": "false",
+        "birthPayload": "msg.payload",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "54d81ee2c15db32c",
+        "type": "OPCUA-IIoT-Inject",
+        "z": "347e42a6a46aef70",
+        "injectType": "inject",
+        "payload": "",
+        "payloadType": "date",
+        "topic": "",
+        "repeat": "1",
+        "crontab": "",
+        "once": false,
+        "startDelay": "",
+        "name": "",
+        "addressSpaceItems": [
+            {
+                "name": "running_state",
+                "nodeId": "ns=2;g=92004758-1acb-4a46-b79d-627f159b56a6",
+                "datatypeName": ""
+            }
+        ],
+        "x": 290,
+        "y": 100,
+        "wires": [
+            [
+                "923c84cd8560ea6f"
+            ]
+        ]
+    },
+    {
+        "id": "a9684c2229056769",
+        "type": "debug",
+        "z": "347e42a6a46aef70",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1040,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "923c84cd8560ea6f",
+        "type": "OPCUA-IIoT-Read",
+        "z": "347e42a6a46aef70",
+        "attributeId": "13",
+        "maxAge": 1,
+        "depth": 1,
+        "connector": "8402a36728a1a1f8",
+        "name": "",
+        "justValue": true,
+        "showStatusActivities": false,
+        "showErrors": false,
+        "parseStrings": false,
+        "historyDays": 1,
+        "x": 510,
+        "y": 140,
+        "wires": [
+            [
+                "81a6ded8b7fb15c4"
+            ]
+        ]
+    },
+    {
+        "id": "81a6ded8b7fb15c4",
+        "type": "function",
+        "z": "347e42a6a46aef70",
+        "name": "function 1",
+        "func": "const state = msg.payload.value[0].value.value\nconst status = state === 3 ? \"Running\" : \"Stopped\"\nmsg.payload = {name: \"MC-9\", status, state}\nif(state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 680,
+        "y": 220,
+        "wires": [
+            [
+                "a9684c2229056769",
+                "98047d915164e3fb"
+            ]
+        ]
+    },
+    {
+        "id": "98047d915164e3fb",
+        "type": "mqtt out",
+        "z": "347e42a6a46aef70",
+        "name": "pub mc 9",
+        "topic": "mc-9/data",
+        "qos": "2",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "281bb8063a85bef9",
+        "x": 860,
+        "y": 260,
+        "wires": []
+    }
+]
