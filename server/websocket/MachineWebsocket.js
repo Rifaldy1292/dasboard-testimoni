@@ -111,8 +111,18 @@ module.exports = class MachineWebsocket {
      */
     static async percentages(client) {
         try {
+            const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
+            const endOfToday = new Date(new Date().setHours(23, 59, 59, 999));
             const machines = await Machine.findAll({
-                attributes: ['name', 'status', 'total_running_hours']
+                attributes: ['name', 'status', 'total_running_hours'],
+
+                // ambil data sesuai hari ini
+                where: {
+                    updatedAt: {
+                        [Op.between]: [startOfToday, endOfToday]
+                    }
+                }
+
             });
             const formattedMessage = machines.map(machine => {
                 const runningTime = getRunningHours(machine.total_running_hours);
