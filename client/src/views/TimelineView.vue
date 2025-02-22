@@ -20,8 +20,8 @@ watch(
         date: dateOption.value.toISOString()
       }
     })
-    const test = new Date(dateOption.value).getDate()
-    console.log({ test, typeof: typeof test })
+    // const test = new Date(dateOption.value).getDate()
+    // console.log({ test, typeof: typeof test })
   }
 )
 </script>
@@ -31,7 +31,7 @@ watch(
     <BreadcrumbDefault page-title="Timeline" />
     <LoadingAnimation :state="loadingWebsocket" />
     <template v-if="!loadingWebsocket">
-      <div class="flex flex-col gap-5 mb-2">
+      <div class="flex flex-col gap-10 mb-2">
         <div class="flex justify-end">
           <FloatLabel>
             <DatePicker
@@ -48,7 +48,7 @@ watch(
         <div
           v-for="machine in timelineMachines"
           :key="machine.name"
-          class="border border-l-gray-600 dark:border-graydark"
+          class="border border-gray-950 dark:border-gray-500"
         >
           <TimelineMachine :machine="machine" />
         </div>
