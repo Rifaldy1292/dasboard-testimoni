@@ -44,11 +44,27 @@ function countDescription(totalRunningHours) {
     return `${hour} hour ${minute} minute / ${perfectTime} hour`;
 }
 
-
-
 /**
- * Class representing the Machine Websocket.
+ * Formats the time difference between two dates.
+ * 
+ * @param {number} ms - The time difference in milliseconds.
+ * @returns {string} The formatted time difference ex: 1h 2m 3s
  */
+function formatTimeDifference(ms) {
+    const seconds = Math.floor(ms / 1000) % 60;
+    const minutes = Math.floor(ms / (1000 * 60)) % 60;
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+
+    let result = [];
+    if (hours > 0) result.push(`${hours}h`);
+    if (minutes > 0) result.push(`${minutes}m`);
+    if (seconds > 0) result.push(`${seconds}s`);
+
+    return result.length > 0 ? result.join(" ") : "0s";
+}
+
+
+
 module.exports = class MachineWebsocket {
 
     /**
@@ -78,25 +94,43 @@ module.exports = class MachineWebsocket {
                 attributes: ['name', 'status']
             });
 
+            const sortedMachines = machines.sort((a, b) => {
+                const numberA = parseInt(a.name.slice(3));
+                const numberB = parseInt(b.name.slice(3));
+                return numberA - numberB;
+            });
+
             client.send(JSON.stringify({ type: 'asd', data: machines }));
 
-            const formattedMachines = machines.map(machine => {
-                const logs = machine.MachineLogs.map(log => {
+            if (!sortedMachines.length) {
+                client.send(JSON.stringify({ type: 'timeline', data: [] }));
+                return;
+            }
+
+
+            const formattedMachines = sortedMachines.map((machine, index) => {
+                const logs = machine.MachineLogs.map((log, indexLog) => {
+                    const currentTime = log.timestamp;
+                    const nextLog = machine.MachineLogs[indexLog + 1] || null;
+                    const timeDifference = new Date(nextLog?.timestamp || 0) - new Date(currentTime);
                     return {
                         current_status: log.current_status,
-                        timestamp: convertDateTime(log.timestamp)
+                        timestamp: convertDateTime(currentTime),
+                        timeDifference: formatTimeDifference(timeDifference),
+                        // log,
+                        // nextLog,
+
+
                     }
                 });
+
+
                 return {
                     name: machine.name,
                     status: machine.status,
                     MachineLogs: logs
                 };
-            }).sort((a, b) => {
-                const numberA = parseInt(a.name.slice(3));
-                const numberB = parseInt(b.name.slice(3));
-                return numberA - numberB;
-            });
+            })
             client.send(JSON.stringify({ type: 'timeline', data: formattedMachines }));
         } catch (e) {
             console.log({ e, message: e.message });

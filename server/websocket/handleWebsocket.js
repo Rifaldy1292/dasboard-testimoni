@@ -15,6 +15,7 @@ const handleWebsocket = (wss) => {
          * @param {string} message - The message received from the client.
          */
         ws.on('message', async (msg) => {
+            if (!JSON.parse(msg)) return console.log('Invalid format', msg)
             const { type, message, data } = JSON.parse(msg)
             console.log(type, message, data)
             if (!type) return console.log('Unknown format', message)

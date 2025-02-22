@@ -14,6 +14,8 @@ const allDateInMonth = Array.from({ length: 28 }, (_, i) => {
     const day = new Date(date.getFullYear(), date.getMonth(), i + 1)
     return day
 });
+
+
 machineRouter.get(
     "/cutting-time/id",
     authMiddleware,
@@ -23,6 +25,7 @@ machineRouter.get(
     }
 );
 
+// dropdown
 machineRouter.get(
     "/options",
     authMiddleware,

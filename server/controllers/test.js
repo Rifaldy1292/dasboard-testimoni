@@ -11,7 +11,7 @@ for (let i = 0; i < example.length; i++) {
     }
     res.push(sum)
 }
-console.log(res)
+// console.log(res)
 
 function totalHour(runningHour) {
     const hour = Math.round(runningHour / (1000 * 60 * 60));
@@ -28,4 +28,22 @@ const convertMiliseondToHours = (milliseconds) => {
     return hours.toFixed(1);
 }
 
-console.log(convertMiliseondToHours(9028231))
+// console.log(convertMiliseondToHours(9028231))
+function formatTimeDifference(ms) {
+    const seconds = Math.floor(ms / 1000) % 60;
+    const minutes = Math.floor(ms / (1000 * 60)) % 60;
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+
+    let result = [];
+    if (hours > 0) result.push(`${hours}h`);
+    if (minutes > 0) result.push(`${minutes}m`);
+    if (seconds > 0) result.push(`${seconds}s`);
+
+    return result.length > 0 ? result.join(" ") : "0s";
+}
+
+const nowDate = new Date('2025-02-22 14:20');
+const prevDate = new Date('2025-02-22 13:00');
+const diff = nowDate - prevDate;
+
+console.log(formatTimeDifference(diff)); // Output: "1h"

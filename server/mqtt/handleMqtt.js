@@ -8,8 +8,7 @@
 const { Machine, MachineLog, CuttingTime } = require('../models');
 const { getRunningTime } = require('../utils/getRunningTime');
 const MachineWebsocket = require('../websocket/MachineWebsocket');
-const { createCuttingTime } = require('./handleCuttingTime');
-const { getLastMachineLog } = require('./MachineMqtt');
+const { getLastMachineLog, createCuttingTime } = require('./MachineMqtt');
 const WebSocket = require('ws');
 
 const mqttTopics = [

@@ -1,4 +1,4 @@
-const { MachineLog, Machine } = require('../models');
+const { MachineLog, Machine, CuttingTime } = require('../models');
 const getLastMachineLog = async (id) => {
     try {
         const lastMachineLog = await MachineLog.findOne({
@@ -27,5 +27,20 @@ const getLastMachineLog = async (id) => {
 }
 
 
+const createCuttingTime = async () => {
+    try {
+        const { date } = dateCuttingTime();
+        const existCuttingTime = await CuttingTime.findOne({ where: { period: date } });
+        if (existCuttingTime === null) {
+            return await CuttingTime.create({
+                period: date,
+            });
+        }
+    } catch (error) {
+        console.error({ error, message: error.message });
+    }
+}
 
-module.exports = { getLastMachineLog };
+
+
+module.exports = { getLastMachineLog, createCuttingTime };
