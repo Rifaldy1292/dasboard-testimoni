@@ -26,14 +26,6 @@ const getLastMachineLog = async (id) => {
     }
 }
 
-const handleCuttingTIme = async () => {
-    try {
-
-    } catch (error) {
-        console.error({ error, message: error.message });
-    }
-}
 
 
-
-module.exports = { getLastMachineLog, handleCuttingTIme };
+module.exports = { getLastMachineLog };
