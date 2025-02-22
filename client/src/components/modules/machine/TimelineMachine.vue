@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Timeline from 'primevue/timeline'
-import type { Machine, MachineTimeline } from '@/types/machine.type'
+import type { Machine, MachineTimeline, ObjMachineTimeline } from '@/types/machine.type'
 
 const { machine } = defineProps<{
   machine: MachineTimeline
@@ -45,18 +45,13 @@ const iconTimeline = (status: Machine['status']): { icon: string; color: string 
         </div>
       </template> -->
 
-      <template #content="slotProps">
-        <div
-          :style="{ backgroundColor: iconTimeline(slotProps.item.current_status).color }"
-          class="p-1"
-        >
-          <span class="font-bold text-black dark:text-white"
-            >{{ slotProps.item.timestamp }} dandeling
-          </span>
+      <template #content="{ item }: { item: ObjMachineTimeline }">
+        <div :style="{ backgroundColor: iconTimeline(item.current_status).color }" class="p-1">
+          <span class="font-bold text-black dark:text-white">{{ item.timestamp }} dandeling </span>
 
           <br />
 
-          <span class="font-medium text-black dark:text-white"> 1h 2m 5s </span>
+          <span class="font-medium text-black dark:text-white">{{ item.timeDifference }} </span>
           <br />
           <span class="font-medium text-black dark:text-white">Operator: Basri </span>
         </div>

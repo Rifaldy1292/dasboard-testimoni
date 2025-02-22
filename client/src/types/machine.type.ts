@@ -10,10 +10,16 @@ export type Machine = {
   quantity: number
 }
 
+export type ObjMachineTimeline = {
+  current_status: Machine['status']
+  timestamp: string
+  timeDifference: string
+}
+
 export type MachineTimeline = {
   name: string
   status: Machine['status']
-  MachineLogs: Array<{ current_status: Machine['status']; timestamp: string }>
+  MachineLogs: Array<ObjMachineTimeline>
 }
 
 export type cuttingTimeInMonth = {
