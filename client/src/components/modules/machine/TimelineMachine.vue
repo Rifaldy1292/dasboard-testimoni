@@ -51,7 +51,7 @@ const iconTimeline = (status: Machine['status']): { icon: string; color: string 
 
           <br />
 
-          <span class="font-medium text-black dark:text-white">{{ item.timeDifference }} </span>
+          <span class="font-medium text-white dark:text-black">{{ item.timeDifference }} </span>
           <br />
           <span class="font-medium text-black dark:text-white">Operator: Basri </span>
         </div>
