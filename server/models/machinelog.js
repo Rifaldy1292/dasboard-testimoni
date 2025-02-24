@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     previous_status: DataTypes.STRING,
     current_status: DataTypes.STRING,
     timestamp: DataTypes.DATE,
+    description: DataTypes.STRING,
     running_today: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
@@ -28,5 +29,9 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'MachineLog',
   });
+
+  // MachineLog.beforeCreate(async (machineLog, options) => {
+  //   console.log({ machineLog: machineLog.running_today }, 'koko', machineLog)
+  // })
   return MachineLog;
 };

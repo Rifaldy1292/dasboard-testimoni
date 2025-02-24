@@ -1,4 +1,7 @@
 const { MachineLog, Machine, CuttingTime } = require('../models');
+const dateCuttingTime = require('../utils/dateCuttingTime');
+
+
 const getLastMachineLog = async (id) => {
     try {
         const lastMachineLog = await MachineLog.findOne({
@@ -18,7 +21,13 @@ const getLastMachineLog = async (id) => {
         if (!lastMachineLog) {
             return null;
         }
-        lastMachineLog.running_today = lastMachineLog.Machine.total_running_hours
+        const { total_running_hours } = lastMachineLog.Machine
+        lastMachineLog.running_today = total_running_hours
+
+        const teenMinutes = 10 * 60 * 1000;
+        if (total_running_hours) {
+            lastMachineLog.description = 'Manual Operation';
+        }
         await lastMachineLog.save();
 
     } catch (error) {
