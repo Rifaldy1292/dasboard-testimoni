@@ -2,6 +2,7 @@ const { MachineLog, Machine, CuttingTime } = require('../models');
 const dateCuttingTime = require('../utils/dateCuttingTime');
 
 
+const dateCuttingTime = require('../utils/dateCuttingTime');
 const getLastMachineLog = async (id) => {
     try {
         const lastMachineLog = await MachineLog.findOne({
