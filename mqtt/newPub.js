@@ -36,7 +36,6 @@ const pubMessage = () => {
 }
 client.on('connect', () => {
     console.log('Connected to MQTT broker');
-
     // Publish message
     pubMessage();
 });
@@ -44,8 +43,8 @@ client.on('connect', () => {
 // Update status setiap 30 detik
 setInterval(() => {
     pubMessage();
-}, 1000 * 60 * 30);
-// }, 1000 * 2);
+    // }, 1000 * 60 * 30);
+}, 1000 * 60 * 12);
 
 
 

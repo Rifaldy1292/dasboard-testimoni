@@ -114,14 +114,11 @@ module.exports = class MachineWebsocket {
                     const nextLog = machine.MachineLogs[indexLog + 1] || null;
                     const timeDifference = new Date(nextLog?.timestamp || 0) - new Date(currentTime);
                     return {
-                        description: log.description,
-                        current_status: log.current_status,
+                        ...log.dataValues,
                         timestamp: convertDateTime(currentTime),
                         timeDifference: formatTimeDifference(timeDifference),
                         // log,
                         // nextLog,
-
-
                     }
                 });
 

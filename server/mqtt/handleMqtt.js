@@ -5,10 +5,11 @@
  * @param {mqtt.Client} mqttClient - The MQTT client instance.
  * @param {WebSocket.Server} wss - The WebSocket server instance.
  */
+const { Op } = require('sequelize');
 const { Machine, MachineLog, CuttingTime } = require('../models');
 const { getRunningTime } = require('../utils/getRunningTime');
 const MachineWebsocket = require('../websocket/MachineWebsocket');
-const { getLastMachineLog, createCuttingTime } = require('./MachineMqtt');
+const { getLastMachineLog, createCuttingTime, handleChangeMachineStatus, createMachineAndLogFirstTime } = require('./MachineMqtt');
 const WebSocket = require('ws');
 
 const mqttTopics = [
@@ -19,8 +20,8 @@ const mqttTopics = [
 
 const handleMqtt = (mqttClient, wss) => {
     mqttClient.on('connect', async () => {
-        console.log('MQTT client connected');
         mqttTopics.forEach(topic => {
+            console.log('MQTT client connected', topic);
             mqttClient.subscribe(topic);
         });
     });
@@ -33,30 +34,16 @@ const handleMqtt = (mqttClient, wss) => {
             // create cutting time here
             await createCuttingTime();
 
-            const existMachine = await Machine.findOne({ where: { name: parseMessage.name }, include: MachineLog });
+            const existMachine = await Machine.findOne({ where: { name: parseMessage.name } });
 
             // create machine & log if machine not exist
             if (existMachine === null) {
-                const createMachine = await Machine.create({
-                    name: parseMessage.name,
-                    status: parseMessage.status
-                });
-
-                // running_today default 0
-                return await MachineLog.create({
-                    machine_id: createMachine.id,
-                    current_status: createMachine.status,
-                    timestamp: new Date()
-                });
+                return await createMachineAndLogFirstTime(parseMessage);
             }
 
+            // if status change
             if (existMachine.status !== parseMessage.status) {
-                await MachineLog.create({
-                    machine_id: existMachine.id,
-                    previous_status: existMachine.status,
-                    current_status: parseMessage.status,
-                    timestamp: new Date()
-                });
+                await handleChangeMachineStatus(existMachine, parseMessage);
             }
 
             const runningHour = await getRunningTime(existMachine.id);
