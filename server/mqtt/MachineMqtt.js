@@ -25,7 +25,7 @@ const getLastMachineLog = async (id) => {
         lastMachineLog.running_today = total_running_hours
 
         const teenMinutes = 10 * 60 * 1000;
-        if (total_running_hours) {
+        if (total_running_hours <= teenMinutes) {
             lastMachineLog.description = 'Manual Operation';
         }
         await lastMachineLog.save();

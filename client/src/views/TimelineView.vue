@@ -27,7 +27,7 @@ watch(
 </script>
 
 <template>
-  <DefaultLayout>
+  <DefaultLayout timeline-page>
     <BreadcrumbDefault page-title="Timeline" />
     <LoadingAnimation :state="loadingWebsocket" />
     <template v-if="!loadingWebsocket">
