@@ -18,9 +18,7 @@ provide('userData', userData)
     <!-- ===== Sidebar End ===== -->
 
     <!-- ===== Content Area Start ===== -->
-    <div
-      :class="`relative flex flex-1 flex-col ${timelinePage ? '' : 'overflow-x-hidden'} overflow-y-auto`"
-    >
+    <div class="w-full flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
       <!-- ===== Header Start ===== -->
       <HeaderArea />
       <!-- ===== Header End ===== -->

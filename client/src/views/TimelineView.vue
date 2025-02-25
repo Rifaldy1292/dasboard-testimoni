@@ -48,7 +48,7 @@ watch(
         <div
           v-for="machine in timelineMachines"
           :key="machine.name"
-          class="border border-gray-950 dark:border-gray-500"
+          class="border border-gray-950 dark:border-gray-500 overflow-x-auto"
         >
           <TimelineMachine :machine="machine" />
         </div>
