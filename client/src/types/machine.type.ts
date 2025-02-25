@@ -14,6 +14,7 @@ export type ObjMachineTimeline = {
   current_status: Machine['status']
   timestamp: string
   timeDifference: string
+  description: string | null
 }
 
 export type MachineTimeline = {

@@ -88,7 +88,7 @@ module.exports = class MachineWebsocket {
                             [Op.lte]: new Date(dateOption.setHours(23, 59, 59, 999))
                         }
                     },
-                    attributes: ['current_status', 'timestamp']
+                    attributes: ['current_status', 'timestamp', 'description']
                 }],
                 order: [[{ model: MachineLog }, 'timestamp', 'ASC']],
                 attributes: ['name', 'status']
@@ -114,6 +114,7 @@ module.exports = class MachineWebsocket {
                     const nextLog = machine.MachineLogs[indexLog + 1] || null;
                     const timeDifference = new Date(nextLog?.timestamp || 0) - new Date(currentTime);
                     return {
+                        description: log.description,
                         current_status: log.current_status,
                         timestamp: convertDateTime(currentTime),
                         timeDifference: formatTimeDifference(timeDifference),
