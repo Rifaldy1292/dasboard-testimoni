@@ -177,5 +177,19 @@ module.exports = class MachineWebsocket {
         }
     }
 
+    static async editLogDescription(client, data) {
+        try {
+            const { id, description } = data;
+            const updatedLog = await MachineLog.update({ description }, { where: { id } });
+
+            client.send(JSON.stringify({ type: 'success', message: 'Description updated successfully' }));
+            // refetch timeline data
+            // await MachineWebsocket.timelines(client);
+        } catch (e) {
+            console.log({ e, message: e.message });
+            client.send(JSON.stringify({ type: 'error', message: 'Failed to update description' }));
+        }
+    }
+
 }
 

@@ -61,7 +61,7 @@ const iconTimeline = (status: Machine['status']): { icon: string; color: string 
             >{{ item.timestamp }} - {{ item.description }}
           </i>
           <i
-            v-if="item.current_status === 'Stopped' && !item.description"
+            v-if="item.current_status === 'Stopped'"
             @click="handleClickIcon(item)"
             v-tooltip.top="'Edit'"
             class="pi pi-pencil"

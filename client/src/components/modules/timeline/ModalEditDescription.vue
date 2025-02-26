@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, shallowRef } from 'vue'
+import { computed, shallowRef, watch } from 'vue'
 import type { DialogFormProps } from '@/components/DialogForm/DialogForm.type'
 import DialogForm from '@/components/DialogForm/DialogForm.vue'
-import useToast from '@/utils/useToast'
 import { Button, InputText } from 'primevue'
 import type { ObjMachineTimeline } from '@/types/machine.type'
 import type { EditLogDescription } from '@/dto/machine.dto'
@@ -19,17 +18,17 @@ const visibleDialogForm = defineModel<boolean>('visibleDialogForm', {
 
 const { sendMessage } = useWebSocket()
 
-const toast = useToast()
-
 const dataDialogConfirm = computed<DialogFormProps>(() => ({
   header: `Edit Description ${machineName || ''} ${selectedMachine?.timestamp || ''}`
 }))
 
 const inputDescription = shallowRef<string>(selectedMachine?.description as string)
-// watch(visibleDialogForm, (value) => {
-//   if (value === true) {
-
-// }})
+watch(
+  () => selectedMachine,
+  () => {
+    inputDescription.value = selectedMachine?.description as string
+  }
+)
 
 const handleSubmitForm = () => {
   if (
@@ -37,7 +36,8 @@ const handleSubmitForm = () => {
     inputDescription.value === selectedMachine.description ||
     !inputDescription.value.trim()
   )
-    return
+    return undefined
+
   const payload: EditLogDescription = {
     description: inputDescription.value,
     id: selectedMachine?.id as number
@@ -46,10 +46,8 @@ const handleSubmitForm = () => {
     type: 'editLogDescription',
     data: payload
   })
-  toast.add({
-    severity: 'success',
-    summary: 'copied!'
-  })
+
+  visibleDialogForm.value = false
 }
 </script>
 
@@ -57,7 +55,7 @@ const handleSubmitForm = () => {
   <DialogForm v-model:visibleDialogForm="visibleDialogForm" :data="dataDialogConfirm">
     <template #body>
       <div class="flex flex-col gap-4">
-        <InputText v-model="inputDescription" />
+        <InputText v-model="inputDescription" :defaultValue="inputDescription" />
         <Button label="Submit" @click="handleSubmitForm" />
       </div>
     </template>

@@ -44,6 +44,12 @@ const handleWebsocket = (wss) => {
                     console.log('test')
                     break
                 }
+                case 'editLogDescription': {
+                    await MachineWebsocket.editLogDescription(ws, data)
+                    // refetch
+                    // await MachineWebsocket.timelines(ws, clientPreferences.get(ws))
+                    break
+                }
                 default:
                     console.log('Unknown type', type)
                     break

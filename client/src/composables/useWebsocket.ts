@@ -5,15 +5,15 @@ import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
 const PORT = +import.meta.env.VITE_PORT || 3000
 const SOCKET_URL = `ws://localhost:${PORT}`
 
+const timelineMachines = ref<MachineTimeline[]>([])
 const useWebSocket = (payloadType?: PayloadType) => {
   const toast = useToast()
 
   const socket = ref<WebSocket | null>(null)
   const percentageMachines = ref<Machine[]>([])
-  const timelineMachines = ref<MachineTimeline[]>([])
   // const errorMessage = shallowRef<string | undefined>()
   const loadingWebsocket = shallowRef<boolean>(false)
-  const successMessage = shallowRef<string | undefined>()
+  // const successMessage = shallowRef<string | undefined>()
 
   const sendMessage = (payload: payloadWebsocket) => {
     if (socket.value?.readyState === WebSocket.OPEN) {
@@ -47,6 +47,22 @@ const useWebSocket = (payloadType?: PayloadType) => {
             toast.add({
               severity: 'error',
               summary: 'Error',
+              detail: message
+            })
+            break
+          case 'success':
+            if (message === 'Description updated successfully') {
+              // refetch
+              sendMessage({
+                type: 'timeline',
+                data: {
+                  date: new Date().toISOString()
+                }
+              })
+            }
+            toast.add({
+              severity: 'success',
+              summary: 'Success',
               detail: message
             })
             break

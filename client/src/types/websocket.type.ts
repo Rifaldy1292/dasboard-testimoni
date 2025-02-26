@@ -9,8 +9,9 @@ export type payloadWebsocket = {
     | Record<string, any>
 }
 
+type ResponseType = 'success' | 'error'
 export interface WebsocketResponse {
-  type: PayloadType | 'error'
+  type: PayloadType | ResponseType
   data: Array<any>
   message?: string
 }
