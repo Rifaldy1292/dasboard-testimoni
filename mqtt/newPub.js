@@ -14,6 +14,7 @@ const client = mqtt.connect(mqttBroker);
 function getRandomStatus() {
     const statuses = ['Running', 'Stopped'];
     return statuses[Math.floor(Math.random() * statuses.length)];
+    // return statuses[0];
 }
 
 const pubMessage = () => {
@@ -44,7 +45,7 @@ client.on('connect', () => {
 setInterval(() => {
     pubMessage();
     // }, 1000 * 60 * 30);
-}, 1000 * 60 * 12);
+}, 1000 * 8);
 
 
 

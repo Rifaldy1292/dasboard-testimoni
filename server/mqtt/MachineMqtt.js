@@ -1,7 +1,9 @@
 const { MachineLog, Machine, CuttingTime } = require('../models');
 const { Op } = require('sequelize');
 const dateCuttingTime = require('../utils/dateCuttingTime');
-
+const WebSocket = require('ws');
+const { clientPreferences, messageTypeWebsocketClient } = require('../websocket/handleWebsocket');
+const MachineWebsocket = require('../websocket/MachineWebsocket');
 
 const getLastMachineLog = async (id) => {
     try {
@@ -60,11 +62,19 @@ function formatTimeDifference(ms) {
     return result.length > 0 ? result.join(" ") : "0s";
 }
 
-const handleChangeMachineStatus = async (existMachine, parseMessage) => {
+/**
+ * Handles the change in machine status, logs the change, updates WebSocket clients,
+ * and determines if the operation was manual.
+ *
+ * @param {Object} existMachine - The existing machine record.
+ * @param {Object} parseMessage - The parsed MQTT message containing machine status.
+ * @param {WebSocket.Server} wss - The WebSocket server instance.
+ */
+const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     try {
         const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
         const endOfToday = new Date(new Date().setHours(23, 59, 59, 999));
-        // console.log({ existMachine }, 99)
+
         const lastMachineLog = await MachineLog.findOne({
             where: {
                 machine_id: existMachine.id,
@@ -74,14 +84,11 @@ const handleChangeMachineStatus = async (existMachine, parseMessage) => {
             },
             attributes: ['timestamp', 'id'],
             order: [['timestamp', 'DESC']],
-        })
+        });
 
-
-        // console.log({ lastMachineLog }, 444)
-        // console.log(parseMessage.status, 11)
         const differenceTime = new Date() - new Date(lastMachineLog?.timestamp);
-        const teenMinutes = 10 * 60 * 1000;
-        const isManual = differenceTime <= teenMinutes && parseMessage.status === 'Running';
+        const tenMinutes = 10 * 60 * 1000;
+        const isManual = differenceTime <= tenMinutes && parseMessage.status === 'Running';
         if (isManual) {
             lastMachineLog.description = 'Manual Operation';
             lastMachineLog.save();
@@ -93,6 +100,19 @@ const handleChangeMachineStatus = async (existMachine, parseMessage) => {
             current_status: parseMessage.status,
             timestamp: new Date()
         });
+
+        wss.clients.forEach(async (client) => {
+            if (client.readyState === WebSocket.OPEN) {
+                const timelineMessage = messageTypeWebsocketClient.get('timeline');
+                const percentageMessage = messageTypeWebsocketClient.get('percentage');
+                if (timelineMessage) {
+                    const lastRequestedDate = clientPreferences.get(client) || new Date();
+                    return await MachineWebsocket.timelines(client, lastRequestedDate);
+                }
+                if (percentageMessage) return await MachineWebsocket.percentages(client);
+            }
+        });
+
     } catch (error) {
         console.log({ error, message: error.message });
     }

@@ -43,7 +43,7 @@ const handleMqtt = (mqttClient, wss) => {
 
             // if status change
             if (existMachine.status !== parseMessage.status) {
-                await handleChangeMachineStatus(existMachine, parseMessage);
+                await handleChangeMachineStatus(existMachine, parseMessage, wss);
             }
 
             const runningHour = await getRunningTime(existMachine.id);
@@ -61,13 +61,13 @@ const handleMqtt = (mqttClient, wss) => {
             console.error({ error, message: error.message });
         }
 
-        wss.clients.forEach(async (client) => {
-            if (client.readyState === WebSocket.OPEN) {
-                const lastRequestedDate = clientPreferences.get(client) || new Date(); // Gunakan tanggal terakhir atau default hari ini
-                await MachineWebsocket.timelines(client, lastRequestedDate);
-                await MachineWebsocket.percentages(client);
-            }
-        });
+        // wss.clients.forEach(async (client) => {
+        //     if (client.readyState === WebSocket.OPEN) {
+        //         const lastRequestedDate = clientPreferences.get(client) || new Date(); // Gunakan tanggal terakhir atau default hari ini
+        //         await MachineWebsocket.timelines(client, lastRequestedDate);
+        //         await MachineWebsocket.percentages(client);
+        //     }
+        // });
         // console.timeEnd('Proses');
     });
 }

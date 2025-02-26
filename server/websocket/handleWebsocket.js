@@ -1,5 +1,6 @@
 const MachineWebsocket = require('./MachineWebsocket')
 const clientPreferences = new Map()
+const messageTypeWebsocketClient = new Map()
 /**
  * Handles WebSocket connections and messages, providing endpoints for retrieving
  * machine timelines and percentages.
@@ -20,6 +21,9 @@ const handleWebsocket = (wss) => {
             const { type, message, data } = JSON.parse(msg)
             console.log(type, message, data)
             if (!type) return console.log('Unknown format', message)
+
+            messageTypeWebsocketClient.set(type, true)
+            // await handleMessageType(type)
             switch (type) {
                 case 'timeline':
                     /**
@@ -28,7 +32,6 @@ const handleWebsocket = (wss) => {
                     if (data.date) {
                         clientPreferences.set(ws, data.date)
                     }
-
                     await MachineWebsocket.timelines(ws, data.date)
                     break
                 case 'percentage':
@@ -37,29 +40,31 @@ const handleWebsocket = (wss) => {
                      */
                     await MachineWebsocket.percentages(ws)
                     break
-                case 'cuttingTime':
-                    await MachineWebsocket.cuttingTime(ws)
-                    break
-                case 'test': {
-                    console.log('test')
-                    break
-                }
+                // case 'test': {
+                //     console.log('test')
+                //     break
+                // }
                 case 'editLogDescription': {
                     await MachineWebsocket.editLogDescription(ws, data)
-                    // refetch
-                    // await MachineWebsocket.timelines(ws, clientPreferences.get(ws))
                     break
                 }
                 default:
                     console.log('Unknown type', type)
                     break
             }
+
+
         })
         ws.on('close', () => {
             console.log('Client disconnected')
             clientPreferences.delete(ws)
+            messageTypeWebsocketClient.clear()
         })
     })
 }
 
-module.exports = { handleWebsocket, clientPreferences }
+// const handleMessageType = async (type) => {
+
+// }
+
+module.exports = { handleWebsocket, clientPreferences, messageTypeWebsocketClient }
