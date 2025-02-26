@@ -1,23 +1,9 @@
 import type { Machine, MachineTimeline } from '@/types/machine.type'
+import type { PayloadType, payloadWebsocket, WebsocketResponse } from '@/types/websocket.type'
 import useToast from '@/utils/useToast'
 import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
 const PORT = +import.meta.env.VITE_PORT || 3000
 const SOCKET_URL = `ws://localhost:${PORT}`
-
-type PayloadType = 'timeline' | 'percentage' | 'test' | 'cuttingTime'
-type payloadWebsocket = {
-  type: PayloadType
-  message?: string
-  data?: {
-    date?: string
-  }
-}
-
-interface WebsocketResponse {
-  type: PayloadType | 'error'
-  data: Array<any>
-  message?: string
-}
 
 const useWebSocket = (payloadType?: PayloadType) => {
   const toast = useToast()
@@ -27,6 +13,7 @@ const useWebSocket = (payloadType?: PayloadType) => {
   const timelineMachines = ref<MachineTimeline[]>([])
   // const errorMessage = shallowRef<string | undefined>()
   const loadingWebsocket = shallowRef<boolean>(false)
+  const successMessage = shallowRef<string | undefined>()
 
   const sendMessage = (payload: payloadWebsocket) => {
     if (socket.value?.readyState === WebSocket.OPEN) {

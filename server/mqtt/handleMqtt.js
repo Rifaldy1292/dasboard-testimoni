@@ -5,7 +5,6 @@
  * @param {mqtt.Client} mqttClient - The MQTT client instance.
  * @param {WebSocket.Server} wss - The WebSocket server instance.
  */
-const { Op } = require('sequelize');
 const { Machine, MachineLog, CuttingTime } = require('../models');
 const { getRunningTime } = require('../utils/getRunningTime');
 const MachineWebsocket = require('../websocket/MachineWebsocket');

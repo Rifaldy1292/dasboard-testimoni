@@ -30,7 +30,9 @@ const handleCloseModal = () => {
       :header="data.header"
       :style="{ width: '25rem' }"
     >
-      <span class="text-surface-500 dark:text-surface-400 block mb-8">{{ data.description }}</span>
+      <span v-if="data.description" class="text-surface-500 dark:text-surface-400 block mb-8">{{
+        data.description
+      }}</span>
       <slot name="body" />
     </Dialog>
   </div>

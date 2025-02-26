@@ -88,7 +88,7 @@ module.exports = class MachineWebsocket {
                             [Op.lte]: new Date(dateOption.setHours(23, 59, 59, 999))
                         }
                     },
-                    attributes: ['current_status', 'timestamp', 'description']
+                    attributes: ['id', 'current_status', 'timestamp', 'description']
                 }],
                 order: [[{ model: MachineLog }, 'timestamp', 'ASC']],
                 attributes: ['name', 'status']

@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import Timeline from 'primevue/timeline'
 import type { Machine, MachineTimeline, ObjMachineTimeline } from '@/types/machine.type'
+import ModalEditDescription from './ModalEditDescription.vue'
+import { shallowRef } from 'vue'
 
 const { machine } = defineProps<{
   machine: MachineTimeline
 }>()
+
+const visibleDialogForm = shallowRef<boolean>(false)
+const selectedLog = shallowRef<ObjMachineTimeline | undefined>()
+const handleClickIcon = (e: ObjMachineTimeline): void => {
+  selectedLog.value = e
+  visibleDialogForm.value = true
+  console.log(selectedLog.value)
+}
 
 const iconTimeline = (status: Machine['status']): { icon: string; color: string } => {
   if (status === 'Running') {
@@ -47,10 +57,16 @@ const iconTimeline = (status: Machine['status']): { icon: string; color: string 
 
       <template #content="{ item }: { item: ObjMachineTimeline }">
         <div :style="{ backgroundColor: iconTimeline(item.current_status).color }" class="p-1">
-          <span class="font-bold text-black dark:text-white"
-            >{{ item.timestamp }} {{ item.description && '-' }} {{ item.description }}
-          </span>
-
+          <i class="font-bold text-black dark:text-white"
+            >{{ item.timestamp }} - {{ item.description }}
+          </i>
+          <i
+            v-if="item.current_status === 'Stopped' && !item.description"
+            @click="handleClickIcon(item)"
+            v-tooltip.top="'Edit'"
+            class="pi pi-pencil"
+            style="font-size: 1rem"
+          />
           <br />
 
           <span class="font-medium text-white dark:text-black">{{ item.timeDifference }} </span>
@@ -66,5 +82,11 @@ const iconTimeline = (status: Machine['status']): { icon: string; color: string 
         ></div>
       </template>
     </Timeline>
+
+    <ModalEditDescription
+      v-model:visible-dialog-form="visibleDialogForm"
+      :selected-machine="selectedLog"
+      :machine-name="machine.name"
+    />
   </div>
 </template>

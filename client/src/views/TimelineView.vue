@@ -2,11 +2,11 @@
 import { ref, watch } from 'vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
-import TimelineMachine from '@/components/modules/machine/TimelineMachine.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import { DatePicker, FloatLabel } from 'primevue'
 import useWebsocket from '@/composables/useWebsocket'
 import DataNotFound from '@/components/common/DataNotFound.vue'
+import TimelineMachine from '@/components/modules/timeline/TimelineMachine.vue'
 
 const { loadingWebsocket, timelineMachines, sendMessage } = useWebsocket('timeline')
 

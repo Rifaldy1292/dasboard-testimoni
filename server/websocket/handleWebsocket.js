@@ -49,6 +49,10 @@ const handleWebsocket = (wss) => {
                     break
             }
         })
+        ws.on('close', () => {
+            console.log('Client disconnected')
+            clientPreferences.delete(ws)
+        })
     })
 }
 

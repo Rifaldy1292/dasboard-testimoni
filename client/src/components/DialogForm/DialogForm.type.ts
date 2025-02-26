@@ -1,4 +1,4 @@
 export interface DialogFormProps {
   header: string
-  description: string
+  description?: string
 }
