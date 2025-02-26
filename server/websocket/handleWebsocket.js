@@ -1,4 +1,5 @@
 const MachineWebsocket = require('./MachineWebsocket')
+const clientPreferences = new Map()
 /**
  * Handles WebSocket connections and messages, providing endpoints for retrieving
  * machine timelines and percentages.
@@ -24,6 +25,10 @@ const handleWebsocket = (wss) => {
                     /**
                      * Retrieves machine timelines.
                      */
+                    if (data.date) {
+                        clientPreferences.set(ws, data.date)
+                    }
+
                     await MachineWebsocket.timelines(ws, data.date)
                     break
                 case 'percentage':
@@ -47,4 +52,4 @@ const handleWebsocket = (wss) => {
     })
 }
 
-module.exports = handleWebsocket
+module.exports = { handleWebsocket, clientPreferences }

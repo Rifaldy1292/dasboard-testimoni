@@ -64,6 +64,7 @@ const handleChangeMachineStatus = async (existMachine, parseMessage) => {
     try {
         const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
         const endOfToday = new Date(new Date().setHours(23, 59, 59, 999));
+        // console.log({ existMachine }, 99)
         const lastMachineLog = await MachineLog.findOne({
             where: {
                 machine_id: existMachine.id,
@@ -76,9 +77,11 @@ const handleChangeMachineStatus = async (existMachine, parseMessage) => {
         })
 
 
-        const differenceTime = new Date() - new Date(lastMachineLog.timestamp);
+        // console.log({ lastMachineLog }, 444)
+        // console.log(parseMessage.status, 11)
+        const differenceTime = new Date() - new Date(lastMachineLog?.timestamp);
         const teenMinutes = 10 * 60 * 1000;
-        const isManual = differenceTime <= teenMinutes;
+        const isManual = differenceTime <= teenMinutes && parseMessage.status === 'Running';
         if (isManual) {
             lastMachineLog.description = 'Manual Operation';
             lastMachineLog.save();

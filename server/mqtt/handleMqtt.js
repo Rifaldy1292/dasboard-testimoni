@@ -11,6 +11,7 @@ const { getRunningTime } = require('../utils/getRunningTime');
 const MachineWebsocket = require('../websocket/MachineWebsocket');
 const { getLastMachineLog, createCuttingTime, handleChangeMachineStatus, createMachineAndLogFirstTime } = require('./MachineMqtt');
 const WebSocket = require('ws');
+const { clientPreferences } = require('../websocket/handleWebsocket');
 
 const mqttTopics = [
     'mc-1/data', 'mc-2/data', 'mc-3/data', 'mc-4/data', 'mc-5/data',
@@ -63,7 +64,8 @@ const handleMqtt = (mqttClient, wss) => {
 
         wss.clients.forEach(async (client) => {
             if (client.readyState === WebSocket.OPEN) {
-                await MachineWebsocket.timelines(client);
+                const lastRequestedDate = clientPreferences.get(client) || new Date(); // Gunakan tanggal terakhir atau default hari ini
+                await MachineWebsocket.timelines(client, lastRequestedDate);
                 await MachineWebsocket.percentages(client);
             }
         });

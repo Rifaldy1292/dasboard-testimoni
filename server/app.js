@@ -7,7 +7,7 @@ const path = require('path');
 const { createServer } = require('http')
 const handleMqtt = require("./mqtt/handleMqtt");
 const router = require("./routes");
-const handleWebsocket = require("./websocket/handleWebsocket");
+const { handleWebsocket } = require("./websocket/handleWebsocket");
 
 
 const app = express();
