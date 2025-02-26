@@ -4,6 +4,7 @@ import useToast from '@/utils/useToast'
 import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
 const PORT = +import.meta.env.VITE_PORT || 3000
 const SOCKET_URL = `ws://localhost:${PORT}`
+const timelineMachines = ref<MachineTimeline[]>([])
 
 const useWebSocket = (payloadType?: PayloadType) => {
   const toast = useToast()
@@ -11,7 +12,6 @@ const useWebSocket = (payloadType?: PayloadType) => {
   const socket = ref<WebSocket | null>(null)
   const percentageMachines = ref<Machine[]>([])
   // const errorMessage = shallowRef<string | undefined>()
-  const timelineMachines = ref<MachineTimeline[]>([])
   const loadingWebsocket = shallowRef<boolean>(false)
   // const successMessage = shallowRef<string | undefined>()
 
@@ -68,10 +68,10 @@ const useWebSocket = (payloadType?: PayloadType) => {
             })
             break
           case 'timeline':
-            if (data !== timelineMachines.value) {
-              console.log('from server timeline', data)
-              timelineMachines.value = data
-            }
+            console.log('from server timeline', data)
+            timelineMachines.value = data
+            // if (data !== timelineMachines.value) {
+            // }
             break
           case 'percentage': {
             percentageMachines.value = data

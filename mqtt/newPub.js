@@ -44,8 +44,8 @@ client.on('connect', () => {
 // Update status setiap 30 detik
 setInterval(() => {
     pubMessage();
-    // }, 1000 * 60 * 30);
-}, 1000 * 8);
+}, 1000 * 60 * 30);
+// }, 1000 * 8);
 
 
 

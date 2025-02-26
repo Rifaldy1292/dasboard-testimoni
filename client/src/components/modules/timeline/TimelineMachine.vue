@@ -56,7 +56,7 @@ const iconTimeline = (status: Machine['status']): { icon: string; color: string 
       </template> -->
 
       <template #content="{ item }: { item: ObjMachineTimeline }">
-        <div :style="{ backgroundColor: iconTimeline(item.current_status).color }" class="p-1">
+        <div :style="{ backgroundColor: iconTimeline(item.current_status).color }" class="p-1 h-30">
           <i class="font-bold text-black dark:text-white"
             >{{ item.timestamp }} - {{ item.description }}
           </i>
