@@ -55,7 +55,11 @@ const handleSubmitForm = () => {
   <DialogForm v-model:visibleDialogForm="visibleDialogForm" :data="dataDialogConfirm">
     <template #body>
       <div class="flex flex-col gap-4">
-        <InputText v-model="inputDescription" :defaultValue="inputDescription" />
+        <InputText
+          v-model="inputDescription"
+          :defaultValue="inputDescription"
+          @keydown.enter="handleSubmitForm"
+        />
         <Button label="Submit" @click="handleSubmitForm" />
       </div>
     </template>
