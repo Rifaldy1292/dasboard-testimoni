@@ -102,18 +102,23 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
         });
 
         wss.clients.forEach(async (client) => {
-            if (client.readyState === WebSocket.OPEN) {
-                const timelineMessage = messageTypeWebsocketClient.get('timeline');
-                const percentageMessage = messageTypeWebsocketClient.get('percentage');
-                if (timelineMessage) {
-                    const lastRequestedDate = clientPreferences.get(client);
-                    console.log({ clientPreferences: clientPreferences.get(client) }, 88888)
-                    if (lastRequestedDate) { return; }
+            if (client.readyState !== WebSocket.OPEN) return;
 
-                    return await MachineWebsocket.timelines(client);
+            const timelineMessage = messageTypeWebsocketClient.get('timeline');
+            const percentageMessage = messageTypeWebsocketClient.get('percentage');
+
+            if (timelineMessage) {
+                const lastRequestedDate = clientPreferences.get(client);
+                console.log({ clientPreferences: clientPreferences.get(client) }, 88888)
+                if (lastRequestedDate) {
+                    console.log(`Skipping timeline update for client with custom date: ${lastRequestedDate}`);
+                    return;
                 }
-                if (percentageMessage) return await MachineWebsocket.percentages(client);
+
+                console.log('Sending live timeline update from MQTT');
+                return await MachineWebsocket.timelines(client);
             }
+            if (percentageMessage) return await MachineWebsocket.percentages(client);
         });
 
     } catch (error) {

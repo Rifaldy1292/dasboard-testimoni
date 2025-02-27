@@ -10,14 +10,14 @@ import TimelineMachine from '@/components/modules/timeline/TimelineMachine.vue'
 
 const { loadingWebsocket, timelineMachines, sendMessage } = useWebsocket('timeline')
 
-const dateOption = ref<Date>(new Date())
+const dateOption = ref<Date | undefined>()
 watch(
   () => dateOption.value,
   () => {
     sendMessage({
       type: 'timeline',
       data: {
-        date: dateOption.value.toISOString()
+        date: dateOption.value?.toISOString()
       }
     })
     // const test = new Date(dateOption.value).getDate()

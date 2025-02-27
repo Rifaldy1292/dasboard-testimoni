@@ -22,14 +22,18 @@ const handleWebsocket = (wss) => {
             console.log(type, message, data)
             if (!type) return console.log('Unknown format', message)
 
-            messageTypeWebsocketClient.set(type, true)
+            if (!messageTypeWebsocketClient.has(ws)) {
+                messageTypeWebsocketClient.set(ws, new Set());
+            }
+            messageTypeWebsocketClient.get(ws).add(type);
+
             // await handleMessageType(type)
             switch (type) {
                 case 'timeline':
                     /**
                      * Retrieves machine timelines.
                      */
-                    if (data.date) {
+                    if (data?.date) {
                         clientPreferences.set(ws, data.date)
                     }
                     console.log({ clientPreferences: clientPreferences.get(ws) }, 88888, 'form ws')
@@ -58,7 +62,7 @@ const handleWebsocket = (wss) => {
         })
         ws.on('close', () => {
             console.log('Client disconnected')
-            clientPreferences.delete(ws)
+            clientPreferences.clear()
             messageTypeWebsocketClient.clear()
         })
     })

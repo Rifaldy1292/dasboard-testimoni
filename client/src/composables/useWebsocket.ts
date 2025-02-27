@@ -23,16 +23,16 @@ const useWebSocket = (payloadType?: PayloadType) => {
   }
 
   onMounted(() => {
-    socket.value = new WebSocket(SOCKET_URL)
+    socket.value = new WebSocket(SOCKET_URL, 'echo-protocol')
 
     socket.value.onopen = () => {
       console.log('Connected to WebSocket server')
       if (payloadType)
         sendMessage({
-          type: payloadType,
-          data: {
-            date: new Date().toISOString()
-          }
+          type: payloadType
+          // data: {
+          //   date: new Date().toISOString()
+          // }
         })
     }
     socket.value.onmessage = (event) => {
