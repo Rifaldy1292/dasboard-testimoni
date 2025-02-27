@@ -17,14 +17,23 @@ const handleWebsocket = (wss) => {
          * @param {string} message - The message received from the client.
          */
         ws.on('message', async (msg) => {
-            if (!JSON.parse(msg)) return console.log('Invalid format', msg)
-            const { type, message, data } = JSON.parse(msg)
-            console.log(type, message, data)
-            if (!type) return console.log('Unknown format', message)
+            const parsedMessage = JSON.parse(msg)
+            if (!parsedMessage) return console.log('Invalid format', msg)
 
+            const { type, message: messageString, data } = parsedMessage
+            console.log(type, messageString, data)
+            if (!type) return console.log('Unknown format', messageString)
+            /**
+             * Records the types of messages sent by the client.
+             * @type {Set<string>}
+             */
             if (!messageTypeWebsocketClient.has(ws)) {
                 messageTypeWebsocketClient.set(ws, new Set());
             }
+            /**
+             * Adds the type of the message to the record.
+             * @param {string} type - The type of message.
+             */
             messageTypeWebsocketClient.get(ws).add(type);
 
             // await handleMessageType(type)
@@ -36,7 +45,7 @@ const handleWebsocket = (wss) => {
                     if (data?.date) {
                         clientPreferences.set(ws, data.date)
                     }
-                    console.log({ clientPreferences: clientPreferences.get(ws) }, 88888, 'form ws')
+                    // console.log({ clientPreferences: clientPreferences.get(ws) }, 88888, 'form ws')
                     await MachineWebsocket.timelines(ws, clientPreferences.get(ws))
                     break
                 case 'percentage':
@@ -60,10 +69,14 @@ const handleWebsocket = (wss) => {
 
 
         })
+        /**
+         * Handles the close event.
+         * When a client disconnects, the references to the client are removed from the maps.
+         */
         ws.on('close', () => {
             console.log('Client disconnected')
-            clientPreferences.clear()
-            messageTypeWebsocketClient.clear()
+            clientPreferences.delete(ws)
+            messageTypeWebsocketClient.delete(ws)
         })
     })
 }
