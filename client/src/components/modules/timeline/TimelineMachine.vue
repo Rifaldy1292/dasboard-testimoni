@@ -107,7 +107,7 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
           <br />
           <span class="font-medium text-black dark:text-white">Operator: Basri </span>
 
-          <span>{{ convertStringDifferenceToMilisecond(item.timeDifference) }}</span>
+          <!-- <span>{{ convertStringDifferenceToMilisecond(item.timeDifference) }}</span> -->
         </div>
       </template>
 
