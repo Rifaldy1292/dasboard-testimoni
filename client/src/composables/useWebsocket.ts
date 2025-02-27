@@ -4,7 +4,9 @@ import useToast from '@/utils/useToast'
 import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
 const PORT = +import.meta.env.VITE_PORT || 3000
 const SOCKET_URL = `ws://localhost:${PORT}`
+
 const timelineMachines = ref<AllMachineTimeline | undefined>()
+const messageWebsocket = shallowRef<string | undefined>()
 
 const useWebSocket = (payloadType?: PayloadType) => {
   const toast = useToast()
@@ -43,6 +45,10 @@ const useWebSocket = (payloadType?: PayloadType) => {
         const { type, data, message } = parsedData
         if (!type) return console.log('Unknown format', parsedData)
         console.log({ type })
+        if (message) {
+          messageWebsocket.value = message
+          // console.log(messageWebsocket.value, 'from usews')
+        }
         switch (type) {
           case 'error':
             toast.add({
@@ -52,15 +58,6 @@ const useWebSocket = (payloadType?: PayloadType) => {
             })
             break
           case 'success':
-            if (message === 'Description updated successfully') {
-              // refetch
-              sendMessage({
-                type: 'timeline',
-                data: {
-                  date: new Date().toISOString()
-                }
-              })
-            }
             toast.add({
               severity: 'success',
               summary: 'Success',
@@ -102,7 +99,7 @@ const useWebSocket = (payloadType?: PayloadType) => {
     }
   })
 
-  return { sendMessage, loadingWebsocket, percentageMachines, timelineMachines }
+  return { sendMessage, messageWebsocket, loadingWebsocket, percentageMachines, timelineMachines }
 }
 
 export default useWebSocket

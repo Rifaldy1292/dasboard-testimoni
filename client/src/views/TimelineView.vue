@@ -8,9 +8,26 @@ import useWebsocket from '@/composables/useWebsocket'
 import DataNotFound from '@/components/common/DataNotFound.vue'
 import TimelineMachine from '@/components/modules/timeline/TimelineMachine.vue'
 
-const { loadingWebsocket, timelineMachines, sendMessage } = useWebsocket('timeline')
+const { loadingWebsocket, timelineMachines, sendMessage, messageWebsocket } =
+  useWebsocket('timeline')
 
 const dateOption = ref<Date | undefined>()
+
+watch(
+  () => messageWebsocket.value,
+  (newValue) => {
+    if (newValue === 'Description updated successfully') {
+      // refetch
+      console.log('refetch')
+      sendMessage({
+        type: 'timeline',
+        data: {
+          date: dateOption.value?.toISOString()
+        }
+      })
+    }
+  }
+)
 watch(
   () => dateOption.value,
   () => {
