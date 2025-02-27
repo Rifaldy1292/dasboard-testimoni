@@ -42,15 +42,17 @@ const convertStringDifferenceToMilisecond = (str: string): number => {
 }
 
 const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
+  const maxWidthInPx = 1920
   const milisecond = convertStringDifferenceToMilisecond(obj.timeDifference)
   const minute = Math.round(milisecond / (1000 * 60))
+  const width = minute * 5
   if (minute <= 20) {
-    return 'w-20'
+    return 'w-[100px]'
     // 230 is max width
-  } else if (minute > 20 && minute <= 230) {
-    return `w-${minute}`
+  } else if (minute > 20 && width <= maxWidthInPx) {
+    return `w-[${width}px]`
   } else {
-    return 'w-230'
+    return `w-[${maxWidthInPx}px]`
   }
 }
 </script>
@@ -107,7 +109,8 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
           <br />
           <span class="font-medium text-black dark:text-white">Operator: Basri </span>
 
-          <!-- <span>{{ convertStringDifferenceToMilisecond(item.timeDifference) }}</span> -->
+          <span>{{ convertStringDifferenceToMilisecond(item.timeDifference) }}</span>
+          <span>test{{ customWidthBoxTimeline(item) }}</span>
         </div>
       </template>
 
