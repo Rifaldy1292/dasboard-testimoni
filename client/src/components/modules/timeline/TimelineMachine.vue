@@ -42,18 +42,17 @@ const convertStringDifferenceToMilisecond = (str: string): number => {
 }
 
 const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
-  const maxWidthInPx = 1920
   const milisecond = convertStringDifferenceToMilisecond(obj.timeDifference)
   const minute = Math.round(milisecond / (1000 * 60))
   const width = minute * 5
+  const defaultWidth = '100px'
   if (minute <= 20) {
-    return 'w-[100px]'
-    // 230 is max width
-  } else if (minute > 20 && width <= maxWidthInPx) {
-    return `w-[${width}px]`
-  } else {
-    return `w-[${maxWidthInPx}px]`
+    return defaultWidth
   }
+  if (minute > 20) {
+    return `${width}px`
+  }
+  return defaultWidth
 }
 </script>
 
@@ -90,8 +89,11 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
 
       <template #content="{ item }: { item: ObjMachineTimeline }">
         <div
-          :style="{ backgroundColor: iconTimeline(item.current_status).color }"
-          :class="`p-1 h-60 ${customWidthBoxTimeline(item)}`"
+          :style="{
+            backgroundColor: iconTimeline(item.current_status).color,
+            width: customWidthBoxTimeline(item)
+          }"
+          :class="`p-1 h-50`"
         >
           <i class="font-bold text-black dark:text-white"
             >{{ item.timestamp }} - {{ item.description }}
@@ -108,9 +110,9 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
           <span class="font-medium text-white dark:text-black">{{ item.timeDifference }} </span>
           <br />
           <span class="font-medium text-black dark:text-white">Operator: Basri </span>
-
+          <!-- 
           <span>{{ convertStringDifferenceToMilisecond(item.timeDifference) }}</span>
-          <span>test{{ customWidthBoxTimeline(item) }}</span>
+          <span>test{{ customWidthBoxTimeline(item) }}</span> -->
         </div>
       </template>
 
