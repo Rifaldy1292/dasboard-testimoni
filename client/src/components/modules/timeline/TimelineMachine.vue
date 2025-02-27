@@ -44,10 +44,10 @@ const convertStringDifferenceToMilisecond = (str: string): number => {
 const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
   const milisecond = convertStringDifferenceToMilisecond(obj.timeDifference)
   const minute = Math.round(milisecond / (1000 * 60))
-  if (minute <= 10) {
+  if (minute <= 20) {
     return 'w-20'
     // 230 is max width
-  } else if (minute > 10 && minute <= 230) {
+  } else if (minute > 20 && minute <= 230) {
     return `w-${minute}`
   } else {
     return 'w-230'
