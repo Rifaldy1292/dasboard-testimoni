@@ -22,6 +22,37 @@ const iconTimeline = (status: Machine['status']): { icon: string; color: string 
   }
   return { icon: 'pi pi-minus-circle', color: '#de2902' }
 }
+
+// str ex: '1h 2m 3s'
+// expect : 3600000
+const convertStringDifferenceToMilisecond = (str: string): number => {
+  const arr = str.split(' ')
+  let total = 0
+  for (let i = 0; i < arr.length; i++) {
+    const num = parseInt(arr[i].replace('h', '').replace('m', '').replace('s', ''))
+    if (arr[i].includes('h')) {
+      total += num * 3600000
+    } else if (arr[i].includes('m')) {
+      total += num * 60000
+    } else if (arr[i].includes('s')) {
+      total += num * 1000
+    }
+  }
+  return total
+}
+
+const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
+  const milisecond = convertStringDifferenceToMilisecond(obj.timeDifference)
+  const minute = Math.round(milisecond / (1000 * 60))
+  if (minute <= 10) {
+    return 'w-20'
+    // 230 is max width
+  } else if (minute > 10 && minute <= 230) {
+    return `w-${minute}`
+  } else {
+    return 'w-230'
+  }
+}
 </script>
 
 <template>
@@ -56,7 +87,10 @@ const iconTimeline = (status: Machine['status']): { icon: string; color: string 
       </template> -->
 
       <template #content="{ item }: { item: ObjMachineTimeline }">
-        <div :style="{ backgroundColor: iconTimeline(item.current_status).color }" class="p-1 h-40">
+        <div
+          :style="{ backgroundColor: iconTimeline(item.current_status).color }"
+          :class="`p-1 h-60 ${customWidthBoxTimeline(item)}`"
+        >
           <i class="font-bold text-black dark:text-white"
             >{{ item.timestamp }} - {{ item.description }}
           </i>
@@ -72,6 +106,8 @@ const iconTimeline = (status: Machine['status']): { icon: string; color: string 
           <span class="font-medium text-white dark:text-black">{{ item.timeDifference }} </span>
           <br />
           <span class="font-medium text-black dark:text-white">Operator: Basri </span>
+
+          <span>{{ convertStringDifferenceToMilisecond(item.timeDifference) }}</span>
         </div>
       </template>
 
