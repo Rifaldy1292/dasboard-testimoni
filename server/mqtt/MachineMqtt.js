@@ -106,8 +106,11 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
                 const timelineMessage = messageTypeWebsocketClient.get('timeline');
                 const percentageMessage = messageTypeWebsocketClient.get('percentage');
                 if (timelineMessage) {
-                    const lastRequestedDate = clientPreferences.get(client) || new Date();
-                    return await MachineWebsocket.timelines(client, lastRequestedDate);
+                    const lastRequestedDate = clientPreferences.get(client);
+                    console.log({ clientPreferences: clientPreferences.get(client) }, 88888)
+                    if (lastRequestedDate) { return; }
+
+                    return await MachineWebsocket.timelines(client);
                 }
                 if (percentageMessage) return await MachineWebsocket.percentages(client);
             }

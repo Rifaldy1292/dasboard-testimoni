@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
@@ -24,6 +24,11 @@ watch(
     // console.log({ test, typeof: typeof test })
   }
 )
+
+const duplicatedTimelineData = computed(() => {
+  const data = timelineMachines.value?.data || []
+  return { data, date: timelineMachines.value?.date }
+})
 </script>
 
 <template>
@@ -44,9 +49,14 @@ watch(
             <label for="over_label">Select Date</label>
           </FloatLabel>
         </div>
-        <DataNotFound :condition="timelineMachines.length === 0" />
+        <DataNotFound :condition="duplicatedTimelineData?.data?.length === 0" />
+        <span
+          v-if="timelineMachines?.date"
+          class="text-lg font-semibold text-black dark:text-white"
+          >{{ new Date(duplicatedTimelineData?.date as string).toLocaleDateString() }}</span
+        >
         <div
-          v-for="machine in timelineMachines"
+          v-for="machine in duplicatedTimelineData?.data || []"
           :key="machine.name"
           class="border border-gray-950 dark:border-gray-500 overflow-x-auto"
         >

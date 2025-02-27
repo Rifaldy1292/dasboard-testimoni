@@ -12,6 +12,12 @@ export type payloadWebsocket = {
 type ResponseType = 'success' | 'error'
 export interface WebsocketResponse {
   type: PayloadType | ResponseType
-  data: Array<any>
+  data:
+    | Array<any>
+    | {
+        data: Array<any>
+        date: string
+      }
   message?: string
+  date?: string
 }

@@ -1,10 +1,10 @@
-import type { Machine, MachineTimeline } from '@/types/machine.type'
+import type { AllMachineTimeline, Machine } from '@/types/machine.type'
 import type { PayloadType, payloadWebsocket, WebsocketResponse } from '@/types/websocket.type'
 import useToast from '@/utils/useToast'
 import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
 const PORT = +import.meta.env.VITE_PORT || 3000
 const SOCKET_URL = `ws://localhost:${PORT}`
-const timelineMachines = ref<MachineTimeline[]>([])
+const timelineMachines = ref<AllMachineTimeline | undefined>()
 
 const useWebSocket = (payloadType?: PayloadType) => {
   const toast = useToast()
@@ -68,13 +68,14 @@ const useWebSocket = (payloadType?: PayloadType) => {
             })
             break
           case 'timeline':
-            console.log('from server timeline', data)
-            timelineMachines.value = data
+            console.log('from server timeline', parsedData)
+            timelineMachines.value = data as AllMachineTimeline
+            console.log('timelineMachines.value', timelineMachines.value)
             // if (data !== timelineMachines.value) {
             // }
             break
           case 'percentage': {
-            percentageMachines.value = data
+            percentageMachines.value = data as Machine[]
             break
           }
           default:
@@ -90,7 +91,7 @@ const useWebSocket = (payloadType?: PayloadType) => {
 
     socket.value.onclose = () => {
       percentageMachines.value = []
-      timelineMachines.value = []
+      timelineMachines.value = undefined
       console.log('Disconnected from WebSocket server')
     }
   })

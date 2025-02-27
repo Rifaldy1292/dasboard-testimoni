@@ -7,7 +7,9 @@ const getRunningTime = async (machineId) => {
             where: {
                 machine_id: machineId,
                 timestamp: {
-                    [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0)) // Mulai hari ini
+                    [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0)), // Mulai hari ini,
+                    [Op.lte]: new Date(new Date().setHours(23, 59, 59, 999))
+
                 }
             },
             order: [['timestamp', 'ASC']]

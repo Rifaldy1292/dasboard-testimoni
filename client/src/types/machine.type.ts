@@ -24,6 +24,11 @@ export type MachineTimeline = {
   MachineLogs: Array<ObjMachineTimeline>
 }
 
+export type AllMachineTimeline = {
+  date: string
+  data: MachineTimeline[]
+}
+
 export type cuttingTimeInMonth = {
   name: string
   data: number[]

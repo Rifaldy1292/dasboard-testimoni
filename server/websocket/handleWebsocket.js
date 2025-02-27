@@ -32,7 +32,8 @@ const handleWebsocket = (wss) => {
                     if (data.date) {
                         clientPreferences.set(ws, data.date)
                     }
-                    await MachineWebsocket.timelines(ws, data.date)
+                    console.log({ clientPreferences: clientPreferences.get(ws) }, 88888, 'form ws')
+                    await MachineWebsocket.timelines(ws, clientPreferences.get(ws))
                     break
                 case 'percentage':
                     /**

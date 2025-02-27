@@ -129,7 +129,11 @@ module.exports = class MachineWebsocket {
                     MachineLogs: logs
                 };
             })
-            client.send(JSON.stringify({ type: 'timeline', data: formattedMachines }));
+            const data = {
+                data: formattedMachines,
+                date: currentDate
+            }
+            client.send(JSON.stringify({ type: 'timeline', data }));
         } catch (e) {
             console.log({ e, message: e.message });
             client.send(JSON.stringify({ type: 'error', message: 'Failed to get timeline data' }));
