@@ -107,7 +107,10 @@ const colorInformation: { color: string; label: string }[] = [
           <span>{{ item.label }}</span>
         </div>
       </div>
-      <CuttingTimeTable :cutting-time-machines :loading-fetch />
+      <CuttingTimeTable
+        :cutting-time-machines="cuttingTimeMachines"
+        :loading-fetch="loadingFetch"
+      />
     </div>
   </template>
 </template>

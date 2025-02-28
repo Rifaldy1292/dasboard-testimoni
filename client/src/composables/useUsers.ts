@@ -15,6 +15,7 @@ export const useUsers = () => {
   const users = ref<User[]>([])
   const user = ref<User | undefined>()
   const loadingFetch = shallowRef(false)
+  const loadingUserDropdown = shallowRef(false)
   const visibleDialogResetPassword = shallowRef(false)
   const tokenResetPassword = ref<ModalResetPasswordProps>({
     token: '',
@@ -106,6 +107,7 @@ export const useUsers = () => {
     visibleDialogResetPassword,
     tokenResetPassword,
     getDetailUser,
-    user
+    user,
+    loadingUserDropdown
   }
 }
