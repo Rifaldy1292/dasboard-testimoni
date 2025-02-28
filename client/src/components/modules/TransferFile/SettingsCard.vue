@@ -2,7 +2,7 @@
 import { Select } from 'primevue'
 import { FormField } from '@primevue/forms'
 import { useUsers } from '@/composables/useUsers'
-import { watchEffect } from 'vue'
+import { ref } from 'vue'
 import { useMachine } from '@/composables/useMachine'
 
 const { fetchUsers, users, user, loadingUserDropdown } = useUsers()
@@ -16,8 +16,39 @@ const handleSubmit = async () => {
   }
 }
 
-const handleUploadFolder = (event) => {
-  console.log('upload folder', event.target.files)
+const inputFiles = ref<contentFile[]>([])
+// const fileContent = ref<string | null>(null)
+
+const handleUploadFolder = async (event: Event): Promise<void> => {
+  const { files } = event.target as HTMLInputElement
+  if (!files) return
+  const extendedFiles = await Promise.all(
+    Array.from(files || []).map(async (file) => {
+      return await readFile(file)
+    })
+  )
+  console.log(extendedFiles)
+  inputFiles.value = extendedFiles
+  // console.log(inputFiles.value)
+}
+type contentFile = File & {
+  content: string | null
+}
+
+const readFile = async (file: File): Promise<contentFile | null> => {
+  if (!file) return null
+
+  const reader = new FileReader()
+  const content = (await new Promise((resolve, reject) => {
+    reader.onload = (e) => {
+      if (!e.target?.result) return
+      resolve(e.target?.result as string)
+    }
+    reader.onerror = reject
+    reader.readAsText(file)
+  })) as string
+
+  return { ...file, content }
 }
 </script>
 
@@ -90,9 +121,9 @@ const handleUploadFolder = (event) => {
       </div>
       <div class="col-span-5 xl:col-span-2">
         <!-- User Photo Section -->
-        <div class="mb-4 flex items-center gap-3">
+        <div class="mb-2 flex items-center gap-3">
           <div class="h-14">
-            <span class="mb-1.5 font-medium text-black dark:text-white">Upload your file</span>
+            <span class="mb-1.5 font-medium text-black dark:text-white">Upload your folder</span>
           </div>
         </div>
 
@@ -166,6 +197,21 @@ const handleUploadFolder = (event) => {
           </button>
         </div>
       </div>
+      <template v-for="file in inputFiles" :key="file.name">
+        <div class="col-span-5">
+          <h3 class="mb-1.5 text-2xl font-medium text-black dark:text-white">
+            Preview File {{ file.name || '-' }}
+          </h3>
+          <div class="max-w-100">
+            <pre style="white-space: pre-wrap"> {{ file.content?.slice(0, 350) || '-' }}</pre>
+          </div>
+        </div>
+        <div class="col-span-5"></div>
+      </template>
+      <!-- <div class="col-span-5">
+        <h3 class="mb-1.5 text-2xl font-medium text-black dark:text-white">Preview File</h3>
+        <pre> {{ fileContent }}</pre>
+      </div> -->
     </div>
     <!-- </Form> -->
   </div>

@@ -8,11 +8,9 @@ const pageTitle = 'Transfer File'
 
 <template>
   <DefaultLayout>
-    <div class="mx-auto max-w-270">
-      <!-- Breadcrumb Start -->
-      <BreadcrumbDefault :pageTitle="pageTitle" />
-      <!-- Breadcrumb End -->
-      <SettingsCard />
-    </div>
+    <!-- Breadcrumb Start -->
+    <BreadcrumbDefault :pageTitle="pageTitle" />
+    <!-- Breadcrumb End -->
+    <SettingsCard />
   </DefaultLayout>
 </template>
