@@ -30,6 +30,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: true
     },
+    ip_address: {
+      type: DataTypes.INET,
+      allowNull: false
+    },
     brand_id: DataTypes.INTEGER,
     power_input: DataTypes.INTEGER,
     stroke_axxis: DataTypes.STRING,
