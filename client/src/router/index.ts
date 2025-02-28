@@ -19,6 +19,7 @@ import EditProfileView from '@/views/EditProfileView.vue'
 import TimelineView from '@/views/TimelineView.vue'
 import CuttingTimeView from '@/views/CuttingTimeView.vue'
 import RunningTimeView from '@/views/RunningTimeView.vue'
+import TransferFileView from '@/views/TransferFileView.vue'
 
 const routes: Readonly<RouteRecordRaw[]> = [
   {
@@ -80,6 +81,14 @@ const routes: Readonly<RouteRecordRaw[]> = [
         component: EditProfileView,
         meta: {
           title: 'Edit Profile'
+        }
+      },
+      {
+        path: 'transfer-file',
+        name: 'transferFile',
+        component: TransferFileView,
+        meta: {
+          title: 'Transfer File'
         }
       }
     ]
