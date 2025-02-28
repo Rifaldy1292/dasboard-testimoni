@@ -130,7 +130,8 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
     try {
         const createMachine = await Machine.create({
             name: parseMessage.name,
-            status: parseMessage.status
+            status: parseMessage.status,
+            ip_address: parseMessage.ipAddress
         });
 
         // running_today default 0
