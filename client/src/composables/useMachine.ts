@@ -8,6 +8,7 @@ import { ref, shallowRef } from 'vue'
 const loadingFetch = shallowRef<boolean>(false)
 const cuttingTimeMachines = ref<CuttingTimeMachine | undefined>(undefined)
 const selectedMachine = ref<MachineOption[]>([])
+const selectedOneMachine = ref<MachineOption | undefined>(undefined)
 const loadingDropdown = shallowRef<boolean>(false)
 const machineOptions = ref<MachineOption[]>([])
 
@@ -58,6 +59,7 @@ export const useMachine = () => {
     getMachineOptions,
     machineOptions,
     selectedMachine,
-    handleSelectMachine
+    handleSelectMachine,
+    selectedOneMachine
   }
 }

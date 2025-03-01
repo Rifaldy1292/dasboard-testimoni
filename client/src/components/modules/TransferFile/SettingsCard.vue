@@ -2,11 +2,14 @@
 import { Select } from 'primevue'
 import { FormField } from '@primevue/forms'
 import { useUsers } from '@/composables/useUsers'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useMachine } from '@/composables/useMachine'
 
 const { fetchUsers, users, user, loadingUserDropdown } = useUsers()
-const { selectedMachine, machineOptions, loadingDropdown, getMachineOptions } = useMachine()
+const { selectedOneMachine, machineOptions, loadingDropdown, getMachineOptions } = useMachine()
+const disableUploadFolder = computed<boolean>(() => {
+  return !user.value || !selectedOneMachine.value
+})
 
 const handleSubmit = async () => {
   try {
@@ -22,22 +25,24 @@ const inputFiles = ref<contentFile[]>([])
 const handleUploadFolder = async (event: Event): Promise<void> => {
   const { files } = event.target as HTMLInputElement
   if (!files) return
+  console.log(files)
+
   const extendedFiles = await Promise.all(
     Array.from(files || []).map(async (file) => {
-      return await readFile(file)
+      const res = await readFile(file)
+      res.content = addUserIdToNTFile(res.content || '')
+      return res
     })
   )
   console.log(extendedFiles)
   inputFiles.value = extendedFiles
-  // console.log(inputFiles.value)
+  console.log(inputFiles.value)
 }
 type contentFile = File & {
   content: string | null
 }
 
-const readFile = async (file: File): Promise<contentFile | null> => {
-  if (!file) return null
-
+const readFile = async (file: File): Promise<contentFile> => {
   const reader = new FileReader()
   const content = (await new Promise((resolve, reject) => {
     reader.onload = (e) => {
@@ -48,7 +53,22 @@ const readFile = async (file: File): Promise<contentFile | null> => {
     reader.readAsText(file)
   })) as string
 
-  return { ...file, content }
+  return Object.assign(file, { content })
+}
+
+// Fungsi untuk menambahkan userId setelah "%" dan komentar pertama
+const addUserIdToNTFile = (fileContent: string): string => {
+  const lines = fileContent.split('\n')
+
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].trim() === '%') {
+      lines.splice(i + 2, 0, `( user_id: ${user.value} )`) // Tambahkan userId setelah "%"
+      lines.splice(i + 3, 0, `( ip_address: ${selectedOneMachine.value} )`)
+      break
+    }
+  }
+
+  return lines.join('\n')
 }
 </script>
 
@@ -79,8 +99,8 @@ const readFile = async (file: File): Promise<contentFile | null> => {
             <div class="relative flex items-center">
               <Select
                 filter
-                :model-value="selectedMachine"
-                @update:model-value="selectedMachine = $event"
+                :model-value="selectedOneMachine"
+                @update:model-value="selectedOneMachine = $event"
                 @before-show="getMachineOptions"
                 :loading="loadingDropdown"
                 :options="machineOptions"
@@ -130,15 +150,20 @@ const readFile = async (file: File): Promise<contentFile | null> => {
         <!-- File Upload Section -->
         <div
           id="FileUpload"
-          class="relative mb-5.5 block w-full cursor-pointer appearance-none rounded border-2 border-dashed border-primary bg-gray py-4 px-4 dark:bg-meta-4 sm:py-7.5"
+          :class="`relative mb-5.5 block w-full cursor-pointer appearance-none rounded border-2 border-dashed border-primary bg-gray py-4 px-4 dark:bg-meta-4 sm:py-7.5 ${
+            disableUploadFolder ? 'pointer-events-none cursor-not-allowed opacity-50' : ''
+          }`"
         >
           <FormField name="profilePicture">
             <input
               type="file"
+              :disabled="disableUploadFolder"
               @change="handleUploadFolder($event)"
               webkitdirectory
               multiple
-              class="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
+              :class="`absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none ${
+                disableUploadFolder ? 'pointer-events-none cursor-not-allowed' : ''
+              }`"
             />
           </FormField>
           <div class="flex flex-col items-center justify-center space-y-3">
