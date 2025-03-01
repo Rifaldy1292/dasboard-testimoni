@@ -2,11 +2,17 @@
 import { Select } from 'primevue'
 import { FormField } from '@primevue/forms'
 import { useUsers } from '@/composables/useUsers'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useMachine } from '@/composables/useMachine'
+import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
+import { useFTP } from '@/composables/useFTP'
 
 const { fetchUsers, users, user, loadingUserDropdown } = useUsers()
 const { selectedOneMachine, machineOptions, loadingDropdown, getMachineOptions } = useMachine()
+const { handlePreviewContent, handleUploadFolder, inputFiles, loadingUpload } = useFTP(
+  user,
+  selectedOneMachine
+)
 const disableUploadFolder = computed<boolean>(() => {
   return !user.value || !selectedOneMachine.value
 })
@@ -18,61 +24,10 @@ const handleSubmit = async () => {
     console.log(error)
   }
 }
-
-const inputFiles = ref<contentFile[]>([])
-// const fileContent = ref<string | null>(null)
-
-const handleUploadFolder = async (event: Event): Promise<void> => {
-  const { files } = event.target as HTMLInputElement
-  if (!files) return
-  console.log(files)
-
-  const extendedFiles = await Promise.all(
-    Array.from(files || []).map(async (file) => {
-      const res = await readFile(file)
-      res.content = addUserIdToNTFile(res.content || '')
-      return res
-    })
-  )
-  console.log(extendedFiles)
-  inputFiles.value = extendedFiles
-  console.log(inputFiles.value)
-}
-type contentFile = File & {
-  content: string | null
-}
-
-const readFile = async (file: File): Promise<contentFile> => {
-  const reader = new FileReader()
-  const content = (await new Promise((resolve, reject) => {
-    reader.onload = (e) => {
-      if (!e.target?.result) return
-      resolve(e.target?.result as string)
-    }
-    reader.onerror = reject
-    reader.readAsText(file)
-  })) as string
-
-  return Object.assign(file, { content })
-}
-
-// Fungsi untuk menambahkan userId setelah "%" dan komentar pertama
-const addUserIdToNTFile = (fileContent: string): string => {
-  const lines = fileContent.split('\n')
-
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].trim() === '%') {
-      lines.splice(i + 2, 0, `( user_id: ${user.value} )`) // Tambahkan userId setelah "%"
-      lines.splice(i + 3, 0, `( ip_address: ${selectedOneMachine.value} )`)
-      break
-    }
-  }
-
-  return lines.join('\n')
-}
 </script>
 
 <template>
+  <LoadingAnimation :state="loadingUpload" />
   <div
     class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark"
   >
@@ -228,7 +183,7 @@ const addUserIdToNTFile = (fileContent: string): string => {
             Preview File {{ file.name || '-' }}
           </h3>
           <div class="max-w-100">
-            <pre style="white-space: pre-wrap"> {{ file.content?.slice(0, 350) || '-' }}</pre>
+            <pre style="white-space: pre-wrap"> {{ handlePreviewContent(file) }}</pre>
           </div>
         </div>
         <div class="col-span-5"></div>
