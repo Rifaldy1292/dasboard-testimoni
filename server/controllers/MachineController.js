@@ -8,25 +8,43 @@ const { PassThrough } = require('stream'); // ✅ Tambahkan ini
 const { Client } = require('basic-ftp')
 
 class MachineController {
+    /**
+     * @description Transfer file to machine using FTP
+     * @param {request} req - Request object
+     * @param {response} res - Response object
+     */
     static async transferFiles(req, res) {
         const client = new Client();
         try {
+            /**
+             * @prop {string} machine_id - Machine ID
+             * @prop {string} user_id - User ID
+             */
             const { machine_id, user_id } = req.query
+            /**
+             * @prop {Array} files - Array of uploaded files
+             */
             const { files } = req
             if (!machine_id || !user_id) return res.status(400).json({ message: 'machine_id or user_id is required', status: 400 })
             if (!files || files.length === 0) {
                 return res.status(400).json({ message: 'No file uploaded', status: 400 });
             }
-            const fileWithoutExtension = files.map((file) => {
+            const machineIp = await Machine.findOne({ where: { id: machine_id }, attributes: ['ip_address'] })
+            if (!machineIp) {
+                return res.status(400).json({ message: 'Machine not found', status: 400 });
+            }
+            const modifiedFile = files.map((file) => {
                 const fileName = file.originalname.split('.')[0]
-                // 4 digit terakhir
-                const res = 'O' + fileName.slice(fileName.length - 4)
+                // last 4 character ex: O1234
+                const modifiedName = 'O' + fileName.slice(fileName.length - 4)
+                const modifiedContent = file.buffer.toString().replace('%', `%\n( user_id: ${user_id} )\n( machine_id: ${machine_id} )`);
                 return {
                     ...file,
-                    originalname: res
+                    buffer: Buffer.from(modifiedContent),
+                    originalname: modifiedName
                 }
             })
-            // console.log({ fileWithoutExtension, machine_id, user_id })
+            // console.log({ modifiedFile, machine_id, user_id })
             await client.access({
                 host: "192.168.43.247", // IP HP atau mesin CNC
                 port: 2221,
@@ -35,17 +53,15 @@ class MachineController {
                 secure: false,
             })
 
-            for (const file of fileWithoutExtension) {
+            for (const file of modifiedFile) {
                 const stream = new PassThrough(); // ✅ Buat stream dari Buffer
-                const modifiedContent = file.buffer.toString().replace('%', `%\n( user_id: ${user_id} )\n( machine_id: ${machine_id} )`);
-                stream.end(modifiedContent);
-
-                console.log(`Uploading: ${file.originalname}`); // Debugging
+                stream.end(file.buffer);
+                // console.log(`Uploading: ${file.originalname}`); // Debugging
 
                 await client.uploadFrom(stream, file.originalname);
             }
 
-            res.status(200).json({ status: 200, message: 'Files uploaded successfully', data: fileWithoutExtension })
+            res.status(200).json({ status: 200, message: 'Files uploaded successfully', machineIp: machineIp.ip_address })
 
         } catch (error) {
             serverError(error, res, 'Failed to transfer files');
