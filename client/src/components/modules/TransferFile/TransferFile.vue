@@ -6,31 +6,44 @@ import { computed } from 'vue'
 import { useMachine } from '@/composables/useMachine'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import { useFTP } from '@/composables/useFTP'
+import MachineServices from '@/services/machine.service'
+import { handleErrorAPI } from '@/utils/handleErrorAPI'
+import useToast from '@/utils/useToast'
 
 const { fetchUsers, users, user, loadingUserDropdown } = useUsers()
 const { selectedOneMachine, machineOptions, loadingDropdown, getMachineOptions } = useMachine()
-const { handlePreviewContent, handleUploadFolder, inputFiles, loadingUpload } = useFTP(
-  user,
-  selectedOneMachine
-)
+const { handlePreviewContent, handleUploadFolder, inputFiles, loadingUpload } = useFTP()
 const disableUploadFolder = computed<boolean>(() => {
   return !user.value || !selectedOneMachine.value
 })
 
+const toast = useToast()
 const handleSubmit = async () => {
+  loadingUpload.value = true
   try {
-    console.log('submit')
+    const { data } = await MachineServices.postFiles({
+      user_id: user.value?.id as number,
+      machine_id: selectedOneMachine.value?.id as number,
+      files: inputFiles.value
+    })
+    toast.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: data.message
+    })
   } catch (error) {
-    console.log(error)
+    handleErrorAPI(error, toast)
+  } finally {
+    loadingUpload.value = false
   }
 }
 </script>
 
 <template>
-  <LoadingAnimation :state="loadingUpload" />
   <div
     class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark"
   >
+    <LoadingAnimation :state="loadingUpload" />
     <div class="border-b border-stroke py-4 px-7 dark:border-strokedark">
       <h3 class="font-medium text-black dark:text-white text-center">Transfer File Form</h3>
     </div>
@@ -60,7 +73,6 @@ const handleSubmit = async () => {
                 :loading="loadingDropdown"
                 :options="machineOptions"
                 optionLabel="name"
-                option-value="ip_address"
                 placeholder="Select a Machine"
                 fluid
               />
@@ -85,7 +97,6 @@ const handleSubmit = async () => {
                 :loading="loadingUserDropdown"
                 :options="users"
                 optionLabel="name"
-                option-value="id"
                 placeholder="Select Operator"
                 fluid
               />
@@ -169,6 +180,7 @@ const handleSubmit = async () => {
             Cancel
           </button>
           <button
+            :disabled="disableUploadFolder && inputFiles.length === 0"
             class="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90"
             type="submit"
             @click="handleSubmit"

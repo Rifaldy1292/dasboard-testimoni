@@ -1,6 +1,8 @@
+// const upload = require("../middlewares/multer")
 const machineRouter = require("express").Router();
 const MachineController = require("../controllers/MachineController");
 const authMiddleware = require("../middlewares/auth");
+const multer = require('multer');
 
 machineRouter.get(
     "/cutting-time",
@@ -31,5 +33,14 @@ machineRouter.get(
     authMiddleware,
     MachineController.getMachineOption
 )
+
+const storage = multer.memoryStorage();
+const middlewareTransferFiles = multer({ storage: storage, limits: { fieldSize: 50 * 1024 * 1024, } });
+
+machineRouter.post(
+    "/transfer",
+    middlewareTransferFiles.array('files', 300),
+    authMiddleware,
+    MachineController.transferFiles)
 
 module.exports = machineRouter;

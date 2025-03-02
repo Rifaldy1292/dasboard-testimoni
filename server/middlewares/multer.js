@@ -13,16 +13,16 @@ const storage = multer.diskStorage({
 });
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 3 * 1024 * 1024 }, // Maksimum 3MB
+    limits: { fileSize: 50 * 1024 * 1024 }, // Maksimum 3MB
     fileFilter: (req, file, cb) => {
-        const fileTypes = /jpeg|jpg|png|gif/;
+        const fileTypes = /jpeg|jpg|png|gif|nt/;
         const extName = fileTypes.test(path.extname(file.originalname).toLowerCase());
         const mimeType = fileTypes.test(file.mimetype);
 
-        if (mimeType && extName) {
-            return cb(null, true);
-        }
-        cb(new Error("Hanya format gambar yang diperbolehkan (jpeg, jpg, png, gif)"));
+        // if (mimeType && extName) {
+        //     return cb(null, true);
+        // }
+        cb(new Error("Hanya format gambar yang diperbolehkan (jpeg, jpg, png, gif, nt)"));
     },
 });
 

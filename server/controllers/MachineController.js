@@ -4,8 +4,55 @@ const dateCuttingTime = require('../utils/dateCuttingTime');
 const { serverError } = require('../utils/serverError');
 const countHour = require('../utils/countHour');
 
+const { PassThrough } = require('stream'); // ✅ Tambahkan ini
+const { Client } = require('basic-ftp')
 
 class MachineController {
+    static async transferFiles(req, res) {
+        const client = new Client();
+        try {
+            const { machine_id, user_id } = req.query
+            const { files } = req
+            if (!machine_id || !user_id) return res.status(400).json({ message: 'machine_id or user_id is required', status: 400 })
+            if (!files || files.length === 0) {
+                return res.status(400).json({ message: 'No file uploaded', status: 400 });
+            }
+            const fileWithoutExtension = files.map((file) => {
+                const fileName = file.originalname.split('.')[0]
+                // 4 digit terakhir
+                const res = 'O' + fileName.slice(fileName.length - 4)
+                return {
+                    ...file,
+                    originalname: res
+                }
+            })
+            // console.log({ fileWithoutExtension, machine_id, user_id })
+            await client.access({
+                host: "192.168.43.247", // IP HP atau mesin CNC
+                port: 2221,
+                user: "android",
+                password: "android",
+                secure: false,
+            })
+
+            for (const file of fileWithoutExtension) {
+                const stream = new PassThrough(); // ✅ Buat stream dari Buffer
+                const modifiedContent = file.buffer.toString().replace('%', `%\n( user_id: ${user_id} )\n( machine_id: ${machine_id} )`);
+                stream.end(modifiedContent);
+
+                console.log(`Uploading: ${file.originalname}`); // Debugging
+
+                await client.uploadFrom(stream, file.originalname);
+            }
+
+            res.status(200).json({ status: 200, message: 'Files uploaded successfully', data: fileWithoutExtension })
+
+        } catch (error) {
+            serverError(error, res, 'Failed to transfer files');
+        } finally {
+            client.close()
+        }
+    }
     static async getCuttingTime(req, res) {
         try {
             const { period } = req.query;
@@ -107,7 +154,7 @@ class MachineController {
 
     static async getMachineOption(req, res) {
         try {
-            const machines = await Machine.findAll({ attributes: ['id', 'name', 'ip_address'] });
+            const machines = await Machine.findAll({ attributes: ['id', 'name'] });
             const sortedMachine = machines.sort((a, b) => {
                 const numberA = parseInt(a.name.slice(3));
                 const numberB = parseInt(b.name.slice(3));

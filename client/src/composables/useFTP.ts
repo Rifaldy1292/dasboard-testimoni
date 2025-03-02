@@ -1,16 +1,8 @@
-import type { MachineOption } from '@/types/machine.type'
-import type { User } from '@/types/user.type'
-import { ref, shallowRef, type Ref } from 'vue'
+import type { FileWithContent } from '@/types/ftp.type'
+import { ref, shallowRef } from 'vue'
 
-type contentFile = File & {
-  content: string | null
-}
-
-export const useFTP = (
-  user: Ref<User | undefined>,
-  selectedOneMachine: Ref<MachineOption | undefined>
-) => {
-  const inputFiles = ref<contentFile[]>([])
+export const useFTP = () => {
+  const inputFiles = ref<FileWithContent[]>([])
   const loadingUpload = shallowRef(false)
 
   const handleUploadFolder = async (event: Event): Promise<void> => {
@@ -19,25 +11,15 @@ export const useFTP = (
       const { files } = event.target as HTMLInputElement
       if (!files) return
 
-      const extendedFiles = await Promise.all(
+      const editFileValue = await Promise.all(
         Array.from(files || []).map(async (file) => {
           const res = await readFile(file)
-          res.content = addUserIdToNTFile(res.content || '')
+          // res.content = addUserIdToNTFile(res.content || '')
           return res
         })
       )
-      // console.log(extendedFiles)
 
-      const fileWithoutExtension = extendedFiles.map((file) => {
-        const fileName = file.name.split('.')[0]
-        // 4 digit terakhir
-        const res = 'O' + fileName.slice(fileName.length - 4)
-        return {
-          ...file,
-          name: res
-        }
-      })
-      inputFiles.value = fileWithoutExtension
+      inputFiles.value = editFileValue
 
       console.log(inputFiles.value, 'inputFiles')
     } catch (error: unknown) {
@@ -47,7 +29,22 @@ export const useFTP = (
     }
   }
 
-  const handlePreviewContent = (file: contentFile): string => {
+  // // Fungsi untuk menambahkan userId setelah "%" dan komentar pertama
+  // const addUserIdToNTFile = (fileContent: string): string => {
+  //   const lines = fileContent.split('\n')
+
+  //   for (let i = 0; i < lines.length; i++) {
+  //     if (lines[i].trim() === '%') {
+  //       lines.splice(i + 2, 0, `( user_id: ${user.value?.id} )`) // Tambahkan userId setelah "%"
+  //       lines.splice(i + 3, 0, `( machine_id: ${selectedOneMachine.value?.id} )`)
+  //       break
+  //     }
+  //   }
+
+  //   return lines.join('\n')
+  // }
+
+  const handlePreviewContent = (file: FileWithContent): string => {
     const { content } = file
     if (!content) return '-'
 
@@ -63,7 +60,7 @@ export const useFTP = (
     return result.join('\n') || '-'
   }
 
-  const readFile = async (file: File): Promise<contentFile> => {
+  const readFile = async (file: File): Promise<FileWithContent> => {
     const reader = new FileReader()
     const content = (await new Promise((resolve, reject) => {
       reader.onload = (e) => {
@@ -75,21 +72,6 @@ export const useFTP = (
     })) as string
 
     return Object.assign(file, { content })
-  }
-
-  // Fungsi untuk menambahkan userId setelah "%" dan komentar pertama
-  const addUserIdToNTFile = (fileContent: string): string => {
-    const lines = fileContent.split('\n')
-
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].trim() === '%') {
-        lines.splice(i + 2, 0, `( user_id: ${user.value} )`) // Tambahkan userId setelah "%"
-        lines.splice(i + 3, 0, `( ip_address: ${selectedOneMachine.value} )`)
-        break
-      }
-    }
-
-    return lines.join('\n')
   }
 
   return { inputFiles, handleUploadFolder, handlePreviewContent, loadingUpload }
