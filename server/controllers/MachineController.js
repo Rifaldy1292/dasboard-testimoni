@@ -131,12 +131,12 @@ class MachineController {
                 const log = await MachineLog.findOne({
                     where: {
                         machine_id,
-                        timestamp: {
+                        updatedAt: {
                             [Op.between]: [new Date(dateValue.setHours(0, 0, 0, 0)), new Date(dateValue.setHours(23, 59, 59, 999))],
                         },
                     },
                     attributes: ['running_today'],
-                    order: [['timestamp', 'DESC']]
+                    order: [['updatedAt', 'DESC']]
                 });
 
                 const numberOfLog = log?.running_today ?? 0
