@@ -104,12 +104,12 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
         wss.clients.forEach(async (client) => {
             if (client.readyState !== WebSocket.OPEN) return;
 
-            const timelineMessage = messageTypeWebsocketClient.get('timeline');
-            const percentageMessage = messageTypeWebsocketClient.get('percentage');
+            const timelineMessage = messageTypeWebsocketClient.get(client)?.has('timeline');
+            const percentageMessage = messageTypeWebsocketClient.get(client)?.has('percentage');
 
             if (timelineMessage) {
                 const lastRequestedDate = clientPreferences.get(client);
-                console.log({ clientPreferences: clientPreferences.get(client) }, 88888)
+                // console.log({ clientPreferences: clientPreferences.get(client) }, 88888)
                 if (lastRequestedDate) {
                     console.log(`Skipping timeline update for client with custom date: ${lastRequestedDate}`);
                     return;

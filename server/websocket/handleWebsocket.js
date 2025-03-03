@@ -35,6 +35,10 @@ const handleWebsocket = (wss) => {
              * @param {string} type - The type of message.
              */
             messageTypeWebsocketClient.get(ws).add(type);
+            // console.log(messageTypeWebsocketClient.get('percentage'), 111)
+            // console.log(messageTypeWebsocketClient.get('timeline'), 111, 'timeline')
+            // console.log(messageTypeWebsocketClient.get(ws).has('percentage'), 'bool')
+            // console.log(messageTypeWebsocketClient.get(ws), 'getws')
 
             // await handleMessageType(type)
             switch (type) {

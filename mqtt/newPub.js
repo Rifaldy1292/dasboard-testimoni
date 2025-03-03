@@ -29,7 +29,7 @@ const pubMessage = () => {
         // delay 90 detik
         setTimeout(() => {
             client.publish(topic, JSON.stringify(message));
-            console.log({ message }, 222)
+            // console.log({ message }, 222)
         }, 90 * index);
 
         // client.publish(topic, JSON.stringify(message));  
@@ -46,7 +46,7 @@ client.on('connect', () => {
 setInterval(() => {
     pubMessage();
 }, 1000 * 60 * 30);
-// }, 1000 * 8);
+// }, 1000 * 1);
 
 
 

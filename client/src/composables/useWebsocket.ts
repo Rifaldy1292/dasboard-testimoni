@@ -86,9 +86,14 @@ const useWebSocket = (payloadType?: PayloadType) => {
       }
     }
 
+    socket.value.onerror = (error) => {
+      console.error('WebSocket error', error)
+    }
+
     socket.value.onclose = () => {
       percentageMachines.value = []
       timelineMachines.value = undefined
+      socket.value?.close()
       console.log('Disconnected from WebSocket server')
     }
   })
@@ -97,6 +102,8 @@ const useWebSocket = (payloadType?: PayloadType) => {
     if (socket.value) {
       socket.value.close()
     }
+
+    socket.value = null
   })
 
   return { sendMessage, messageWebsocket, loadingWebsocket, percentageMachines, timelineMachines }
