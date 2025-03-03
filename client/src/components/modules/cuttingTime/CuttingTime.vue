@@ -76,15 +76,15 @@ const apexOptions = computed<ApexOptions>(() => {
 const colorInformation: { color: string; label: string }[] = [
   {
     color: '#22c55e',
-    label: 'Target'
+    label: 'Target >= 16'
   },
   {
     color: '#f59e0b',
-    label: 'Mendekati'
+    label: 'Mendekati >= 14'
   },
   {
     color: '#ef4444',
-    label: 'Tidak Target'
+    label: 'Tidak Target < 14'
   }
 ]
 </script>
