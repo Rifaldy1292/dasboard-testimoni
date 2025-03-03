@@ -128,11 +128,13 @@ class MachineController {
 
 
             const getLogAllDateInMonth = await Promise.all(allDateInMonth.map(async (dateValue) => {
+                console.log({ dateValue }, 333)
+                const fixDate = new Date(dateValue.toISOString().split('T')[0])
                 const log = await MachineLog.findOne({
                     where: {
                         machine_id,
                         updatedAt: {
-                            [Op.between]: [new Date(dateValue.setHours(0, 0, 0, 0)), new Date(dateValue.setHours(23, 59, 59, 999))],
+                            [Op.between]: [new Date(fixDate.setHours(0, 0, 0, 0)), new Date(fixDate.setHours(23, 59, 59, 999))],
                         },
                     },
                     attributes: ['running_today'],
