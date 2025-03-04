@@ -1,4 +1,4 @@
-import type { AllMachineTimeline, Machine } from '@/types/machine.type'
+import type { AllMachineTimeline, GetPercentages } from '@/types/machine.type'
 import type { PayloadType, payloadWebsocket, WebsocketResponse } from '@/types/websocket.type'
 import useToast from '@/utils/useToast'
 import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
@@ -12,7 +12,7 @@ const useWebSocket = (payloadType?: PayloadType) => {
   const toast = useToast()
 
   const socket = ref<WebSocket | null>(null)
-  const percentageMachines = ref<Machine[]>([])
+  const percentageMachines = ref<GetPercentages | undefined>(undefined)
   // const errorMessage = shallowRef<string | undefined>()
   const loadingWebsocket = shallowRef<boolean>(false)
   // const successMessage = shallowRef<string | undefined>()
@@ -72,8 +72,8 @@ const useWebSocket = (payloadType?: PayloadType) => {
             // }
             break
           case 'percentage': {
-            console.log('from server percentage', parsedData)
-            percentageMachines.value = data as Machine[]
+            console.log('from server percentage', data)
+            percentageMachines.value = data as GetPercentages
             break
           }
           default:
@@ -92,7 +92,7 @@ const useWebSocket = (payloadType?: PayloadType) => {
     }
 
     socket.value.onclose = () => {
-      percentageMachines.value = []
+      percentageMachines.value = undefined
       timelineMachines.value = undefined
       socket.value?.close()
       console.log('Disconnected from WebSocket server')

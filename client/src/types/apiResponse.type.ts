@@ -1,5 +1,5 @@
 import type { UserLocalStorage } from './localStorage.type'
-import type { CuttingTimeMachine, Machine, MachineTimeline } from './machine.type'
+import type { CuttingTimeMachine, MachineTimeline } from './machine.type'
 import type { User } from './user.type'
 
 export interface ApiResponse<T> {

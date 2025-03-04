@@ -10,6 +10,11 @@ export type Machine = {
   quantity: number
 }
 
+export type GetPercentages = {
+  data: Machine[]
+  date: string
+}
+
 export type ObjMachineTimeline = {
   id: number
   current_status: Machine['status']

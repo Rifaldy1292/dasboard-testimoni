@@ -1,4 +1,4 @@
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const { Machine, MachineLog } = require('../models');
 const { percentage, totalHour } = require('../utils/countHour');
 const dateQuery = require('../utils/dateQuery');
@@ -147,16 +147,26 @@ module.exports = class MachineWebsocket {
         try {
             const nowDate = date || new Date();
             const machines = await Machine.findAll({
+                include: [{
+                    model: MachineLog,
+                    where: {
+                        updatedAt: dateQuery(nowDate)
+                    },
+                    attributes: ['running_today']
+                }],
                 attributes: ['name', 'status', 'total_running_hours'],
                 // ambil data sesuai hari ini
-                where: {
-                    updatedAt: dateQuery(nowDate)
-                }
+                order: [[{ model: MachineLog }, 'updatedAt', 'DESC']],
+                subQuery: false
 
             });
             const formattedMessage = machines.map(machine => {
-                const runningTime = getRunningHours(machine.total_running_hours);
+                // ini bisa improfe performa
+                // const runningTime = getRunningHours(machine.total_running_hours);
+                const lastLog = machine.MachineLogs[0];
+                const runningTime = getRunningHours(lastLog.running_today);
                 return {
+                    // ...machine.dataValues,
                     name: machine.name,
                     status: machine.status,
                     total_running_hours: machine.total_running_hours,
@@ -168,7 +178,11 @@ module.exports = class MachineWebsocket {
                 const numberB = parseInt(b.name.slice(3));
                 return numberA - numberB;
             });
-            client.send(JSON.stringify({ type: 'percentage', data: formattedMessage }));
+            const data = {
+                data: formattedMessage,
+                date: nowDate
+            }
+            client.send(JSON.stringify({ type: 'percentage', data }));
         } catch (e) {
             console.log({ e, message: e.message });
             client.send(JSON.stringify({ type: 'error', message: 'Failed to get percentage' }));
