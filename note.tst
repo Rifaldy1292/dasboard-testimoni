@@ -5,3 +5,5 @@ https://youtu.be/VPZt_LSd2j8?si=qBk281qRc5nPnoDQ
 
 OEE
 KPI
+
+data aman start 04/03/2025 14:50
