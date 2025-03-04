@@ -104,7 +104,8 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
             }
             if (percentageMessage) {
                 if (lastRequestedDate) {
-                    return await MachineWebsocket.percentages(client, lastRequestedDate);
+                    // return await MachineWebsocket.percentages(client, lastRequestedDate);
+                    console.log(`Skipping percentage update for client with custom date: ${lastRequestedDate}`);
                 }
                 return await MachineWebsocket.percentages(client);
             }
