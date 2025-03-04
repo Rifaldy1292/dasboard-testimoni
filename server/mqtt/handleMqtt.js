@@ -8,7 +8,7 @@
 const { Machine, MachineLog, CuttingTime } = require('../models');
 const { getRunningTime } = require('../utils/getRunningTime');
 const MachineWebsocket = require('../websocket/MachineWebsocket');
-const { getLastMachineLog, createCuttingTime, handleChangeMachineStatus, createMachineAndLogFirstTime } = require('./MachineMqtt');
+const { updateLastMachineLog, createCuttingTime, handleChangeMachineStatus, createMachineAndLogFirstTime } = require('./MachineMqtt');
 const WebSocket = require('ws');
 const { clientPreferences, messageTypeWebsocketClient } = require('../websocket/handleWebsocket');
 
@@ -51,7 +51,7 @@ const handleMqtt = (mqttClient, wss) => {
             existMachine.status = parseMessage.status;
 
             await existMachine.save();
-            await getLastMachineLog(existMachine.id);
+            await updateLastMachineLog(existMachine.id, runningHour);
 
 
         } catch (error) {

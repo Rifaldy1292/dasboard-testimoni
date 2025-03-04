@@ -5,24 +5,16 @@ const WebSocket = require('ws');
 const { clientPreferences, messageTypeWebsocketClient } = require('../websocket/handleWebsocket');
 const MachineWebsocket = require('../websocket/MachineWebsocket');
 
-const getLastMachineLog = async (id, runningHour) => {
+const updateLastMachineLog = async (id, runningHour) => {
     try {
-        const lastMachineLog = await MachineLog.findOne({
-            order: [
-                ['timestamp', 'DESC']
-            ],
-            attributes: ['id'],
-            where: {
-                machine_id: id
-            },
-        });
-        if (!lastMachineLog) {
-            return null;
-        }
-        // console.log({ total_running_hours })
-        lastMachineLog.running_today = runningHour
-
-        await lastMachineLog.save();
+        await MachineLog.update(
+            { running_today: runningHour },
+            {
+                where: { machine_id: id },
+                order: [['timestamp', 'DESC']],
+                limit: 1
+            }
+        );
     } catch (error) {
         console.error({ error, message: error.message });
     }
@@ -144,4 +136,4 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
 
 
 
-module.exports = { getLastMachineLog, createCuttingTime, handleChangeMachineStatus, createMachineAndLogFirstTime };
+module.exports = { updateLastMachineLog, createCuttingTime, handleChangeMachineStatus, createMachineAndLogFirstTime };
