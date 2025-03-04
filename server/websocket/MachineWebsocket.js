@@ -163,15 +163,15 @@ module.exports = class MachineWebsocket {
             const formattedMessage = machines.map(machine => {
                 // ini bisa improfe performa
                 // const runningTime = getRunningHours(machine.total_running_hours);
-                const lastLog = machine.MachineLogs[0];
-                const runningTime = getRunningHours(lastLog.running_today);
+                const lastLog = machine.MachineLogs[0].running_today
+                const runningTime = getRunningHours(lastLog);
                 return {
                     // ...machine.dataValues,
                     name: machine.name,
                     status: machine.status,
-                    total_running_hours: machine.total_running_hours,
+                    total_running_hours: lastLog,
                     percentage: [runningTime, 100 - runningTime],
-                    description: countDescription(machine.total_running_hours)
+                    description: countDescription(lastLog)
                 };
             }).sort((a, b) => {
                 const numberA = parseInt(a.name.slice(3));

@@ -5,28 +5,22 @@ const WebSocket = require('ws');
 const { clientPreferences, messageTypeWebsocketClient } = require('../websocket/handleWebsocket');
 const MachineWebsocket = require('../websocket/MachineWebsocket');
 
-const getLastMachineLog = async (id) => {
+const getLastMachineLog = async (id, runningHour) => {
     try {
         const lastMachineLog = await MachineLog.findOne({
             order: [
                 ['timestamp', 'DESC']
             ],
-            attributes: ['current_status', 'running_today', 'id'],
+            attributes: ['id'],
             where: {
                 machine_id: id
             },
-            include: {
-                model: Machine,
-                attributes: ['total_running_hours']
-            },
-
         });
         if (!lastMachineLog) {
             return null;
         }
-        const { total_running_hours } = lastMachineLog.Machine;
         // console.log({ total_running_hours })
-        lastMachineLog.running_today = total_running_hours
+        lastMachineLog.running_today = runningHour
 
         await lastMachineLog.save();
     } catch (error) {

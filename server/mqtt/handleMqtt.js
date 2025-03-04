@@ -61,18 +61,18 @@ const handleMqtt = (mqttClient, wss) => {
             console.error({ error, message: error.message });
         }
 
-        wss.clients.forEach(async (client) => {
-            if (client.readyState === WebSocket.OPEN) {
-                const percentageMessage = messageTypeWebsocketClient.get(client)?.has('percentage');
-                if (percentageMessage) {
-                    console.log(true)
-                    await MachineWebsocket.percentages(client);
-                }
-                // else {
-                //     // console.log(false)
-                // }
-            }
-        });
+        // wss.clients.forEach(async (client) => {
+        //     if (client.readyState === WebSocket.OPEN) {
+        //         const percentageMessage = messageTypeWebsocketClient.get(client)?.has('percentage');
+        //         if (percentageMessage) {
+        //             console.log(true)
+        //             await MachineWebsocket.percentages(client);
+        //         }
+        //         // else {
+        //         //     // console.log(false)
+        //         // }
+        //     }
+        // });
         // console.timeEnd('Proses');
     });
 }
