@@ -54,10 +54,11 @@ class MachineController {
                 secure: false,
             })
 
+
             for (const file of modifiedFile) {
                 const stream = new PassThrough(); // ✅ Buat stream dari Buffer
                 stream.end(file.buffer);
-                // console.log(`Uploading: ${file.originalname}`); // Debugging
+                console.log(`Uploading: ${file.originalname}`); // Debugging
 
                 await client.uploadFrom(stream, file.originalname);
             }
@@ -65,19 +66,10 @@ class MachineController {
             res.status(200).json({ status: 200, message: 'Files uploaded successfully', machineIp: machineIp.ip_address })
 
         } catch (error) {
-            // {
-            //     error: FTPError: 550 STOR requested action not taken: File exists.
-            //         at FTPContext._onControlSocketData (D:\dashboard-machine\server\node_modules\basic-ftp\dist\FtpContext.js:283:39)
-            //         at Socket.<anonymous> (D:\dashboard-machine\server\node_modules\basic-ftp\dist\FtpContext.js:127:44)
-            //         at Socket.emit (node:events:518:28)
-            //         at addChunk (node:internal/streams/readable:561:12)
-            //         at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
-            //         at Readable.push (node:internal/streams/readable:392:5)
-            //         at TCP.onStreamRead (node:internal/stream_base_commons:191:23) {
-            //       code: 550
-            //     },
-            //     message: '550 STOR requested action not taken: File exists.'
-            //   }
+            if (error.code === 550 || error.message === '550 STOR requested action not taken: File exists.') {
+                return res.status(400).json({ status: 400, message: 'File already exists on machine' })
+            }
+
             serverError(error, res, 'Failed to transfer files');
         } finally {
             client.close()
