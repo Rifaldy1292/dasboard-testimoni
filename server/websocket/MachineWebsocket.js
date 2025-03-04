@@ -143,12 +143,11 @@ module.exports = class MachineWebsocket {
      * 
      * @param {WebSocket} client - The WebSocket client instance.
      */
-    static async percentages(client) {
+    static async percentages(client, date) {
         try {
-            const nowDate = new Date();
+            const nowDate = date || new Date();
             const machines = await Machine.findAll({
                 attributes: ['name', 'status', 'total_running_hours'],
-
                 // ambil data sesuai hari ini
                 where: {
                     updatedAt: dateQuery(nowDate)
@@ -162,7 +161,7 @@ module.exports = class MachineWebsocket {
                     status: machine.status,
                     total_running_hours: machine.total_running_hours,
                     percentage: [runningTime, 100 - runningTime],
-                    description: countDescription(machine.total_running_hours),
+                    description: countDescription(machine.total_running_hours)
                 };
             }).sort((a, b) => {
                 const numberA = parseInt(a.name.slice(3));

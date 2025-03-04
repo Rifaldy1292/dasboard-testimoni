@@ -5,8 +5,26 @@ import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import useWebSocket from '@/composables/useWebsocket'
 import DataNotFound from '@/components/common/DataNotFound.vue'
+import DatePickerDay from '@/components/common/DatePickerDay.vue'
+import { ref, watch } from 'vue'
 // import { watchEffect } from 'vue'
-const { percentageMachines, loadingWebsocket } = useWebSocket('percentage')
+const { percentageMachines, loadingWebsocket, sendMessage } = useWebSocket('percentage')
+
+const dateOption = ref<Date>(new Date())
+
+watch(
+  () => dateOption.value,
+  () => {
+    sendMessage({
+      type: 'percentage',
+      data: {
+        date: dateOption.value?.toISOString()
+      }
+    })
+    // const test = new Date(dateOption.value).getDate()
+    // console.log({ test, typeof: typeof test })
+  }
+)
 
 // watchEffect(() => {
 //   console.log({ percentageMachines: percentageMachines.value })
@@ -31,6 +49,9 @@ const { percentageMachines, loadingWebsocket } = useWebSocket('percentage')
         :default-value="type"
       />
     </div> -->
+    <div class="flex justify-end">
+      <DatePickerDay v-model:date-option="dateOption" />
+    </div>
     <DataNotFound :condition="percentageMachines.length === 0 && !loadingWebsocket" />
     <div
       v-if="!loadingWebsocket"

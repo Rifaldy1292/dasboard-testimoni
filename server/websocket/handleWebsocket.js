@@ -35,6 +35,9 @@ const handleWebsocket = (wss) => {
              * @param {string} type - The type of message.
              */
             messageTypeWebsocketClient.get(ws).add(type);
+            if (data?.date) {
+                clientPreferences.set(ws, data.date)
+            }
             // console.log(messageTypeWebsocketClient.get('percentage'), 111)
             // console.log(messageTypeWebsocketClient.get('timeline'), 111, 'timeline')
             // console.log(messageTypeWebsocketClient.get(ws).has('percentage'), 'bool')
@@ -46,9 +49,6 @@ const handleWebsocket = (wss) => {
                     /**
                      * Retrieves machine timelines.
                      */
-                    if (data?.date) {
-                        clientPreferences.set(ws, data.date)
-                    }
                     // console.log({ clientPreferences: clientPreferences.get(ws) }, 88888, 'form ws')
                     await MachineWebsocket.timelines(ws, clientPreferences.get(ws))
                     break
@@ -56,7 +56,7 @@ const handleWebsocket = (wss) => {
                     /**
                      * Retrieves machine percentages.
                      */
-                    await MachineWebsocket.percentages(ws)
+                    await MachineWebsocket.percentages(ws, clientPreferences.get(ws))
                     break
                 // case 'test': {
                 //     console.log('test')

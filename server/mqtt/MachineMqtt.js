@@ -105,9 +105,8 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
 
             const timelineMessage = messageTypeWebsocketClient.get(client)?.has('timeline');
             const percentageMessage = messageTypeWebsocketClient.get(client)?.has('percentage');
-
+            const lastRequestedDate = clientPreferences.get(client);
             if (timelineMessage) {
-                const lastRequestedDate = clientPreferences.get(client);
                 // console.log({ clientPreferences: clientPreferences.get(client) }, 88888)
                 if (lastRequestedDate) {
                     console.log(`Skipping timeline update for client with custom date: ${lastRequestedDate}`);
@@ -117,7 +116,12 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
                 console.log('Sending live timeline update from MQTT');
                 return await MachineWebsocket.timelines(client);
             }
-            if (percentageMessage) return await MachineWebsocket.percentages(client);
+            if (percentageMessage) {
+                if (lastRequestedDate) {
+                    return await MachineWebsocket.percentages(client, lastRequestedDate);
+                }
+                return await MachineWebsocket.percentages(client);
+            }
         });
 
     } catch (error) {

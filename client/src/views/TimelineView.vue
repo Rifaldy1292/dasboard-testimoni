@@ -3,15 +3,15 @@ import { computed, ref, watch } from 'vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
-import { DatePicker, FloatLabel } from 'primevue'
 import useWebsocket from '@/composables/useWebsocket'
 import DataNotFound from '@/components/common/DataNotFound.vue'
 import TimelineMachine from '@/components/modules/timeline/TimelineMachine.vue'
+import DatePickerDay from '@/components/common/DatePickerDay.vue'
 
 const { loadingWebsocket, timelineMachines, sendMessage, messageWebsocket } =
   useWebsocket('timeline')
 
-const dateOption = ref<Date | undefined>()
+const dateOption = ref<Date>(new Date())
 
 watch(
   () => messageWebsocket.value,
@@ -55,16 +55,7 @@ const duplicatedTimelineData = computed(() => {
     <template v-if="!loadingWebsocket">
       <div class="flex flex-col gap-10 mb-2">
         <div class="flex justify-end">
-          <FloatLabel>
-            <DatePicker
-              v-model="dateOption"
-              inputId="over_label"
-              showIcon
-              iconDisplay="input"
-              date-format="dd/mm/yy"
-            />
-            <label for="over_label">Select Date</label>
-          </FloatLabel>
+          <DatePickerDay v-model:date-option="dateOption" />
         </div>
         <DataNotFound :condition="duplicatedTimelineData?.data?.length === 0" />
         <span
