@@ -72,6 +72,7 @@ const useWebSocket = (payloadType?: PayloadType) => {
             // }
             break
           case 'percentage': {
+            console.log('from server percentage', parsedData)
             percentageMachines.value = data as Machine[]
             break
           }

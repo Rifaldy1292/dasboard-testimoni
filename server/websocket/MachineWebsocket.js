@@ -1,6 +1,7 @@
 const { Op } = require('sequelize');
 const { Machine, MachineLog } = require('../models');
 const { percentage, totalHour } = require('../utils/countHour');
+const dateQuery = require('../utils/dateQuery');
 
 /**
  * Perfect time constant.
@@ -83,10 +84,7 @@ module.exports = class MachineWebsocket {
                     model: MachineLog,
                     where: {
                         // ambil data sesuai hari ini
-                        timestamp: {
-                            [Op.gte]: new Date(dateOption.setHours(0, 0, 0, 0)),
-                            [Op.lte]: new Date(dateOption.setHours(23, 59, 59, 999))
-                        }
+                        timestamp: dateQuery(dateOption)
                     },
                     attributes: ['id', 'current_status', 'timestamp', 'description']
                 }],
@@ -147,16 +145,13 @@ module.exports = class MachineWebsocket {
      */
     static async percentages(client) {
         try {
-            const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
-            const endOfToday = new Date(new Date().setHours(23, 59, 59, 999));
+            const nowDate = new Date();
             const machines = await Machine.findAll({
                 attributes: ['name', 'status', 'total_running_hours'],
 
                 // ambil data sesuai hari ini
                 where: {
-                    updatedAt: {
-                        [Op.between]: [startOfToday, endOfToday]
-                    }
+                    updatedAt: dateQuery(nowDate)
                 }
 
             });

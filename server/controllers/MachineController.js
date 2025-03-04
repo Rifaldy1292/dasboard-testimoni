@@ -5,7 +5,8 @@ const { serverError } = require('../utils/serverError');
 const countHour = require('../utils/countHour');
 
 const { PassThrough } = require('stream'); // ✅ Tambahkan ini
-const { Client } = require('basic-ftp')
+const { Client } = require('basic-ftp');
+const dateQuery = require('../utils/dateQuery');
 
 class MachineController {
     /**
@@ -133,9 +134,7 @@ class MachineController {
                 const log = await MachineLog.findOne({
                     where: {
                         machine_id,
-                        updatedAt: {
-                            [Op.between]: [new Date(fixDate.setHours(0, 0, 0, 0)), new Date(fixDate.setHours(23, 59, 59, 999))],
-                        },
+                        updatedAt: dateQuery(fixDate)
                     },
                     attributes: ['running_today'],
                     order: [['updatedAt', 'DESC']]

@@ -34,7 +34,6 @@ const getLastMachineLog = async (id) => {
     }
 }
 
-
 const createCuttingTime = async () => {
     try {
         const { date } = dateCuttingTime();

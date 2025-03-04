@@ -67,9 +67,10 @@ const handleMqtt = (mqttClient, wss) => {
                 if (percentageMessage) {
                     console.log(true)
                     await MachineWebsocket.percentages(client);
-                } else {
-                    console.log(false)
                 }
+                // else {
+                //     // console.log(false)
+                // }
             }
         });
         // console.timeEnd('Proses');
