@@ -11,10 +11,11 @@ const { Op } = require("sequelize");
 const dateQuery = (dateOption) => {
     const nowDate = dateOption ? new Date(dateOption) : new Date();
 
-    const startInDay = new Date(nowDate.setHours(7, 30, 0, 0));
+    // 7:00 - 6:59
+    const startInDay = new Date(nowDate.setHours(7, 0, 0, 0));
 
     const endOfDay = new Date(nowDate.setDate(nowDate.getDate() + 1));
-    endOfDay.setHours(7, 29, 59, 999);
+    endOfDay.setHours(6, 59, 59, 999);
 
     return {
         [Op.between]: [startInDay, endOfDay]
