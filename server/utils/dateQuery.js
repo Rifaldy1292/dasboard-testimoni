@@ -16,7 +16,6 @@ const dateQuery = (dateOption) => {
     const endOfDay = new Date(nowDate.setDate(nowDate.getDate() + 1));
     endOfDay.setHours(7, 29, 59, 999);
 
-
     return {
         [Op.between]: [startInDay, endOfDay]
     }
