@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import { Select } from 'primevue'
 import { FormField } from '@primevue/forms'
 import { useUsers } from '@/composables/useUsers'
-import { computed } from 'vue'
+import { computed, watchEffect } from 'vue'
 import { useMachine } from '@/composables/useMachine'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import { useFTP } from '@/composables/useFTP'
 import MachineServices from '@/services/machine.service'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import useToast from '@/utils/useToast'
+import AdditionalFields from './AdditionalFields.vue'
+import PreviewFile from './PreviewFile.vue'
 
-const { fetchUsers, users, user, loadingUserDropdown } = useUsers()
-const { selectedOneMachine, machineOptions, loadingDropdown, getMachineOptions } = useMachine()
-const { handlePreviewContent, handleUploadFolder, inputFiles, loadingUpload } = useFTP()
+const { user } = useUsers()
+const { selectedOneMachine } = useMachine()
+const { handleUploadFolder, inputFiles, loadingUpload } = useFTP()
 const disableUploadFolder = computed<boolean>(() => {
   return !user.value || !selectedOneMachine.value
 })
@@ -37,6 +38,10 @@ const handleSubmit = async () => {
     loadingUpload.value = false
   }
 }
+
+watchEffect(() => {
+  console.log(user.value, selectedOneMachine.value)
+})
 </script>
 
 <template>
@@ -58,52 +63,7 @@ const handleSubmit = async () => {
     <div class="grid grid-cols-5 p-7 gap-8">
       <div class="col-span-5 xl:col-span-3">
         <!-- Machine Section -->
-        <div class="mb-5.5">
-          <!-- <FormField name="name"> -->
-          <div>
-            <label class="mb-3 block text-sm font-medium text-black dark:text-white"
-              >Machine Name</label
-            >
-            <div class="relative flex items-center">
-              <Select
-                filter
-                :model-value="selectedOneMachine"
-                @update:model-value="selectedOneMachine = $event"
-                @before-show="getMachineOptions"
-                :loading="loadingDropdown"
-                :options="machineOptions"
-                optionLabel="name"
-                placeholder="Select a Machine"
-                fluid
-              />
-            </div>
-          </div>
-          <!-- </FormField> -->
-        </div>
-
-        <!-- Operator Section -->
-        <div class="mb-5.5">
-          <!-- <FormField name="name"> -->
-          <div>
-            <label class="mb-3 block text-sm font-medium text-black dark:text-white"
-              >Operator Name</label
-            >
-            <div class="relative flex items-center">
-              <Select
-                filter
-                :model-value="user"
-                @update:model-value="user = $event"
-                @before-show="fetchUsers({ role: 'Operator' })"
-                :loading="loadingUserDropdown"
-                :options="users"
-                optionLabel="name"
-                placeholder="Select Operator"
-                fluid
-              />
-            </div>
-          </div>
-          <!-- </FormField> -->
-        </div>
+        <AdditionalFields />
       </div>
       <div class="col-span-5 xl:col-span-2">
         <!-- User Photo Section -->
@@ -189,22 +149,8 @@ const handleSubmit = async () => {
           </button>
         </div>
       </div>
-      <template v-for="file in inputFiles" :key="file.name">
-        <div class="col-span-5">
-          <h3 class="mb-1.5 text-2xl font-medium text-black dark:text-white">
-            Preview File {{ file.name || '-' }}
-          </h3>
-          <div class="max-w-100">
-            <pre style="white-space: pre-wrap"> {{ handlePreviewContent(file) }}</pre>
-          </div>
-        </div>
-        <div class="col-span-5"></div>
-      </template>
-      <!-- <div class="col-span-5">
-        <h3 class="mb-1.5 text-2xl font-medium text-black dark:text-white">Preview File</h3>
-        <pre> {{ fileContent }}</pre>
-      </div> -->
     </div>
+    <PreviewFile />
     <!-- </Form> -->
   </div>
 </template>

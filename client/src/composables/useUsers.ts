@@ -8,12 +8,13 @@ import { useConfirm } from 'primevue'
 import type { ParamsGetUsers } from '@/dto/user.dto'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 
+const user = ref<User | undefined>()
+
 export const useUsers = () => {
   const toast = useToast()
   const confirm = useConfirm()
 
   const users = ref<User[]>([])
-  const user = ref<User | undefined>()
   const loadingFetch = shallowRef(false)
   const loadingUserDropdown = shallowRef(false)
   const visibleDialogResetPassword = shallowRef(false)

@@ -1,8 +1,8 @@
 import type { FileWithContent } from '@/types/ftp.type'
 import { ref, shallowRef } from 'vue'
 
+const inputFiles = ref<FileWithContent[]>([])
 export const useFTP = () => {
-  const inputFiles = ref<FileWithContent[]>([])
   const loadingUpload = shallowRef(false)
 
   const handleUploadFolder = async (event: Event): Promise<void> => {
