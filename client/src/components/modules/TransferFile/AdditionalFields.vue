@@ -22,126 +22,137 @@ const selectedCoolant = shallowRef<number>(additionalOptions.coolantOptions[1])
 </script>
 
 <template>
-  <div class="mb-5.5">
-    <!-- <FormField name="name"> -->
-    <div>
-      <label class="mb-3 block text-sm font-medium text-black dark:text-white">Machine Name</label>
-      <div class="relative flex items-center">
-        <Select
-          filter
-          :model-value="selectedOneMachine"
-          @update:model-value="selectedOneMachine = $event"
-          @before-show="getMachineOptions"
-          :loading="loadingDropdown"
-          :options="machineOptions"
-          optionLabel="name"
-          placeholder="Select a Machine"
-          fluid
-        />
+  <!-- 1/2 -->
+  <div class="grid grid-cols-2 gap-5">
+    <div class="mb-0.5">
+      <!-- <FormField name="name"> -->
+      <div>
+        <label class="mb-3 block text-sm font-medium text-black dark:text-white"
+          >Machine Name</label
+        >
+        <div class="relative flex items-center">
+          <Select
+            filter
+            :model-value="selectedOneMachine"
+            @update:model-value="selectedOneMachine = $event"
+            @before-show="getMachineOptions"
+            :loading="loadingDropdown"
+            :options="machineOptions"
+            optionLabel="name"
+            placeholder="Select a Machine"
+            fluid
+          />
+        </div>
       </div>
-    </div>
-    <!-- </FormField> -->
-  </div>
-
-  <!-- Operator Section -->
-  <div class="mb-5.5">
-    <!-- <FormField name="name"> -->
-    <div>
-      <label class="mb-3 block text-sm font-medium text-black dark:text-white">Operator Name</label>
-      <div class="relative flex items-center">
-        <Select
-          filter
-          :model-value="user"
-          @update:model-value="user = $event"
-          @before-show="fetchUsers({ role: 'Operator' })"
-          :loading="loadingUserDropdown"
-          :options="users"
-          optionLabel="name"
-          placeholder="Select Operator"
-          fluid
-        />
-      </div>
+      <!-- </FormField> -->
     </div>
 
-    <!-- </FormField> -->
-  </div>
-
-  <!-- Operator Section -->
-  <div class="mb-5.5">
-    <!-- <FormField name="name"> -->
-    <div>
-      <label class="mb-3 block text-sm font-medium text-black dark:text-white"
-        >Program Number</label
-      >
-      <div class="relative flex items-center">
-        <Select
-          filter
-          :model-value="selectedProgramNumber"
-          @update:model-value="user = $event"
-          :options="additionalOptions.programNumberOptions"
-          placeholder="Select Program Number"
-          fluid
-        />
+    <!-- Operator Section -->
+    <div class="mb-0.5">
+      <!-- <FormField name="name"> -->
+      <div>
+        <label class="mb-3 block text-sm font-medium text-black dark:text-white"
+          >Operator Name</label
+        >
+        <div class="relative flex items-center">
+          <Select
+            filter
+            :model-value="user"
+            @update:model-value="user = $event"
+            @before-show="fetchUsers({ role: 'Operator' })"
+            :loading="loadingUserDropdown"
+            :options="users"
+            optionLabel="name"
+            placeholder="Select Operator"
+            fluid
+          />
+        </div>
       </div>
+
+      <!-- </FormField> -->
     </div>
 
-    <!-- </FormField> -->
-  </div>
-
-  <!-- Operator Section -->
-  <div class="mb-5.5">
-    <!-- <FormField name="name"> -->
-    <div>
-      <label class="mb-3 block text-sm font-medium text-black dark:text-white">Work Position</label>
-      <div class="relative flex items-center">
-        <Select
-          filter
-          :model-value="selectedWorkPosition"
-          @update:model-value="user = $event"
-          :options="additionalOptions.workPositionOptions"
-          placeholder="Select Work Position"
-          fluid
-        />
+    <!-- Operator Section -->
+    <div class="mb-0.5">
+      <!-- <FormField name="name"> -->
+      <div>
+        <label class="mb-3 block text-sm font-medium text-black dark:text-white"
+          >Program Number</label
+        >
+        <div class="relative flex items-center">
+          <Select
+            filter
+            :model-value="selectedProgramNumber"
+            @update:model-value="user = $event"
+            :options="additionalOptions.programNumberOptions"
+            placeholder="Select Program Number"
+            fluid
+          />
+        </div>
       </div>
+
+      <!-- </FormField> -->
     </div>
 
-    <!-- </FormField> -->
-  </div>
-
-  <!-- Operator Section -->
-  <div class="mb-5.5">
-    <!-- <FormField name="name"> -->
-    <div>
-      <label class="mb-3 block text-sm font-medium text-black dark:text-white">Coordinate</label>
-      <div class="relative flex items-center">
-        <Select
-          filter
-          :model-value="selectedCoordinate"
-          @update:model-value="user = $event"
-          :options="additionalOptions.coordinateOptions"
-          placeholder="Select Coordinate"
-          fluid
-        />
+    <!-- Operator Section -->
+    <div class="mb-0.5">
+      <!-- <FormField name="name"> -->
+      <div>
+        <label class="mb-3 block text-sm font-medium text-black dark:text-white"
+          >Work Position</label
+        >
+        <div class="relative flex items-center">
+          <Select
+            filter
+            :model-value="selectedWorkPosition"
+            @update:model-value="user = $event"
+            :options="additionalOptions.workPositionOptions"
+            placeholder="Select Work Position"
+            fluid
+          />
+        </div>
       </div>
+
+      <!-- </FormField> -->
     </div>
 
-    <!-- </FormField> -->
-  </div>
+    <!-- Operator Section -->
+    <div class="mb-0.5">
+      <!-- <FormField name="name"> -->
+      <div>
+        <label class="mb-3 block text-sm font-medium text-black dark:text-white"
+          >Coordinate (143 for zooler)</label
+        >
+        <div class="relative flex items-center">
+          <Select
+            filter
+            :model-value="selectedCoordinate"
+            @update:model-value="user = $event"
+            :options="additionalOptions.coordinateOptions"
+            placeholder="Select Coordinate"
+            fluid
+          />
+        </div>
+      </div>
 
-  <!-- Operator Section -->
-  <div class="mb-5.5">
-    <!-- <FormField name="name"> -->
-    <div>
-      <label class="mb-3 block text-sm font-medium text-black dark:text-white">Coolant</label>
-      <div class="relative flex items-center">
-        <Select
-          filter
-          :model-value="selectedCoolant"
-          @update:model-value="user = $event"
-          :options="additionalOptions.coolantOptions"
-          placeholder="Select Coolant"
-          fluid
-        />
+      <!-- </FormField> -->
+    </div>
+
+    <!-- Operator Section -->
+    <div class="mb-0.5">
+      <!-- <FormField name="name"> -->
+      <div>
+        <label class="mb-3 block text-sm font-medium text-black dark:text-white">Coolant</label>
+        <div class="relative flex items-center">
+          <Select
+            filter
+            :model-value="selectedCoolant"
+            @update:model-value="user = $event"
+            :options="additionalOptions.coolantOptions"
+            placeholder="Select Coolant"
+            fluid
+          />
+        </div>
       </div>
     </div>
   </div>
