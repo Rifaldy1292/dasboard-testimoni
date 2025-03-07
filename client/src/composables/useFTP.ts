@@ -1,10 +1,10 @@
 import { getValueFromContent } from '@/components/modules/TransferFile/utils/contentMainProgram.util'
 import MachineServices from '@/services/machine.service'
-import type { FileWithContent, ValueFromContent } from '@/types/ftp.type'
+import type { ContentFile, ValueFromContent } from '@/types/ftp.type'
 import { ref, shallowRef } from 'vue'
 
-const inputFiles = ref<FileWithContent[]>([])
-const resultFiles = ref<(File & { content?: string })[]>([])
+const inputFiles = ref<ContentFile[]>([])
+const resultFiles = ref<File[]>([])
 
 export const useFTP = () => {
   const loadingUpload = shallowRef(false)
@@ -67,23 +67,7 @@ export const useFTP = () => {
   //   return lines.join('\n')
   // }
 
-  const handlePreviewContent = (file: Pick<FileWithContent, 'content'>): string => {
-    const { content } = file
-    if (!content) return '-'
-
-    const lines = content.split('\n')
-    const result: string[] = []
-
-    for (const line of lines) {
-      if (line.trim().startsWith('(') || line.trim() === '%') {
-        result.push(line)
-      }
-    }
-
-    return result.join('\n') || '-'
-  }
-
-  const readFile = async (file: File): Promise<FileWithContent> => {
+  const readFile = async (file: File): Promise<ContentFile> => {
     const reader = new FileReader()
     const content = (await new Promise((resolve, reject) => {
       reader.onload = (e) => {
@@ -106,5 +90,5 @@ export const useFTP = () => {
     })
   }
 
-  return { inputFiles, handleUploadFolder, handlePreviewContent, loadingUpload, resultFiles }
+  return { inputFiles, handleUploadFolder, loadingUpload, resultFiles }
 }

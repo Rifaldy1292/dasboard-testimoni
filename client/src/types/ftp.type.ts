@@ -1,5 +1,6 @@
-export type FileWithContent = File & {
+export type ContentFile = {
   content: string
+  name: string
   toolNumber: number
   kNum: string | number
   gCodeName: string | number

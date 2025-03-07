@@ -1,9 +1,9 @@
-import type { FileWithContent, ValueFromContent } from '@/types/ftp.type'
+import type { ContentFile, ValueFromContent } from '@/types/ftp.type'
 import type { MachineOption } from '@/types/machine.type'
 import type { User } from '@/types/user.type'
 
 type params = {
-  inputFiles: FileWithContent[]
+  inputFiles: ContentFile[]
   selectedOneMachine: MachineOption
   user: User
   selectedCoolant: number

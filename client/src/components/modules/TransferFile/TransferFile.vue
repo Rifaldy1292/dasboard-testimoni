@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { FormField } from '@primevue/forms'
 import { useUsers } from '@/composables/useUsers'
-import { computed } from 'vue'
+import { computed, shallowRef } from 'vue'
 import { useMachine } from '@/composables/useMachine'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import { useFTP } from '@/composables/useFTP'
@@ -13,7 +13,7 @@ import PreviewFile from './PreviewFile.vue'
 import { contentMainProgram } from './utils/contentMainProgram.util'
 import type { User } from '@/types/user.type'
 import type { MachineOption } from '@/types/machine.type'
-import type { FileWithContent } from '@/types/ftp.type'
+import type { ContentFile } from '@/types/ftp.type'
 
 const toast = useToast()
 
@@ -31,6 +31,8 @@ const { handleUploadFolder, inputFiles, loadingUpload, resultFiles } = useFTP()
 const disableUploadFolder = computed<boolean>(() => {
   return !user.value || !selectedOneMachine.value
 })
+
+const isCreatedMainProgram = shallowRef<boolean>(false)
 
 const handleSubmit = async () => {
   loadingUpload.value = true
@@ -66,12 +68,38 @@ const handleExecute = async (): Promise<void> => {
       selectedWorkPosition: selectedWorkPosition.value,
       user: user.value as User
     })
+
+    const mainProgramContent: ContentFile = {
+      content,
+      name: inputFileName.value,
+      gCodeName: '',
+      kNum: '',
+      outputWP: '',
+      toolName: '',
+      totalCuttingTime: '',
+      toolNumber: 0
+    }
+
+    const extendedFiles: ContentFile[] = [mainProgramContent, ...inputFiles.value]
+    inputFiles.value = extendedFiles
+    isCreatedMainProgram.value = true
+    console.log({ inputFiles: inputFiles.value[0] })
     // console.log({ content })
 
-    const mainProgramFile = new File([content], `${inputFileName.value}`, {
-      // type File
-      type: 'File'
-    })
+    // const mainProgramFileWithContent = new File([content], `${inputFileName.value}`, {
+    //   type: 'File'
+    // })
+    // const mainProgramFile = mainProgramFileWithContent
+    // const convertInputFileToOriginalFiles = inputFiles.value.map((file) => {
+    //   return new File([file], `${file.name}`, {
+    //     type: 'File'
+    //   })
+    // })
+
+    // const mainProgramFile = new File([content], `${inputFileName.value}`, {
+    //   // type File
+    //   type: 'File'
+    // })
 
     // const convertInputFileToOriginalFiles = inputFiles.value.map((file) => {
     //   return new File([file], `${file.name}`, {
@@ -79,9 +107,9 @@ const handleExecute = async (): Promise<void> => {
     //   })
     // })
 
-    const extendedFiles: FileWithContent[] = [mainProgramFile, ...convertInputFileToOriginalFiles]
-    resultFiles.value = extendedFiles
-    console.log({ resultFiles: resultFiles.value })
+    // const extendedFiles: FileWithContent[] = [mainProgramFile, ...convertInputFileToOriginalFiles]
+    // resultFiles.value = extendedFiles
+    // console.log({ resultFiles: resultFiles.value })
 
     // const url = URL.createObjectURL(mainProgramFile)
     // const a = document.createElement('a')
@@ -96,11 +124,18 @@ const handleExecute = async (): Promise<void> => {
     //   console.log(fileReader.result)
     // }
     // fileReader.readAsText(mainProgramFile)
+    // console.log(inputFiles.value[0].lastModified)
   } catch (error) {
     console.log(error)
   } finally {
     loadingUpload.value = false
   }
+}
+
+const handleClearFile = () => {
+  inputFiles.value = []
+  isCreatedMainProgram.value = false
+  resultFiles.value = []
 }
 </script>
 
@@ -193,20 +228,21 @@ const handleExecute = async (): Promise<void> => {
         <button
           class="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
           type="button"
-          @click="inputFiles = []"
+          @click="handleClearFile"
         >
           Clear File
         </button>
         <button
-          v-if="false"
+          v-if="isCreatedMainProgram"
           :disabled="disableUploadFolder && inputFiles.length === 0"
           class="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90"
           type="submit"
           @click="handleSubmit"
         >
-          Save
+          Submit
         </button>
         <button
+          v-if="!isCreatedMainProgram"
           :disabled="disableUploadFolder && inputFiles.length === 0"
           @click="handleExecute"
           class="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90"
@@ -217,14 +253,12 @@ const handleExecute = async (): Promise<void> => {
       </div>
     </div>
 
-    <template v-if="!resultFiles.length">
+    <template v-if="!isCreatedMainProgram">
       <template v-for="(file, index) in inputFiles" :key="file.name">
         <PreviewFile :file :index />
       </template>
     </template>
-    <template v-else>
-      <PreviewFile :file="resultFiles[0] as File & { content: string }" :isResultFile />
-    </template>
-    <!-- </Form> -->
+
+    <PreviewFile v-else :file="inputFiles[0]" :index="0" isResultFile />
   </div>
 </template>
