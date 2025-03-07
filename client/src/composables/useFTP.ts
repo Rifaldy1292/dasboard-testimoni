@@ -1,7 +1,9 @@
+import { getValueFromContent } from '@/components/modules/TransferFile/utils/contentMainProgram.util'
 import type { FileWithContent } from '@/types/ftp.type'
 import { ref, shallowRef } from 'vue'
 
 const inputFiles = ref<FileWithContent[]>([])
+
 export const useFTP = () => {
   const loadingUpload = shallowRef(false)
 
@@ -13,9 +15,13 @@ export const useFTP = () => {
 
       const editFileValue = await Promise.all(
         Array.from(files || []).map(async (file) => {
+          const fileName = file.name.split('.')[0]
           const res = await readFile(file)
           // res.content = addUserIdToNTFile(res.content || '')
-          return res
+          return {
+            ...res,
+            name: fileName
+          }
         })
       )
 
@@ -71,7 +77,17 @@ export const useFTP = () => {
       reader.readAsText(file)
     })) as string
 
-    return Object.assign(file, { content })
+    const { gCodeName, kNum, outputWP, toolName, totalCuttingTime } = getValueFromContent(content)
+    const encryptValue = {}
+    return Object.assign(file, {
+      content,
+      toolNumber: 0,
+      kNum,
+      gCodeName,
+      outputWP,
+      toolName,
+      totalCuttingTime
+    })
   }
 
   return { inputFiles, handleUploadFolder, handlePreviewContent, loadingUpload }

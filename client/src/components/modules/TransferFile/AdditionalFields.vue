@@ -1,24 +1,31 @@
 <script setup lang="ts">
 import { useMachine } from '@/composables/useMachine'
 import { useUsers } from '@/composables/useUsers'
-import { Select } from 'primevue'
-import { shallowRef } from 'vue'
+import { InputText, Select } from 'primevue'
 
-const { selectedOneMachine, machineOptions, loadingDropdown, getMachineOptions } = useMachine()
+const {
+  selectedOneMachine,
+  machineOptions,
+  loadingDropdown,
+  getMachineOptions,
+  additionalOptions,
+  selectedCoolant,
+  selectedCoordinate,
+  selectedWorkPosition,
+  selectedProgramNumber,
+  inputFileName,
+  selectedStartPoint
+} = useMachine()
 
 const { users, user, loadingUserDropdown, fetchUsers } = useUsers()
 
-const additionalOptions: Record<string, Array<number>> = {
-  programNumberOptions: [1000, 2000, 3000, 4000, 5000],
-  workPositionOptions: [50, 52, 54, 56],
-  coordinateOptions: [43, 143],
-  coolantOptions: [8, 50]
-}
-
-const selectedProgramNumber = shallowRef<number>(additionalOptions.programNumberOptions[0])
-const selectedWorkPosition = shallowRef<number>(additionalOptions.workPositionOptions[2])
-const selectedCoordinate = shallowRef<number>(additionalOptions.coordinateOptions[0])
-const selectedCoolant = shallowRef<number>(additionalOptions.coolantOptions[1])
+const {
+  programNumberOptions,
+  workPositionOptions,
+  coordinateOptions,
+  coolantOptions,
+  startPointOptions
+} = additionalOptions
 </script>
 
 <template>
@@ -58,8 +65,8 @@ const selectedCoolant = shallowRef<number>(additionalOptions.coolantOptions[1])
           <Select
             filter
             :model-value="user"
-            @update:model-value="user = $event"
             @before-show="fetchUsers({ role: 'Operator' })"
+            @update:model-value="user = $event"
             :loading="loadingUserDropdown"
             :options="users"
             optionLabel="name"
@@ -83,8 +90,7 @@ const selectedCoolant = shallowRef<number>(additionalOptions.coolantOptions[1])
           <Select
             filter
             :model-value="selectedProgramNumber"
-            @update:model-value="user = $event"
-            :options="additionalOptions.programNumberOptions"
+            :options="programNumberOptions"
             placeholder="Select Program Number"
             fluid
           />
@@ -105,8 +111,7 @@ const selectedCoolant = shallowRef<number>(additionalOptions.coolantOptions[1])
           <Select
             filter
             :model-value="selectedWorkPosition"
-            @update:model-value="user = $event"
-            :options="additionalOptions.workPositionOptions"
+            :options="workPositionOptions"
             placeholder="Select Work Position"
             fluid
           />
@@ -127,8 +132,7 @@ const selectedCoolant = shallowRef<number>(additionalOptions.coolantOptions[1])
           <Select
             filter
             :model-value="selectedCoordinate"
-            @update:model-value="user = $event"
-            :options="additionalOptions.coordinateOptions"
+            :options="coordinateOptions"
             placeholder="Select Coordinate"
             fluid
           />
@@ -142,16 +146,44 @@ const selectedCoolant = shallowRef<number>(additionalOptions.coolantOptions[1])
     <div class="mb-0.5">
       <!-- <FormField name="name"> -->
       <div>
+        <label class="mb-3 block text-sm font-medium text-black dark:text-white">Start Point</label>
+        <div class="relative flex items-center">
+          <Select
+            filter
+            :model-value="selectedStartPoint"
+            :options="startPointOptions"
+            placeholder="Select Start Point"
+            fluid
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Operator Section -->
+    <div class="mb-0.5">
+      <!-- <FormField name="name"> -->
+      <div>
         <label class="mb-3 block text-sm font-medium text-black dark:text-white">Coolant</label>
         <div class="relative flex items-center">
           <Select
             filter
             :model-value="selectedCoolant"
-            @update:model-value="user = $event"
-            :options="additionalOptions.coolantOptions"
+            :options="coolantOptions"
             placeholder="Select Coolant"
             fluid
           />
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-0.5">
+      <!-- <FormField name="name"> -->
+      <div>
+        <label class="mb-3 block text-sm font-medium text-black dark:text-white"
+          >Output File Name Main Program
+        </label>
+        <div class="relative flex items-center">
+          <InputText filter :model-value="inputFileName" placeholder="Input File Name" fluid />
         </div>
       </div>
     </div>

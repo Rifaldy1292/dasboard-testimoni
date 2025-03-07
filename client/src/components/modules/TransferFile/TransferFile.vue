@@ -10,15 +10,27 @@ import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import useToast from '@/utils/useToast'
 import AdditionalFields from './AdditionalFields.vue'
 import PreviewFile from './PreviewFile.vue'
+import { contentMainProgram } from './utils/contentMainProgram.util'
+import type { User } from '@/types/user.type'
+import type { MachineOption } from '@/types/machine.type'
+
+const toast = useToast()
 
 const { user } = useUsers()
-const { selectedOneMachine } = useMachine()
+const {
+  selectedOneMachine,
+  selectedProgramNumber,
+  selectedCoordinate,
+  selectedWorkPosition,
+  selectedStartPoint,
+  selectedCoolant,
+  inputFileName
+} = useMachine()
 const { handleUploadFolder, inputFiles, loadingUpload } = useFTP()
 const disableUploadFolder = computed<boolean>(() => {
   return !user.value || !selectedOneMachine.value
 })
 
-const toast = useToast()
 const handleSubmit = async () => {
   loadingUpload.value = true
   try {
@@ -39,9 +51,46 @@ const handleSubmit = async () => {
   }
 }
 
-watchEffect(() => {
-  console.log(user.value, selectedOneMachine.value)
-})
+const handleExecute = async () => {
+  try {
+    loadingUpload.value = true
+
+    const content = contentMainProgram({
+      inputFiles: inputFiles.value,
+      selectedCoolant: selectedCoolant.value,
+      selectedCoordinate: selectedCoordinate.value,
+      selectedOneMachine: selectedOneMachine.value as MachineOption,
+      selectedProgramNumber: selectedProgramNumber.value,
+      selectedStartPoint: selectedStartPoint.value,
+      selectedWorkPosition: selectedWorkPosition.value,
+      user: user.value as User
+    })
+    console.log({ content })
+
+    const mainProgramFile = new File([content], `${inputFileName.value}`, {
+      // type File
+      type: 'File'
+    })
+
+    const url = URL.createObjectURL(mainProgramFile)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = inputFileName.value
+    a.click()
+    URL.revokeObjectURL(url)
+
+    const fileReader = new FileReader()
+    // read new file and console
+    fileReader.onload = () => {
+      console.log(fileReader.result)
+    }
+    fileReader.readAsText(mainProgramFile)
+  } catch (error) {
+    console.log(error)
+  } finally {
+    loadingUpload.value = false
+  }
+}
 </script>
 
 <template>
@@ -133,11 +182,12 @@ watchEffect(() => {
         <button
           class="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
           type="button"
-          @click="$router.back()"
+          @click="inputFiles = []"
         >
-          Cancel
+          Clear File
         </button>
         <button
+          v-if="false"
           :disabled="disableUploadFolder && inputFiles.length === 0"
           class="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90"
           type="submit"
@@ -145,9 +195,19 @@ watchEffect(() => {
         >
           Save
         </button>
+        <button
+          :disabled="disableUploadFolder && inputFiles.length === 0"
+          @click="handleExecute"
+          class="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90"
+          type="submit"
+        >
+          Execute
+        </button>
       </div>
     </div>
-    <PreviewFile />
+    <template v-for="(file, index) in inputFiles" :key="file.name">
+      <PreviewFile :file :index />
+    </template>
     <!-- </Form> -->
   </div>
 </template>
