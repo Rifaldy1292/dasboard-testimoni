@@ -1,6 +1,14 @@
 export type FileWithContent = File & {
   content: string
   toolNumber: number
+  kNum: string | number
+  gCodeName: string | number
+  outputWP: string | number
+  toolName: string | number
+  totalCuttingTime: string | number
+}
+
+export type ValueFromContent = {
   kNum: string
   gCodeName: string
   outputWP: string

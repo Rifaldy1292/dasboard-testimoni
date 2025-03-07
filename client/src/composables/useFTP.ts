@@ -1,8 +1,10 @@
 import { getValueFromContent } from '@/components/modules/TransferFile/utils/contentMainProgram.util'
-import type { FileWithContent } from '@/types/ftp.type'
+import MachineServices from '@/services/machine.service'
+import type { FileWithContent, ValueFromContent } from '@/types/ftp.type'
 import { ref, shallowRef } from 'vue'
 
 const inputFiles = ref<FileWithContent[]>([])
+const resultFiles = ref<(File & { content?: string })[]>([])
 
 export const useFTP = () => {
   const loadingUpload = shallowRef(false)
@@ -17,10 +19,25 @@ export const useFTP = () => {
         Array.from(files || []).map(async (file) => {
           const fileName = file.name.split('.')[0]
           const res = await readFile(file)
-          // res.content = addUserIdToNTFile(res.content || '')
+
+          const { gCodeName, kNum, outputWP, toolName, totalCuttingTime } = res as ValueFromContent
+
+          const { data } = await MachineServices.postEncryptContentValue({
+            gCodeName,
+            kNum,
+            outputWP,
+            toolName,
+            totalCuttingTime
+          })
+
           return {
             ...res,
-            name: fileName
+            name: fileName,
+            gCodeName: data.data.gCodeName,
+            kNum: data.data.kNum,
+            outputWP: data.data.outputWP,
+            toolName: data.data.toolName,
+            totalCuttingTime: data.data.totalCuttingTime
           }
         })
       )
@@ -50,7 +67,7 @@ export const useFTP = () => {
   //   return lines.join('\n')
   // }
 
-  const handlePreviewContent = (file: FileWithContent): string => {
+  const handlePreviewContent = (file: Pick<FileWithContent, 'content'>): string => {
     const { content } = file
     if (!content) return '-'
 
@@ -78,7 +95,6 @@ export const useFTP = () => {
     })) as string
 
     const { gCodeName, kNum, outputWP, toolName, totalCuttingTime } = getValueFromContent(content)
-    const encryptValue = {}
     return Object.assign(file, {
       content,
       toolNumber: 0,
@@ -90,5 +106,5 @@ export const useFTP = () => {
     })
   }
 
-  return { inputFiles, handleUploadFolder, handlePreviewContent, loadingUpload }
+  return { inputFiles, handleUploadFolder, handlePreviewContent, loadingUpload, resultFiles }
 }

@@ -1,4 +1,4 @@
-import type { FileWithContent } from '@/types/ftp.type'
+import type { FileWithContent, ValueFromContent } from '@/types/ftp.type'
 import type { MachineOption } from '@/types/machine.type'
 import type { User } from '@/types/user.type'
 
@@ -36,12 +36,7 @@ export const contentMainProgram = ({
   selectedProgramNumber
 }: params): string => {
   const bodyContent = inputFiles.map((file) => {
-    const contentFile = file.content
-
-    const { gCodeName, kNum, outputWP, toolName, totalCuttingTime } =
-      getValueFromContent(contentFile)
-
-    const { toolNumber } = file
+    const { toolNumber, gCodeName, kNum, outputWP, toolName, totalCuttingTime } = file
     return `O${selectedProgramNumber}
 ${M98P7000}
 T${toolNumber}
@@ -116,7 +111,7 @@ M30
 // M30
 // %`
 
-export const getValueFromContent = (content: string) => {
+export const getValueFromContent = (content: string): ValueFromContent => {
   const kNum = content.match(/K-NUM : ([^)]+)/g)
   const gCodeName = content.match(/NAMA G CODE : ([^)]+)/g)
   const outputWP = content.match(/OUTPUT WP : ([^)]+)/g)

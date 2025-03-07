@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { FormField } from '@primevue/forms'
 import { useUsers } from '@/composables/useUsers'
-import { computed, watchEffect } from 'vue'
+import { computed } from 'vue'
 import { useMachine } from '@/composables/useMachine'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import { useFTP } from '@/composables/useFTP'
@@ -13,6 +13,7 @@ import PreviewFile from './PreviewFile.vue'
 import { contentMainProgram } from './utils/contentMainProgram.util'
 import type { User } from '@/types/user.type'
 import type { MachineOption } from '@/types/machine.type'
+import type { FileWithContent } from '@/types/ftp.type'
 
 const toast = useToast()
 
@@ -26,7 +27,7 @@ const {
   selectedCoolant,
   inputFileName
 } = useMachine()
-const { handleUploadFolder, inputFiles, loadingUpload } = useFTP()
+const { handleUploadFolder, inputFiles, loadingUpload, resultFiles } = useFTP()
 const disableUploadFolder = computed<boolean>(() => {
   return !user.value || !selectedOneMachine.value
 })
@@ -51,7 +52,7 @@ const handleSubmit = async () => {
   }
 }
 
-const handleExecute = async () => {
+const handleExecute = async (): Promise<void> => {
   try {
     loadingUpload.value = true
 
@@ -65,26 +66,36 @@ const handleExecute = async () => {
       selectedWorkPosition: selectedWorkPosition.value,
       user: user.value as User
     })
-    console.log({ content })
+    // console.log({ content })
 
     const mainProgramFile = new File([content], `${inputFileName.value}`, {
       // type File
       type: 'File'
     })
 
-    const url = URL.createObjectURL(mainProgramFile)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = inputFileName.value
-    a.click()
-    URL.revokeObjectURL(url)
+    // const convertInputFileToOriginalFiles = inputFiles.value.map((file) => {
+    //   return new File([file], `${file.name}`, {
+    //     type: 'File'
+    //   })
+    // })
 
-    const fileReader = new FileReader()
-    // read new file and console
-    fileReader.onload = () => {
-      console.log(fileReader.result)
-    }
-    fileReader.readAsText(mainProgramFile)
+    const extendedFiles: FileWithContent[] = [mainProgramFile, ...convertInputFileToOriginalFiles]
+    resultFiles.value = extendedFiles
+    console.log({ resultFiles: resultFiles.value })
+
+    // const url = URL.createObjectURL(mainProgramFile)
+    // const a = document.createElement('a')
+    // a.href = url
+    // a.download = inputFileName.value
+    // a.click()
+    // URL.revokeObjectURL(url)
+
+    // const fileReader = new FileReader()
+    // // read new file and console
+    // fileReader.onload = () => {
+    //   console.log(fileReader.result)
+    // }
+    // fileReader.readAsText(mainProgramFile)
   } catch (error) {
     console.log(error)
   } finally {
@@ -205,8 +216,14 @@ const handleExecute = async () => {
         </button>
       </div>
     </div>
-    <template v-for="(file, index) in inputFiles" :key="file.name">
-      <PreviewFile :file :index />
+
+    <template v-if="!resultFiles.length">
+      <template v-for="(file, index) in inputFiles" :key="file.name">
+        <PreviewFile :file :index />
+      </template>
+    </template>
+    <template v-else>
+      <PreviewFile :file="resultFiles[0] as File & { content: string }" :isResultFile />
     </template>
     <!-- </Form> -->
   </div>

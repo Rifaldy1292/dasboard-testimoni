@@ -7,6 +7,7 @@ const countHour = require('../utils/countHour');
 const { PassThrough } = require('stream'); // ✅ Tambahkan ini
 const { Client } = require('basic-ftp');
 const dateQuery = require('../utils/dateQuery');
+const { encryptToNumber } = require('../helpers/crypto');
 
 class MachineController {
     /**
@@ -185,6 +186,36 @@ class MachineController {
             res.status(200).json({ status: 200, message: 'success get machine option', data: sortedMachine });
         } catch (error) {
             serverError(error, res, 'Failed to get machine option');
+        }
+    }
+
+    static async encyptContentValue(req, res) {
+        try {
+            console.log('req', 444)
+            /**
+             * @prop {string} gCodeName - G code name
+             * @prop {string} kNum - K num
+             * @prop {string} outputWP - Output wp
+             * @prop {string} toolName - Tool name
+             * @prop {string} totalCuttingTime - Total cutting time
+             */
+            const { gCodeName, kNum, outputWP, toolName, totalCuttingTime } = req.body
+
+            if (!gCodeName || !kNum || !outputWP || !toolName || !totalCuttingTime) {
+                return res.status(400).json({ message: 'gCodeName, kNum, outputWP, toolName, totalCuttingTime is required', status: 400 })
+            }
+
+            const encryptValue = {
+                gCodeName: encryptToNumber(gCodeName),
+                kNum: encryptToNumber(kNum),
+                outputWP: encryptToNumber(outputWP),
+                toolName: encryptToNumber(toolName),
+                totalCuttingTime: encryptToNumber(totalCuttingTime)
+            }
+
+            res.status(201).json({ status: 201, message: 'success encrypt content value', data: encryptValue });
+        } catch (error) {
+            serverError(error, res, 'Failed to encrypt content value');
         }
     }
 }

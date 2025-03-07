@@ -26,7 +26,13 @@ function decryptFromNumber(encryptedNumber, originalText) {
     return expectedNumber === encryptedNumber ? originalText : "Decryption Failed";
 }
 
-const text = "test12asasasasasssssssssssssssss3";
-const encryptedNumber = encryptToNumber(text);
-console.log("Encrypted Number:", encryptedNumber);
-console.log("Decrypted Text:", decryptFromNumber(encryptedNumber, text));
+// const text = "test12asasasasasssssssssssssssss3";
+// const encryptedNumber = encryptToNumber(text);
+// console.log("Encrypted Number:", encryptedNumber);
+// console.log("Decrypted Text:", decryptFromNumber(encryptedNumber, text));
+
+
+module.exports = {
+    encryptToNumber,
+    decryptFromNumber
+}

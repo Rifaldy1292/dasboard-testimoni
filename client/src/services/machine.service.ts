@@ -1,8 +1,9 @@
 import type { AxiosResponse } from 'axios'
 import API from './API'
-import type { ApiResponse, GetCuttingTimeMachine } from '@/types/apiResponse.type'
+import type { ApiResponse, EncryptContent, GetCuttingTimeMachine } from '@/types/apiResponse.type'
 import type { MachineOption } from '@/types/machine.type'
 import type { ParamsGetCuttingTime, TransferFiles } from '@/dto/machine.dto'
+import type { ValueFromContent } from '@/types/ftp.type'
 
 const MachineServices = {
   postFiles: (params: TransferFiles): Promise<AxiosResponse> => {
@@ -12,8 +13,7 @@ const MachineServices = {
     })
 
     return API({
-      headers: { 'Content-Type': 'multipart/form-data' },
-      params: { machine_id: params.machine_id, user_id: params.user_id }
+      headers: { 'Content-Type': 'multipart/form-data' }
     }).post('/machines/transfer', formData)
   },
   getCuttingTime: (params: ParamsGetCuttingTime): Promise<AxiosResponse<GetCuttingTimeMachine>> => {
@@ -21,6 +21,10 @@ const MachineServices = {
   },
   getMachineOptions: (): Promise<AxiosResponse<ApiResponse<MachineOption[]>>> => {
     return API().get('/machines/options')
+  },
+
+  postEncryptContentValue: (body: ValueFromContent): Promise<AxiosResponse<EncryptContent>> => {
+    return API().post('/machines/encrypt-content', body)
   }
 }
 

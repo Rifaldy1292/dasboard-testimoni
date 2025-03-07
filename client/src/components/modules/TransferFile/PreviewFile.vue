@@ -7,6 +7,7 @@ import { shallowRef } from 'vue'
 const { file, index } = defineProps<{
   file: FileWithContent
   index: number
+  isResultFile?: boolean
 }>()
 
 const { handlePreviewContent, inputFiles } = useFTP()
@@ -17,19 +18,6 @@ const handleInputToolNumber = () => {
   inputFiles.value[index].toolNumber = inputToolNumber.value
   console.log(inputFiles.value[index])
 }
-
-const addToolNumberToNTFile = (fileContent: string): string => {
-  const lines = fileContent.split('\n')
-
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].trim() === '%') {
-      lines.splice(i + 1, 0, `{toolNumber: ${inputToolNumber.value}}`)
-      break
-    }
-  }
-
-  return lines.join('\n')
-}
 </script>
 
 <template>
@@ -37,7 +25,7 @@ const addToolNumberToNTFile = (fileContent: string): string => {
     <h3 class="mb-1.5 text-2xl font-medium text-black dark:text-white">
       Preview File {{ file.name || '-' }}
     </h3>
-    <div class="flex items-center gap-1">
+    <div v-if="!isResultFile" class="flex items-center gap-1">
       <label class="text-semibold text-black dark:text-white" for="inputToolNumber"
         >Tool Number</label
       >

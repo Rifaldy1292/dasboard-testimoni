@@ -59,6 +59,12 @@ machineRouter.get(
     MachineController.getMachineOption
 )
 
+machineRouter.post(
+    "/encrypt-content",
+    authMiddleware,
+    MachineController.encyptContentValue
+)
+
 const storage = multer.memoryStorage();
 const middlewareTransferFiles = multer({ storage: storage, limits: { fieldSize: 50 * 1024 * 1024, } });
 
