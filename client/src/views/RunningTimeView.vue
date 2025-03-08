@@ -6,11 +6,13 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import useWebSocket from '@/composables/useWebsocket'
 import DataNotFound from '@/components/common/DataNotFound.vue'
 import DatePickerDay from '@/components/common/DatePickerDay.vue'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 // import { watchEffect } from 'vue'
 const { percentageMachines, loadingWebsocket, sendMessage } = useWebSocket('percentage')
 
-const dateOption = ref<Date>(new Date())
+const nowDate = new Date()
+const dateOption = ref<Date>(nowDate)
+const intervalId = shallowRef<number | null>(null)
 
 watch(
   () => dateOption.value,
@@ -18,12 +20,40 @@ watch(
     sendMessage({
       type: 'percentage',
       data: {
-        date: dateOption.value?.toISOString()
+        date: dateOption.value.toISOString()
       }
     })
     // const test = new Date(dateOption.value).getDate()
     // console.log({ test, typeof: typeof test })
   }
+)
+
+watch(
+  [() => dateOption.value, () => percentageMachines.value?.date],
+  ([valueDateOPtion, percentageData]) => {
+    if (intervalId.value) clearInterval(intervalId.value)
+    // refetch per 5 minute if date not change
+    if (valueDateOPtion === nowDate && percentageData?.length) {
+      intervalId.value = setInterval(
+        () => {
+          console.log('refetch')
+          sendMessage({
+            type: 'percentage'
+          })
+        },
+        5 * 60 * 1000
+      )
+    } else {
+      clearInterval(intervalId.value as number)
+    }
+    // sendMessage({
+    //   type: 'percentage',
+    //   data: {
+    //     date: dateOption.value?.toISOString()
+    //   }
+    // })
+  },
+  { immediate: true }
 )
 
 // watchEffect(() => {

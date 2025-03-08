@@ -11,6 +11,7 @@ import TimelineView from '@/views/TimelineView.vue'
 import CuttingTimeView from '@/views/CuttingTimeView.vue'
 import RunningTimeView from '@/views/RunningTimeView.vue'
 import TransferFileView from '@/views/TransferFileView.vue'
+import DashboardSettingView from '@/views/DashboardSettingView.vue'
 
 const routes: Readonly<RouteRecordRaw[]> = [
   {
@@ -80,6 +81,14 @@ const routes: Readonly<RouteRecordRaw[]> = [
         component: TransferFileView,
         meta: {
           title: 'Transfer File'
+        }
+      },
+      {
+        path: 'dashboard-settings',
+        name: 'dashboardSettings',
+        component: DashboardSettingView,
+        meta: {
+          title: 'Dashboard Settings'
         }
       }
     ]

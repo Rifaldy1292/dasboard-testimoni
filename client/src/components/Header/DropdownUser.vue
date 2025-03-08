@@ -160,7 +160,7 @@ const handleLogout = () => {
         </li>
         <li v-if="userData.role === 'Admin'">
           <router-link
-            to="/edit-profile"
+            to="/dashboard-settings"
             class="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
           >
             <svg
