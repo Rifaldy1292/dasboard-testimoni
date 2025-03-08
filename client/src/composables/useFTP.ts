@@ -4,7 +4,6 @@ import type { ContentFile, ValueFromContent } from '@/types/ftp.type'
 import { ref, shallowRef } from 'vue'
 
 const inputFiles = ref<ContentFile[]>([])
-const resultFiles = ref<File[]>([])
 const uploadType = shallowRef<'folder' | 'file'>('folder')
 
 export const useFTP = () => {
@@ -92,5 +91,5 @@ export const useFTP = () => {
     })
   }
 
-  return { inputFiles, uploadType, handleUploadFolder, loadingUpload, resultFiles }
+  return { inputFiles, uploadType, handleUploadFolder, loadingUpload }
 }

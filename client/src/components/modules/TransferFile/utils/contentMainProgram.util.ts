@@ -57,8 +57,8 @@ M07
 G05P10000
 M198P${file.name.slice(1)}
 G05P0
-G05.1Q0(AICC OFF) belum
-G65P9685H3Q0.1Z0 belum
+(G05.1Q0(AICC OFF) belum)
+(G65P9685H3Q0.1Z0 belum)
 `
   })
   const content = `%

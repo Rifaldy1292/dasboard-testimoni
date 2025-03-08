@@ -27,7 +27,7 @@ const {
   selectedCoolant,
   inputFileName
 } = useMachine()
-const { handleUploadFolder, uploadType, inputFiles, loadingUpload, resultFiles } = useFTP()
+const { handleUploadFolder, uploadType, inputFiles, loadingUpload } = useFTP()
 const disableUploadFolder = computed<boolean>(() => {
   return !user.value || !selectedOneMachine.value
 })
@@ -138,7 +138,6 @@ const handleExecute = async (): Promise<void> => {
 const handleClearFile = () => {
   inputFiles.value = []
   isCreatedMainProgram.value = false
-  resultFiles.value = []
 }
 </script>
 
