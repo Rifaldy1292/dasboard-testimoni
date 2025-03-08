@@ -22,12 +22,13 @@ class MachineController {
              * @prop {string} machine_id - Machine ID
              * @prop {string} user_id - User ID
              */
-            const { machine_id, user_id } = req.query
+            const { machine_id } = req.body
             /**
              * @prop {Array} files - Array of uploaded files
              */
             const { files } = req
-            if (!machine_id || !user_id) return res.status(400).json({ message: 'machine_id or user_id is required', status: 400 })
+            console.log({ body: req.body })
+            if (!machine_id) return res.status(400).json({ message: 'machine_id is required', status: 400 })
             if (!files || files.length === 0) {
                 return res.status(400).json({ message: 'No file uploaded', status: 400 });
             }
@@ -35,20 +36,23 @@ class MachineController {
             if (!machineIp) {
                 return res.status(400).json({ message: 'Machine not found', status: 400 });
             }
-            const modifiedFile = files.map((file) => {
-                const fileName = file.originalname.split('.')[0]
-                // last 4 character ex: O1234
-                const modifiedName = 'O' + fileName.slice(fileName.length - 4)
-                const modifiedContent = file.buffer.toString().replace('%', `%\n( user_id: ${user_id} )\n( machine_id: ${machine_id} )`);
-                return {
-                    ...file,
-                    buffer: Buffer.from(modifiedContent),
-                    originalname: modifiedName
-                }
-            })
+            // console.log({ machineIp, files })
+            // const modifiedFile = files.map((file) => {
+            //     const fileName = file.originalname.split('.')[0]
+            //     // last 4 character ex: O1234
+            //     const modifiedName = 'O' + fileName.slice(fileName.length - 4)
+            //     const modifiedContent = file.buffer.toString().replace('%', `%\n( user_id: ${user_id} )\n( machine_id: ${machine_id} )`);
+            //     return {
+            //         ...file,
+            //         buffer: Buffer.from(modifiedContent),
+            //         originalname: modifiedName
+            //     }
+            // })
             // console.log({ modifiedFile, machine_id, user_id })
+            // console.log(machineIp.dataValues.ip_address, 22)
             await client.access({
-                host: "192.168.1.8",//mesin CNC
+                // host: "192.168.1.8",//mesin CNC
+                host: machineIp.dataValues.ip_address,
                 port: 21,
                 user: "MC",
                 password: "MC",
@@ -56,7 +60,7 @@ class MachineController {
             })
 
 
-            for (const file of modifiedFile) {
+            for (const file of files) {
                 const stream = new PassThrough(); // ✅ Buat stream dari Buffer
                 stream.end(file.buffer);
                 console.log(`Uploading: ${file.originalname}`); // Debugging
@@ -67,6 +71,7 @@ class MachineController {
             res.status(200).json({ status: 200, message: 'Files uploaded successfully', machineIp: machineIp.ip_address })
 
         } catch (error) {
+            if (error.code === 'ECONNREFUSED') return res.status(500).json({ message: 'Failed to connect to machine', status: 500 })
             if (error.code === 550 || error.message === '550 STOR requested action not taken: File exists.') {
                 return res.status(400).json({ status: 400, message: 'File already exists on machine' })
             }
@@ -191,7 +196,6 @@ class MachineController {
 
     static async encyptContentValue(req, res) {
         try {
-            console.log('req', 444)
             /**
              * @prop {string} gCodeName - G code name
              * @prop {string} kNum - K num

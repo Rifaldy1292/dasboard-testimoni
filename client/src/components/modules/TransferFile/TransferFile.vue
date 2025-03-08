@@ -37,10 +37,13 @@ const isCreatedMainProgram = shallowRef<boolean>(false)
 const handleSubmit = async () => {
   loadingUpload.value = true
   try {
+    const reverseObjectToFiles = inputFiles.value.map((item) => {
+      return new File([item.content], item.name)
+    })
+
     const { data } = await MachineServices.postFiles({
-      user_id: user.value?.id as number,
       machine_id: selectedOneMachine.value?.id as number,
-      files: inputFiles.value
+      files: reverseObjectToFiles
     })
     toast.add({
       severity: 'success',

@@ -219,10 +219,11 @@ const {
 
         <div class="relative flex items-center">
           <Select
-            filter
             :model-value="uploadType"
             @update:model-value="uploadType = $event"
             :options="['folder', 'file']"
+            :disabled="isDisableAll"
+            filter
             placeholder="Select Upload Type"
             fluid
           />

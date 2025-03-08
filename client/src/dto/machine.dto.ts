@@ -1,4 +1,3 @@
-import type { FileWithContent } from '@/types/ftp.type'
 import type { MachineOption } from '@/types/machine.type'
 
 export interface ParamsGetCuttingTime {
@@ -13,6 +12,5 @@ export interface EditLogDescription {
 
 export interface TransferFiles {
   machine_id: number
-  user_id: number
-  files: FileWithContent[]
+  files: File[]
 }

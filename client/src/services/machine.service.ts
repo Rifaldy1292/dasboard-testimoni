@@ -11,6 +11,7 @@ const MachineServices = {
     params.files.forEach((file) => {
       formData.append('files', file)
     })
+    formData.append('machine_id', params.machine_id.toString())
 
     return API({
       headers: { 'Content-Type': 'multipart/form-data' }
