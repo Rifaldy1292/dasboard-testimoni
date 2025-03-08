@@ -29,7 +29,7 @@ watch(
 )
 
 watch(
-  [() => dateOption.value, () => percentageMachines.value?.date],
+  [() => dateOption.value, () => percentageMachines.value?.data],
   ([valueDateOPtion, percentageData]) => {
     if (intervalId.value) clearInterval(intervalId.value)
     // refetch per 5 minute if date not change

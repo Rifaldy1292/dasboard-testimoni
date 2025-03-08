@@ -26,6 +26,19 @@ const MachineServices = {
 
   postEncryptContentValue: (body: ValueFromContent): Promise<AxiosResponse<EncryptContent>> => {
     return API().post('/machines/encrypt-content', body)
+  },
+
+  getStartTime: (): Promise<
+    AxiosResponse<ApiResponse<{ startHour: number; startMinute: number }>>
+  > => {
+    return API().get('/machines/start-time')
+  },
+
+  putStartTIme: (body: {
+    reqStartHour: number
+    reqStartMinute: number
+  }): Promise<AxiosResponse> => {
+    return API().put('machines/start-time', body)
   }
 }
 

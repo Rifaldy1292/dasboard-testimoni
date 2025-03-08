@@ -6,10 +6,27 @@ const countHour = require('../utils/countHour');
 
 const { PassThrough } = require('stream'); // ✅ Tambahkan ini
 const { Client } = require('basic-ftp');
-const dateQuery = require('../utils/dateQuery');
+let { dateQuery, config } = require('../utils/dateQuery');
 const { encryptToNumber } = require('../helpers/crypto');
 
 class MachineController {
+    static editStartTime(req, res) {
+        try {
+            const { reqStartHour, reqStartMinute } = req.body
+            if (typeof reqStartHour !== 'number', typeof reqStartMinute !== 'number') return res.status(400).json({ message: 'reqStartHour and reqStartMinute is Required' })
+
+            config.startHour = reqStartHour
+            config.startMinute = reqStartMinute
+            res.status(201).json({ message: 'succesfully Edit start time ' })
+
+        } catch (error) {
+            serverError(error, res, 'failed to Edit start time')
+        }
+    }
+
+    static getStartTime(req, res) {
+        res.status(200).json({ data: { startHour: config.startHour, startMinute: config.startMinute }, message: 'succesfully get start time ' })
+    }
     /**
      * @description Transfer file to machine using FTP
      * @param {request} req - Request object
@@ -222,6 +239,10 @@ class MachineController {
             serverError(error, res, 'Failed to encrypt content value');
         }
     }
+
+
+
+
 }
 
 const objectTargetCuttingTime = (target, totalDayInMonth) => {

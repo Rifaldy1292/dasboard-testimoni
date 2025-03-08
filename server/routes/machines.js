@@ -74,4 +74,7 @@ machineRouter.post(
     authMiddleware,
     MachineController.transferFiles)
 
+machineRouter.get('/start-time', authMiddleware, MachineController.getStartTime)
+machineRouter.put('/start-time', authMiddleware, MachineController.editStartTime)
+
 module.exports = machineRouter;

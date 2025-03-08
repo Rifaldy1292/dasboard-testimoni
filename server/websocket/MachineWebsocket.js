@@ -1,7 +1,7 @@
 const { Op, where } = require('sequelize');
 const { Machine, MachineLog } = require('../models');
 const { percentage, totalHour } = require('../utils/countHour');
-const dateQuery = require('../utils/dateQuery');
+const { dateQuery } = require('../utils/dateQuery');
 
 /**
  * Perfect time constant.

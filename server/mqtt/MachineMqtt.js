@@ -4,7 +4,7 @@ const dateCuttingTime = require('../utils/dateCuttingTime');
 const WebSocket = require('ws');
 const { clientPreferences, messageTypeWebsocketClient } = require('../websocket/handleWebsocket');
 const MachineWebsocket = require('../websocket/MachineWebsocket');
-const dateQuery = require('../utils/dateQuery');
+const { dateQuery } = require('../utils/dateQuery');
 
 const updateLastMachineLog = async (id, runningHour) => {
     try {
