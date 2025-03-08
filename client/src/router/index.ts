@@ -219,8 +219,8 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   // Set document title berdasarkan meta.title
-  // document.title = `${to.meta.title} | Yamaha Dashboard`
-  document.title = `${to.meta.title} | Dashboard`
+  document.title = `${to.meta.title} | Yamaha Dashboard`
+  // document.title = `${to.meta.title} | Dashboard`
 
   const userData = localStorage.getItem('user') // Ambil userData dari localStorage
 

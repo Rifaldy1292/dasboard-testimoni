@@ -5,6 +5,7 @@ import { ref, shallowRef } from 'vue'
 
 const inputFiles = ref<ContentFile[]>([])
 const resultFiles = ref<File[]>([])
+const uploadType = shallowRef<'folder' | 'file'>('folder')
 
 export const useFTP = () => {
   const loadingUpload = shallowRef(false)
@@ -17,6 +18,7 @@ export const useFTP = () => {
 
       const editFileValue = await Promise.all(
         Array.from(files || []).map(async (file) => {
+          // 'O' + last 4 digit
           const fileName = file.name.split('.')[0]
           const res = await readFile(file)
 
@@ -32,7 +34,7 @@ export const useFTP = () => {
 
           return {
             ...res,
-            name: fileName,
+            name: 'O' + fileName.slice(-4),
             gCodeName: data.data.gCodeName,
             kNum: data.data.kNum,
             outputWP: data.data.outputWP,
@@ -90,5 +92,5 @@ export const useFTP = () => {
     })
   }
 
-  return { inputFiles, handleUploadFolder, loadingUpload, resultFiles }
+  return { inputFiles, uploadType, handleUploadFolder, loadingUpload, resultFiles }
 }

@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { useFTP } from '@/composables/useFTP'
 import { useMachine } from '@/composables/useMachine'
 import { useUsers } from '@/composables/useUsers'
 import { InputText, Select } from 'primevue'
+
+defineProps<{ isDisableAll: boolean }>()
 
 const {
   selectedOneMachine,
@@ -17,6 +20,8 @@ const {
   selectedStartPoint
 } = useMachine()
 
+const { uploadType } = useFTP()
+
 const { users, user, loadingUserDropdown, fetchUsers } = useUsers()
 
 const {
@@ -30,7 +35,13 @@ const {
 
 <template>
   <!-- 1/2 -->
-  <div class="grid grid-cols-2 gap-5">
+  <div
+    :style="{
+      'pointer-events': isDisableAll ? 'none' : 'auto',
+      cursor: isDisableAll ? 'not-allowed' : 'pointer'
+    }"
+    class="grid grid-cols-3 gap-5"
+  >
     <div class="mb-0.5">
       <!-- <FormField name="name"> -->
       <div>
@@ -48,6 +59,7 @@ const {
             optionLabel="name"
             placeholder="Select a Machine"
             fluid
+            :disabled="isDisableAll"
           />
         </div>
       </div>
@@ -72,6 +84,7 @@ const {
             optionLabel="name"
             placeholder="Select Operator"
             fluid
+            :disabled="isDisableAll"
           />
         </div>
       </div>
@@ -93,6 +106,7 @@ const {
             :options="programNumberOptions"
             placeholder="Select Program Number"
             fluid
+            :disabled="isDisableAll"
           />
         </div>
       </div>
@@ -114,6 +128,7 @@ const {
             :options="workPositionOptions"
             placeholder="Select Work Position"
             fluid
+            :disabled="isDisableAll"
           />
         </div>
       </div>
@@ -135,6 +150,7 @@ const {
             :options="coordinateOptions"
             placeholder="Select Coordinate"
             fluid
+            :disabled="isDisableAll"
           />
         </div>
       </div>
@@ -154,6 +170,7 @@ const {
             :options="startPointOptions"
             placeholder="Select Start Point"
             fluid
+            :disabled="isDisableAll"
           />
         </div>
       </div>
@@ -171,6 +188,7 @@ const {
             :options="coolantOptions"
             placeholder="Select Coolant"
             fluid
+            :disabled="isDisableAll"
           />
         </div>
       </div>
@@ -183,7 +201,31 @@ const {
           >Output File Name Main Program
         </label>
         <div class="relative flex items-center">
-          <InputText filter :model-value="inputFileName" placeholder="Input File Name" fluid />
+          <InputText
+            filter
+            :model-value="inputFileName"
+            placeholder="Input File Name"
+            fluid
+            :disabled="isDisableAll"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-0.5">
+      <!-- <FormField name="name"> -->
+      <div>
+        <label class="mb-3 block text-sm font-medium text-black dark:text-white">Upload Type</label>
+
+        <div class="relative flex items-center">
+          <Select
+            filter
+            :model-value="uploadType"
+            @update:model-value="uploadType = $event"
+            :options="['folder', 'file']"
+            placeholder="Select Upload Type"
+            fluid
+          />
         </div>
       </div>
     </div>
