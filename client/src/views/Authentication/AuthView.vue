@@ -7,8 +7,9 @@ import UserServices from '@/services/user.service'
 import { type FormSubmitEvent } from '@primevue/forms'
 import { AxiosError } from 'axios'
 import { jwtDecode } from 'jwt-decode'
-import useToast from '@/utils/useToast'
 import AuthForm from '@/components/common/AuthForm.vue'
+import happySound from '../../assets/sounds/happy.mp3'
+import useToast from '@/utils/useToast'
 
 const route = useRoute()
 const router = useRouter()
@@ -38,7 +39,8 @@ const submitForm = async (e: FormSubmitEvent): Promise<void> => {
         severity: 'success',
         summary: 'Success',
         detail: 'Login success',
-        life: 3000
+        life: 3000,
+        customMusic: happySound
       })
 
       setTimeout(() => {

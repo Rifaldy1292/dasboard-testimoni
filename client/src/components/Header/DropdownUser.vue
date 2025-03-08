@@ -4,6 +4,7 @@ import { onClickOutside } from '@vueuse/core'
 import { useRouter } from 'vue-router'
 import useToast from '@/utils/useToast'
 import type { UserLocalStorage } from '@/types/localStorage.type'
+import happySound from '../../assets/sounds/happy.mp3'
 
 const toast = useToast()
 const router = useRouter()
@@ -23,7 +24,8 @@ const handleLogout = () => {
     severity: 'success',
     summary: 'Success',
     detail: 'Logged out successfully',
-    life: 3000
+    life: 3000,
+    customMusic: happySound
   })
 }
 </script>
