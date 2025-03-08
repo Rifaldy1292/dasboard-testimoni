@@ -6,7 +6,7 @@ import { useRoute } from 'vue-router'
 import { Form, FormField } from '@primevue/forms'
 import { z } from 'zod'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
-import useToast from '@/utils/useToast'
+import useToast from '@/composables/useToast'
 
 const visibleDialogForm = defineModel<boolean>('visibleDialogForm', {
   required: true

@@ -5,12 +5,12 @@ import { InputNumber, InputText, Message } from 'primevue'
 import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import { z } from 'zod'
-import useToast from '@/utils/useToast'
 import { AxiosError } from 'axios'
 import UserServices from '@/services/user.service'
 import type { EditProfile } from '@/dto/user.dto'
 import { useUsers } from '@/composables/useUsers'
 import LoadingAnimation from './common/LoadingAnimation.vue'
+import useToast from '@/composables/useToast'
 
 onMounted(async () => {
   await getDetailUser()

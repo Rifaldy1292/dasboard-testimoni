@@ -7,7 +7,7 @@ import { type FormSubmitEvent } from '@primevue/forms'
 import { AxiosError } from 'axios'
 import { Column, DataTable } from 'primevue'
 import DialogForm from '@/components/DialogForm/DialogForm.vue'
-import useToast from '@/utils/useToast'
+import useToast from '@/composables/useToast'
 import AuthForm from '@/components/common/AuthForm.vue'
 
 const toast = useToast()

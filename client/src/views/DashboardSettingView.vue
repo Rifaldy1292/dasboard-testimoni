@@ -4,7 +4,7 @@ import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import MachineServices from '@/services/machine.service'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
-import useToast from '@/utils/useToast'
+import useToast from '@/composables/useToast'
 import { DatePicker, useConfirm } from 'primevue'
 import { onMounted, ref, shallowRef } from 'vue'
 

@@ -9,7 +9,7 @@ import { AxiosError } from 'axios'
 import { jwtDecode } from 'jwt-decode'
 import AuthForm from '@/components/common/AuthForm.vue'
 import happySound from '../../assets/sounds/happy.mp3'
-import useToast from '@/utils/useToast'
+import useToast from '@/composables/useToast'
 
 const route = useRoute()
 const router = useRouter()

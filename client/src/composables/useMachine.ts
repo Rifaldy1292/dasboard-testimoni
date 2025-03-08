@@ -2,7 +2,7 @@ import type { ParamsGetCuttingTime } from '@/dto/machine.dto'
 import MachineServices from '@/services/machine.service'
 import type { CuttingTimeMachine, MachineOption } from '@/types/machine.type'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
-import useToast from '@/utils/useToast'
+import useToast from '@/composables/useToast'
 import { ref, shallowRef } from 'vue'
 
 type Key =

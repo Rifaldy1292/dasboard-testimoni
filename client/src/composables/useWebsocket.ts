@@ -1,6 +1,6 @@
 import type { AllMachineTimeline, GetPercentages } from '@/types/machine.type'
 import type { PayloadType, payloadWebsocket, WebsocketResponse } from '@/types/websocket.type'
-import useToast from '@/utils/useToast'
+import useToast from '@/composables/useToast'
 import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
 const PORT = +import.meta.env.VITE_PORT || 3000
 const SOCKET_URL = `ws://localhost:${PORT}`

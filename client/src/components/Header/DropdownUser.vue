@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 import { useRouter } from 'vue-router'
-import useToast from '@/utils/useToast'
+import useToast from '@/composables/useToast'
 import type { UserLocalStorage } from '@/types/localStorage.type'
 import happySound from '../../assets/sounds/happy.mp3'
 

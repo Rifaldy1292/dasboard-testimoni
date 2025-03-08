@@ -4,7 +4,7 @@ import type { Severity } from '@/types/severity.type'
 import { Badge, Button, Column, DataTable } from 'primevue'
 import type { Role, User } from '@/types/user.type'
 import CreateUser from './CreateUser.vue'
-import useToast from '@/utils/useToast'
+import useToast from '@/composables/useToast'
 import ModalResetPassword from './ModalResetPassword.vue'
 import { useUsers } from '@/composables/useUsers'
 

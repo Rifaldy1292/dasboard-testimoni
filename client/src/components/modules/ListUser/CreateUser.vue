@@ -10,7 +10,7 @@ import { zodResolver } from '@primevue/forms/resolvers/zod'
 import { AxiosError } from 'axios'
 import { Button, InputNumber, InputText, Message, Select } from 'primevue'
 import { z } from 'zod'
-import useToast from '@/utils/useToast'
+import useToast from '@/composables/useToast'
 
 const emit = defineEmits<{
   (e: 'refetch'): void
