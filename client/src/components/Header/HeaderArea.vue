@@ -54,9 +54,10 @@ const sidebarStore = useSidebarStore()
         <!-- Hamburger Toggle BTN -->
         <router-link class="block flex-shrink-0 lg:hidden" to="/">
           <img src="@/assets/images/logo/logo-icon.svg" alt="Logo" />
+          <!-- <img src="@/assets/images/logo/yamaha-gakki.svg" alt="Logo" /> -->
         </router-link>
       </div>
-      <div class="hidden lg:block"/>
+      <div class="hidden lg:block" />
       <div class="flex items-center gap-3 2xsm:gap-7">
         <ul class="flex items-center gap-2 2xsm:gap-4">
           <li>
