@@ -26,7 +26,7 @@ function decryptFromNumber(encryptedNumber, originalText) {
     return expectedNumber === encryptedNumber ? originalText : "Decryption Failed";
 }
 
-// const text = "test12asasasasasssssssssssssssss3";
+// const text = "24-K0021_05. FIX CAVITY";
 // const encryptedNumber = encryptToNumber(text);
 // console.log("Encrypted Number:", encryptedNumber);
 // console.log("Decrypted Text:", decryptFromNumber(encryptedNumber, text));

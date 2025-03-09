@@ -5,18 +5,25 @@ import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import useToast from '@/composables/useToast'
 import { ref, shallowRef } from 'vue'
 
-type Key =
-  | 'programNumberOptions'
-  | 'workPositionOptions'
-  | 'coordinateOptions'
-  | 'coolantOptions'
-  | 'startPointOptions'
-const additionalOptions: Record<Key, Array<number>> = {
-  programNumberOptions: [1000, 2000, 3000, 4000, 5000],
-  workPositionOptions: [50, 52, 54, 56],
+type ProcessType = 'NC' | 'Drill'
+interface AdditionalOptions {
+  programNumberOptions: Array<number>
+  workPositionOptions: Array<number>
+  coordinateOptions: Array<number>
+  coolantOptions: Array<number>
+  startPointOptions: Array<number>
+  processTypeOptions: Array<ProcessType>
+}
+
+const additionalOptions: AdditionalOptions = {
+  // 100, 200, ...9000
+  programNumberOptions: Array.from({ length: 9 }, (_, i) => (i + 1) * 1000),
+  // 54-59
+  workPositionOptions: Array.from({ length: 6 }, (_, i) => i + 54),
   coordinateOptions: [43, 143],
   coolantOptions: [8, 50],
-  startPointOptions: Array.from({ length: 100 }, (_, i) => i + 1)
+  startPointOptions: Array.from({ length: 100 }, (_, i) => i + 1),
+  processTypeOptions: ['NC', 'Drill']
 }
 
 const {
@@ -24,7 +31,8 @@ const {
   workPositionOptions,
   coordinateOptions,
   coolantOptions,
-  startPointOptions
+  startPointOptions,
+  processTypeOptions
 } = additionalOptions
 
 const loadingFetch = shallowRef<boolean>(false)
@@ -35,11 +43,11 @@ const loadingDropdown = shallowRef<boolean>(false)
 const machineOptions = ref<MachineOption[]>([])
 
 const selectedProgramNumber = shallowRef<number>(programNumberOptions[0])
-const selectedWorkPosition = shallowRef<number>(workPositionOptions[2])
+const selectedWorkPosition = shallowRef<number>(workPositionOptions[0])
 const selectedCoordinate = shallowRef<number>(coordinateOptions[0])
 const selectedStartPoint = shallowRef<number>(startPointOptions[50])
 const selectedCoolant = shallowRef<number>(coolantOptions[1])
-const inputFileName = shallowRef<string>('O1234')
+const selectedProcessType = shallowRef<'NC' | 'Drill'>(processTypeOptions[0])
 
 export const useMachine = () => {
   const toast = useToast()
@@ -95,7 +103,7 @@ export const useMachine = () => {
     selectedCoordinate,
     selectedProgramNumber,
     selectedWorkPosition,
-    inputFileName,
-    selectedStartPoint
+    selectedStartPoint,
+    selectedProcessType
   }
 }

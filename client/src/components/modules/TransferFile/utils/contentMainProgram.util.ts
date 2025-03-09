@@ -37,10 +37,10 @@ export const contentMainProgram = ({
 }: params): string => {
   const bodyContent = inputFiles.map((file) => {
     const { toolNumber, gCodeName, kNum, outputWP, toolName, totalCuttingTime } = file
-    return `O${selectedProgramNumber}
-${M98P7000}
+    return `${M98P7000}
 T${toolNumber}
 M06
+H${toolNumber}
 ${Docs.MACHINE_ID}=${selectedOneMachine.id}
 ${Docs.USER_ID}=${user.id}
 ${Docs.G_CODE_NAME}=${gCodeName}
@@ -48,20 +48,17 @@ ${Docs.K_NUM}=${kNum}
 ${Docs.OUTPUT_WP}=${outputWP}
 ${Docs.TOOL_NAME}=${toolName}
 ${Docs.TOTAL_CUTTING_TIME}=${totalCuttingTime}
-H${toolNumber}
 G${selectedWorkPosition}
 G90G00X0Y0
 G${selectedCoordinate}Z${selectedStartPoint}.00
 M${selectedCoolant}
-M07
 G05P10000
 M198P${file.name.slice(1)}
 G05P0
-(G05.1Q0(AICC OFF) belum)
-(G65P9685H3Q0.1Z0 belum)
 `
   })
   const content = `%
+O${selectedProgramNumber}
 ${bodyContent.join('\n')}
 ${M98P7000}
 M30

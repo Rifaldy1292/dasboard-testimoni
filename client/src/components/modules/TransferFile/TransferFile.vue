@@ -24,8 +24,7 @@ const {
   selectedCoordinate,
   selectedWorkPosition,
   selectedStartPoint,
-  selectedCoolant,
-  inputFileName
+  selectedCoolant
 } = useMachine()
 const { handleUploadFolder, uploadType, inputFiles, loadingUpload } = useFTP()
 const disableUploadFolder = computed<boolean>(() => {
@@ -74,7 +73,7 @@ const handleExecute = async (): Promise<void> => {
 
     const mainProgramContent: ContentFile = {
       content,
-      name: inputFileName.value,
+      name: 'O' + selectedProgramNumber.value,
       gCodeName: '',
       kNum: '',
       outputWP: '',
@@ -175,7 +174,7 @@ const handleClearFile = () => {
         <div
           id="FileUpload"
           :class="`relative mb-5.5 block w-full h-40 cursor-pointer appearance-none rounded border-2 border-dashed border-primary bg-gray py-4 px-4 dark:bg-meta-4 sm:py-7.5 ${
-            disableUploadFolder ? 'pointer-events-none cursor-not-allowed opacity-50' : ''
+            disableUploadFolder ? 'cursor-not-allowed opacity-50' : ''
           }`"
         >
           <FormField name="profilePicture">
@@ -185,9 +184,10 @@ const handleClearFile = () => {
               @change="handleUploadFolder($event)"
               :webkitdirectory="uploadType === 'folder'"
               multiple
-              :class="`absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none ${
-                disableUploadFolder ? 'pointer-events-none cursor-not-allowed' : ''
-              }`"
+              :style="{
+                cursor: disableUploadFolder ? 'not-allowed' : 'pointer'
+              }"
+              class="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
             />
           </FormField>
           <div class="flex flex-col items-center justify-center space-y-3">
@@ -251,6 +251,9 @@ const handleClearFile = () => {
           v-if="!isCreatedMainProgram"
           :disabled="disableUploadFolder && inputFiles.length === 0"
           @click="handleExecute"
+          :style="{
+            cursor: disableUploadFolder ? 'not-allowed' : 'pointer'
+          }"
           class="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90"
           type="submit"
         >

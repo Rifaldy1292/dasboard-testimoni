@@ -13,10 +13,10 @@ const {
   getMachineOptions,
   additionalOptions,
   selectedCoolant,
+  selectedProcessType,
   selectedCoordinate,
   selectedWorkPosition,
   selectedProgramNumber,
-  inputFileName,
   selectedStartPoint
 } = useMachine()
 
@@ -29,7 +29,8 @@ const {
   workPositionOptions,
   coordinateOptions,
   coolantOptions,
-  startPointOptions
+  startPointOptions,
+  processTypeOptions
 } = additionalOptions
 </script>
 
@@ -37,7 +38,6 @@ const {
   <!-- 1/2 -->
   <div
     :style="{
-      'pointer-events': isDisableAll ? 'none' : 'auto',
       cursor: isDisableAll ? 'not-allowed' : 'pointer'
     }"
     class="grid grid-cols-3 gap-5"
@@ -194,17 +194,19 @@ const {
       </div>
     </div>
 
+    <!-- Operator Section -->
     <div class="mb-0.5">
       <!-- <FormField name="name"> -->
       <div>
         <label class="mb-3 block text-sm font-medium text-black dark:text-white"
-          >Output File Name Main Program
-        </label>
+          >Process Type</label
+        >
         <div class="relative flex items-center">
-          <InputText
+          <Select
             filter
-            :model-value="inputFileName"
-            placeholder="Input File Name"
+            :model-value="selectedProcessType"
+            :options="processTypeOptions"
+            placeholder="Select Process Type"
             fluid
             :disabled="isDisableAll"
           />
