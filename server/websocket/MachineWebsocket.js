@@ -100,7 +100,7 @@ module.exports = class MachineWebsocket {
                 const logs = machine.MachineLogs.map((log, indexLog) => {
                     const currentTime = log.createdAt;
                     const nextLog = machine.MachineLogs[indexLog + 1] || null;
-                    const timeDifference = new Date(nextLog?.timestamp || 0) - new Date(currentTime);
+                    const timeDifference = new Date(nextLog?.createdAt || 0) - new Date(currentTime);
                     return {
                         ...log.dataValues,
                         createdAt: convertDateTime(currentTime),
