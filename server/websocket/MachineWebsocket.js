@@ -95,7 +95,6 @@ module.exports = class MachineWebsocket {
                 return;
             }
 
-
             const formattedMachines = sortedMachines.map((machine, index) => {
                 const logs = machine.MachineLogs.map((log, indexLog) => {
                     const currentTime = log.createdAt;
@@ -135,13 +134,13 @@ module.exports = class MachineWebsocket {
      */
     static async percentages(client, date) {
         try {
-            const nowDate = date || new Date();
+            const nowDate = date ? new Date(date) : new Date();
 
             const machineIds = await Machine.findAll({
                 attributes: ['id', 'name'],
             })
-
-            if (!machineIds.length) {
+            // check if machineIds is empty or nowDate is greater than current date
+            if (!machineIds.length || nowDate.getTime() > new Date().getTime()) {
                 client.send(JSON.stringify({ type: 'percentage', data: [] }));
                 return;
             }

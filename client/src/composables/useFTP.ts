@@ -43,7 +43,7 @@ export const useFTP = () => {
         })
       )
 
-      inputFiles.value = editFileValue
+      inputFiles.value = [...inputFiles.value, ...editFileValue]
 
       console.log(inputFiles.value, 'inputFiles')
     } catch (error: unknown) {
