@@ -98,12 +98,12 @@ module.exports = class MachineWebsocket {
 
             const formattedMachines = sortedMachines.map((machine, index) => {
                 const logs = machine.MachineLogs.map((log, indexLog) => {
-                    const currentTime = log.timestamp;
+                    const currentTime = log.createdAt;
                     const nextLog = machine.MachineLogs[indexLog + 1] || null;
                     const timeDifference = new Date(nextLog?.timestamp || 0) - new Date(currentTime);
                     return {
                         ...log.dataValues,
-                        timestamp: convertDateTime(currentTime),
+                        createdAt: convertDateTime(currentTime),
                         timeDifference: formatTimeDifference(timeDifference),
                         // log,
                         // nextLog,
@@ -185,7 +185,7 @@ module.exports = class MachineWebsocket {
     static async editLogDescription(client, data) {
         try {
             const { id, description } = data;
-            const updatedLog = await MachineLog.update({ description }, { where: { id } });
+            await MachineLog.update({ description }, { where: { id } });
 
             client.send(JSON.stringify({ type: 'success', message: 'Description updated successfully' }));
             // refetch timeline data

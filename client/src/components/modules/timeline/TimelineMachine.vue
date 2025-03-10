@@ -96,7 +96,7 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
           :class="`p-1 h-50`"
         >
           <i class="font-bold text-black dark:text-white"
-            >{{ item.timestamp }} - {{ item.description }}
+            >{{ item.createdAt }} - {{ item.description }}
           </i>
           <i
             v-if="item.current_status === 'Stopped'"

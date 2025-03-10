@@ -12,8 +12,8 @@ const updateLastMachineLog = async (id, runningHour) => {
         await MachineLog.update(
             { running_today: runningHour },
             {
-                where: { machine_id: id, timestamp: dateQuery(now) },
-                order: [['timestamp', 'DESC']],
+                where: { machine_id: id, createdAt: dateQuery(now) },
+                order: [['createdAt', 'DESC']],
                 limit: 1
             }
         );
@@ -49,38 +49,38 @@ function formatTimeDifference(ms) {
     return result.length > 0 ? result.join(" ") : "0s";
 }
 
+
 /**
- * Handles the change in machine status, logs the change, updates WebSocket clients,
- * and determines if the operation was manual.
+ * Handles machine status changes, creating new logs when necessary.
  *
- * @param {Object} existMachine - The existing machine record.
- * @param {Object} parseMessage - The parsed MQTT message containing machine status.
- * @param {WebSocket.Server} wss - The WebSocket server instance.
+ * @param {Machine} existMachine - The machine record.
+ * @param {Object} parseMessage - The parsed MQTT message.
+ * @param {WebSocket.Server} wss - The WebSocket server.
  */
 const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     try {
-        const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
-        const endOfToday = new Date(new Date().setHours(23, 59, 59, 999));
-
+        // Find the last log for today
         const lastMachineLog = await MachineLog.findOne({
             where: {
                 machine_id: existMachine.id,
-                timestamp: {
-                    [Op.between]: [startOfToday, endOfToday]
-                }
+                createdAt: dateQuery()
             },
-            attributes: ['timestamp', 'id'],
-            order: [['timestamp', 'DESC']],
+            attributes: ['createdAt', 'id'],
+            order: [['createdAt', 'DESC']],
         });
 
-        const differenceTime = new Date() - new Date(lastMachineLog?.timestamp);
+        // Check if the status change is within 10 minutes of the last log
+        // and if the new status is 'Running'
+        const differenceTime = new Date() - new Date(lastMachineLog?.createdAt);
         const tenMinutes = 10 * 60 * 1000;
         const isManual = differenceTime <= tenMinutes && parseMessage.status === 'Running';
         if (isManual) {
+            // Update the last log to indicate it was a manual operation
             lastMachineLog.description = 'Manual Operation';
             lastMachineLog.save();
         }
 
+        // Create a new log with the updated status
         await MachineLog.create({
             machine_id: existMachine.id,
             previous_status: existMachine.status,
@@ -88,28 +88,28 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
             timestamp: new Date()
         });
 
+        // Send an update to all connected clients
         wss.clients.forEach(async (client) => {
             if (client.readyState !== WebSocket.OPEN) return;
 
+            // Check if the client has requested a timeline or percentage update
             const timelineMessage = messageTypeWebsocketClient.get(client)?.has('timeline');
             const percentageMessage = messageTypeWebsocketClient.get(client)?.has('percentage');
-            const lastRequestedDate = clientPreferences.get(client);
-            if (timelineMessage) {
-                // console.log({ clientPreferences: clientPreferences.get(client) }, 88888)
-                if (lastRequestedDate) {
-                    console.log(`Skipping timeline update for client with custom date: ${lastRequestedDate}`);
-                    return;
-                }
 
-                console.log('Sending live timeline update from MQTT');
-                return await MachineWebsocket.timelines(client);
+            // Check if the client has a custom date
+            const lastRequestedDate = clientPreferences.get(client);
+            if (lastRequestedDate) {
+                // If the client has a custom date, skip the update
+                console.log(`Skipping update for client with custom date: ${lastRequestedDate}`);
+                return;
             }
-            if (percentageMessage) {
-                if (lastRequestedDate) {
-                    // return await MachineWebsocket.percentages(client, lastRequestedDate);
-                    console.log(`Skipping percentage update for client with custom date: ${lastRequestedDate}`);
-                }
-                return await MachineWebsocket.percentages(client);
+
+            // Send the update to the client
+            if (timelineMessage) {
+                console.log('Sending live timeline update from MQTT');
+                await MachineWebsocket.timelines(client);
+            } else if (percentageMessage) {
+                await MachineWebsocket.percentages(client);
             }
         });
 

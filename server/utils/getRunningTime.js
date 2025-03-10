@@ -1,16 +1,14 @@
 const { Op } = require('sequelize');
 const { MachineLog } = require("../models");
+const dateQuery = require("./dateQuery");
 
 const getRunningTime = async (machineId) => {
     try {
+        // get running time in now
         const logs = await MachineLog.findAll({
             where: {
                 machine_id: machineId,
-                timestamp: {
-                    [Op.gte]: new Date(new Date().setHours(0, 0, 0, 0)), // Mulai hari ini,
-                    [Op.lte]: new Date(new Date().setHours(23, 59, 59, 999))
-
-                }
+                timestamp: dateQuery()
             },
             order: [['timestamp', 'ASC']]
         });
@@ -42,7 +40,6 @@ const getRunningTimeMonth = async () => {
     let error = null
     let data;
     try {
-
         const tanggalSaatIni = new Date();
         const bulanSaatIni = tanggalSaatIni.getMonth();
         const tahunSaatIni = tanggalSaatIni.getFullYear();

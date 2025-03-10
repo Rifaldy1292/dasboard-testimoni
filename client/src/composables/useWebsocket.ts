@@ -89,6 +89,10 @@ const useWebSocket = (payloadType?: PayloadType) => {
 
     socket.value.onerror = (error) => {
       console.error('WebSocket error', error)
+      // Attempt to reconnect after a delay
+      setTimeout(() => {
+        socket.value = new WebSocket(SOCKET_URL)
+      }, 1000) // Reconnect after 1 seconds
     }
 
     socket.value.onclose = () => {

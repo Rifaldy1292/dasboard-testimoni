@@ -18,7 +18,7 @@ export type GetPercentages = {
 export type ObjMachineTimeline = {
   id: number
   current_status: Machine['status']
-  timestamp: string
+  createdAt: string
   timeDifference: string
   description: string | null
 }
