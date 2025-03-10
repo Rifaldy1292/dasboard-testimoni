@@ -8,11 +8,10 @@ const { dateQuery } = require('../utils/dateQuery');
 
 const updateLastMachineLog = async (id, runningHour) => {
     try {
-        const now = new Date();
         await MachineLog.update(
             { running_today: runningHour },
             {
-                where: { machine_id: id, createdAt: dateQuery(now) },
+                where: { machine_id: id, createdAt: dateQuery() },
                 order: [['createdAt', 'DESC']],
                 limit: 1
             }

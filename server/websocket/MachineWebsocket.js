@@ -88,7 +88,7 @@ module.exports = class MachineWebsocket {
                 return numberA - numberB;
             });
 
-            client.send(JSON.stringify({ type: 'asd', data: machines }));
+            // client.send(JSON.stringify({ type: 'asd', data: machines }));
 
             if (!sortedMachines.length) {
                 client.send(JSON.stringify({ type: 'timeline', data: [] }));
