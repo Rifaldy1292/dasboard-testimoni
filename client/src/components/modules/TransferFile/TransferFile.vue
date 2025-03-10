@@ -177,7 +177,7 @@ const handleClearFile = () => {
             disableUploadFolder ? 'cursor-not-allowed opacity-50' : ''
           }`"
         >
-          <FormField name="profilePicture">
+          <FormField name="files">
             <input
               type="file"
               :disabled="disableUploadFolder"

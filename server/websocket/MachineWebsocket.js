@@ -23,16 +23,6 @@ function convertDateTime(date) {
 }
 
 /**
- * Calculates the running hours percentage.
- * 
- * @param {number} runningHour - The running hours in milliseconds.
- * @returns {number} The calculated percentage.
- */
-function getRunningHours(runningHour) {
-    return percentage(runningHour, perfectTime);
-}
-
-/**
  * Generates a description of the running time.
  * 
  * @param {number} totalRunningHours - The total running hours in milliseconds.
@@ -84,11 +74,11 @@ module.exports = class MachineWebsocket {
                     model: MachineLog,
                     where: {
                         // ambil data sesuai hari ini
-                        timestamp: dateQuery(dateOption)
+                        createdAt: dateQuery(dateOption)
                     },
-                    attributes: ['id', 'current_status', 'timestamp', 'description']
+                    attributes: ['id', 'current_status', 'createdAt', 'description']
                 }],
-                order: [[{ model: MachineLog }, 'timestamp', 'ASC']],
+                order: [[{ model: MachineLog }, 'createdAt', 'ASC']],
                 attributes: ['name', 'status']
             });
 
@@ -146,40 +136,43 @@ module.exports = class MachineWebsocket {
     static async percentages(client, date) {
         try {
             const nowDate = date || new Date();
-            const machines = await Machine.findAll({
-                include: [{
-                    model: MachineLog,
+
+            const machineIds = await Machine.findAll({
+                attributes: ['id', 'name'],
+            })
+
+            if (!machineIds.length) {
+                client.send(JSON.stringify({ type: 'percentage', data: [] }));
+                return;
+            }
+
+            const machinesWithLastLog = await Promise.all(machineIds.map(async (machine) => {
+                const lastLog = await MachineLog.findOne({
                     where: {
+                        machine_id: machine.id,
                         updatedAt: dateQuery(nowDate)
                     },
-                    attributes: ['running_today']
-                }],
-                attributes: ['name', 'status', 'total_running_hours'],
-                // ambil data sesuai hari ini
-                order: [[{ model: MachineLog }, 'updatedAt', 'DESC']],
-                subQuery: false
+                    order: [['updatedAt', 'DESC']],
+                    attributes: ['running_today', 'current_status']
+                });
 
-            });
-            const formattedMessage = machines.map(machine => {
-                // ini bisa improfe performa
-                // const runningTime = getRunningHours(machine.total_running_hours);
-                const lastLog = machine.MachineLogs[0].running_today
-                const runningTime = getRunningHours(lastLog);
-                return {
-                    // ...machine.dataValues,
+                const runningTime = percentage(lastLog?.running_today || 0, perfectTime);
+
+                const result = {
+                    status: lastLog?.current_status || 'Stopped',
                     name: machine.name,
-                    status: machine.status,
-                    total_running_hours: lastLog,
-                    percentage: [runningTime, 100 - runningTime],
-                    description: countDescription(lastLog)
-                };
-            }).sort((a, b) => {
-                const numberA = parseInt(a.name.slice(3));
-                const numberB = parseInt(b.name.slice(3));
-                return numberA - numberB;
-            });
+                    description: countDescription(lastLog?.running_today || 0),
+                    percentage: [runningTime, 100 - runningTime]
+                }
+                return result
+            }));
+
             const data = {
-                data: formattedMessage,
+                data: machinesWithLastLog.sort((a, b) => {
+                    const numberA = parseInt(a.name.slice(3));
+                    const numberB = parseInt(b.name.slice(3));
+                    return numberA - numberB;
+                }),
                 date: nowDate
             }
             client.send(JSON.stringify({ type: 'percentage', data }));

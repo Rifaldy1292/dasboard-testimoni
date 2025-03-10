@@ -133,7 +133,6 @@ const fetchStartTime = async () => {
                   }
                 }
               "
-              placeholder=""
             />
           </div>
         </div>
