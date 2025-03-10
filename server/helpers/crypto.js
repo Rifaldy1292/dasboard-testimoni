@@ -10,8 +10,8 @@ function encryptToNumber(text) {
     // Konversi hasil enkripsi ke BigInt
     const bigNumber = BigInt("0x" + encrypted);
 
-    // Batasi ke 9 digit dengan BigInt
-    const limitedNumber = bigNumber % BigInt(1_000_000_000);
+    // Batasi ke 7 digit dengan BigInt
+    const limitedNumber = bigNumber % BigInt(1_000_000_0);
 
     return Number(limitedNumber); // Ubah kembali ke Number biasa
 }
@@ -21,15 +21,15 @@ function decryptFromNumber(encryptedNumber, originalText) {
     const encryptedHex = cipher.update(originalText, "utf8", "hex") + cipher.final("hex");
 
     // Lakukan enkripsi ulang untuk mencocokkan hasil
-    const expectedNumber = Number(BigInt("0x" + encryptedHex) % BigInt(1_000_000_000));
+    const expectedNumber = Number(BigInt("0x" + encryptedHex) % BigInt(1_000_000_0));
 
     return expectedNumber === encryptedNumber ? originalText : "Decryption Failed";
 }
 
-// const text = "24-K0021_05. FIX CAVITY";
-// const encryptedNumber = encryptToNumber(text);
-// console.log("Encrypted Number:", encryptedNumber);
-// console.log("Decrypted Text:", decryptFromNumber(encryptedNumber, text));
+const text = "24-K0021_05. FIX CAVITY";
+const encryptedNumber = encryptToNumber(text);
+console.log("Encrypted Number:", encryptedNumber);
+console.log("Decrypted Text:", decryptFromNumber(encryptedNumber, text));
 
 
 module.exports = {

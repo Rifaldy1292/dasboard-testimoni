@@ -102,7 +102,7 @@ const {
         <div class="relative flex items-center">
           <Select
             filter
-            :model-value="selectedProgramNumber"
+            v-model:model-value="selectedProgramNumber"
             :options="programNumberOptions"
             placeholder="Select Program Number"
             fluid
@@ -124,7 +124,7 @@ const {
         <div class="relative flex items-center">
           <Select
             filter
-            :model-value="selectedWorkPosition"
+            v-model:model-value="selectedWorkPosition"
             :options="workPositionOptions"
             placeholder="Select Work Position"
             fluid
@@ -146,7 +146,7 @@ const {
         <div class="relative flex items-center">
           <Select
             filter
-            :model-value="selectedCoordinate"
+            v-model:model-value="selectedCoordinate"
             :options="coordinateOptions"
             placeholder="Select Coordinate"
             fluid
@@ -166,7 +166,7 @@ const {
         <div class="relative flex items-center">
           <Select
             filter
-            :model-value="selectedStartPoint"
+            v-model:model-value="selectedStartPoint"
             :options="startPointOptions"
             placeholder="Select Start Point"
             fluid
@@ -184,7 +184,7 @@ const {
         <div class="relative flex items-center">
           <Select
             filter
-            :model-value="selectedCoolant"
+            v-model:model-value="selectedCoolant"
             :options="coolantOptions"
             placeholder="Select Coolant"
             fluid
@@ -204,7 +204,7 @@ const {
         <div class="relative flex items-center">
           <Select
             filter
-            :model-value="selectedProcessType"
+            v-model:model-value="selectedProcessType"
             :options="processTypeOptions"
             placeholder="Select Process Type"
             fluid
@@ -221,7 +221,7 @@ const {
 
         <div class="relative flex items-center">
           <Select
-            :model-value="uploadType"
+            v-model:model-value="uploadType"
             @update:model-value="uploadType = $event"
             :options="['folder', 'file']"
             :disabled="isDisableAll"
