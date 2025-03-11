@@ -16,6 +16,11 @@ module.exports = (sequelize, DataTypes) => {
   }
   MachineLog.init({
     machine_id: DataTypes.INTEGER,
+    user_id: DataTypes.INTEGER,
+    g_code_name: DataTypes.STRING,
+    k_num: DataTypes.STRING,
+    output_wp: DataTypes.STRING,
+    total_cutting_time: DataTypes.STRING,
     previous_status: DataTypes.STRING,
     current_status: DataTypes.STRING,
     timestamp: DataTypes.DATE,

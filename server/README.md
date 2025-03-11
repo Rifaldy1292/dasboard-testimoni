@@ -55,3 +55,7 @@ KONFIGURASI POSTGRES MENGGUNAKAN SEQUELIZE
    pnpx sequelize-cli db:seed:all
 
 - untuk melakukan seed data
+
+pnpx sequelize db:migrate --name add-additional-column-to-machine-log
+
+npx sequelize-cli migration:generate --name add_tool_name_to_machinelog

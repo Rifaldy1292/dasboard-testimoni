@@ -14,7 +14,7 @@ type params = {
 }
 
 enum Docs {
-  MACHINE_ID = '#500',
+  // MACHINE_ID = '#500',
   USER_ID = '#501',
   G_CODE_NAME = '#502',
   K_NUM = '#503',
@@ -27,7 +27,7 @@ const M98P7000 = 'M98P7000'
 
 export const contentMainProgram = ({
   inputFiles,
-  selectedOneMachine,
+  // selectedOneMachine,
   user,
   selectedCoolant,
   selectedCoordinate,
@@ -41,7 +41,6 @@ export const contentMainProgram = ({
 T${toolNumber}
 M06
 H${toolNumber}
-${Docs.MACHINE_ID}=${selectedOneMachine.id}
 ${Docs.USER_ID}=${user.id}
 ${Docs.G_CODE_NAME}=${gCodeName}
 ${Docs.K_NUM}=${kNum}
