@@ -59,7 +59,7 @@ function formatTimeDifference(ms) {
  */
 const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     try {
-        const { status, g_code_name, k_num, output_wp, tool_name, total_cutting_time } = parseMessage
+        const { user_id, status, g_code_name, k_num, output_wp, tool_name, total_cutting_time } = parseMessage
         // Find the last log for today
         const lastMachineLog = await MachineLog.findOne({
             where: {
@@ -89,6 +89,7 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
 
         // Create a new log with the updated status
         await MachineLog.create({
+            user_id,
             machine_id: existMachine.id,
             previous_status: existMachine.status,
             current_status: status,

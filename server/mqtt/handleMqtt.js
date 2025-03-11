@@ -45,6 +45,7 @@ const handleMqtt = (mqttClient, wss) => {
              }
              */
             const parseMessage = JSON.parse(message.toString());
+            // console.log(parseMessage, 77777)
 
             // create cutting time here
             await createCuttingTime();

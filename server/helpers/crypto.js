@@ -30,7 +30,7 @@ const decryptFromNumber = async (encryptedNumber) => {
     try {
         // Cari di database berdasarkan angka enkripsi
         const result = await EncryptData.findOne({
-            where: { encrypt_number: encryptedNumber },
+            where: { encrypt_number: encryptedNumber }, attributes: ["original_text"]
         });
 
         // Jika ditemukan, kembalikan teks aslinya
