@@ -59,12 +59,6 @@ machineRouter.get(
     MachineController.getMachineOption
 )
 
-machineRouter.post(
-    "/encrypt-content",
-    authMiddleware,
-    MachineController.encyptContentValue
-)
-
 const storage = multer.memoryStorage();
 const middlewareTransferFiles = multer({ storage: storage, limits: { fieldSize: 50 * 1024 * 1024, } });
 
@@ -73,6 +67,12 @@ machineRouter.post(
     middlewareTransferFiles.array('files', 300),
     authMiddleware,
     MachineController.transferFiles)
+
+machineRouter.post(
+    "/encrypt-content",
+    authMiddleware,
+    MachineController.encyptContentValue
+)
 
 machineRouter.get('/start-time', authMiddleware, MachineController.getStartTime)
 machineRouter.put('/start-time', authMiddleware, MachineController.editStartTime)

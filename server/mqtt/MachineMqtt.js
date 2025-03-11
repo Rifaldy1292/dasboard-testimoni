@@ -116,20 +116,40 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
         console.log({ error, message: error.message });
     }
 }
-
+/**
+ * Creates a machine and logs the first entry with the provided message data.
+ * 
+ * @param {Object} parseMessage - The parsed message containing machine data.
+ * @param {string} parseMessage.name - Name of the machine.
+ * @param {'Running'|'Stopped'} parseMessage.status - Status of the machine.
+ * @param {number} parseMessage.user_id - User ID associated with the machine.
+ * @param {string} parseMessage.ipAddress - IP address of the machine.
+ * @param {number} parseMessage.output_wp - Encrypted output workpiece value.
+ * @param {number} parseMessage.k_num - Encrypted K number value.
+ * @param {number} parseMessage.tool_name - Encrypted tool name value.
+ * @param {number} parseMessage.total_cutting_time - Encrypted total cutting time value.
+ */
 const createMachineAndLogFirstTime = async (parseMessage) => {
     try {
+        const { name, status, user_id, g_code_name, k_num, output_wp, tool_name, total_cutting_time, ipAddress } = parseMessage
+
         const createMachine = await Machine.create({
-            name: parseMessage.name,
-            status: parseMessage.status,
-            ip_address: parseMessage.ipAddress
+            name: name,
+            status: status,
+            ip_address: ipAddress,
         });
 
         // running_today default 0
         return await MachineLog.create({
             machine_id: createMachine.id,
             current_status: createMachine.status,
-            timestamp: new Date()
+            timestamp: new Date(),
+            user_id,
+            g_code_name,
+            k_num,
+            output_wp,
+            tool_name,
+            total_cutting_time
         });
     } catch (error) {
         console.log({ error, message: error.message });

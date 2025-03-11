@@ -56,7 +56,7 @@ const handleSubmit = async () => {
   }
 }
 
-const handleExecute = async (): Promise<void> => {
+const handleExecute = (): void => {
   try {
     loadingUpload.value = true
 

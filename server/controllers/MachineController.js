@@ -1,5 +1,4 @@
-const { Op } = require('sequelize');
-const { Machine, MachineLog, CuttingTime } = require('../models');
+const { Machine, MachineLog, CuttingTime, EncryptData } = require('../models');
 const dateCuttingTime = require('../utils/dateCuttingTime');
 const { serverError } = require('../utils/serverError');
 const countHour = require('../utils/countHour');
@@ -8,30 +7,15 @@ const { PassThrough } = require('stream'); // ✅ Tambahkan ini
 const { Client } = require('basic-ftp');
 let { dateQuery, config } = require('../utils/dateQuery');
 const { encryptToNumber } = require('../helpers/crypto');
+const encryptionCache = require('../config/encryptionCache');
+
 
 class MachineController {
-    static editStartTime(req, res) {
-        try {
-            const { reqStartHour, reqStartMinute } = req.body
-            if (typeof reqStartHour !== 'number', typeof reqStartMinute !== 'number') return res.status(400).json({ message: 'reqStartHour and reqStartMinute is Required' })
-
-            config.startHour = reqStartHour
-            config.startMinute = reqStartMinute
-            res.status(201).json({ message: 'succesfully Edit start time ' })
-
-        } catch (error) {
-            serverError(error, res, 'failed to Edit start time')
-        }
-    }
-
-    static getStartTime(req, res) {
-        res.status(200).json({ data: { startHour: config.startHour, startMinute: config.startMinute }, message: 'succesfully get start time ' })
-    }
     /**
-     * @description Transfer file to machine using FTP
-     * @param {request} req - Request object
-     * @param {response} res - Response object
-     */
+   * @description Transfer file to machine using FTP
+   * @param {request} req - Request object
+   * @param {response} res - Response object
+   */
     static async transferFiles(req, res) {
         const client = new Client();
         try {
@@ -53,26 +37,14 @@ class MachineController {
             if (!machineIp) {
                 return res.status(400).json({ message: 'Machine not found', status: 400 });
             }
-            // console.log({ machineIp, files })
-            // const modifiedFile = files.map((file) => {
-            //     const fileName = file.originalname.split('.')[0]
-            //     // last 4 character ex: O1234
-            //     const modifiedName = 'O' + fileName.slice(fileName.length - 4)
-            //     const modifiedContent = file.buffer.toString().replace('%', `%\n( user_id: ${user_id} )\n( machine_id: ${machine_id} )`);
-            //     return {
-            //         ...file,
-            //         buffer: Buffer.from(modifiedContent),
-            //         originalname: modifiedName
-            //     }
-            // })
-            // console.log({ modifiedFile, machine_id, user_id })
+
             // console.log(machineIp.dataValues.ip_address, 22)
             await client.access({
-                // host: "192.168.1.8",//mesin CNC
-                host: machineIp.dataValues.ip_address,
-                port: 21,
-                user: "MC",
-                password: "MC",
+                host: "192.168.43.172",//mesin CNC
+                // host: machineIp.dataValues.ip_address,
+                port: 2221,
+                user: "android",
+                password: "android",
                 secure: false,
             })
 
@@ -84,6 +56,15 @@ class MachineController {
 
                 await client.uploadFrom(stream, file.originalname);
             }
+
+            // ✅ Setelah sukses transfer, simpan hasil enkripsi ke database
+            for (const [encrypt_number, original_text] of encryptionCache.entries()) {
+                await EncryptData.create({ encrypt_number, original_text });
+            }
+
+            // ✅ Hapus dari Map setelah tersimpan ke database
+            encryptionCache.clear();
+
 
             res.status(200).json({ status: 200, message: 'Files uploaded successfully', machineIp: machineIp.ip_address })
 
@@ -98,6 +79,56 @@ class MachineController {
             client.close()
         }
     }
+
+    static async encyptContentValue(req, res) {
+        try {
+            /**
+             * @prop {string} gCodeName - G code name
+             * @prop {string} kNum - K num
+             * @prop {string} outputWP - Output wp
+             * @prop {string} toolName - Tool name
+             * @prop {string} totalCuttingTime - Total cutting time
+             */
+            const { gCodeName, kNum, outputWP, toolName, totalCuttingTime } = req.body
+
+            if (!gCodeName || !kNum || !outputWP || !toolName || !totalCuttingTime) {
+                return res.status(400).json({ message: 'gCodeName, kNum, outputWP, toolName, totalCuttingTime is required', status: 400 })
+            }
+
+            const encryptValue = {
+                gCodeName: encryptToNumber(gCodeName),
+                kNum: encryptToNumber(kNum),
+                outputWP: encryptToNumber(outputWP),
+                toolName: encryptToNumber(toolName),
+                totalCuttingTime: encryptToNumber(totalCuttingTime)
+            }
+
+            res.status(201).json({ status: 201, message: 'success encrypt content value', data: encryptValue });
+        } catch (error) {
+            serverError(error, res, 'Failed to encrypt content value');
+        }
+    }
+
+
+    static getStartTime(req, res) {
+        res.status(200).json({ data: { startHour: config.startHour, startMinute: config.startMinute }, message: 'succesfully get start time ' })
+    }
+
+
+    static editStartTime(req, res) {
+        try {
+            const { reqStartHour, reqStartMinute } = req.body
+            if (typeof reqStartHour !== 'number', typeof reqStartMinute !== 'number') return res.status(400).json({ message: 'reqStartHour and reqStartMinute is Required' })
+
+            config.startHour = reqStartHour
+            config.startMinute = reqStartMinute
+            res.status(201).json({ message: 'succesfully Edit start time ' })
+
+        } catch (error) {
+            serverError(error, res, 'failed to Edit start time')
+        }
+    }
+
     static async getCuttingTime(req, res) {
         try {
             const { period } = req.query;
@@ -211,34 +242,6 @@ class MachineController {
         }
     }
 
-    static async encyptContentValue(req, res) {
-        try {
-            /**
-             * @prop {string} gCodeName - G code name
-             * @prop {string} kNum - K num
-             * @prop {string} outputWP - Output wp
-             * @prop {string} toolName - Tool name
-             * @prop {string} totalCuttingTime - Total cutting time
-             */
-            const { gCodeName, kNum, outputWP, toolName, totalCuttingTime } = req.body
-
-            if (!gCodeName || !kNum || !outputWP || !toolName || !totalCuttingTime) {
-                return res.status(400).json({ message: 'gCodeName, kNum, outputWP, toolName, totalCuttingTime is required', status: 400 })
-            }
-
-            const encryptValue = {
-                gCodeName: encryptToNumber(gCodeName),
-                kNum: encryptToNumber(kNum),
-                outputWP: encryptToNumber(outputWP),
-                toolName: encryptToNumber(toolName),
-                totalCuttingTime: encryptToNumber(totalCuttingTime)
-            }
-
-            res.status(201).json({ status: 201, message: 'success encrypt content value', data: encryptValue });
-        } catch (error) {
-            serverError(error, res, 'Failed to encrypt content value');
-        }
-    }
 
 
 

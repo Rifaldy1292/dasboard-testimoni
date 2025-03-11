@@ -29,6 +29,21 @@ const handleMqtt = (mqttClient, wss) => {
     mqttClient.on('message', async (topic, message) => {
         // console.time('Proses');
         try {
+            /**
+             * Parses the received MQTT message into a JavaScript object.
+             * @type {Object}
+             * @example 
+             * {
+             *   "name": "mc-1",
+             *   "status": "Running" | "Stopped", 
+             *    "user_id": 1,
+             *    "ipAddress": "38.0.101.76",
+             *    "output_wp": 2112 // encrypt value
+             *    "k_num": 2112 // encrypt value
+             *    "tool_name": 2112 // encrypt value
+             *    "total_cutting_time   ": 2112 // encrypt value
+             }
+             */
             const parseMessage = JSON.parse(message.toString());
 
             // create cutting time here
