@@ -40,11 +40,11 @@ class MachineController {
 
             // console.log(machineIp.dataValues.ip_address, 22)
             await client.access({
-                host: "192.168.43.172",//mesin CNC
-                // host: machineIp.dataValues.ip_address,
-                port: 2221,
-                user: "android",
-                password: "android",
+                // host: "192.168.43.172",//mesin CNC
+                host: machineIp.dataValues.ip_address,
+                port: 21,
+                user: "MC",
+                password: "MC",
                 secure: false,
             })
 
