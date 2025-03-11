@@ -91,7 +91,7 @@ const useWebSocket = (payloadType?: PayloadType) => {
       console.error('WebSocket error', error)
       // Attempt to reconnect after a delay
       setTimeout(() => {
-        socket.value = new WebSocket(SOCKET_URL)
+        socket.value = new WebSocket(SOCKET_URL, 'echo-protocol')
       }, 1000) // Reconnect after 1 seconds
     }
 

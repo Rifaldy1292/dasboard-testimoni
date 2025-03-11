@@ -22,10 +22,21 @@ const users = [
         updatedAt: new Date()
     },
 
+    // {
+    //     id: 1,
+    //     name: 'Basri',
+    //     NIK: 123456783,
+    //     role_id: +OPERATOR_ROLE_ID,
+    //     password: "$2a$05$roVU0LDUfYqGviSFGtrLHOmaqVjyYo4zi/nkCrWnsPlJf5CK4JJri",
+    //     createdAt: new Date(),
+    //     updatedAt: new Date()
+    // }
+
 ];
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
+
     up: async (queryInterface, Sequelize) => {
         await queryInterface.bulkInsert('Users', users, {});
     },

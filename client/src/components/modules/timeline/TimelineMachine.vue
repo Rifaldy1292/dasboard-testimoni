@@ -109,7 +109,9 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
 
           <span class="font-medium text-white dark:text-black">{{ item.timeDifference }} </span>
           <br />
-          <span class="font-medium text-black dark:text-white">Operator: Basri </span>
+          <span class="font-medium text-black dark:text-white"
+            >Operator: {{ item.operator ?? '-' }}
+          </span>
           <!-- 
           <span>{{ convertStringDifferenceToMilisecond(item.timeDifference) }}</span>
           <span>test{{ customWidthBoxTimeline(item) }}</span> -->

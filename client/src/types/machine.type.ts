@@ -21,6 +21,7 @@ export type ObjMachineTimeline = {
   createdAt: string
   timeDifference: string
   description: string | null
+  operator: string | null
 }
 
 export type MachineTimeline = {

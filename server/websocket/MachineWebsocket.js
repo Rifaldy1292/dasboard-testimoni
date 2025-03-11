@@ -1,5 +1,5 @@
 const { Op, where } = require('sequelize');
-const { Machine, MachineLog } = require('../models');
+const { Machine, MachineLog, User } = require('../models');
 const { percentage, totalHour } = require('../utils/countHour');
 const { dateQuery } = require('../utils/dateQuery');
 
@@ -70,17 +70,25 @@ module.exports = class MachineWebsocket {
             const currentDate = date || new Date();
             const dateOption = new Date(currentDate);
             const machines = await Machine.findAll({
-                include: [{
-                    model: MachineLog,
-                    where: {
-                        // ambil data sesuai hari ini
-                        createdAt: dateQuery(dateOption)
-                    },
-                    attributes: ['id', 'current_status', 'createdAt', 'description']
-                }],
+                include: [
+                    {
+                        model: MachineLog,
+                        where: {
+                            // ambil data sesuai hari ini
+                            createdAt: dateQuery(dateOption)
+                        },
+                        attributes: ['id', 'current_status', 'createdAt', 'description', 'user_id'],
+                        include: [
+                            {
+                                model: User,
+                                attributes: ['name']
+                            },
+                        ]
+                    }],
                 order: [[{ model: MachineLog }, 'createdAt', 'ASC']],
                 attributes: ['name', 'status']
             });
+
 
             const sortedMachines = machines.sort((a, b) => {
                 const numberA = parseInt(a.name.slice(3));
@@ -88,7 +96,7 @@ module.exports = class MachineWebsocket {
                 return numberA - numberB;
             });
 
-            // client.send(JSON.stringify({ type: 'asd', data: machines }));
+            client.send(JSON.stringify({ type: 'asd', data: sortedMachines }));
 
             if (!sortedMachines.length) {
                 client.send(JSON.stringify({ type: 'timeline', data: [] }));
@@ -97,6 +105,7 @@ module.exports = class MachineWebsocket {
 
             const formattedMachines = sortedMachines.map((machine, index) => {
                 const logs = machine.MachineLogs.map((log, indexLog) => {
+                    const operator = log.User?.name || null;
                     const currentTime = log.createdAt;
                     const nextLog = machine.MachineLogs[indexLog + 1] || null;
                     const timeDifference = new Date(nextLog?.createdAt || 0) - new Date(currentTime);
@@ -104,6 +113,8 @@ module.exports = class MachineWebsocket {
                         ...log.dataValues,
                         createdAt: convertDateTime(currentTime),
                         timeDifference: formatTimeDifference(timeDifference),
+                        operator,
+
                         // log,
                         // nextLog,
                     }

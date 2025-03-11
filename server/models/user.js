@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       // User has one role
       User.belongsTo(models.Role, { foreignKey: 'role_id' });
       User.hasMany(models.Machine, { foreignKey: 'user_id' });
+      User.hasMany(models.MachineLog, { foreignKey: 'user_id' });
     }
   }
   User.init({
