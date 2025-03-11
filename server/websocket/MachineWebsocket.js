@@ -77,7 +77,7 @@ module.exports = class MachineWebsocket {
                             // ambil data sesuai hari ini
                             createdAt: dateQuery(dateOption)
                         },
-                        attributes: ['id', 'current_status', 'createdAt', 'description', 'user_id'],
+                        attributes: ['id', 'current_status', 'createdAt', 'description', 'user_id', 'g_code_name', 'k_num', 'output_wp', 'total_cutting_time'],
                         include: [
                             {
                                 model: User,
@@ -103,7 +103,7 @@ module.exports = class MachineWebsocket {
                 return;
             }
 
-            const formattedMachines = sortedMachines.map((machine, index) => {
+            const formattedMachines = sortedMachines.map((machine) => {
                 const logs = machine.MachineLogs.map((log, indexLog) => {
                     const operator = log.User?.name || null;
                     const currentTime = log.createdAt;

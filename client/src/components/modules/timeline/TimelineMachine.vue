@@ -93,7 +93,7 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
             backgroundColor: iconTimeline(item.current_status).color,
             width: customWidthBoxTimeline(item)
           }"
-          :class="`p-1 h-50`"
+          :class="`p-1 h-100`"
         >
           <i class="font-bold text-black dark:text-white"
             >{{ item.createdAt }} - {{ item.description }}
@@ -106,8 +106,18 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
             style="font-size: 1rem"
           />
           <br />
-
           <span class="font-medium text-white dark:text-black">{{ item.timeDifference }} </span>
+          <br />
+
+          <span class="font-medium text-white dark:text-black"
+            >{{ item.g_code_name }} - {{ item.output_wp }}</span
+          >
+          <br />
+
+          <span class="font-medium text-white dark:text-black"
+            >total cutting time: {{ item.total_cutting_time }}</span
+          >
+
           <br />
           <span class="font-medium text-black dark:text-white"
             >Operator: {{ item.operator ?? '-' }}

@@ -22,6 +22,9 @@ export type ObjMachineTimeline = {
   timeDifference: string
   description: string | null
   operator: string | null
+  output_wp: string
+  total_cutting_time: string
+  g_code_name: string
 }
 
 export type MachineTimeline = {
