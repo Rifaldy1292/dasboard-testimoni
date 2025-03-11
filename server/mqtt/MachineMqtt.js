@@ -5,6 +5,7 @@ const WebSocket = require('ws');
 const { clientPreferences, messageTypeWebsocketClient } = require('../websocket/handleWebsocket');
 const MachineWebsocket = require('../websocket/MachineWebsocket');
 const { dateQuery } = require('../utils/dateQuery');
+const { decryptFromNumber } = require('../helpers/crypto');
 
 const updateLastMachineLog = async (id, runningHour) => {
     try {
@@ -58,6 +59,7 @@ function formatTimeDifference(ms) {
  */
 const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     try {
+        const { status, g_code_name, k_num, output_wp, tool_name, total_cutting_time } = parseMessage
         // Find the last log for today
         const lastMachineLog = await MachineLog.findOne({
             where: {
@@ -72,19 +74,30 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
         // and if the new status is 'Running'
         const differenceTime = new Date() - new Date(lastMachineLog?.createdAt);
         const tenMinutes = 10 * 60 * 1000;
-        const isManual = differenceTime <= tenMinutes && parseMessage.status === 'Running';
+        const isManual = differenceTime <= tenMinutes && status === 'Running';
         if (isManual) {
             // Update the last log to indicate it was a manual operation
             lastMachineLog.description = 'Manual Operation';
             lastMachineLog.save();
         }
 
+        const decryptGCodeName = await decryptFromNumber(g_code_name);
+        const decryptKNum = await decryptFromNumber(k_num);
+        const decryptOutputWp = await decryptFromNumber(output_wp);
+        const decryptToolName = await decryptFromNumber(tool_name);
+        const decryptTotalCuttingTime = await decryptFromNumber(total_cutting_time);
+
         // Create a new log with the updated status
         await MachineLog.create({
             machine_id: existMachine.id,
             previous_status: existMachine.status,
-            current_status: parseMessage.status,
-            timestamp: new Date()
+            current_status: status,
+            timestamp: new Date(),
+            g_code_name: decryptGCodeName,
+            k_num: decryptKNum,
+            output_wp: decryptOutputWp,
+            tool_name: decryptToolName,
+            total_cutting_time: decryptTotalCuttingTime
         });
 
         // Send an update to all connected clients
@@ -139,17 +152,24 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
             ip_address: ipAddress,
         });
 
+        const decryptGCodeName = await decryptFromNumber(g_code_name);
+        const decryptKNum = await decryptFromNumber(k_num);
+        const decryptOutputWp = await decryptFromNumber(output_wp);
+        const decryptToolName = await decryptFromNumber(tool_name);
+        const decryptTotalCuttingTime = await decryptFromNumber(total_cutting_time);
+
+
         // running_today default 0
         return await MachineLog.create({
             machine_id: createMachine.id,
             current_status: createMachine.status,
             timestamp: new Date(),
             user_id,
-            g_code_name,
-            k_num,
-            output_wp,
-            tool_name,
-            total_cutting_time
+            g_code_name: decryptGCodeName,
+            k_num: decryptKNum,
+            output_wp: decryptOutputWp,
+            tool_name: decryptToolName,
+            total_cutting_time: decryptTotalCuttingTime
         });
     } catch (error) {
         console.log({ error, message: error.message });
