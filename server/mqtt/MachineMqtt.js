@@ -92,7 +92,6 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
             machine_id: existMachine.id,
             previous_status: existMachine.status,
             current_status: status,
-            timestamp: new Date(),
             g_code_name: decryptGCodeName,
             k_num: decryptKNum,
             output_wp: decryptOutputWp,
@@ -163,7 +162,6 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
         return await MachineLog.create({
             machine_id: createMachine.id,
             current_status: createMachine.status,
-            timestamp: new Date(),
             user_id,
             g_code_name: decryptGCodeName,
             k_num: decryptKNum,
