@@ -81,11 +81,11 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
             lastMachineLog.save();
         }
 
-        const decryptGCodeName = await decryptFromNumber(g_code_name);
-        const decryptKNum = await decryptFromNumber(k_num);
-        const decryptOutputWp = await decryptFromNumber(output_wp);
-        const decryptToolName = await decryptFromNumber(tool_name);
-        const decryptTotalCuttingTime = await decryptFromNumber(total_cutting_time);
+        const decryptGCodeName = decryptFromNumber(g_code_name);
+        const decryptKNum = decryptFromNumber(k_num);
+        const decryptOutputWp = decryptFromNumber(output_wp);
+        const decryptToolName = decryptFromNumber(tool_name);
+        const decryptTotalCuttingTime = decryptFromNumber(total_cutting_time);
 
         // Create a new log with the updated status
         await MachineLog.create({
@@ -153,11 +153,11 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
             ip_address: ipAddress,
         });
 
-        const decryptGCodeName = await decryptFromNumber(g_code_name);
-        const decryptKNum = await decryptFromNumber(k_num);
-        const decryptOutputWp = await decryptFromNumber(output_wp);
-        const decryptToolName = await decryptFromNumber(tool_name);
-        const decryptTotalCuttingTime = await decryptFromNumber(total_cutting_time);
+        const decryptGCodeName = decryptFromNumber(g_code_name);
+        const decryptKNum = decryptFromNumber(k_num);
+        const decryptOutputWp = decryptFromNumber(output_wp);
+        const decryptToolName = decryptFromNumber(tool_name);
+        const decryptTotalCuttingTime = decryptFromNumber(total_cutting_time);
 
 
         // running_today default 0
