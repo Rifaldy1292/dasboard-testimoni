@@ -1,6 +1,6 @@
 export interface RegisterPayload {
   name: string
-  NIK: number
+  NIK: string
   password: string
   role_id?: number
 }

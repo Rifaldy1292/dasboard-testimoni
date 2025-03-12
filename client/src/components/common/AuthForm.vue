@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, shallowRef } from 'vue'
 import { Form, FormField, type FormProps, type FormSubmitEvent } from '@primevue/forms'
-import { InputNumber, InputText, Message } from 'primevue'
+import { InputText, Message } from 'primevue'
 import { useRoute } from 'vue-router'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import { z } from 'zod'
@@ -9,7 +9,7 @@ import { z } from 'zod'
 interface AuthFormProps extends FormProps {
   submit: (event: FormSubmitEvent) => void
   userData?: {
-    NIK: number
+    NIK: string
     name: string
   }
   isResetPasswordPage?: boolean
@@ -28,6 +28,15 @@ const { isForgotPasswordPage, isResetPasswordPage } = defineProps<AuthFormProps>
 const route = useRoute()
 const page = shallowRef<'Sign in' | 'Sign up'>(route.name === 'login' ? 'Sign in' : 'Sign up')
 const password = ref<string | undefined>()
+
+const showFormField = computed<ShowFormField>(() => {
+  return {
+    name: (page.value === 'Sign up' || isResetPasswordPage) && !isForgotPasswordPage,
+    NIK: true,
+    password: !isForgotPasswordPage,
+    confirmPassword: (page.value === 'Sign up' || isResetPasswordPage) && !isForgotPasswordPage
+  }
+})
 
 const resolver = computed(() => {
   if (isResetPasswordPage) {
@@ -55,9 +64,11 @@ const resolver = computed(() => {
 
   return zodResolver(
     z.object({
-      NIK: z.number().refine((val) => val.toString().length === 9, {
-        message: 'NIK must be 9 digits'
-      }),
+      NIK: z
+        .string()
+        .nonempty('NIK is required')
+        .min(7, 'minimum NIK length is 7')
+        .max(7, 'max NIK length is 7'),
       // required if page is sign up
       name: showFormField.value.name
         ? z.string().min(3, 'Name must be at least 3 characters')
@@ -82,15 +93,6 @@ const resolver = computed(() => {
   )
 })
 
-const showFormField = computed<ShowFormField>(() => {
-  return {
-    name: (page.value === 'Sign up' || isResetPasswordPage) && !isForgotPasswordPage,
-    NIK: true,
-    password: !isForgotPasswordPage,
-    confirmPassword: (page.value === 'Sign up' || isResetPasswordPage) && !isForgotPasswordPage
-  }
-})
-
 const showPassword = shallowRef<boolean>(false)
 const showConfirmPassword = shallowRef<boolean>(false)
 </script>
@@ -109,7 +111,7 @@ const showConfirmPassword = shallowRef<boolean>(false)
     <div class="mt-8 space-y-4">
       <div>
         <label class="text-gray-800 text-sm mb-2 block">NIK</label>
-        <InputNumber
+        <InputText
           :disabled="isResetPasswordPage"
           name="NIK"
           :default-value="userData?.NIK"

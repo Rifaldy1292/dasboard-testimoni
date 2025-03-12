@@ -7,7 +7,7 @@ export type RoleOption = {
 export interface User {
   id: number
   name: string
-  NIK: number
+  NIK: string
   machine_id: null | number
   createdAt: Date
   updatedAt: Date
