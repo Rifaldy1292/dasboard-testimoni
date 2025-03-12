@@ -8,7 +8,7 @@ import type { RoleOption } from '@/types/user.type'
 import { Form, FormField, type FormSubmitEvent } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import { AxiosError } from 'axios'
-import { Button, InputNumber, InputText, Message, Select } from 'primevue'
+import { Button, InputText, Message, Select } from 'primevue'
 import { z } from 'zod'
 import useToast from '@/composables/useToast'
 
@@ -36,9 +36,11 @@ const password = ref<string | undefined>()
 
 const resolver = zodResolver(
   z.object({
-    NIK: z.number().refine((val) => val.toString().length === 9, {
-      message: 'NIK must be 9 digits'
-    }),
+    NIK: z
+      .string()
+      .nonempty('NIK is required')
+      .min(7, 'minimum NIK length is 7')
+      .max(7, 'max NIK length is 7'),
     password: z
       .string()
       .nonempty('Password is required')
@@ -111,7 +113,7 @@ const handleCreateUser = async (e: FormSubmitEvent): Promise<void> => {
         <div class="gap-4 mb-8">
           <label for="NIK" class="font-semibold w-24">NIK</label>
           <div class="relative flex items-center">
-            <InputNumber
+            <InputText
               name="NIK"
               :useGrouping="false"
               class="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"

@@ -12,22 +12,20 @@ type params = {
   selectedStartPoint: number
   selectedProgramNumber: number
 }
-
-enum Docs {
-  // MACHINE_ID = '#500',
-  USER_ID = '#501',
-  G_CODE_NAME = '#502',
-  K_NUM = '#503',
-  OUTPUT_WP = '#504',
-  TOOL_NAME = '#505',
-  TOTAL_CUTTING_TIME = '#506'
-}
+type DocsMacro =
+  | 'USER_ID'
+  | 'G_CODE_NAME'
+  | 'K_NUM'
+  | 'OUTPUT_WP'
+  | 'TOOL_NAME'
+  | 'TOTAL_CUTTING_TIME'
+type Docs = Record<DocsMacro, string>
 
 const M98P7000 = 'M98P7000'
 
 export const contentMainProgram = ({
   inputFiles,
-  // selectedOneMachine,
+  selectedOneMachine,
   user,
   selectedCoolant,
   selectedCoordinate,
@@ -37,16 +35,62 @@ export const contentMainProgram = ({
 }: params): string => {
   const bodyContent = inputFiles.map((file) => {
     const { toolNumber, gCodeName, kNum, outputWP, toolName, totalCuttingTime } = file
+
+    let docs: Docs = {
+      G_CODE_NAME: '',
+      K_NUM: '',
+      OUTPUT_WP: '',
+      TOOL_NAME: '',
+      TOTAL_CUTTING_TIME: '',
+      USER_ID: ''
+    }
+
+    switch (selectedOneMachine.startMacro) {
+      case 500: {
+        docs = {
+          USER_ID: '#501',
+          G_CODE_NAME: '#502',
+          K_NUM: '#503',
+          OUTPUT_WP: '#504',
+          TOOL_NAME: '#505',
+          TOTAL_CUTTING_TIME: '#506'
+        }
+        break
+      }
+      case 540: {
+        docs = {
+          USER_ID: '#541',
+          G_CODE_NAME: '#542',
+          K_NUM: '#543',
+          OUTPUT_WP: '#544',
+          TOOL_NAME: '#545',
+          TOTAL_CUTTING_TIME: '#546'
+        }
+        break
+      }
+      case 560: {
+        docs = {
+          USER_ID: '#561',
+          G_CODE_NAME: '#562',
+          K_NUM: '#563',
+          OUTPUT_WP: '#564',
+          TOOL_NAME: '#565',
+          TOTAL_CUTTING_TIME: '#566'
+        }
+        break
+      }
+    }
+
     return `${M98P7000}
 T${toolNumber}
 M06
 H${toolNumber}
-${Docs.USER_ID}=${user.id}
-${Docs.G_CODE_NAME}=${gCodeName}
-${Docs.K_NUM}=${kNum}
-${Docs.OUTPUT_WP}=${outputWP}
-${Docs.TOOL_NAME}=${toolName}
-${Docs.TOTAL_CUTTING_TIME}=${totalCuttingTime}
+${docs.USER_ID}=${user.id}
+${docs.G_CODE_NAME}=${gCodeName}
+${docs.K_NUM}=${kNum}
+${docs.OUTPUT_WP}=${outputWP}
+${docs.TOOL_NAME}=${toolName}
+${docs.TOTAL_CUTTING_TIME}=${totalCuttingTime}
 G${selectedWorkPosition}
 G90G00X0Y0
 G${selectedCoordinate}Z${selectedStartPoint}.00

@@ -39,11 +39,11 @@ class MachineController {
 
             // console.log(machineIp.dataValues.ip_address, 22)
             await client.access({
-                // host: "192.168.43.172",//mesin CNC
-                host: machineIp.dataValues.ip_address,
-                port: 21,
-                user: "MC",
-                password: "MC",
+                host: "192.168.43.170",//mesin CNC
+                // host: machineIp.dataValues.ip_address,
+                port: 2221,
+                user: "android",
+                password: "android",
                 secure: false,
             })
 
@@ -58,11 +58,15 @@ class MachineController {
 
             // ✅ Setelah sukses transfer, simpan hasil enkripsi ke database
             for (const [encrypt_number, original_text] of encryptionCache.entries()) {
-                await EncryptData.create({ encrypt_number, original_text });
+                await EncryptData.findOrCreate({
+                    where: { encrypt_number },
+                    defaults: { original_text }
+                });
             }
 
             // ✅ Hapus dari Map setelah tersimpan ke database
             encryptionCache.clear();
+
 
 
             res.status(200).json({ status: 200, message: 'Files uploaded successfully', machineIp: machineIp.ip_address })
@@ -107,7 +111,6 @@ class MachineController {
             serverError(error, res, 'Failed to encrypt content value');
         }
     }
-
 
     static getStartTime(req, res) {
         res.status(200).json({ data: { startHour: config.startHour, startMinute: config.startMinute }, message: 'succesfully get start time ' })
@@ -230,20 +233,36 @@ class MachineController {
     static async getMachineOption(req, res) {
         try {
             const machines = await Machine.findAll({ attributes: ['id', 'name'] });
+
             const sortedMachine = machines.sort((a, b) => {
                 const numberA = parseInt(a.name.slice(3));
                 const numberB = parseInt(b.name.slice(3));
                 return numberA - numberB;
             })
-            res.status(200).json({ status: 200, message: 'success get machine option', data: sortedMachine });
+
+            if (!sortedMachine.length) {
+                return res.status(200).send({ data: [] })
+            }
+
+            const formattedMachines = sortedMachine.map((machine) => {
+                const { name } = machine
+                const result = { ...machine.dataValues }
+                if (name === 'MC-1') {
+                    result.startMacro = 500
+                } else if (name === 'MC-14' || name === 'MC-15') {
+                    result.startMacro = 560
+                } else {
+                    result.startMacro = 540
+                }
+                return result
+            })
+
+
+            res.status(200).json({ status: 200, message: 'success get machine option', data: formattedMachines });
         } catch (error) {
             serverError(error, res, 'Failed to get machine option');
         }
     }
-
-
-
-
 
 }
 
