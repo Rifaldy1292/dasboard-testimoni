@@ -1,5 +1,4 @@
 const { MachineLog, Machine, CuttingTime } = require('../models');
-const { Op } = require('sequelize');
 const dateCuttingTime = require('../utils/dateCuttingTime');
 const WebSocket = require('ws');
 const { clientPreferences, messageTypeWebsocketClient } = require('../websocket/handleWebsocket');

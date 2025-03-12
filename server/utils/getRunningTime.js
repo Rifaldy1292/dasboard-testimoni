@@ -1,4 +1,3 @@
-const { Op } = require('sequelize');
 const { MachineLog } = require("../models");
 const { dateQuery } = require("./dateQuery");
 
@@ -8,9 +7,10 @@ const getRunningTime = async (machineId) => {
         const logs = await MachineLog.findAll({
             where: {
                 machine_id: machineId,
-                timestamp: dateQuery()
+                createdAt: dateQuery()
             },
-            order: [['timestamp', 'ASC']]
+            order: [['createdAt', 'ASC']],
+            attributes: ['createdAt', 'current_status']
         });
 
         let totalRunningTime = 0; // Dalam milidetik
@@ -18,9 +18,9 @@ const getRunningTime = async (machineId) => {
 
         logs.forEach((log) => {
             if (log.current_status === "Running") {
-                lastRunningTimestamp = log.timestamp;
+                lastRunningTimestamp = log.createdAt;
             } else if (lastRunningTimestamp) {
-                const duration = new Date(log.timestamp) - new Date(lastRunningTimestamp);
+                const duration = new Date(log.createdAt) - new Date(lastRunningTimestamp);
                 totalRunningTime += duration;
                 lastRunningTimestamp = null;
             }
@@ -36,52 +36,52 @@ const getRunningTime = async (machineId) => {
     }
 }
 
-const getRunningTimeMonth = async () => {
-    let error = null
-    let data;
-    try {
-        const nowDay = new Date();
-        const nowMonth = nowDay.getMonth();
-        const nowYear = nowDay.getFullYear();
+// const getRunningTimeMonth = async () => {
+//     let error = null
+//     let data;
+//     try {
+//         const nowDay = new Date();
+//         const nowMonth = nowDay.getMonth();
+//         const nowYear = nowDay.getFullYear();
 
-        const logs = await MachineLog.findAll({
-            where: {
-                timestamp: {
-                    [Op.gte]: new Date(nowYear, nowMonth, 1),
-                    [Op.lte]: new Date(nowYear, nowMonth + 1, 0)
-                }
-            }
-        });
+//         const logs = await MachineLog.findAll({
+//             where: {
+//                 timestamp: {
+//                     [Op.gte]: new Date(nowYear, nowMonth, 1),
+//                     [Op.lte]: new Date(nowYear, nowMonth + 1, 0)
+//                 }
+//             }
+//         });
 
-        let totalRunningTime = 0; // Dalam milidetik
-        let lastRunningTimestamp = null;
+//         let totalRunningTime = 0; // Dalam milidetik
+//         let lastRunningTimestamp = null;
 
-        logs.forEach((log) => {
-            if (log.current_status === "Running") {
-                lastRunningTimestamp = log.timestamp;
-            } else if (lastRunningTimestamp) {
-                const duration = new Date(log.timestamp) - new Date(lastRunningTimestamp);
-                totalRunningTime += duration;
-                lastRunningTimestamp = null;
-            }
-        });
+//         logs.forEach((log) => {
+//             if (log.current_status === "Running") {
+//                 lastRunningTimestamp = log.timestamp;
+//             } else if (lastRunningTimestamp) {
+//                 const duration = new Date(log.timestamp) - new Date(lastRunningTimestamp);
+//                 totalRunningTime += duration;
+//                 lastRunningTimestamp = null;
+//             }
+//         });
 
-        // Jika masih dalam status running hingga sekarang
-        if (lastRunningTimestamp) {
-            totalRunningTime += new Date() - new Date(lastRunningTimestamp);
-        }
+//         // Jika masih dalam status running hingga sekarang
+//         if (lastRunningTimestamp) {
+//             totalRunningTime += new Date() - new Date(lastRunningTimestamp);
+//         }
 
-        data = totalRunningTime
-    } catch (err) {
-        error = err
-        console.log(err)
-    }
+//         data = totalRunningTime
+//     } catch (err) {
+//         error = err
+//         console.log(err)
+//     }
 
-    return {
-        data,
-        error
-    };
+//     return {
+//         data,
+//         error
+//     };
 
-}
+// }
 
-module.exports = { getRunningTime, getRunningTimeMonth }
+module.exports = { getRunningTime }

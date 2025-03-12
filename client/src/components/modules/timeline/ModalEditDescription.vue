@@ -19,7 +19,7 @@ const visibleDialogForm = defineModel<boolean>('visibleDialogForm', {
 const { sendMessage } = useWebSocket()
 
 const dataDialogConfirm = computed<DialogFormProps>(() => ({
-  header: `Edit Description ${machineName || ''} ${selectedMachine?.timestamp || ''}`
+  header: `Edit Description ${machineName || ''} ${selectedMachine?.createdAt || ''}`
 }))
 
 const inputDescription = shallowRef<string>(selectedMachine?.description as string)
