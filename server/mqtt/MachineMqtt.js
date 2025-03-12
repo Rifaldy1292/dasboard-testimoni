@@ -24,7 +24,7 @@ const updateLastMachineLog = async (id, runningHour) => {
 const createCuttingTime = async () => {
     try {
         const { date } = dateCuttingTime();
-        const existCuttingTime = await CuttingTime.findOne({ where: { period: date } });
+        const existCuttingTime = await CuttingTime.findOne({ where: { period: date }, attributes: ['period'] });
         if (existCuttingTime === null) {
             return await CuttingTime.create({
                 period: date,
@@ -80,11 +80,13 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
             lastMachineLog.save();
         }
 
-        const decryptGCodeName = decryptFromNumber(g_code_name);
-        const decryptKNum = decryptFromNumber(k_num);
-        const decryptOutputWp = decryptFromNumber(output_wp);
-        const decryptToolName = decryptFromNumber(tool_name);
-        const decryptTotalCuttingTime = decryptFromNumber(total_cutting_time);
+        const decryptGCodeName = await decryptFromNumber(g_code_name);
+        const decryptKNum = await decryptFromNumber(k_num);
+        const decryptOutputWp = await decryptFromNumber(output_wp);
+        const decryptToolName = await decryptFromNumber(tool_name);
+        const decryptTotalCuttingTime = await decryptFromNumber(total_cutting_time);
+
+        // console.log({ decryptGCodeName, decryptKNum, decryptToolName, decryptOutputWp, decryptTotalCuttingTime }, 124)
 
         // Create a new log with the updated status
         await MachineLog.create({
@@ -146,16 +148,16 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
         const { name, status, user_id, g_code_name, k_num, output_wp, tool_name, total_cutting_time, ipAddress } = parseMessage
 
         const createMachine = await Machine.create({
-            name: name,
-            status: status,
+            name,
+            status,
             ip_address: ipAddress,
         });
 
-        const decryptGCodeName = decryptFromNumber(g_code_name);
-        const decryptKNum = decryptFromNumber(k_num);
-        const decryptOutputWp = decryptFromNumber(output_wp);
-        const decryptToolName = decryptFromNumber(tool_name);
-        const decryptTotalCuttingTime = decryptFromNumber(total_cutting_time);
+        const decryptGCodeName = await decryptFromNumber(g_code_name);
+        const decryptKNum = await decryptFromNumber(k_num);
+        const decryptOutputWp = await decryptFromNumber(output_wp);
+        const decryptToolName = await decryptFromNumber(tool_name);
+        const decryptTotalCuttingTime = await decryptFromNumber(total_cutting_time);
 
 
         // running_today default 0

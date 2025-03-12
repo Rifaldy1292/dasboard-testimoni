@@ -25,7 +25,6 @@ module.exports = (sequelize, DataTypes) => {
     total_cutting_time: DataTypes.STRING,
     previous_status: DataTypes.STRING,
     current_status: DataTypes.STRING,
-    timestamp: DataTypes.DATE,
     description: DataTypes.STRING,
     running_today: {
       type: DataTypes.INTEGER,

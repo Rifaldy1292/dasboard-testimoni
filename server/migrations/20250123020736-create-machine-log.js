@@ -18,9 +18,6 @@ module.exports = {
       current_status: {
         type: Sequelize.STRING
       },
-      timestamp: {
-        type: Sequelize.DATE
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

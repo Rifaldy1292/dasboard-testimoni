@@ -31,12 +31,11 @@ module.exports = (sequelize, DataTypes) => {
 
   // unique period
   CuttingTime.beforeCreate(async (cuttingTime, options) => {
-    const existCuttingTime = await CuttingTime.findOne({ where: { period: cuttingTime.period } });
-    console.log('from validate', existCuttingTime, 777777)
+    // console.log('from validate', cuttingTime, 777777)
+    const existCuttingTime = await CuttingTime.findOne({ where: { period: cuttingTime.period }, attributes: ['period'] });
     if (existCuttingTime) {
       throw new Error('Cutting time for this month already exists');
     }
   });
   return CuttingTime;
-
 };

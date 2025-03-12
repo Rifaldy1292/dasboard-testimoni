@@ -50,7 +50,8 @@ module.exports = (sequelize, DataTypes) => {
     const existingMachine = await Machine.findOne({
       where: {
         name: machine.name
-      }
+      },
+      attributes: ['id']
     });
     if (existingMachine) {
       throw new Error('Machine name already exists');
