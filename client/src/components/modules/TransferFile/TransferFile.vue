@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { FormField } from '@primevue/forms'
-import { useUsers } from '@/composables/useUsers'
-import { computed, shallowRef } from 'vue'
+import { computed, inject, shallowRef } from 'vue'
 import { useMachine } from '@/composables/useMachine'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import { useFTP } from '@/composables/useFTP'
@@ -11,13 +10,12 @@ import useToast from '@/composables/useToast'
 import AdditionalFields from './AdditionalFields.vue'
 import PreviewFile from './PreviewFile.vue'
 import { contentMainProgram } from './utils/contentMainProgram.util'
-import type { User } from '@/types/user.type'
 import type { MachineOption } from '@/types/machine.type'
 import type { ContentFile } from '@/types/ftp.type'
+import type { UserLocalStorage } from '@/types/localStorage.type'
 
 const toast = useToast()
 
-const { user } = useUsers()
 const {
   selectedOneMachine,
   selectedProgramNumber,
@@ -26,9 +24,12 @@ const {
   selectedStartPoint,
   selectedCoolant
 } = useMachine()
+
+const userData = inject('userData') as UserLocalStorage
+
 const { handleUploadFolder, uploadType, inputFiles, loadingUpload } = useFTP()
 const disableUploadFolder = computed<boolean>(() => {
-  return !user.value || !selectedOneMachine.value
+  return !selectedOneMachine.value
 })
 
 const isCreatedMainProgram = shallowRef<boolean>(false)
@@ -68,7 +69,7 @@ const handleExecute = (): void => {
       selectedProgramNumber: selectedProgramNumber.value,
       selectedStartPoint: selectedStartPoint.value,
       selectedWorkPosition: selectedWorkPosition.value,
-      user: user.value as User
+      user: userData
     })
 
     const mainProgramContent: ContentFile = {

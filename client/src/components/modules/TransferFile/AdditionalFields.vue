@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useFTP } from '@/composables/useFTP'
 import { useMachine } from '@/composables/useMachine'
-import { useUsers } from '@/composables/useUsers'
-import { InputText, Select } from 'primevue'
+import { Select } from 'primevue'
 
 defineProps<{ isDisableAll: boolean }>()
 
@@ -21,8 +20,6 @@ const {
 } = useMachine()
 
 const { uploadType } = useFTP()
-
-const { users, user, loadingUserDropdown, fetchUsers } = useUsers()
 
 const {
   programNumberOptions,
@@ -63,32 +60,6 @@ const {
           />
         </div>
       </div>
-      <!-- </FormField> -->
-    </div>
-
-    <!-- Operator Section -->
-    <div class="mb-0.5">
-      <!-- <FormField name="name"> -->
-      <div>
-        <label class="mb-3 block text-sm font-medium text-black dark:text-white"
-          >Operator Name</label
-        >
-        <div class="relative flex items-center">
-          <Select
-            filter
-            :model-value="user"
-            @before-show="fetchUsers({ role: 'Operator' })"
-            @update:model-value="user = $event"
-            :loading="loadingUserDropdown"
-            :options="users"
-            optionLabel="name"
-            placeholder="Select Operator"
-            fluid
-            :disabled="isDisableAll"
-          />
-        </div>
-      </div>
-
       <!-- </FormField> -->
     </div>
 

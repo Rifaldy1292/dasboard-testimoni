@@ -21,7 +21,6 @@ class MachineController {
         try {
             /**
              * @prop {string} machine_id - Machine ID
-             * @prop {string} user_id - User ID
              */
             const { machine_id } = req.body
             /**
