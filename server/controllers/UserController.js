@@ -89,10 +89,11 @@ class UserController {
             }
             const { id, name, role_id, profile_image } = FoundNIK
             const imageUrl = profile_image ? `${req.protocol}://${req.get('host')}/${profile_image}` : null
+
             const token = tokenGenerator({ id, name, NIK: FoundNIK.NIK, role_id, role: FoundNIK.Role.name, imageUrl });
             res.status(200).json({ data: { token }, message: 'success login', status: 200 });
         } catch (error) {
-            serverError(error, res, 'Failed to login user');
+            serverError(error, res, 'Login failed');
         }
     }
 

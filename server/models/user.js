@@ -41,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     NIK: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
       unique: true,
       validate: {
@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
         notNull: {
           msg: 'NIK cannot be null'
         },
-        isNumeric: true,
+        len: [7, 7], // memastikan panjang NIK tetap 9 karakter
 
       }
     },
@@ -68,10 +68,8 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'User',
   });
   User.beforeCreate(async (user, options) => {
-    if (user.NIK.toString().length !== 9) {
-      throw new Error('NIK must be 9 digits')
-    }
-    const existNIK = await User.findOne({ where: { NIK: user.NIK } });
+
+    const existNIK = await User.findOne({ where: { NIK: user.NIK }, attributes: ['NIK'] });
     if (existNIK) {
       throw new Error('NIK already exists');
     }
