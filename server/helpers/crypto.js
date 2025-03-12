@@ -7,6 +7,11 @@ const encryptionCache = require("../config/encryptionCache");
 const key = Buffer.from("1234567890123456"); // Harus 16 karakter untuk AES-128
 const algorithm = "aes-128-ecb"; // Mode ECB agar tidak perlu IV
 
+/**
+ * 
+ * @param {string} text 
+ * @returns {number}
+ */
 const encryptToNumber = (text) => {
     try {
         if (!text) return;
@@ -26,18 +31,27 @@ const encryptToNumber = (text) => {
     }
 }
 
+/**
+ * 
+ * @param {number} encryptedNumber  
+ * @returns {string | null}
+ */
 const decryptFromNumber = async (encryptedNumber) => {
     try {
+        if (!encryptedNumber || typeof encryptedNumber !== "number") return null;
+        // console.log(encryptedNumber, 123)
         // Cari di database berdasarkan angka enkripsi
         const result = await EncryptData.findOne({
             where: { encrypt_number: encryptedNumber }, attributes: ["original_text"]
         });
 
+        if (!result) return null
+
         // Jika ditemukan, kembalikan teks aslinya
-        return result ? result.original_text : "Decryption Failed";
+        return result.original_text
     } catch (error) {
         console.error("Database Error:", error);
-        return "Decryption Failed";
+        return null;
     }
 };
 

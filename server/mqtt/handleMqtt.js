@@ -18,6 +18,11 @@ const mqttTopics = [
     'mc-11/data', 'mc-12/data', 'mc-13/data', 'mc-14/data', 'mc-15/data', 'mc-16/data'
 ];
 
+/**
+ * 
+ * @param {mqtt.Client} mqttClient 
+ * @param {WebSocket.Server} wss 
+ */
 const handleMqtt = (mqttClient, wss) => {
     mqttClient.on('connect', async () => {
         mqttTopics.forEach(topic => {

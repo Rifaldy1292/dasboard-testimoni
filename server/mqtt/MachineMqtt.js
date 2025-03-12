@@ -177,6 +177,4 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
     }
 }
 
-
-
 module.exports = { updateLastMachineLog, createCuttingTime, handleChangeMachineStatus, createMachineAndLogFirstTime };
