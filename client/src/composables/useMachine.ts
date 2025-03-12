@@ -11,7 +11,6 @@ interface AdditionalOptions {
   workPositionOptions: Array<number>
   coordinateOptions: Array<number>
   coolantOptions: Array<number>
-  startPointOptions: Array<number>
   processTypeOptions: Array<ProcessType>
 }
 
@@ -22,7 +21,6 @@ const additionalOptions: AdditionalOptions = {
   workPositionOptions: Array.from({ length: 6 }, (_, i) => i + 54),
   coordinateOptions: [43, 143],
   coolantOptions: [8, 50],
-  startPointOptions: Array.from({ length: 100 }, (_, i) => i + 1),
   processTypeOptions: ['NC', 'Drill']
 }
 
@@ -31,7 +29,6 @@ const {
   workPositionOptions,
   coordinateOptions,
   coolantOptions,
-  startPointOptions,
   processTypeOptions
 } = additionalOptions
 
@@ -45,7 +42,7 @@ const machineOptions = ref<MachineOption[]>([])
 const selectedProgramNumber = shallowRef<number>(programNumberOptions[0])
 const selectedWorkPosition = shallowRef<number>(workPositionOptions[0])
 const selectedCoordinate = shallowRef<number>(coordinateOptions[0])
-const selectedStartPoint = shallowRef<number>(startPointOptions[50])
+const inputStartPoint = shallowRef<number>(52)
 const selectedCoolant = shallowRef<number>(coolantOptions[1])
 const selectedProcessType = shallowRef<'NC' | 'Drill'>(processTypeOptions[0])
 
@@ -103,7 +100,7 @@ export const useMachine = () => {
     selectedCoordinate,
     selectedProgramNumber,
     selectedWorkPosition,
-    selectedStartPoint,
+    inputStartPoint,
     selectedProcessType
   }
 }

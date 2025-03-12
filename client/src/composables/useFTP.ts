@@ -5,6 +5,9 @@ import { ref, shallowRef } from 'vue'
 
 const inputFiles = ref<ContentFile[]>([])
 const uploadType = shallowRef<'folder' | 'file'>('file')
+type Action = 'Upload File' | 'Remove File'
+const actionOPtions: Array<Action> = ['Upload File', 'Remove File']
+const selectedAction = shallowRef<Action>(actionOPtions[0])
 
 export const useFTP = () => {
   const loadingUpload = shallowRef(false)
@@ -91,5 +94,12 @@ export const useFTP = () => {
     })
   }
 
-  return { inputFiles, uploadType, handleUploadFolder, loadingUpload }
+  return {
+    inputFiles,
+    uploadType,
+    handleUploadFolder,
+    loadingUpload,
+    selectedAction,
+    actionOPtions
+  }
 }

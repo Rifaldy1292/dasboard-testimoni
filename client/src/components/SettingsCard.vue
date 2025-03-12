@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import userPhoto from '@/assets/images/user/user-03.png'
-import { InputNumber, InputText, Message } from 'primevue'
+import { InputText, Message } from 'primevue'
 import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import { z } from 'zod'
@@ -109,10 +109,9 @@ const handleFileChange = (event: Event) => {
             <label class="mb-3 block text-sm font-medium text-black dark:text-white" for="Username"
               >NIK</label
             >
-            <InputNumber
+            <InputText
               name="NIK"
               :default-value="user?.NIK"
-              :useGrouping="false"
               class="w-full rounded border border-stroke bg-gray font-normal text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
               placeholder="Enter NIK"
               disabled

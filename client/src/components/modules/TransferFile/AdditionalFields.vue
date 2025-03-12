@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useFTP } from '@/composables/useFTP'
 import { useMachine } from '@/composables/useMachine'
-import { Select } from 'primevue'
+import { InputNumber, Select } from 'primevue'
 
 defineProps<{ isDisableAll: boolean }>()
 
@@ -16,17 +16,16 @@ const {
   selectedCoordinate,
   selectedWorkPosition,
   selectedProgramNumber,
-  selectedStartPoint
+  inputStartPoint
 } = useMachine()
 
-const { uploadType } = useFTP()
+const { uploadType, actionOPtions, selectedAction } = useFTP()
 
 const {
   programNumberOptions,
   workPositionOptions,
   coordinateOptions,
   coolantOptions,
-  startPointOptions,
   processTypeOptions
 } = additionalOptions
 </script>
@@ -39,6 +38,24 @@ const {
     }"
     class="grid grid-cols-3 gap-5"
   >
+    <div class="mb-0.5">
+      <!-- <FormField name="name"> -->
+      <div>
+        <label class="mb-3 block text-sm font-medium text-black dark:text-white">Actions</label>
+        <div class="relative flex items-center">
+          <Select
+            filter
+            v-model:model-value="selectedAction"
+            :options="actionOPtions"
+            placeholder="Select Action"
+            fluid
+            :disabled="isDisableAll"
+          />
+        </div>
+      </div>
+      <!-- </FormField> -->
+    </div>
+
     <div class="mb-0.5">
       <!-- <FormField name="name"> -->
       <div>
@@ -63,145 +80,150 @@ const {
       <!-- </FormField> -->
     </div>
 
-    <!-- Operator Section -->
-    <div class="mb-0.5">
-      <!-- <FormField name="name"> -->
-      <div>
-        <label class="mb-3 block text-sm font-medium text-black dark:text-white"
-          >Program Number</label
-        >
-        <div class="relative flex items-center">
-          <Select
-            filter
-            v-model:model-value="selectedProgramNumber"
-            :options="programNumberOptions"
-            placeholder="Select Program Number"
-            fluid
-            :disabled="isDisableAll"
-          />
+    <template v-if="selectedAction === 'Upload File'">
+      <!-- Operator Section -->
+      <div class="mb-0.5">
+        <!-- <FormField name="name"> -->
+        <div>
+          <label class="mb-3 block text-sm font-medium text-black dark:text-white"
+            >Program Number</label
+          >
+          <div class="relative flex items-center">
+            <Select
+              filter
+              v-model:model-value="selectedProgramNumber"
+              :options="programNumberOptions"
+              placeholder="Select Program Number"
+              fluid
+              :disabled="isDisableAll"
+            />
+          </div>
+        </div>
+
+        <!-- </FormField> -->
+      </div>
+
+      <!-- Operator Section -->
+      <div class="mb-0.5">
+        <!-- <FormField name="name"> -->
+        <div>
+          <label class="mb-3 block text-sm font-medium text-black dark:text-white"
+            >Work Position</label
+          >
+          <div class="relative flex items-center">
+            <Select
+              filter
+              v-model:model-value="selectedWorkPosition"
+              :options="workPositionOptions"
+              placeholder="Select Work Position"
+              fluid
+              :disabled="isDisableAll"
+            />
+          </div>
+        </div>
+
+        <!-- </FormField> -->
+      </div>
+
+      <!-- Operator Section -->
+      <div class="mb-0.5">
+        <!-- <FormField name="name"> -->
+        <div>
+          <label class="mb-3 block text-sm font-medium text-black dark:text-white"
+            >Coordinate (143 for zooler)</label
+          >
+          <div class="relative flex items-center">
+            <Select
+              filter
+              v-model:model-value="selectedCoordinate"
+              :options="coordinateOptions"
+              placeholder="Select Coordinate"
+              fluid
+              :disabled="isDisableAll"
+            />
+          </div>
+        </div>
+
+        <!-- </FormField> -->
+      </div>
+
+      <!-- Operator Section -->
+      <div class="mb-0.5">
+        <!-- <FormField name="name"> -->
+        <div>
+          <label class="mb-3 block text-sm font-medium text-black dark:text-white"
+            >Start Point</label
+          >
+          <div class="relative flex items-center">
+            <InputNumber
+              v-model:model-value="inputStartPoint"
+              placeholder="Select Start Point"
+              fluid
+              :useGrouping="false"
+              :disabled="isDisableAll"
+            />
+          </div>
         </div>
       </div>
 
-      <!-- </FormField> -->
-    </div>
-
-    <!-- Operator Section -->
-    <div class="mb-0.5">
-      <!-- <FormField name="name"> -->
-      <div>
-        <label class="mb-3 block text-sm font-medium text-black dark:text-white"
-          >Work Position</label
-        >
-        <div class="relative flex items-center">
-          <Select
-            filter
-            v-model:model-value="selectedWorkPosition"
-            :options="workPositionOptions"
-            placeholder="Select Work Position"
-            fluid
-            :disabled="isDisableAll"
-          />
+      <!-- Operator Section -->
+      <div class="mb-0.5">
+        <!-- <FormField name="name"> -->
+        <div>
+          <label class="mb-3 block text-sm font-medium text-black dark:text-white">Coolant</label>
+          <div class="relative flex items-center">
+            <Select
+              filter
+              v-model:model-value="selectedCoolant"
+              :options="coolantOptions"
+              placeholder="Select Coolant"
+              fluid
+              :disabled="isDisableAll"
+            />
+          </div>
         </div>
       </div>
 
-      <!-- </FormField> -->
-    </div>
-
-    <!-- Operator Section -->
-    <div class="mb-0.5">
-      <!-- <FormField name="name"> -->
-      <div>
-        <label class="mb-3 block text-sm font-medium text-black dark:text-white"
-          >Coordinate (143 for zooler)</label
-        >
-        <div class="relative flex items-center">
-          <Select
-            filter
-            v-model:model-value="selectedCoordinate"
-            :options="coordinateOptions"
-            placeholder="Select Coordinate"
-            fluid
-            :disabled="isDisableAll"
-          />
+      <!-- Operator Section -->
+      <div class="mb-0.5">
+        <!-- <FormField name="name"> -->
+        <div>
+          <label class="mb-3 block text-sm font-medium text-black dark:text-white"
+            >Process Type</label
+          >
+          <div class="relative flex items-center">
+            <Select
+              filter
+              v-model:model-value="selectedProcessType"
+              :options="processTypeOptions"
+              placeholder="Select Process Type"
+              fluid
+              :disabled="isDisableAll"
+            />
+          </div>
         </div>
       </div>
 
-      <!-- </FormField> -->
-    </div>
+      <div class="mb-0.5">
+        <!-- <FormField name="name"> -->
+        <div>
+          <label class="mb-3 block text-sm font-medium text-black dark:text-white"
+            >Upload Type</label
+          >
 
-    <!-- Operator Section -->
-    <div class="mb-0.5">
-      <!-- <FormField name="name"> -->
-      <div>
-        <label class="mb-3 block text-sm font-medium text-black dark:text-white">Start Point</label>
-        <div class="relative flex items-center">
-          <Select
-            filter
-            v-model:model-value="selectedStartPoint"
-            :options="startPointOptions"
-            placeholder="Select Start Point"
-            fluid
-            :disabled="isDisableAll"
-          />
+          <div class="relative flex items-center">
+            <Select
+              v-model:model-value="uploadType"
+              @update:model-value="uploadType = $event"
+              :options="['folder', 'file']"
+              :disabled="isDisableAll"
+              filter
+              placeholder="Select Upload Type"
+              fluid
+            />
+          </div>
         </div>
       </div>
-    </div>
-
-    <!-- Operator Section -->
-    <div class="mb-0.5">
-      <!-- <FormField name="name"> -->
-      <div>
-        <label class="mb-3 block text-sm font-medium text-black dark:text-white">Coolant</label>
-        <div class="relative flex items-center">
-          <Select
-            filter
-            v-model:model-value="selectedCoolant"
-            :options="coolantOptions"
-            placeholder="Select Coolant"
-            fluid
-            :disabled="isDisableAll"
-          />
-        </div>
-      </div>
-    </div>
-
-    <!-- Operator Section -->
-    <div class="mb-0.5">
-      <!-- <FormField name="name"> -->
-      <div>
-        <label class="mb-3 block text-sm font-medium text-black dark:text-white"
-          >Process Type</label
-        >
-        <div class="relative flex items-center">
-          <Select
-            filter
-            v-model:model-value="selectedProcessType"
-            :options="processTypeOptions"
-            placeholder="Select Process Type"
-            fluid
-            :disabled="isDisableAll"
-          />
-        </div>
-      </div>
-    </div>
-
-    <div class="mb-0.5">
-      <!-- <FormField name="name"> -->
-      <div>
-        <label class="mb-3 block text-sm font-medium text-black dark:text-white">Upload Type</label>
-
-        <div class="relative flex items-center">
-          <Select
-            v-model:model-value="uploadType"
-            @update:model-value="uploadType = $event"
-            :options="['folder', 'file']"
-            :disabled="isDisableAll"
-            filter
-            placeholder="Select Upload Type"
-            fluid
-          />
-        </div>
-      </div>
-    </div>
+    </template>
   </div>
 </template>

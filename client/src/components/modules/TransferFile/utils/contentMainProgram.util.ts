@@ -9,7 +9,7 @@ type params = {
   selectedCoolant: number
   selectedCoordinate: number
   selectedWorkPosition: number
-  selectedStartPoint: number
+  inputStartPoint: number
   selectedProgramNumber: number
 }
 type DocsMacro =
@@ -30,7 +30,7 @@ export const contentMainProgram = ({
   selectedCoolant,
   selectedCoordinate,
   selectedWorkPosition,
-  selectedStartPoint,
+  inputStartPoint,
   selectedProgramNumber
 }: params): string => {
   const bodyContent = inputFiles.map((file) => {
@@ -93,7 +93,7 @@ ${docs.TOOL_NAME}=${toolName}
 ${docs.TOTAL_CUTTING_TIME}=${totalCuttingTime}
 G${selectedWorkPosition}
 G90G00X0Y0
-G${selectedCoordinate}Z${selectedStartPoint}.00
+G${selectedCoordinate}Z${inputStartPoint}.00
 M${selectedCoolant}
 G05P10000
 M198P${file.name.slice(1)}
