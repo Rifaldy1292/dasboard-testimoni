@@ -14,8 +14,13 @@ import type { MachineOption } from '@/types/machine.type'
 import type { ContentFile } from '@/types/ftp.type'
 import type { UserLocalStorage } from '@/types/localStorage.type'
 import TableFile from './TableFile.vue'
+import { useConfirm } from 'primevue'
+import { useRouter } from 'vue-router'
+import happpySound from '@/assets/sounds/happy.mp3'
 
 const toast = useToast()
+const confirm = useConfirm()
+const router = useRouter()
 
 const {
   selectedOneMachine,
@@ -51,6 +56,31 @@ const handleSubmit = async () => {
       summary: 'Success',
       detail: data.message
     })
+    // logout confirm
+    setTimeout(() => {
+      confirm.require({
+        header: 'Logout',
+        message: 'Do you want to logout?',
+        icon: 'pi pi-exclamation-triangle',
+        accept: () => {
+          localStorage.clear()
+          router.replace('/login')
+          toast.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Logged out successfully',
+            life: 3000,
+            customMusic: happpySound
+          })
+        },
+        rejectProps: {
+          label: 'Cancel',
+          severity: 'secondary',
+          outlined: true
+        },
+        reject: () => {}
+      })
+    }, 1000)
   } catch (error) {
     handleErrorAPI(error, toast)
   } finally {

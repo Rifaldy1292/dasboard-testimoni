@@ -15,8 +15,11 @@ interface AdditionalOptions {
 }
 
 const additionalOptions: AdditionalOptions = {
-  // 100, 200, ...9000
-  programNumberOptions: Array.from({ length: 9 }, (_, i) => (i + 1) * 1000),
+  // 1000, 1111, 2000, 2222
+  programNumberOptions: [
+    1000, 1111, 2000, 2222, 3000, 3333, 4000, 4444, 5000, 5555, 6000, 6666, 7000, 7777, 8000, 8888,
+    9000, 9999
+  ],
   // 54-59
   workPositionOptions: Array.from({ length: 6 }, (_, i) => i + 54),
   coordinateOptions: [43, 143],

@@ -9,6 +9,9 @@ let { dateQuery, config } = require('../utils/dateQuery');
 const { encryptToNumber } = require('../helpers/crypto');
 const encryptionCache = require('../config/encryptionCache');
 
+const hostHp = '192.168.43.116'
+const pwHp = 'android'
+const portHp = 2221
 
 class MachineController {
     /**
@@ -39,12 +42,14 @@ class MachineController {
 
             // console.log(machineIp.dataValues.ip_address, 22)
             await client.access({
-                // host: "172.20.80.210",//mesin CNC
-                // host: "192.168.8.119",//mesin CNC
                 host: ip_address,
                 port: 21,
                 user: "MC",
                 password: "MC",
+                // host: hostHp,
+                // port: portHp,
+                // user: pwHp,
+                // password: pwHp,
                 secure: false,
             })
 
@@ -124,14 +129,14 @@ class MachineController {
                     await client.removeDir('/');
                     return res.status(200).json({ status: 200, message: `All files removed from ${name}` })
                 }
-                
+
                 await client.ensureDir(remotePath); // Pastikan direktori tujuan ada
                 await client.removeDir(remotePath);
                 return res.status(200).json({ status: 200, message: `All files removed from ${name}` })
             }
 
             // remove single file
-            if(customMachine) {
+            if (customMachine) {
                 await client.cd(remotePath)
             }
             await client.remove(fileName);
@@ -345,7 +350,7 @@ class MachineController {
                 password: "MC",
                 secure: false,
             })
-            if(name === 'MC-14' || name === 'MC-15') {
+            if (name === 'MC-14' || name === 'MC-15') {
                 const remotePath = '/Storage Card/USER/DataCenter/';
                 await client.cd(remotePath)
             }

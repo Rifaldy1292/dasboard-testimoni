@@ -81,16 +81,18 @@ export const contentMainProgram = ({
       }
     }
 
-    return `${M98P7000}
-T${toolNumber}
-M06
-H${toolNumber}
-${docs.USER_ID}=${user.id}
+    const macroData = `${docs.USER_ID}=${user.id}
 ${docs.G_CODE_NAME}=${gCodeName}
 ${docs.K_NUM}=${kNum}
 ${docs.OUTPUT_WP}=${outputWP}
 ${docs.TOOL_NAME}=${toolName}
-${docs.TOTAL_CUTTING_TIME}=${totalCuttingTime}
+${docs.TOTAL_CUTTING_TIME}=${totalCuttingTime}`
+
+    const body = `${M98P7000}
+T${toolNumber}
+M06
+H${toolNumber}
+${macroData}
 G${selectedWorkPosition}
 G90G00X0Y0
 G${selectedCoordinate}Z${inputStartPoint}.00
@@ -99,14 +101,37 @@ G05P10000
 M198P${file.name.slice(1)}
 G05P0
 `
+
+    const body560 = `T${toolNumber}
+M6
+${macroData}
+G91G28Z0
+G${selectedWorkPosition}G90G01X0.Y0.F5000
+G90G43Z${selectedCoordinate}.H#4120
+M07
+M251
+M198P${file.name.slice(1)}
+M09
+G91G28Z0.
+G91G28Y0.
+`
+
+    return { body, body560 }
   })
   const content = `%
 O${selectedProgramNumber}
-${bodyContent.join('\n')}
+${bodyContent.map((item) => item.body).join('\n')}
 ${M98P7000}
 M30
 %`
-  return content
+  if (selectedOneMachine.startMacro !== 560) return content
+
+  const content560 = `%
+O${selectedProgramNumber}
+${bodyContent.map((item) => item.body560).join('\n')}
+M30
+%`
+  return content560
 }
 
 // const expectedFormat = `%
