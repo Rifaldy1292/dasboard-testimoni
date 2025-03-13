@@ -73,7 +73,7 @@ class MachineController {
                 //     defaults: { original_text }
                 // });
 
-                const existingData = await EncryptData.findOne({ where: { encrypt_number } });
+                const existingData = await EncryptData.findOne({ where: { encrypt_number }, attributes: ['id'] });
                 if (!existingData) {
                     await EncryptData.create({ encrypt_number, original_text });
                 }
