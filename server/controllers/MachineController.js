@@ -40,7 +40,7 @@ class MachineController {
             // console.log(machineIp.dataValues.ip_address, 22)
             await client.access({
                 // host: "172.20.80.210",//mesin CNC
-                // host: "192.168.43.186",//mesin CNC
+                // host: "192.168.8.119",//mesin CNC
                 host: ip_address,
                 port: 21,
                 user: "MC",
@@ -48,8 +48,8 @@ class MachineController {
                 secure: false,
             })
 
-            const remotePath = '/Storage Card/USER/DataCenter';
 
+            const remotePath = '/Storage Card/USER/DataCenter';
             if (name === 'MC-14') {
                 await client.ensureDir(remotePath); // Pastikan direktori tujuan ada
             }
@@ -92,18 +92,22 @@ class MachineController {
         }
     }
 
-    static async removeAllFileFromMachine(req, res) {
+    static async removeFileFromMachine(req, res) {
         const client = new Client()
         try {
-            const { machine_id } = req.params
-            const { ip_address } = await Machine.findOne({
+            // type all or single
+            const { fileName, machine_id } = req.query
+
+            if (!machine_id) return res.status(400).json({ message: 'machine_id is required', status: 400 })
+            const { ip_address, name } = await Machine.findOne({
                 where: { id: machine_id },
-                attributes: ['ip_address']
+                attributes: ['ip_address', 'name']
             })
+
             if (!ip_address) return res.status(400).json({ message: 'Machine not found', status: 400 })
             await client.access({
                 // host: "172.20.80.210",//mesin CNC
-                // host: "192.168.43.186",//mesin CNC
+                // host: "192.168.8.119",//mesin CNC
                 host: ip_address,
                 port: 21,
                 user: "MC",
@@ -112,9 +116,21 @@ class MachineController {
             })
 
             // remove all files
-            await client.removeDir('/');
+            if (!fileName) {
+                if (name !== 'MC-14') {
+                    await client.removeDir('/');
+                    return res.status(200).json({ status: 200, message: `All files removed from ${name}` })
+                }
 
-            res.status(200).json({ status: 200, message: 'All files removed from machine' })
+                const remotePath = '/Storage Card/USER/DataCenter';
+                await client.ensureDir(remotePath); // Pastikan direktori tujuan ada
+                await client.removeDir(remotePath);
+                return res.status(200).json({ status: 200, message: `All files removed from ${name}` })
+            }
+
+            // remove single file
+            await client.remove(fileName);
+            return res.status(200).json({ status: 200, message: `File ${fileName} removed from ${name}` })
 
 
         } catch (error) {
@@ -156,7 +172,6 @@ class MachineController {
     static getStartTime(req, res) {
         res.status(200).json({ data: { startHour: config.startHour, startMinute: config.startMinute }, message: 'succesfully get start time ' })
     }
-
 
     static editStartTime(req, res) {
         try {
@@ -318,7 +333,7 @@ class MachineController {
 
             await client.access({
                 // host: "172.20.80.210",//mesin CNC
-                // host: "192.168.43.186",//mesin CNC
+                // host: "192.168.8.119",//mesin CNC
                 host: ip_address,
                 port: 21,
                 user: "MC",
@@ -328,7 +343,11 @@ class MachineController {
 
             const files = await client.list('/')
 
-            const fileNames = files.map((file) => file.name)
+            const fileNames = files.map((file) => {
+                return {
+                    fileName: file.name,
+                }
+            })
             res.status(200).json({ status: 200, message: 'success get list files', data: fileNames });
 
         } catch (error) {
