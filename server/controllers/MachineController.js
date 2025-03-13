@@ -32,8 +32,8 @@ class MachineController {
             if (!files || files.length === 0) {
                 return res.status(400).json({ message: 'No file uploaded', status: 400 });
             }
-            const machineIp = await Machine.findOne({ where: { id: machine_id }, attributes: ['ip_address'] })
-            if (!machineIp) {
+            const { ip_address, name } = await Machine.findOne({ where: { id: machine_id }, attributes: ['ip_address', 'name'] })
+            if (!ip_address) {
                 return res.status(400).json({ message: 'Machine not found', status: 400 });
             }
 
@@ -41,7 +41,7 @@ class MachineController {
             await client.access({
                 // host: "172.20.80.210",//mesin CNC
                 // host: "172.164.43.186",//mesin CNC
-                host: machineIp.dataValues.ip_address,
+                host: ip_address,
                 port: 21,
                 user: "MC",
                 password: "MC",
@@ -50,7 +50,7 @@ class MachineController {
 
             const remotePath = '/Storage Card/USER/DataCenter';
 
-            if (machineIp.name === 'MC-14') {
+            if (name === 'MC-14') {
                 await client.ensureDir(remotePath); // Pastikan direktori tujuan ada
             }
 
@@ -59,7 +59,7 @@ class MachineController {
                 stream.end(file.buffer);
                 console.log(`Uploading: ${file.originalname}`); // Debugging
 
-                const path = machineIp.name === 'MC-14' ? `${remotePath}/${file.originalname}` : file.originalname
+                const path = name === 'MC-14' ? `${remotePath}/${file.originalname}` : file.originalname
 
                 await client.uploadFrom(stream, path);
 
@@ -111,9 +111,9 @@ class MachineController {
                 // host: "172.20.80.210",//mesin CNC
                 // host: "192.168.43.186",//mesin CNC
                 host: ip_address,
-                port: 2221,
-                user: "android",
-                password: "android",
+                port: 21,
+                user: "MC",
+                password: "MC",
                 secure: false,
             })
 
@@ -324,11 +324,11 @@ class MachineController {
 
             await client.access({
                 // host: "172.20.80.210",//mesin CNC
-                host: "192.168.43.186",//mesin CNC
-                // host: machineIp.dataValues.ip_address,
-                port: 2221,
-                user: "android",
-                password: "android",
+                // host: "192.168.43.186",//mesin CNC
+                host: ip_address,
+                port: 21,
+                user: "MC",
+                password: "MC",
                 secure: false,
             })
 
