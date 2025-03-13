@@ -74,6 +74,12 @@ machineRouter.post(
     MachineController.encyptContentValue
 )
 
+machineRouter.get(
+    "/list-files/:machine_id",
+    authMiddleware,
+    MachineController.getListFiles
+)
+
 machineRouter.get('/start-time', authMiddleware, MachineController.getStartTime)
 machineRouter.put('/start-time', authMiddleware, MachineController.editStartTime)
 

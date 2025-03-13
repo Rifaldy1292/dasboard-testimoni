@@ -39,6 +39,10 @@ const MachineServices = {
     reqStartMinute: number
   }): Promise<AxiosResponse> => {
     return API().put('machines/start-time', body)
+  },
+
+  getFileList(machine_id: number): Promise<AxiosResponse<ApiResponse<string[]>>> {
+    return API().get(`/machines/list-files/${machine_id}`)
   }
 }
 

@@ -39,7 +39,8 @@ class MachineController {
 
             // console.log(machineIp.dataValues.ip_address, 22)
             await client.access({
-                host: "192.168.43.170",//mesin CNC
+                // host: "172.20.80.210",//mesin CNC
+                host: "172.164.43.186",//mesin CNC
                 // host: machineIp.dataValues.ip_address,
                 port: 2221,
                 user: "android",
@@ -47,14 +48,20 @@ class MachineController {
                 secure: false,
             })
 
+            const remotePath = '/Storage Card/USER/DataCenter';
+
+            await client.ensureDir(remotePath); // Pastikan direktori tujuan ada
+
 
             for (const file of files) {
                 const stream = new PassThrough(); // ✅ Buat stream dari Buffer
                 stream.end(file.buffer);
                 console.log(`Uploading: ${file.originalname}`); // Debugging
 
-                await client.uploadFrom(stream, file.originalname);
+                await client.uploadFrom(stream, `${remotePath}/${file.originalname}`);
+
             }
+
 
             // ✅ Setelah sukses transfer, simpan hasil enkripsi ke database
             for (const [encrypt_number, original_text] of encryptionCache.entries()) {
@@ -261,6 +268,37 @@ class MachineController {
             res.status(200).json({ status: 200, message: 'success get machine option', data: formattedMachines });
         } catch (error) {
             serverError(error, res, 'Failed to get machine option');
+        }
+    }
+
+    static async getListFiles(req, res) {
+        const client = new Client()
+        try {
+            const { machine_id } = req.params
+
+            const { ip_address } = await Machine.findOne({ where: { id: machine_id }, attributes: ['ip_address'] })
+            if (!ip_address) return res.status(400).json({ message: 'Machine not found', status: 400 })
+
+            console.log(ip_address, 222)
+
+
+            await client.access({
+                // host: "172.20.80.210",//mesin CNC
+                host: "192.168.43.186",//mesin CNC
+                // host: machineIp.dataValues.ip_address,
+                port: 2221,
+                user: "android",
+                password: "android",
+                secure: false,
+            })
+
+            const files = await client.list('/')
+
+            const fileNames = files.map((file) => file.name)
+            res.status(200).json({ status: 200, message: 'success get list files', data: fileNames });
+
+        } catch (error) {
+            serverError(error, res, 'Failed to get list files');
         }
     }
 
