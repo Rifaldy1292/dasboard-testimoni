@@ -80,6 +80,12 @@ machineRouter.get(
     MachineController.getListFiles
 )
 
+machineRouter.delete(
+    "/remove-files/:machine_id",
+    authMiddleware,
+    MachineController.removeAllFileFromMachine
+)
+
 machineRouter.get('/start-time', authMiddleware, MachineController.getStartTime)
 machineRouter.put('/start-time', authMiddleware, MachineController.editStartTime)
 

@@ -43,6 +43,9 @@ const MachineServices = {
 
   getFileList(machine_id: number): Promise<AxiosResponse<ApiResponse<string[]>>> {
     return API().get(`/machines/list-files/${machine_id}`)
+  },
+  deleteAllFiles(machine_id: number): Promise<AxiosResponse> {
+    return API().delete(`/machines/remove-files/${machine_id}`)
   }
 }
 

@@ -40,35 +40,43 @@ class MachineController {
             // console.log(machineIp.dataValues.ip_address, 22)
             await client.access({
                 // host: "172.20.80.210",//mesin CNC
-                host: "172.164.43.186",//mesin CNC
-                // host: machineIp.dataValues.ip_address,
-                port: 2221,
-                user: "android",
-                password: "android",
+                // host: "172.164.43.186",//mesin CNC
+                host: machineIp.dataValues.ip_address,
+                port: 21,
+                user: "MC",
+                password: "MC",
                 secure: false,
             })
 
             const remotePath = '/Storage Card/USER/DataCenter';
 
-            await client.ensureDir(remotePath); // Pastikan direktori tujuan ada
-
+            if (machineIp.name === 'MC-14') {
+                await client.ensureDir(remotePath); // Pastikan direktori tujuan ada
+            }
 
             for (const file of files) {
                 const stream = new PassThrough(); // ✅ Buat stream dari Buffer
                 stream.end(file.buffer);
                 console.log(`Uploading: ${file.originalname}`); // Debugging
 
-                await client.uploadFrom(stream, `${remotePath}/${file.originalname}`);
+                const path = machineIp.name === 'MC-14' ? `${remotePath}/${file.originalname}` : file.originalname
+
+                await client.uploadFrom(stream, path);
 
             }
 
 
             // ✅ Setelah sukses transfer, simpan hasil enkripsi ke database
             for (const [encrypt_number, original_text] of encryptionCache.entries()) {
-                await EncryptData.findOrCreate({
-                    where: { encrypt_number },
-                    defaults: { original_text }
-                });
+                // await EncryptData.findOrCreate({
+                //     where: { encrypt_number },
+                //     defaults: { original_text }
+                // });
+
+                const existingData = await EncryptData.findOne({ where: { encrypt_number } });
+                if (!existingData) {
+                    await EncryptData.create({ encrypt_number, original_text });
+                }
             }
 
             // ✅ Hapus dari Map setelah tersimpan ke database
@@ -85,6 +93,38 @@ class MachineController {
             }
 
             serverError(error, res, 'Failed to transfer files');
+        } finally {
+            client.close()
+        }
+    }
+
+    static async removeAllFileFromMachine(req, res) {
+        const client = new Client()
+        try {
+            const { machine_id } = req.params
+            const { ip_address } = await Machine.findOne({
+                where: { id: machine_id },
+                attributes: ['ip_address']
+            })
+            if (!ip_address) return res.status(400).json({ message: 'Machine not found', status: 400 })
+            await client.access({
+                // host: "172.20.80.210",//mesin CNC
+                // host: "192.168.43.186",//mesin CNC
+                host: ip_address,
+                port: 2221,
+                user: "android",
+                password: "android",
+                secure: false,
+            })
+
+            // remove all files
+            await client.removeDir('/');
+
+            res.status(200).json({ status: 200, message: 'All files removed from machine' })
+
+
+        } catch (error) {
+            serverError(error, res, 'Failed to remove all file from machine');
         } finally {
             client.close()
         }
