@@ -40,7 +40,7 @@ class MachineController {
             // console.log(machineIp.dataValues.ip_address, 22)
             await client.access({
                 // host: "172.20.80.210",//mesin CNC
-                // host: "172.164.43.186",//mesin CNC
+                // host: "192.168.43.186",//mesin CNC
                 host: ip_address,
                 port: 21,
                 user: "MC",
@@ -68,11 +68,6 @@ class MachineController {
 
             // ✅ Setelah sukses transfer, simpan hasil enkripsi ke database
             for (const [encrypt_number, original_text] of encryptionCache.entries()) {
-                // await EncryptData.findOrCreate({
-                //     where: { encrypt_number },
-                //     defaults: { original_text }
-                // });
-
                 const existingData = await EncryptData.findOne({ where: { encrypt_number }, attributes: ['id'] });
                 if (!existingData) {
                     await EncryptData.create({ encrypt_number, original_text });
@@ -82,11 +77,10 @@ class MachineController {
             // ✅ Hapus dari Map setelah tersimpan ke database
             encryptionCache.clear();
 
-
-
-            res.status(200).json({ status: 200, message: 'Files uploaded successfully', machineIp: machineIp.ip_address })
+            res.status(200).json({ status: 200, message: 'Files uploaded successfully' })
 
         } catch (error) {
+            console.log({ error, message: error.message })
             if (error.code === 'ECONNREFUSED') return res.status(500).json({ message: 'Failed to connect to machine', status: 500 })
             if (error.code === 550 || error.message === '550 STOR requested action not taken: File exists.') {
                 return res.status(400).json({ status: 400, message: 'File already exists on machine' })
