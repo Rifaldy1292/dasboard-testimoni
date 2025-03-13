@@ -333,6 +333,8 @@ class MachineController {
 
         } catch (error) {
             serverError(error, res, 'Failed to get list files');
+        } finally {
+            client.close()
         }
     }
 
