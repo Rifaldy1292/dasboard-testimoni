@@ -46,7 +46,9 @@ export const useFTP = () => {
         })
       )
 
-      inputFiles.value = [...inputFiles.value, ...editFileValue]
+      inputFiles.value = [...inputFiles.value, ...editFileValue].sort((a, b) =>
+        a.name.localeCompare(b.name)
+      )
 
       console.log(inputFiles.value, 'inputFiles')
     } catch (error: unknown) {
