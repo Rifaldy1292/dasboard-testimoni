@@ -27,13 +27,8 @@ const additionalOptions: AdditionalOptions = {
   processTypeOptions: ['NC', 'Drill']
 }
 
-const {
-  programNumberOptions,
-  workPositionOptions,
-  coordinateOptions,
-  coolantOptions,
-  processTypeOptions
-} = additionalOptions
+const { workPositionOptions, coordinateOptions, coolantOptions, processTypeOptions } =
+  additionalOptions
 
 const loadingFetch = shallowRef<boolean>(false)
 const cuttingTimeMachines = ref<CuttingTimeMachine | undefined>(undefined)
@@ -42,7 +37,7 @@ const selectedOneMachine = ref<MachineOption | undefined>(undefined)
 const loadingDropdown = shallowRef<boolean>(false)
 const machineOptions = ref<MachineOption[]>([])
 
-const selectedProgramNumber = shallowRef<number>(programNumberOptions[0])
+const selectedProgramNumber = 30
 const selectedWorkPosition = shallowRef<number>(workPositionOptions[0])
 const selectedCoordinate = shallowRef<number>(coordinateOptions[0])
 const inputStartPoint = shallowRef<number>(52)

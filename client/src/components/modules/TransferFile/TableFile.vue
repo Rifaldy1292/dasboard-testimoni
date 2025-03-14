@@ -105,6 +105,8 @@ const handleClickButton = (button: 'removeAll' | 'remove', fileName?: string): v
 <template>
   <Button
     v-if="fileList.length"
+    disabled
+    style="cursor: not-allowed"
     @click="handleClickButton('removeAll')"
     label="Remove All files"
     severity="warn"

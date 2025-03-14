@@ -15,19 +15,13 @@ const {
   selectedProcessType,
   selectedCoordinate,
   selectedWorkPosition,
-  selectedProgramNumber,
   inputStartPoint
 } = useMachine()
 
 const { uploadType, actionOPtions, selectedAction } = useFTP()
 
-const {
-  programNumberOptions,
-  workPositionOptions,
-  coordinateOptions,
-  coolantOptions,
-  processTypeOptions
-} = additionalOptions
+const { workPositionOptions, coordinateOptions, coolantOptions, processTypeOptions } =
+  additionalOptions
 </script>
 
 <template>
@@ -81,28 +75,6 @@ const {
     </div>
 
     <template v-if="selectedAction === 'Upload File'">
-      <!-- Operator Section -->
-      <div class="mb-0.5">
-        <!-- <FormField name="name"> -->
-        <div>
-          <label class="mb-3 block text-sm font-medium text-black dark:text-white"
-            >Program Number</label
-          >
-          <div class="relative flex items-center">
-            <Select
-              filter
-              v-model:model-value="selectedProgramNumber"
-              :options="programNumberOptions"
-              placeholder="Select Program Number"
-              fluid
-              :disabled="isDisableAll"
-            />
-          </div>
-        </div>
-
-        <!-- </FormField> -->
-      </div>
-
       <!-- Operator Section -->
       <div class="mb-0.5">
         <!-- <FormField name="name"> -->

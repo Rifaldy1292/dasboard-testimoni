@@ -119,7 +119,7 @@ G91G28Y0.
     return { body, body560 }
   })
   const content = `%
-O${selectedProgramNumber}
+O00${selectedProgramNumber}
 ${bodyContent.map((item) => item.body).join('\n')}
 ${M98P7000}
 M30
@@ -127,7 +127,7 @@ M30
   if (selectedOneMachine.startMacro !== 560) return content
 
   const content560 = `%
-O${selectedProgramNumber}
+O00${selectedProgramNumber}
 ${bodyContent.map((item) => item.body560).join('\n')}
 M30
 %`
