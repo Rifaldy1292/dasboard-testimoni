@@ -51,7 +51,7 @@
         "type": "function",
         "z": "347e42a6a46aef70",
         "name": "function 3",
-        "func": "const state = msg.payload.value[0].value.value\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nmsg.payload = {name: \"MC-10\", ipAddress: \"192.168.1.11\", status, state}\nif(state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
+        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nmsg.payload = {\n    name: \"MC-10\", ipAddress: \"192.168.1.11\", status,\n    state,\n    user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time\n}\nif (state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -139,6 +139,36 @@
                 "name": "running_state",
                 "nodeId": "ns=2;g=9b7185a4-e709-49b1-a511-47465e7cd315",
                 "datatypeName": ""
+            },
+            {
+                "name": "USER_ID",
+                "nodeId": "ns=2;g=28fbe01e-f011-4452-abea-e835c8f9fad8",
+                "datatypeName": ""
+            },
+            {
+                "name": "G_CODE_NAME",
+                "nodeId": "ns=2;g=c5a79227-dca2-4022-9df1-457c506e4f5b",
+                "datatypeName": ""
+            },
+            {
+                "name": "K_NUM",
+                "nodeId": "ns=2;g=eec2d862-578e-4898-9e6f-27b1c006896e",
+                "datatypeName": ""
+            },
+            {
+                "name": "OUTPUT_WP",
+                "nodeId": "ns=2;g=0047120d-e56e-4484-bd20-67b75d361d3b",
+                "datatypeName": ""
+            },
+            {
+                "name": "TOOL_NAME",
+                "nodeId": "ns=2;g=30be3cf0-e0cf-411f-94fd-9fba77a61fdf",
+                "datatypeName": ""
+            },
+            {
+                "name": "TOTAL_CUTTING_TIME",
+                "nodeId": "ns=2;g=a609a7ba-acb2-4d8f-967e-0d99bfa1fdec",
+                "datatypeName": ""
             }
         ],
         "x": 160,
@@ -194,7 +224,7 @@
         "type": "function",
         "z": "347e42a6a46aef70",
         "name": "function 5",
-        "func": "const state = msg.payload.value[0].value.value\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nmsg.payload = {name: \"MC-14\", ipAddress: \"192.168.1.14\", status, state}\nif(state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
+        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\n\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nmsg.payload = {\n    name: \"MC-14\",\n    ipAddress: \"192.168.1.14\",\n    status,\n    state,\n    user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time\n}\nif (state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -282,6 +312,36 @@
                 "name": "running_state",
                 "nodeId": "ns=2;g=3609fd8e-ce82-4bf0-af9c-625dbda3f45c",
                 "datatypeName": ""
+            },
+            {
+                "name": "user_id",
+                "nodeId": "ns=2;g=52c67c6a-09b2-4e7a-9bb3-9e7af2b5ec5c",
+                "datatypeName": ""
+            },
+            {
+                "name": "G_CODE_NAME",
+                "nodeId": "ns=2;g=66371048-cc5f-4ebf-a779-c24f61c7a762",
+                "datatypeName": ""
+            },
+            {
+                "name": "K_NUM",
+                "nodeId": "ns=2;g=f29e492f-528d-4564-9d5e-738176f7a1d5",
+                "datatypeName": ""
+            },
+            {
+                "name": "OUTPUT_WP",
+                "nodeId": "ns=2;g=7871df99-eada-45c0-9d90-90c813706aaa",
+                "datatypeName": ""
+            },
+            {
+                "name": "TOOL_NAME",
+                "nodeId": "ns=2;g=72b2160f-c97e-417a-be8f-7fad2f6ef2da",
+                "datatypeName": ""
+            },
+            {
+                "name": "TOTAL_CUTTING_TIME",
+                "nodeId": "ns=2;g=c6951e5e-de35-479a-928d-32803be49fb8",
+                "datatypeName": ""
             }
         ],
         "x": 180,
@@ -337,7 +397,7 @@
         "type": "function",
         "z": "347e42a6a46aef70",
         "name": "function 7",
-        "func": "const state = msg.payload.value[0].value.value\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nmsg.payload = {name: \"MC-15\", ipAddress: \"192.168.1.15\", status, state}\nif(state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
+        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nmsg.payload = {\n    name: \"MC-15\", ipAddress: \"192.168.1.15\",\n    status, state, user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time\n}\nif (state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -425,6 +485,36 @@
                 "name": "running_state",
                 "nodeId": "ns=2;g=a91c44d9-c7e2-4c67-a514-ed0f10fdb471",
                 "datatypeName": ""
+            },
+            {
+                "name": "USER_ID",
+                "nodeId": "ns=2;g=4e004383-fa88-4597-a5d4-d55f82ac90ac",
+                "datatypeName": ""
+            },
+            {
+                "name": "G_CODE_NAME",
+                "nodeId": "ns=2;g=748d2ce5-a17c-4c6e-80b0-55a82f91da4e",
+                "datatypeName": ""
+            },
+            {
+                "name": "K_NUM",
+                "nodeId": "ns=2;g=e15bcdaa-d04f-4a98-856c-c069613177e7",
+                "datatypeName": ""
+            },
+            {
+                "name": "OUTPUT_WP",
+                "nodeId": "ns=2;g=02dd1b4d-690a-4ade-9cce-54ef6278245a",
+                "datatypeName": ""
+            },
+            {
+                "name": "TOOL_NAME",
+                "nodeId": "ns=2;g=c439585a-cb40-483c-94b1-ae2ed78e009a",
+                "datatypeName": ""
+            },
+            {
+                "name": "TOTAL_CUTTING_TIME",
+                "nodeId": "ns=2;g=c863f5a7-8bf8-415b-8e2e-8eb29e4da5be",
+                "datatypeName": ""
             }
         ],
         "x": 160,
@@ -480,7 +570,7 @@
         "type": "function",
         "z": "347e42a6a46aef70",
         "name": "function 9",
-        "func": "const state = msg.payload.value[0].value.value\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nmsg.payload = {name: \"MC-16\", ipAddress: \"192.168.1.16\", status, state}\nif(state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
+        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\n\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nmsg.payload = {\n    name: \"MC-16\", ipAddress: \"192.168.1.16\",\n    status, state, user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time\n}\nif (state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -568,6 +658,36 @@
                 "name": "running_state",
                 "nodeId": "ns=2;g=ec8fc5d6-69fc-4e0a-b4e0-45343f70cbef",
                 "datatypeName": ""
+            },
+            {
+                "name": "USER_ID",
+                "nodeId": "ns=2;g=e4d9e265-76e0-44bd-bf6d-af5b871d29fb",
+                "datatypeName": ""
+            },
+            {
+                "name": "G_CODE_NAME",
+                "nodeId": "ns=2;g=e0ba5d55-28a5-44c6-8925-532dc5831fe6",
+                "datatypeName": ""
+            },
+            {
+                "name": "K_NUM",
+                "nodeId": "ns=2;g=4d61c5fa-2e92-4f0a-905d-12d4673f302c",
+                "datatypeName": ""
+            },
+            {
+                "name": "OUTPUT_WP",
+                "nodeId": "ns=2;g=ad8bac49-04d2-44db-998c-afeba242d162",
+                "datatypeName": ""
+            },
+            {
+                "name": "TOOL_NAME",
+                "nodeId": "ns=2;g=d742213f-63bb-425a-a502-7bbabc0d5d0e",
+                "datatypeName": ""
+            },
+            {
+                "name": "TOTAL_CUTTING_TIME",
+                "nodeId": "ns=2;g=c1383eba-d54a-4740-b344-ed752c7a56a2",
+                "datatypeName": ""
             }
         ],
         "x": 140,
@@ -623,15 +743,15 @@
         "type": "function",
         "z": "347e42a6a46aef70",
         "name": "function 11",
-        "func": "const state = msg.payload.value[0].value.value\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nmsg.payload = {name: \"MC-4\", ipAddress: \"192.168.1.4\", status, state}\nif(state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
+        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\n\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nmsg.payload = {\n    name: \"MC-4\", ipAddress: \"192.168.1.4\", status,\n    state, user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time\n}\nif (state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 640,
-        "y": 2400,
+        "x": 670,
+        "y": 2320,
         "wires": [
             [
                 "93195d2aeab2779f",
@@ -701,7 +821,7 @@
         "payload": "",
         "payloadType": "date",
         "topic": "",
-        "repeat": "1",
+        "repeat": "9",
         "crontab": "",
         "once": false,
         "startDelay": "",
@@ -710,6 +830,36 @@
             {
                 "name": "running_state",
                 "nodeId": "ns=2;g=2ecff197-6a2d-4e87-bfb5-2af1077b09d5",
+                "datatypeName": ""
+            },
+            {
+                "name": "USER_ID",
+                "nodeId": "ns=2;g=f9d37a64-1074-481c-89e1-b374cc86fc90",
+                "datatypeName": ""
+            },
+            {
+                "name": "G_CODE_NAME",
+                "nodeId": "ns=2;g=92ad1686-2d3e-441e-bd20-e9a8ba0f3c5b",
+                "datatypeName": ""
+            },
+            {
+                "name": "K_NUM",
+                "nodeId": "ns=2;g=47f49ca2-563e-4b18-a890-aecce68bc6c4",
+                "datatypeName": ""
+            },
+            {
+                "name": "OUTPUT_WP",
+                "nodeId": "ns=2;g=9f66c07f-0dfa-4b96-93d3-28fa3458cffa",
+                "datatypeName": ""
+            },
+            {
+                "name": "TOOL_NAME",
+                "nodeId": "ns=2;g=8eb3aa97-a2d1-4a95-b7fa-45d54a4eec00",
+                "datatypeName": ""
+            },
+            {
+                "name": "TOTAL_CUTTING_TIME",
+                "nodeId": "ns=2;g=8d01f299-7dc2-43ac-8c0c-9db7e42e70bc",
                 "datatypeName": ""
             }
         ],
@@ -766,7 +916,7 @@
         "type": "function",
         "z": "347e42a6a46aef70",
         "name": "function 13",
-        "func": "const state = msg.payload.value[0].value.value\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nmsg.payload = {name: \"MC-5\", ipAddress: \"192.168.1.5\", status, state}\nif(state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
+        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\n\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nmsg.payload = {\n    name: \"MC-5\", ipAddress: \"192.168.1.5\", status,\n    state, user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time\n}\nif (state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -853,6 +1003,36 @@
             {
                 "name": "running_state",
                 "nodeId": "ns=2;g=e5b29816-d85d-45c5-a1c8-e65d3deae6bd",
+                "datatypeName": ""
+            },
+            {
+                "name": "USER_ID",
+                "nodeId": "ns=2;g=4ea0fcc5-147a-408c-afa6-15f2e68acaca",
+                "datatypeName": ""
+            },
+            {
+                "name": "G_CODE_NAME",
+                "nodeId": "ns=2;g=8fa242c2-83aa-402b-b618-41fc56f672b8",
+                "datatypeName": ""
+            },
+            {
+                "name": "K_NUM",
+                "nodeId": "ns=2;g=8161350b-91f0-458c-83d5-ba629020aaf3",
+                "datatypeName": ""
+            },
+            {
+                "name": "OUTPUT_WP",
+                "nodeId": "ns=2;g=dfa74f3b-de92-4423-add6-28d288ee5249",
+                "datatypeName": ""
+            },
+            {
+                "name": "TOOL_NAME",
+                "nodeId": "ns=2;g=e3c8fd50-6810-44dc-9f35-f45b3ad84588",
+                "datatypeName": ""
+            },
+            {
+                "name": "TOTAL_CUTTING_TIME",
+                "nodeId": "ns=2;g=07f3f953-6239-4d3d-a4fd-951fb9f9f49a",
                 "datatypeName": ""
             }
         ],
@@ -997,6 +1177,36 @@
                 "name": "running_state",
                 "nodeId": "ns=2;g=4324bcfb-a756-41f7-a633-4af3122ed729",
                 "datatypeName": ""
+            },
+            {
+                "name": "USER_ID",
+                "nodeId": "ns=2;g=55bae048-2232-47a3-9b27-f24cef7f06fb",
+                "datatypeName": ""
+            },
+            {
+                "name": "G_CODE_NAME",
+                "nodeId": "ns=2;g=5e36095e-0b99-4464-b280-93426e1ac568",
+                "datatypeName": ""
+            },
+            {
+                "name": "K_NUM",
+                "nodeId": "ns=2;g=ca9442d3-3758-4f5f-94ae-17dcfc6d925c",
+                "datatypeName": ""
+            },
+            {
+                "name": "OUTPUT_WP",
+                "nodeId": "ns=2;g=5265aed1-16ca-46e6-82af-16a5549b37d5",
+                "datatypeName": ""
+            },
+            {
+                "name": "TOOL_NAME",
+                "nodeId": "ns=2;g=28e39458-856d-40c0-aebf-7cf086110e53",
+                "datatypeName": ""
+            },
+            {
+                "name": "TOTAL_CUTTING_TIME",
+                "nodeId": "ns=2;g=984b2dc9-bc2b-4ca5-ab78-81eb51e596f0",
+                "datatypeName": ""
             }
         ],
         "x": 130,
@@ -1013,7 +1223,7 @@
         "type": "debug",
         "z": "347e42a6a46aef70",
         "name": "debug 1",
-        "active": false,
+        "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
@@ -1052,7 +1262,7 @@
         "type": "function",
         "z": "347e42a6a46aef70",
         "name": "function 1",
-        "func": "const state = msg.payload.value[0].value.value\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nmsg.payload = {name: \"MC-9\", ipAddress: \"192.168.1.9\", status, state}\nif(state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
+        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nmsg.payload = {\n    name: \"MC-9\", ipAddress: \"192.168.1.9\", status,\n    state, user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time\n}\nif (state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1140,6 +1350,36 @@
                 "name": "running_state",
                 "nodeId": "ns=2;g=dfaa012d-902c-4e51-b812-56b5df1ab6d8",
                 "datatypeName": ""
+            },
+            {
+                "name": "USER_ID",
+                "nodeId": "ns=2;g=da49edb4-d9d9-40bf-8b89-88aebcb24a94",
+                "datatypeName": ""
+            },
+            {
+                "name": "G_CODE_NAME",
+                "nodeId": "ns=2;g=2feaad54-b0a0-4809-9f6a-7f72fad768ec",
+                "datatypeName": ""
+            },
+            {
+                "name": "K_NUM",
+                "nodeId": "ns=2;g=aeaa1dae-2ac4-4c47-9549-986663e28b18",
+                "datatypeName": ""
+            },
+            {
+                "name": "OUTPUT_WP",
+                "nodeId": "ns=2;g=84b3eb72-1bc9-47c2-86d4-837b1e7255cb",
+                "datatypeName": ""
+            },
+            {
+                "name": "TOOL_NAME",
+                "nodeId": "ns=2;g=7cddc413-5966-402f-9b21-339277a683e6",
+                "datatypeName": ""
+            },
+            {
+                "name": "TOTAL_CUTTING_TIME",
+                "nodeId": "ns=2;g=f4e121f3-9019-428a-98c1-fd23948555e4",
+                "datatypeName": ""
             }
         ],
         "x": 70,
@@ -1195,7 +1435,7 @@
         "type": "function",
         "z": "347e42a6a46aef70",
         "name": "function 15",
-        "func": "const state = msg.payload.value[0].value.value\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nmsg.payload = {name: \"MC-1\", \nipAddress: \"192.168.1.1\", status, state}\nif(state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\n\nreturn msg;\n",
+        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\n\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nmsg.payload = {\n    name: \"MC-1\",\n    ipAddress: \"192.168.1.1\", status,\n    state,\n    user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time\n}\nif (state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\n\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1283,6 +1523,36 @@
                 "name": "running_state",
                 "nodeId": "ns=2;g=04703049-2f00-4d22-b5a5-b8e73b1aefc9",
                 "datatypeName": ""
+            },
+            {
+                "name": "USER_ID",
+                "nodeId": "ns=2;g=f469ae56-8455-43ce-8888-abeea29394d2",
+                "datatypeName": ""
+            },
+            {
+                "name": "G_CODE_NAME",
+                "nodeId": "ns=2;g=92ed3491-bea7-4f4e-8a85-6de117d2f321",
+                "datatypeName": ""
+            },
+            {
+                "name": "K_NUM",
+                "nodeId": "ns=2;g=4c50b4ac-81d2-4703-baee-bcedd284a095",
+                "datatypeName": ""
+            },
+            {
+                "name": "OUTPUT_WP",
+                "nodeId": "ns=2;g=7aad79a8-8428-4b24-b9d3-7b283d139380",
+                "datatypeName": ""
+            },
+            {
+                "name": "TOOL_NAME",
+                "nodeId": "ns=2;g=543d15eb-540f-4042-a642-bfe62b5ec1e8",
+                "datatypeName": ""
+            },
+            {
+                "name": "TOTAL_CUTTING_TIME",
+                "nodeId": "ns=2;g=34f8390e-2644-4d57-9d72-0fc14b0a1bae",
+                "datatypeName": ""
             }
         ],
         "x": 130,
@@ -1299,7 +1569,7 @@
         "type": "debug",
         "z": "347e42a6a46aef70",
         "name": "debug 19",
-        "active": true,
+        "active": false,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
@@ -1338,7 +1608,7 @@
         "type": "function",
         "z": "347e42a6a46aef70",
         "name": "function 19",
-        "func": "const state = msg.payload.value[0].value.value\nconst machine_id = msg.payload.value[1].value.value\nconst user_id = msg.payload.value[2].value.value\nconst g_code_name = msg.payload.value[3].value.value\nconst k_num = msg.payload.value[4].value.value\nconst output_wp = msg.payload.value[5].value.value\nconst tool_name = msg.payload.value[6].value.value\nconst toal_cutting_time = msg.payload.value[7].value.value\n\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\n\n\nmsg.payload = {\n    name: \"MC-8\",\n    ipAddress: \"192.168.1.8\",\n    status,\n    state,\n    machine_id,\n    user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    toal_cutting_time\n}\nif (state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
+        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\n\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\n\n\nmsg.payload = {\n    name: \"MC-8\",\n    ipAddress: \"192.168.1.8\",\n    status,\n    state,\n    user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time\n}\nif (state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1425,11 +1695,6 @@
             {
                 "name": "running_state",
                 "nodeId": "ns=2;g=24f0072f-e7dd-40ec-ac9d-cb8c8d3a3ded",
-                "datatypeName": ""
-            },
-            {
-                "name": "machine_id",
-                "nodeId": "ns=2;g=60b675fc-cff1-448f-bf78-651683fa11d5",
                 "datatypeName": ""
             },
             {
