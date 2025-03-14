@@ -48,9 +48,8 @@ class MachineController {
                 secure: false,
             })
 
-
             const remotePath = '/Storage Card/USER/DataCenter';
-            if (name === 'MC-14') {
+            if (name === 'MC-14' || name === 'MC-15') {
                 await client.ensureDir(remotePath); // Pastikan direktori tujuan ada
             }
 
@@ -59,10 +58,11 @@ class MachineController {
                 stream.end(file.buffer);
                 console.log(`Uploading: ${file.originalname}`); // Debugging
 
-                const path = name === 'MC-14' ? `${remotePath}/${file.originalname}` : file.originalname
+                const customMachine = name === 'MC-14' || name === 'MC-15'
+
+                const path = customMachine ? `${remotePath}/${file.originalname}` : file.originalname
 
                 await client.uploadFrom(stream, path);
-
             }
 
 
@@ -115,20 +115,25 @@ class MachineController {
                 secure: false,
             })
 
+            const customMachine = name === 'MC-14' || name === 'MC-15'
+            const remotePath = '/Storage Card/USER/DataCenter';
+
             // remove all files
             if (!fileName) {
-                if (name !== 'MC-14') {
+                if (!customMachine) {
                     await client.removeDir('/');
                     return res.status(200).json({ status: 200, message: `All files removed from ${name}` })
                 }
-
-                const remotePath = '/Storage Card/USER/DataCenter';
+                
                 await client.ensureDir(remotePath); // Pastikan direktori tujuan ada
                 await client.removeDir(remotePath);
                 return res.status(200).json({ status: 200, message: `All files removed from ${name}` })
             }
 
             // remove single file
+            if(customMachine) {
+                await client.cd(remotePath)
+            }
             await client.remove(fileName);
             return res.status(200).json({ status: 200, message: `File ${fileName} removed from ${name}` })
 
@@ -325,7 +330,7 @@ class MachineController {
         try {
             const { machine_id } = req.params
 
-            const { ip_address } = await Machine.findOne({ where: { id: machine_id }, attributes: ['ip_address'] })
+            const { ip_address, name } = await Machine.findOne({ where: { id: machine_id }, attributes: ['ip_address', 'name'] })
             if (!ip_address) return res.status(400).json({ message: 'Machine not found', status: 400 })
 
             console.log(ip_address, 222)
@@ -340,9 +345,11 @@ class MachineController {
                 password: "MC",
                 secure: false,
             })
-
-            const files = await client.list('/')
-
+            if(name === 'MC-14' || name === 'MC-15') {
+                const remotePath = '/Storage Card/USER/DataCenter/';
+                await client.cd(remotePath)
+            }
+            const files = await client.list()
             const fileNames = files.map((file) => {
                 return {
                     fileName: file.name,
