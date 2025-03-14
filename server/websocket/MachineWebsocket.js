@@ -147,16 +147,16 @@ module.exports = class MachineWebsocket {
         try {
             const nowDate = date ? new Date(date) : new Date();
 
-            const machineIds = await Machine.findAll({
-                attributes: ['id', 'name'],
+            const machines = await Machine.findAll({
+                attributes: ['id', 'name', 'type'],
             })
-            // check if machineIds is empty or nowDate is greater than current date
-            if (!machineIds.length || nowDate.getTime() > new Date().getTime()) {
+            // check if machines is empty or nowDate is greater than current date
+            if (!machines.length || nowDate.getTime() > new Date().getTime()) {
                 client.send(JSON.stringify({ type: 'percentage', data: [] }));
                 return;
             }
 
-            const machinesWithLastLog = await Promise.all(machineIds.map(async (machine) => {
+            const machinesWithLastLog = await Promise.all(machines.map(async (machine) => {
                 const lastLog = await MachineLog.findOne({
                     where: {
                         machine_id: machine.id,
@@ -171,6 +171,7 @@ module.exports = class MachineWebsocket {
                 const result = {
                     status: lastLog?.current_status || 'Stopped',
                     name: machine.name,
+                    type: machine.type,
                     description: countDescription(lastLog?.running_today || 0),
                     percentage: [runningTime, 100 - runningTime]
                 }

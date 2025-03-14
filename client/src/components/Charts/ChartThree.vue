@@ -61,6 +61,7 @@ const apexOptions = {
       <div>
         <h4 class="text-xl font-bold text-black dark:text-white">
           {{ machine?.name || '-' }}
+          <span class="text-md font-semibold">{{ machine.type ? `(${machine.type})` : '' }}</span>
         </h4>
 
         <h4 class="text-sm font-semibold text-black dark:text-white mt-2">

@@ -38,6 +38,10 @@ module.exports = (sequelize, DataTypes) => {
     power_input: DataTypes.INTEGER,
     stroke_axxis: DataTypes.STRING,
     spindel_rpm: DataTypes.STRING,
+    type: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
 
     user_id: DataTypes.INTEGER
   }, {
