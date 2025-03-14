@@ -109,6 +109,9 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
           <span class="font-medium text-white dark:text-black">{{ item.timeDifference }} </span>
           <br />
 
+          <span class="font-medium text-white dark:text-black">{{ item.k_num }} </span>
+          <br />
+
           <span class="font-medium text-white dark:text-black"
             >{{ item.g_code_name }} - {{ item.output_wp }}</span
           >

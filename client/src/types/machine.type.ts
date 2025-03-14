@@ -26,6 +26,7 @@ export type ObjMachineTimeline = {
   output_wp: string
   total_cutting_time: string
   g_code_name: string
+  k_num:string 
 }
 
 export type MachineTimeline = {
