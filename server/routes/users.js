@@ -1,6 +1,6 @@
 const userRouter = require("express").Router();
 const { ADMIN_ROLE_ID } = require("../config/config.env");
-const { changePassword, checkToken, deleteById, editProfile, getAll, getByNIK, login, register, resetPassword, getById } = require("../controllers/UserController")
+const { changePassword, checkToken, deleteById, editProfile, getAll, getByNIK, login, register, resetPassword, getById, getUserMAchine } = require("../controllers/UserController")
 const authMiddleware = require("../middlewares/auth");
 const upload = require("../middlewares/multer");
 const { allowRoleId } = require("../middlewares/role");
@@ -32,5 +32,7 @@ userRouter.patch('/edit-profile',
     authMiddleware,
     upload.single('profilePicture'),
     editProfile);
+
+userRouter.get('/operator-machines', authMiddleware, getUserMAchine);
 
 module.exports = userRouter;

@@ -10,12 +10,13 @@ import { computed, onMounted } from 'vue'
 
 onMounted(async () => {
   await fetchUsers({ role: 'Operator' })
+  await fetchOperatorMachine()
 })
 
-const { fetchUsers, loadingFetch, users } = useUsers()
+const { fetchUsers, loadingFetch, users, fetchOperatorMachine, operatorMachines } = useUsers()
 
 interface ExtendedUser extends User {
-  status: string
+  status: 'Running' | 'Stopped'
   remaining: string
   time: string
   lastUpdate: string
@@ -24,17 +25,18 @@ interface ExtendedUser extends User {
   machine: string
 }
 const extendendUsers = computed<ExtendedUser[]>(() => {
-  const result = users.value.map((user) => {
+  const result = operatorMachines.value.map((user) => {
+    const { Machine, createdAt, total_cutting_time, current_status } = user.detail
     const random = Math.floor(Math.random() * 10)
     const temp = {
       ...user,
-      status: random % 2 === 0 ? 'RUN' : 'IDLE',
-      remaining: '0 Program',
-      time: '00:00:00',
-      lastUpdate: '05 Jun 2023 09:58:34',
-      photo: user.imageUrl || 'https://dummyimage.com/600x400/000/fff.png',
+      status: current_status,
+      remaining: total_cutting_time || '0 Program',
+      time: total_cutting_time || '00:00:00',
+      lastUpdate: new Date(createdAt).toLocaleString(),
+      photo: user.profile_image || 'https://dummyimage.com/600x400/000/fff.png',
       process: '00001(M06 ATC)',
-      machine: random % 2 === 0 ? 'OKK VM5' : 'OKK VP1200'
+      machine: Machine.name || random % 2 === 0 ? 'OKK VM5' : 'OKK VP1200'
     }
     return temp
   })
@@ -60,11 +62,7 @@ const extendendUsers = computed<ExtendedUser[]>(() => {
           <div
             :class="[
               'text-white dark:text-white text-center py-1 font-bold rounded-t-md',
-              operator.status === 'RUN'
-                ? 'bg-green-500'
-                : operator.status === 'IDLE'
-                  ? 'bg-yellow-500'
-                  : 'bg-red-500'
+              operator.status === 'Running' ? 'bg-green-500' : 'bg-red-500'
             ]"
           >
             <!-- agar ada garis dibawah -->

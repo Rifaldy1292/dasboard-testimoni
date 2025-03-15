@@ -22,9 +22,9 @@ const pubMessage = () => {
         const machineName = topic.replaceAll('/data', '').toUpperCase()
         const message = {
             name: machineName,
-            // status: getRandomStatus(),
+            status: getRandomStatus(),
             ipAddress: '38.0.101.76',
-            status: 'Running'
+            // status: 'Running'
         }
         // delay 90 detik
         setTimeout(() => {

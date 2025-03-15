@@ -1,7 +1,7 @@
 import { ref, shallowRef } from 'vue'
 import type { ModalResetPasswordProps } from '@/components/modules/ListUser/ModalResetPassword.vue'
 import UserServices from '@/services/user.service'
-import type { User } from '@/types/user.type'
+import type { OperatorMachine, User } from '@/types/user.type'
 import useToast from '@/composables/useToast'
 import { jwtDecode } from 'jwt-decode'
 import { useConfirm } from 'primevue'
@@ -13,6 +13,7 @@ const user = ref<User | undefined>()
 export const useUsers = () => {
   const toast = useToast()
   const confirm = useConfirm()
+  const operatorMachines = ref<OperatorMachine[]>([])
 
   const users = ref<User[]>([])
   const loadingFetch = shallowRef(false)
@@ -99,7 +100,22 @@ export const useUsers = () => {
     }
   }
 
+  const fetchOperatorMachine = async () => {
+    try {
+      loadingFetch.value = true
+      const { data } = await UserServices.getOperatorMachines()
+      console.log(data.data)
+      operatorMachines.value = data.data
+    } catch (error) {
+      handleErrorAPI(error, toast)
+    } finally {
+      loadingFetch.value = false
+    }
+  }
+
   return {
+    fetchOperatorMachine,
+    operatorMachines,
     users,
     loadingFetch,
     fetchUsers,

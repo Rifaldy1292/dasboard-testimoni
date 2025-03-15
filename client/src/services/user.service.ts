@@ -2,7 +2,7 @@ import type { AxiosResponse } from 'axios'
 import API from './API'
 import type { EditProfile, LoginPayload, ParamsGetUsers, RegisterPayload } from '@/dto/user.dto'
 import type { ApiResponse, FindByNIk, GetUsers } from '@/types/apiResponse.type'
-import type { User } from '@/types/user.type'
+import type { OperatorMachine, User } from '@/types/user.type'
 
 const UserServices = {
   register: (body: RegisterPayload): Promise<AxiosResponse> => {
@@ -38,6 +38,9 @@ const UserServices = {
       'Content-Type': 'multipart/form-data'
     }
     return API({ headers }).patch('/users/edit-profile', body)
+  },
+  getOperatorMachines(): Promise<AxiosResponse<ApiResponse<OperatorMachine[]>>> {
+    return API().get('/users/operator-machines')
   }
 }
 

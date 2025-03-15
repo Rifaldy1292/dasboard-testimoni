@@ -39,4 +39,4 @@ let test1 = 1
 let test2 = test1 + 1
 // console.log(test2)
 test1 = 2
-console.log(test2)
+// console.log(test2)

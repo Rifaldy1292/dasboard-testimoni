@@ -1,12 +1,51 @@
 require('dotenv').config();
 const path = require('path');
-const { User, Role, Machine } = require('../models');
+const { User, Role, Machine, MachineLog } = require('../models');
 const { tokenGenerator } = require('../helpers/jsonwebtoken');
 const { encryptPassword, decryptPassword } = require('../helpers/bcrypt');
 const { OPERATOR_ROLE_ID } = require('../config/config.env');
 const { serverError } = require('../utils/serverError');
+const { dateQuery } = require('../utils/dateQuery');
+
 
 class UserController {
+    static async getUserMAchine(req, res) {
+        try {
+            const machineLogQuery = {
+                model: MachineLog,
+                where: { createdAt: dateQuery() },
+                order: [['createdAt', 'DESC']],
+                limit: 1,
+                attributes: ['id', 'machine_id', 'createdAt', 'g_code_name', 'k_num', 'output_wp', 'total_cutting_time', 'description', 'current_status'],
+                include: [{
+                    model: Machine,
+                    attributes: ['name']
+                }]
+            };
+
+            const users = await User.findAll({
+                where: {
+                    role_id: OPERATOR_ROLE_ID,
+                },
+                attributes: ['name', 'profile_image'],
+                include: [machineLogQuery],
+            });
+
+            const formattedUsers = users.map(user => {
+                delete user.dataValues.id
+                // delete user.dataValues.name
+                const { MachineLogs, ...userData } = user.dataValues;
+                userData.detail = MachineLogs[0]
+                return userData || null
+            }).filter(user => user.detail);
+            // .filter(user => user !== null);
+
+            res.status(200).json({ status: 200, message: 'success get user machine', data: formattedUsers });
+        } catch (error) {
+            serverError(error, res, 'Failed to get user machine');
+        }
+    }
+
     static async getAll(req, res) {
         try {
             const { role } = req.query;

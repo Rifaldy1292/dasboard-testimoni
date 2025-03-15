@@ -1,3 +1,5 @@
+import type { ObjMachineTimeline } from './machine.type'
+
 export type Role = 'Admin' | 'Operator' | 'Reviewer'
 
 export type RoleOption = {
@@ -16,4 +18,10 @@ export interface User {
   machineName: null | string
   allowDelete?: boolean
   imageUrl: null | string
+}
+
+export interface OperatorMachine {
+  detail: Omit<ObjMachineTimeline, 'timeDifference' | 'description'> & { Machine: { name: string } }
+  name: string
+  profile_image: null | string
 }

@@ -34,7 +34,7 @@ const encryptToNumber = (text) => {
 /**
  * 
  * @param {number} encryptedNumber  
- * @returns {string | null}
+ * @returns {Promise<string | null>}
  */
 const decryptFromNumber = async (encryptedNumber) => {
     try {
