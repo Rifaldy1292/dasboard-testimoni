@@ -111,7 +111,8 @@ const handleExecute = (): void => {
       outputWP: '',
       toolName: '',
       totalCuttingTime: '',
-      toolNumber: 0
+      toolNumber: 0,
+      calculateTotalCuttingTime: 0
     }
 
     const extendedFiles: ContentFile[] = [mainProgramContent, ...inputFiles.value]

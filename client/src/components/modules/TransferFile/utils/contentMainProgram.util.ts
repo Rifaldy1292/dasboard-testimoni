@@ -19,6 +19,7 @@ type DocsMacro =
   | 'OUTPUT_WP'
   | 'TOOL_NAME'
   | 'TOTAL_CUTTING_TIME'
+  | 'CALCULATE_TOTAL_CUTTING_TIME'
 type Docs = Record<DocsMacro, string>
 
 const M98P7000 = 'M98P7000'
@@ -34,7 +35,15 @@ export const contentMainProgram = ({
   selectedProgramNumber
 }: params): string => {
   const bodyContent = inputFiles.map((file) => {
-    const { toolNumber, gCodeName, kNum, outputWP, toolName, totalCuttingTime } = file
+    const {
+      toolNumber,
+      gCodeName,
+      kNum,
+      outputWP,
+      toolName,
+      totalCuttingTime,
+      calculateTotalCuttingTime
+    } = file
 
     let docs: Docs = {
       G_CODE_NAME: '',
@@ -42,7 +51,8 @@ export const contentMainProgram = ({
       OUTPUT_WP: '',
       TOOL_NAME: '',
       TOTAL_CUTTING_TIME: '',
-      USER_ID: ''
+      USER_ID: '',
+      CALCULATE_TOTAL_CUTTING_TIME: ''
     }
 
     switch (selectedOneMachine.startMacro) {
@@ -53,7 +63,8 @@ export const contentMainProgram = ({
           K_NUM: '#503',
           OUTPUT_WP: '#504',
           TOOL_NAME: '#505',
-          TOTAL_CUTTING_TIME: '#506'
+          TOTAL_CUTTING_TIME: '#506',
+          CALCULATE_TOTAL_CUTTING_TIME: '#507'
         }
         break
       }
@@ -64,7 +75,8 @@ export const contentMainProgram = ({
           K_NUM: '#543',
           OUTPUT_WP: '#544',
           TOOL_NAME: '#545',
-          TOTAL_CUTTING_TIME: '#546'
+          TOTAL_CUTTING_TIME: '#546',
+          CALCULATE_TOTAL_CUTTING_TIME: '#547'
         }
         break
       }
@@ -75,7 +87,8 @@ export const contentMainProgram = ({
           K_NUM: '#563',
           OUTPUT_WP: '#564',
           TOOL_NAME: '#565',
-          TOTAL_CUTTING_TIME: '#566'
+          TOTAL_CUTTING_TIME: '#566',
+          CALCULATE_TOTAL_CUTTING_TIME: '#567'
         }
         break
       }
@@ -86,7 +99,8 @@ ${docs.G_CODE_NAME}=${gCodeName}
 ${docs.K_NUM}=${kNum}
 ${docs.OUTPUT_WP}=${outputWP}
 ${docs.TOOL_NAME}=${toolName}
-${docs.TOTAL_CUTTING_TIME}=${totalCuttingTime}`
+${docs.TOTAL_CUTTING_TIME}=${totalCuttingTime}
+${docs.CALCULATE_TOTAL_CUTTING_TIME}=${calculateTotalCuttingTime}`
 
     const body = `${M98P7000}
 T${toolNumber}

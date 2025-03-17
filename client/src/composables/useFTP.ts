@@ -12,6 +12,18 @@ const selectedAction = shallowRef<Action>(actionOPtions[0])
 export const useFTP = () => {
   const loadingUpload = shallowRef(false)
 
+  /**
+   *
+   * @param totalCuttingTime example 0 : 30 : 34
+   */
+  const getCuttingTimeInSecond = (totalCuttingTime: string): number => {
+    const hour = totalCuttingTime.split(':')[0]
+    const minute = totalCuttingTime.split(':')[1]
+    const second = totalCuttingTime.split(':')[2]
+
+    return parseInt(hour) * 3600 + parseInt(minute) * 60 + parseInt(second)
+  }
+
   const handleUploadFolder = async (event: Event): Promise<void> => {
     try {
       loadingUpload.value = true
@@ -26,12 +38,15 @@ export const useFTP = () => {
 
           const { gCodeName, kNum, outputWP, toolName, totalCuttingTime } = res as ValueFromContent
 
+          // const calculateTotalCuttingTime = Array.from(files)
+          //   .slice(index)
+          //   .reduce((acc, curr) => acc + getCuttingTimeInSecond(totalCuttingTime as string), 0)
+
           const { data } = await MachineServices.postEncryptContentValue({
             gCodeName,
             kNum,
             outputWP,
-            toolName,
-            totalCuttingTime
+            toolName
           })
 
           return {
@@ -41,14 +56,30 @@ export const useFTP = () => {
             kNum: data.data.kNum,
             outputWP: data.data.outputWP,
             toolName: data.data.toolName,
-            totalCuttingTime: data.data.totalCuttingTime
+            totalCuttingTime: getCuttingTimeInSecond(totalCuttingTime as string)
+            // calculateTotalCuttingTime,
+            // test: getCuttingTimeInSecond(totalCuttingTime)
           }
         })
       )
 
-      inputFiles.value = [...inputFiles.value, ...editFileValue].sort((a, b) =>
+      const extendedFiles = [...inputFiles.value, ...editFileValue].sort((a, b) =>
         a.name.localeCompare(b.name)
       )
+
+      const calculateTotalCuttingTime = extendedFiles.map((item, index) => {
+        const calculateTotalCuttingTime = extendedFiles
+          .slice(index)
+          .reduce((acc, curr) => acc + (curr.totalCuttingTime as number), 0)
+        return {
+          ...item,
+          calculateTotalCuttingTime
+        }
+      })
+
+      inputFiles.value = calculateTotalCuttingTime
+
+      console.log({ calculateTotalCuttingTime })
 
       console.log(inputFiles.value, 'inputFiles')
     } catch (error: unknown) {
@@ -57,21 +88,6 @@ export const useFTP = () => {
       loadingUpload.value = false
     }
   }
-
-  // // Fungsi untuk menambahkan userId setelah "%" dan komentar pertama
-  // const addUserIdToNTFile = (fileContent: string): string => {
-  //   const lines = fileContent.split('\n')
-
-  //   for (let i = 0; i < lines.length; i++) {
-  //     if (lines[i].trim() === '%') {
-  //       lines.splice(i + 2, 0, `( user_id: ${user.value?.id} )`) // Tambahkan userId setelah "%"
-  //       lines.splice(i + 3, 0, `( machine_id: ${selectedOneMachine.value?.id} )`)
-  //       break
-  //     }
-  //   }
-
-  //   return lines.join('\n')
-  // }
 
   const readFile = async (file: File): Promise<ContentFile> => {
     const reader = new FileReader()

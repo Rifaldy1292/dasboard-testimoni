@@ -22,8 +22,62 @@ const toolName = test.match(/TOOL NAME : ([^)]+)/g)
 const totalCuttingTime = test.match(/TOTAL CUTTING TIME = ([^)]+)/g)
 // get value
 
-console.log(knum[0].replace('K-NUM : ', ''))
-console.log(gCodeName[0].replace('NAMA G CODE : ', ''))
-console.log(outputWP[0].replace('OUTPUT WP : ', ''))
-console.log(toolName[0].replace('TOOL NAME : ', ''))
-console.log(totalCuttingTime[0].replace('TOTAL CUTTING TIME = ', ''))
+// console.log(knum[0].replace('K-NUM : ', ''))
+// console.log(gCodeName[0].replace('NAMA G CODE : ', ''))
+// console.log(outputWP[0].replace('OUTPUT WP : ', ''))
+// console.log(toolName[0].replace('TOOL NAME : ', ''))
+// console.log(totalCuttingTime[0].replace('TOTAL CUTTING TIME = ', ''))
+
+
+
+
+const ex = [10, 20, 30, 40, 10, 80]
+
+// [0] = 10 + 20 + 30 + 40 + 10 + 80
+// [1] = 20 + 30 + 40 + 10 + 80
+// [2] = 30 + 40 + 10 + 80
+// [3] = 40 + 10 + 80
+// [4] = 10 + 80
+// [5] = 80
+// expexted result = [190, 180, 160, 130, 90, 80]
+
+const result = ex.map((item, index) => {
+    return ex.slice(index).reduce((acc, curr) => acc + curr, 0)
+})
+
+console.log(result)
+
+const arrObj = [
+    {
+        totalCuttingTime: '1 : 37 : 13',
+        test: 'hiihi'
+    },
+    {
+        totalCuttingTime: '2 : 37 : 13',
+        test: 'hiihi'
+    },
+    {
+        totalCuttingTime: '3 : 37 : 13',
+        test: 'hiihi'
+    },
+    {
+        totalCuttingTime: '4 : 37 : 13',
+        test: 'hiihi'
+    },
+]
+
+
+const getCuttingTimeMilisecond = (totalCuttingTime) => {
+    const hour = totalCuttingTime.split(':')[0]
+    const minute = totalCuttingTime.split(':')[1]
+    const second = totalCuttingTime.split(':')[2]
+
+    return parseInt(hour) * 3600000 + parseInt(minute) * 60000 + parseInt(second) * 1000
+}
+
+const calculate = arrObj.map((item, index) => {
+    const result = arrObj.slice(index).reduce((acc, curr) => acc + getCuttingTimeMilisecond(curr.totalCuttingTime), 0)
+    return result
+})
+
+console.log(calculate, { last: getCuttingTimeMilisecond(arrObj[arrObj.length - 1].totalCuttingTime) })    

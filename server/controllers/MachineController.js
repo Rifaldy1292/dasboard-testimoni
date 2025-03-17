@@ -9,7 +9,7 @@ let { dateQuery, config } = require('../utils/dateQuery');
 const { encryptToNumber } = require('../helpers/crypto');
 const encryptionCache = require('../config/encryptionCache');
 
-const hostHp = '192.168.43.116'
+const hostHp = '192.168.43.200'
 const pwHp = 'android'
 const portHp = 2221
 
@@ -42,14 +42,14 @@ class MachineController {
 
             // console.log(machineIp.dataValues.ip_address, 22)
             await client.access({
-                host: ip_address,
-                port: 21,
-                user: "MC",
-                password: "MC",
-                // host: hostHp,
-                // port: portHp,
-                // user: pwHp,
-                // password: pwHp,
+                // host: ip_address,
+                // port: 21,
+                // user: "MC",
+                // password: "MC",
+                host: hostHp,
+                port: portHp,
+                user: pwHp,
+                password: pwHp,
                 secure: false,
             })
 
@@ -159,9 +159,9 @@ class MachineController {
              * @prop {string} toolName - Tool name
              * @prop {string} totalCuttingTime - Total cutting time
              */
-            const { gCodeName, kNum, outputWP, toolName, totalCuttingTime } = req.body
+            const { gCodeName, kNum, outputWP, toolName } = req.body
 
-            if (!gCodeName || !kNum || !outputWP || !toolName || !totalCuttingTime) {
+            if (!gCodeName || !kNum || !outputWP || !toolName) {
                 return res.status(400).json({ message: 'gCodeName, kNum, outputWP, toolName, totalCuttingTime is required', status: 400 })
             }
 
@@ -170,7 +170,6 @@ class MachineController {
                 kNum: encryptToNumber(kNum),
                 outputWP: encryptToNumber(outputWP),
                 toolName: encryptToNumber(toolName),
-                totalCuttingTime: encryptToNumber(totalCuttingTime)
             }
 
             res.status(201).json({ status: 201, message: 'success encrypt content value', data: encryptValue });

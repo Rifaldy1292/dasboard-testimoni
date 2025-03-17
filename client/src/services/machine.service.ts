@@ -24,7 +24,9 @@ const MachineServices = {
     return API().get('/machines/options')
   },
 
-  postEncryptContentValue: (body: ValueFromContent): Promise<AxiosResponse<EncryptContent>> => {
+  postEncryptContentValue: (
+    body: Omit<ValueFromContent, 'totalCuttingTime'>
+  ): Promise<AxiosResponse<EncryptContent>> => {
     return API().post('/machines/encrypt-content', body)
   },
 
