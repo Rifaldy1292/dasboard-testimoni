@@ -42,10 +42,6 @@ watch(
   }
 )
 
-const duplicatedTimelineData = computed(() => {
-  const data = timelineMachines.value?.data || []
-  return { data, date: timelineMachines.value?.date }
-})
 </script>
 
 <template>
@@ -57,14 +53,14 @@ const duplicatedTimelineData = computed(() => {
         <div class="flex justify-end">
           <DatePickerDay v-model:date-option="dateOption" />
         </div>
-        <DataNotFound :condition="duplicatedTimelineData?.data?.length === 0" />
+        <DataNotFound :condition="timelineMachines?.data?.length === 0" />
         <span
           v-if="timelineMachines?.date"
           class="text-lg font-semibold text-black dark:text-white"
-          >{{ new Date(duplicatedTimelineData?.date as string).toLocaleDateString() }}</span
+          >{{ new Date(timelineMachines?.date as string).toLocaleDateString() }}</span
         >
         <div
-          v-for="machine in duplicatedTimelineData?.data || []"
+          v-for="machine in timelineMachines?.data || []"
           :key="machine.name"
           class="border border-gray-950 dark:border-gray-500 overflow-x-auto"
         >

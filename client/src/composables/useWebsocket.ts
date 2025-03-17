@@ -25,6 +25,7 @@ const useWebSocket = (payloadType?: PayloadType) => {
   }
 
   onMounted(() => {
+    loadingWebsocket.value = true
     socket.value = new WebSocket(SOCKET_URL, 'echo-protocol')
 
     socket.value.onopen = () => {
@@ -39,7 +40,6 @@ const useWebSocket = (payloadType?: PayloadType) => {
     }
     socket.value.onmessage = (event) => {
       try {
-        loadingWebsocket.value = true
         const parsedData = JSON.parse(event.data) as WebsocketResponse
         // console.log('Received WebSocket message', parsedData)
         const { type, data, message } = parsedData
@@ -83,7 +83,7 @@ const useWebSocket = (payloadType?: PayloadType) => {
       } catch (error) {
         console.error('Invalid WebSocket message', error)
       } finally {
-        loadingWebsocket.value = false
+      
       }
     }
 
@@ -96,11 +96,12 @@ const useWebSocket = (payloadType?: PayloadType) => {
     }
 
     socket.value.onclose = () => {
-      percentageMachines.value = undefined
-      timelineMachines.value = undefined
+      // percentageMachines.value = undefined
+      // timelineMachines.value = undefined
       socket.value?.close()
       console.log('Disconnected from WebSocket server')
     }
+    loadingWebsocket.value = false
   })
 
   onUnmounted(() => {
