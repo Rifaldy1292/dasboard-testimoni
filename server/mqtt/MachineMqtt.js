@@ -6,21 +6,6 @@ const MachineWebsocket = require('../websocket/MachineWebsocket');
 const { dateQuery } = require('../utils/dateQuery');
 const { decryptFromNumber } = require('../helpers/crypto');
 
-const updateLastMachineLog = async (id, runningHour) => {
-    try {
-        await MachineLog.update(
-            { running_today: runningHour },
-            {
-                where: { machine_id: id, createdAt: dateQuery() },
-                order: [['createdAt', 'DESC']],
-                limit: 1
-            }
-        );
-    } catch (error) {
-        console.error({ error, message: error.message });
-    }
-}
-
 const createCuttingTime = async () => {
     try {
         const { date } = dateCuttingTime();
@@ -176,4 +161,4 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
     }
 }
 
-module.exports = { updateLastMachineLog, createCuttingTime, handleChangeMachineStatus, createMachineAndLogFirstTime };
+module.exports = {  createCuttingTime, handleChangeMachineStatus, createMachineAndLogFirstTime };

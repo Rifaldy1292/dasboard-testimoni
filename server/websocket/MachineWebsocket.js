@@ -77,7 +77,7 @@ module.exports = class MachineWebsocket {
                             // ambil data sesuai hari ini
                             createdAt: dateQuery(dateOption)
                         },
-                        attributes: ['id', 'current_status', 'createdAt', 'description', 'user_id', 'g_code_name', 'k_num', 'output_wp', 'total_cutting_time'],
+                        attributes: ['id', 'current_status', 'createdAt', 'description', 'user_id', 'g_code_name', 'k_num', 'output_wp', 'total_cutting_time', 'running_today', 'createdAt'],
                         include: [
                             {
                                 model: User,
@@ -163,10 +163,22 @@ module.exports = class MachineWebsocket {
                         updatedAt: dateQuery(nowDate)
                     },
                     order: [['updatedAt', 'DESC']],
-                    attributes: ['running_today', 'current_status']
+                    attributes: ['running_today', 'current_status', 'updatedAt']
                 });
+                console.log(lastLog, 123)
 
-                const runningTime = percentage(lastLog?.running_today || 0, perfectTime);
+                // const test = await MachineLog.findAll({
+                //     where: {
+                //         machine_id: machine.id,
+                //         updatedAt: dateQuery(nowDate)
+                //     },
+                //     order: [['updatedAt', 'DESC']],
+                //     attributes: ['running_today', 'current_status'],
+                //     limit: 5
+                // });
+                // console.log(test, 123)
+
+                const runningTime = percentage(lastLog?.running_today || 0 , perfectTime);
 
                 const result = {
                     status: lastLog?.current_status || 'Stopped',

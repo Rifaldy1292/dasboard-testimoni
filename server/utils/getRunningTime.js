@@ -1,7 +1,7 @@
 const { MachineLog } = require("../models");
 const { dateQuery } = require("./dateQuery");
 
-const getRunningTime = async (machineId) => {
+const updateLastMachineLog = async (machineId) => {
     try {
         // get running time in now
         const logs = await MachineLog.findAll({
@@ -10,7 +10,7 @@ const getRunningTime = async (machineId) => {
                 createdAt: dateQuery()
             },
             order: [['createdAt', 'ASC']],
-            attributes: ['createdAt', 'current_status']
+            attributes: ['createdAt', 'current_status', 'id', 'running_today']
         });
 
         let totalRunningTime = 0; // Dalam milidetik
@@ -30,13 +30,24 @@ const getRunningTime = async (machineId) => {
         if (lastRunningTimestamp) {
             totalRunningTime += new Date() - new Date(lastRunningTimestamp);
         }
-        return totalRunningTime;
+        // logs[logs.length - 1].running_today = totalRunningTime
+        const lastLog = logs[logs.length - 1]
+        console.log({lastLog})
+        // lastLog.running_today = totalRunningTime
+        if(lastLog) {
+            await MachineLog.update(
+                { running_today: totalRunningTime },
+                {
+                    where: { id: lastLog.id },
+                }
+            );
+        }
     } catch (error) {
-        console.log({ error, message: error.message }, 'from getRunningTime');
+        console.log({ error, message: error.message }, 'from updateLastMachineLog');
     }
 }
 
-// const getRunningTimeMonth = async () => {
+// const updateLastMachineLogMonth = async () => {
 //     let error = null
 //     let data;
 //     try {
@@ -84,4 +95,4 @@ const getRunningTime = async (machineId) => {
 
 // }
 
-module.exports = { getRunningTime }
+module.exports = { updateLastMachineLog }
