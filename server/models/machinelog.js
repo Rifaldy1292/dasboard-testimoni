@@ -22,7 +22,16 @@ module.exports = (sequelize, DataTypes) => {
     g_code_name: DataTypes.STRING,
     k_num: DataTypes.STRING,
     output_wp: DataTypes.STRING,
-    total_cutting_time: DataTypes.STRING,
+    total_cutting_time: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
+    },
+    calculate_total_cutting_time: {
+      type: DataTypes.DECIMAL(8, 5),
+      allowNull: false,
+      defaultValue: 0
+    },
     previous_status: DataTypes.STRING,
     current_status: DataTypes.STRING,
     description: DataTypes.STRING,
