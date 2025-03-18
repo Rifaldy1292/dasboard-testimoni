@@ -32,7 +32,7 @@ const updateLastMachineLog = async (machineId) => {
         }
         // logs[logs.length - 1].running_today = totalRunningTime
         const lastLog = logs[logs.length - 1]
-        console.log({lastLog})
+        // console.log({lastLog})
         // lastLog.running_today = totalRunningTime
         if(lastLog) {
             await MachineLog.update(

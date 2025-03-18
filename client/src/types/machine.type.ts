@@ -8,7 +8,6 @@ export type Machine = {
   runningTime: string
   status: 'Running' | 'Stopped'
   quantity: number
-  type: string | null
 }
 
 export type GetPercentages = {
