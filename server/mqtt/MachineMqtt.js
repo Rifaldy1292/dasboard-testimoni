@@ -82,8 +82,8 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
             k_num: decryptKNum,
             output_wp: decryptOutputWp,
             tool_name: decryptToolName,
-            total_cutting_time: total_cutting_time,
-            calculate_total_cutting_time
+            total_cutting_time: total_cutting_time ||0,
+            calculate_total_cutting_time: calculate_total_cutting_time || 0,
         });
 
         // Send an update to all connected clients
@@ -153,8 +153,8 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
             k_num: decryptKNum,
             output_wp: decryptOutputWp,
             tool_name: decryptToolName,
-            total_cutting_time: total_cutting_time,
-            calculate_total_cutting_time
+            total_cutting_time: total_cutting_time || 0,
+            calculate_total_cutting_time: calculate_total_cutting_time || 0
         });
     } catch (error) {
         console.log({ error, message: error.message });
