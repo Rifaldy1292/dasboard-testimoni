@@ -23,7 +23,7 @@ export type ObjMachineTimeline = {
   description: string | null
   operator: string | null
   output_wp: string
-  total_cutting_time: string
+  total_cutting_time: number
   g_code_name: string
   k_num: string
 }

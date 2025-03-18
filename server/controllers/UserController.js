@@ -16,7 +16,7 @@ class UserController {
                 where: { createdAt: dateQuery() },
                 order: [['createdAt', 'DESC']],
                 limit: 1,
-                attributes: ['id', 'machine_id', 'createdAt', 'g_code_name', 'k_num', 'output_wp', 'total_cutting_time', 'description', 'current_status'],
+                attributes: ['id', 'machine_id', 'createdAt', 'g_code_name', 'k_num', 'output_wp', 'total_cutting_time', 'description', 'current_status', 'calculate_total_cutting_time'],
                 include: [{
                     model: Machine,
                     attributes: ['name']
@@ -24,9 +24,9 @@ class UserController {
             };
 
             const users = await User.findAll({
-                where: {
-                    role_id: OPERATOR_ROLE_ID,
-                },
+                // where: {
+                //     role_id: OPERATOR_ROLE_ID,
+                // },
                 attributes: ['name', 'profile_image'],
                 include: [machineLogQuery],
             });

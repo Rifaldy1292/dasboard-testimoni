@@ -46,7 +46,8 @@ const handleMqtt = (mqttClient, wss) => {
              *    "output_wp": 2112 // encrypt value
              *    "k_num": 2112 // encrypt value
              *    "tool_name": 2112 // encrypt value
-             *    "total_cutting_time   ": 2112 // encrypt value
+             *    "total_cutting_time   : 2112 // encrypt value
+             *     "calculate_total_cutting_time": 1.2222
              }
              */
             const parseMessage = JSON.parse(message.toString());

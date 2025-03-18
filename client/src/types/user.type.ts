@@ -21,7 +21,9 @@ export interface User {
 }
 
 export interface OperatorMachine {
-  detail: Omit<ObjMachineTimeline, 'timeDifference' | 'description'> & { Machine: { name: string } }
+  detail: Omit<ObjMachineTimeline & { calculate_total_cutting_time: string }, 'timeDifference' | 'description'> & { Machine: { name: string } }
   name: string
   profile_image: null | string
 }
+
+

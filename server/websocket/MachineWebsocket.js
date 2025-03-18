@@ -77,7 +77,7 @@ module.exports = class MachineWebsocket {
                             // ambil data sesuai hari ini
                             createdAt: dateQuery(dateOption)
                         },
-                        attributes: ['id', 'current_status', 'createdAt', 'description', 'user_id', 'g_code_name', 'k_num', 'output_wp', 'total_cutting_time', 'running_today', 'createdAt'],
+                        attributes: ['id', 'current_status', 'createdAt', 'description', 'user_id', 'g_code_name', 'k_num', 'output_wp',  'running_today', 'createdAt'],
                         include: [
                             {
                                 model: User,
@@ -93,7 +93,7 @@ module.exports = class MachineWebsocket {
             const sortedMachines = machines.map((machine) => {
                 return {
                     ...machine.dataValues,
-                    name: `${machine.name} (${machine.dataValues.type})`,
+                    name: `${machine.name} (${machine.dataValues.type})`,                    
                 }
             }).sort((a, b) => {
                 const numberA = parseInt(a.name.slice(3));

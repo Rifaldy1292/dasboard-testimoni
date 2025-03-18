@@ -26,13 +26,19 @@ interface ExtendedUser extends User {
 }
 const extendendUsers = computed<ExtendedUser[]>(() => {
   const result = operatorMachines.value.map((user) => {
-    const { Machine, createdAt, total_cutting_time, current_status, profile_image } = user.detail
-    const random = Math.floor(Math.random() * 10)
+    /**
+     * @example 2.22222 calculate_total_cutting_time
+     */
+    const { Machine, createdAt, total_cutting_time, current_status, profile_image, calculate_total_cutting_time } = user.detail
+    const calculate = calculate_total_cutting_time.split('.')
+    const totalProgram = calculate[0]
+    const remainingTime = calculate[1]
+
     const temp = {
       ...user, 
       status: current_status,
-      remaining: total_cutting_time || '0 Program',
-      time: total_cutting_time || '00:00:00',
+      remaining: `${totalProgram} Program`,
+      time: convertSecondsToHours(Number(remainingTime)),
       lastUpdate: new Date(createdAt).toLocaleString(),
       photo: profile_image,
       process: '00001(M06 ATC)',
@@ -45,6 +51,21 @@ const extendendUsers = computed<ExtendedUser[]>(() => {
   // return multipleResult.flat()
   return result
 })
+
+function convertSecondsToHours(seconds: number) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secondsRemainder = seconds % 60;
+
+    let result = [];
+    if (hours > 0) result.push(`${hours}h`);
+    if (minutes > 0) result.push(`${minutes}m`);
+    if (secondsRemainder > 0) result.push(`${secondsRemainder}s`);
+
+    return result.length > 0 ? result.join(" ") : "0s";
+}
+
+
 </script>
 
 <template>
@@ -73,7 +94,7 @@ const extendendUsers = computed<ExtendedUser[]>(() => {
           </div>
         </template>
         <template #content>
-          <div class="flex flex-col items-center mt-2">
+          <div class="flex flex-col items-center mt-2 gap-2">
             <div class="flex gap-4 mb-2">
               <div>
                 <h4 class="mt-2 font-medium">Process Now</h4>
@@ -86,7 +107,7 @@ const extendendUsers = computed<ExtendedUser[]>(() => {
                 alt="Operator"
               />
             </div>
-            <div class="flex justify-between text-xs mt-2">
+            <div class="flex justify-between text-xs mt-2 gap-2">
               <span>Remaining: {{ operator.remaining }}</span>
               <span>Time: {{ operator.time }}</span>
             </div>

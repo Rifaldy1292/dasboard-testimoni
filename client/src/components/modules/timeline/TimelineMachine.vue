@@ -41,6 +41,7 @@ const convertStringDifferenceToMilisecond = (str: string): number => {
   return total
 }
 
+
 const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
   const milisecond = convertStringDifferenceToMilisecond(obj.timeDifference)
   const minute = Math.round(milisecond / (1000 * 60))
@@ -115,15 +116,10 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
           <span class="font-medium text-white dark:text-black"
             >{{ item.g_code_name }} - {{ item.output_wp }}</span
           >
-          <br />
-
-          <span class="font-medium text-white dark:text-black"
-            >total cutting time: {{ item.total_cutting_time }}</span
-          >
 
           <br />
           <span class="font-medium text-black dark:text-white"
-            >Operator: {{ item.operator ?? '-' }}
+            >{{ item.operator ?? '-' }}
           </span>
           <!-- 
           <span>{{ convertStringDifferenceToMilisecond(item.timeDifference) }}</span>

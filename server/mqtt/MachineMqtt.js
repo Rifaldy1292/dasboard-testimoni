@@ -43,7 +43,7 @@ function formatTimeDifference(ms) {
  */
 const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     try {
-        const { user_id, status, g_code_name, k_num, output_wp, tool_name, total_cutting_time } = parseMessage
+        const { user_id, status, g_code_name, k_num, output_wp, tool_name, total_cutting_time, calculate_total_cutting_time } = parseMessage
         // Find the last log for today
         const lastMachineLog = await MachineLog.findOne({
             where: {
@@ -82,7 +82,8 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
             k_num: decryptKNum,
             output_wp: decryptOutputWp,
             tool_name: decryptToolName,
-            total_cutting_time: total_cutting_time
+            total_cutting_time: total_cutting_time,
+            calculate_total_cutting_time
         });
 
         // Send an update to all connected clients
@@ -129,7 +130,7 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
  */
 const createMachineAndLogFirstTime = async (parseMessage) => {
     try {
-        const { name, status, user_id, g_code_name, k_num, output_wp, tool_name, total_cutting_time, ipAddress } = parseMessage
+        const { name, status, user_id, g_code_name, k_num, output_wp, tool_name, total_cutting_time, ipAddress, calculate_total_cutting_time } = parseMessage
 
         const createMachine = await Machine.create({
             name,
@@ -141,7 +142,6 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
         const decryptKNum = await decryptFromNumber(k_num);
         const decryptOutputWp = await decryptFromNumber(output_wp);
         const decryptToolName = await decryptFromNumber(tool_name);
-        const decryptTotalCuttingTime = await decryptFromNumber(total_cutting_time);
 
 
         // running_today default 0
@@ -153,7 +153,8 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
             k_num: decryptKNum,
             output_wp: decryptOutputWp,
             tool_name: decryptToolName,
-            total_cutting_time: decryptTotalCuttingTime
+            total_cutting_time: total_cutting_time,
+            calculate_total_cutting_time
         });
     } catch (error) {
         console.log({ error, message: error.message });
