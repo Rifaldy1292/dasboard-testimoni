@@ -19,4 +19,4 @@ export interface GetTimeLineMachine extends ApiResponse<MachineTimeline[]> {}
 export type GetCuttingTimeMachine = ApiResponse<CuttingTimeMachine> | undefined
 
 type EncryptedContent = Record<keyof ValueFromContent, number>
-export type EncryptContent = ApiResponse<EncryptedContent>
+export type EncryptContent = ApiResponse<Omit<EncryptedContent, 'totalCuttingTimes'>>

@@ -2,12 +2,15 @@ const express = require("express");
 const cors = require("cors");
 const WebSocket = require("ws");
 const mqtt = require('mqtt');
-const { PORT } = require("./config/config.env");
 const path = require('path');
 const { createServer } = require('http')
+const { PORT } = require("./config/config.env");
 const handleMqtt = require("./mqtt/handleMqtt");
 const router = require("./routes");
 const { handleWebsocket } = require("./websocket/handleWebsocket");
+const handleChangeDate = require("./utils/handleChangeDate");
+
+
 
 
 const app = express();
@@ -28,6 +31,7 @@ app.use(
 app.use("/api", router);
 handleWebsocket(wss)
 handleMqtt(mqttClient, wss)
+handleChangeDate()
 
 server.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);

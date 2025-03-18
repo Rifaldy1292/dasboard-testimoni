@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     status: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     total_running_hours: {
       type: DataTypes.DECIMAL(10, 2),
