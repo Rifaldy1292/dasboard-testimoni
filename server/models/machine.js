@@ -12,7 +12,6 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Machine.belongsTo(models.Brand, { foreignKey: 'brand_id' });
       Machine.hasMany(models.MachineLog, { foreignKey: 'machine_id' });
       Machine.belongsTo(models.User, { foreignKey: 'user_id' });
     }
@@ -26,23 +25,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true
     },
-    total_running_hours: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: true
-    },
     ip_address: {
       type: DataTypes.INET,
       allowNull: false
     },
-    brand_id: DataTypes.INTEGER,
-    power_input: DataTypes.INTEGER,
-    stroke_axxis: DataTypes.STRING,
-    spindel_rpm: DataTypes.STRING,
-    type: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-
     user_id: DataTypes.INTEGER
   }, {
     sequelize,
