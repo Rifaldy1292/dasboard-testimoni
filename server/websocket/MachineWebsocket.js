@@ -86,11 +86,16 @@ module.exports = class MachineWebsocket {
                         ]
                     }],
                 order: [[{ model: MachineLog }, 'createdAt', 'ASC']],
-                attributes: ['name', 'status']
+                attributes: ['name', 'status', 'type']
             });
 
 
-            const sortedMachines = machines.sort((a, b) => {
+            const sortedMachines = machines.map((machine) => {
+                return {
+                    ...machine.dataValues,
+                    name: `${machine.name} (${machine.dataValues.type})`,
+                }
+            }).sort((a, b) => {
                 const numberA = parseInt(a.name.slice(3));
                 const numberB = parseInt(b.name.slice(3));
                 return numberA - numberB;
@@ -165,7 +170,7 @@ module.exports = class MachineWebsocket {
                     order: [['updatedAt', 'DESC']],
                     attributes: ['running_today', 'current_status', 'updatedAt']
                 });
-                console.log(lastLog, 123)
+                // console.log(lastLog, 123)
 
                 // const test = await MachineLog.findAll({
                 //     where: {
@@ -182,8 +187,7 @@ module.exports = class MachineWebsocket {
 
                 const result = {
                     status: lastLog?.current_status || 'Stopped',
-                    name: machine.name,
-                    type: machine.type,
+                    name: `${machine.name} (${machine.dataValues.type})`,
                     description: countDescription(lastLog?.running_today || 0),
                     percentage: [runningTime, 100 - runningTime]
                 }

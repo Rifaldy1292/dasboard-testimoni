@@ -64,6 +64,7 @@ class UserController {
                     attributes: ['name']
                 }],
                 attributes: ['id', 'name', 'NIK', 'machine_id', 'profile_image', 'createdAt', 'updatedAt'],
+                order: [['NIK', 'ASC']],
                 raw: true
             });
             // allowDelete = cannot delete yourself
