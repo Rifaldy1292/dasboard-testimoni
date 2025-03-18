@@ -8,6 +8,7 @@ export type ContentFile = {
   toolName: string | number
   totalCuttingTime: string | number
   calculateTotalCuttingTime?: number
+  totalProgram?: number
 }
 
 export type ValueFromContent = {

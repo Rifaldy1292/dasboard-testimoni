@@ -42,7 +42,8 @@ export const contentMainProgram = ({
       outputWP,
       toolName,
       totalCuttingTime,
-      calculateTotalCuttingTime
+      calculateTotalCuttingTime,
+      totalProgram
     } = file
 
     let docs: Docs = {
@@ -100,7 +101,7 @@ ${docs.K_NUM}=${kNum}
 ${docs.OUTPUT_WP}=${outputWP}
 ${docs.TOOL_NAME}=${toolName}
 ${docs.TOTAL_CUTTING_TIME}=${totalCuttingTime}
-${docs.CALCULATE_TOTAL_CUTTING_TIME}=${calculateTotalCuttingTime}`
+${docs.CALCULATE_TOTAL_CUTTING_TIME}=${totalProgram}.${calculateTotalCuttingTime}`
 
     const body = `${M98P7000}
 T${toolNumber}

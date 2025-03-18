@@ -68,12 +68,13 @@ export const useFTP = () => {
       )
 
       const calculateTotalCuttingTime = extendedFiles.map((item, index) => {
-        const calculateTotalCuttingTime = extendedFiles
-          .slice(index)
-          .reduce((acc, curr) => acc + (curr.totalCuttingTime as number), 0)
+        const sliceFiles = extendedFiles.slice(index)
+        const totalProgram = extendedFiles.length - index 
+        const calculateTotalCuttingTime = sliceFiles.reduce((acc, curr) => acc + (curr.totalCuttingTime as number), 0)
         return {
           ...item,
-          calculateTotalCuttingTime
+          calculateTotalCuttingTime,
+          totalProgram
         }
       })
 
