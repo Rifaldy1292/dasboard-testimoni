@@ -69,7 +69,6 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
         const decryptKNum = await decryptFromNumber(k_num);
         const decryptOutputWp = await decryptFromNumber(output_wp);
         const decryptToolName = await decryptFromNumber(tool_name);
-        const decryptTotalCuttingTime = await decryptFromNumber(total_cutting_time);
 
         // console.log({ decryptGCodeName, decryptKNum, decryptToolName, decryptOutputWp, decryptTotalCuttingTime }, 124)
 
@@ -83,7 +82,7 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
             k_num: decryptKNum,
             output_wp: decryptOutputWp,
             tool_name: decryptToolName,
-            total_cutting_time: decryptTotalCuttingTime
+            total_cutting_time: total_cutting_time
         });
 
         // Send an update to all connected clients

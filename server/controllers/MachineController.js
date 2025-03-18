@@ -312,7 +312,7 @@ class MachineController {
             const formattedMachines = sortedMachine.map((machine) => {
                 const { name } = machine
                 const result = { ...machine.dataValues }
-                if (name === 'MC-1') {
+                if (name === 'MC-1' || name === 'MC-6') {
                     result.startMacro = 500
                 } else if (name === 'MC-14' || name === 'MC-15') {
                     result.startMacro = 560
