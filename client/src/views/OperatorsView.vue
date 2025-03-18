@@ -9,8 +9,8 @@ import { Button, Card } from 'primevue'
 import { computed, onMounted } from 'vue'
 
 onMounted(async () => {
-  await fetchUsers({ role: 'Operator' })
   await fetchOperatorMachine()
+  await fetchUsers({role: 'Operator'})
 })
 
 const { fetchUsers, loadingFetch, users, fetchOperatorMachine, operatorMachines } = useUsers()
@@ -26,23 +26,24 @@ interface ExtendedUser extends User {
 }
 const extendendUsers = computed<ExtendedUser[]>(() => {
   const result = operatorMachines.value.map((user) => {
-    const { Machine, createdAt, total_cutting_time, current_status } = user.detail
+    const { Machine, createdAt, total_cutting_time, current_status, profile_image } = user.detail
     const random = Math.floor(Math.random() * 10)
     const temp = {
-      ...user,
+      ...user, 
       status: current_status,
       remaining: total_cutting_time || '0 Program',
       time: total_cutting_time || '00:00:00',
       lastUpdate: new Date(createdAt).toLocaleString(),
-      photo: user.profile_image || 'https://dummyimage.com/600x400/000/fff.png',
+      photo: profile_image,
       process: '00001(M06 ATC)',
-      machine: Machine.name || random % 2 === 0 ? 'OKK VM5' : 'OKK VP1200'
+      machine: Machine.name 
     }
     return temp
   })
-  const multipleResult = Array.from({ length: 3 }, () => result)
+  console.log({result})
 
-  return multipleResult.flat()
+  // return multipleResult.flat()
+  return result
 })
 </script>
 
@@ -81,7 +82,7 @@ const extendendUsers = computed<ExtendedUser[]>(() => {
 
               <img
                 class="w-20 h-20 border-2 border-gray-300"
-                :src="operator.photo"
+                :src="operator.photo || 'https://dummyimage.com/600x400/000/fff.png'"
                 alt="Operator"
               />
             </div>
@@ -94,7 +95,7 @@ const extendendUsers = computed<ExtendedUser[]>(() => {
         <template #footer>
           <Button
             :label="operator.status"
-            :severity="operator.status === 'RUN' ? 'success' : 'warn'"
+            :severity="operator.status === 'Running' ? 'success' : 'warn'"
             class="w-full mt-2"
             outlined
             size="small"

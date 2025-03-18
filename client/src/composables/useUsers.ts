@@ -104,8 +104,8 @@ export const useUsers = () => {
     try {
       loadingFetch.value = true
       const { data } = await UserServices.getOperatorMachines()
-      console.log(data.data)
       operatorMachines.value = data.data
+      console.log(operatorMachines.value, 'from fetch')
     } catch (error) {
       handleErrorAPI(error, toast)
     } finally {

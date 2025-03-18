@@ -19,9 +19,9 @@ const upload = multer({
         const extName = fileTypes.test(path.extname(file.originalname).toLowerCase());
         const mimeType = fileTypes.test(file.mimetype);
 
-        // if (mimeType && extName) {
-        //     return cb(null, true);
-        // }
+        if (mimeType && extName) {
+            return cb(null, true);
+        }
         cb(new Error("Hanya format gambar yang diperbolehkan (jpeg, jpg, png, gif, nt)"));
     },
 });
