@@ -103,8 +103,7 @@ ${docs.TOOL_NAME}=${toolName}
 ${docs.TOTAL_CUTTING_TIME}=${totalCuttingTime}
 ${docs.CALCULATE_TOTAL_CUTTING_TIME}=${totalProgram}.${calculateTotalCuttingTime}`
 
-    const body = `${M98P7000}
-T${toolNumber}
+    const body = `T${toolNumber}
 M06
 H${toolNumber}
 ${macroData}
@@ -136,7 +135,6 @@ G91G28Y0.
   const content = `%
 O00${selectedProgramNumber}
 ${bodyContent.map((item) => item.body).join('\n')}
-${M98P7000}
 M30
 %`
   if (selectedOneMachine.startMacro !== 560) return content
