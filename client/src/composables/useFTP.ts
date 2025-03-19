@@ -1,7 +1,7 @@
 import { getValueFromContent } from '@/components/modules/TransferFile/utils/contentMainProgram.util'
 import MachineServices from '@/services/machine.service'
 import type { ContentFile, ValueFromContent } from '@/types/ftp.type'
-import { ref, shallowRef } from 'vue'
+import { onBeforeUnmount, ref, shallowRef } from 'vue'
 
 const inputFiles = ref<ContentFile[]>([])
 const uploadType = shallowRef<'folder' | 'file'>('file')
@@ -10,6 +10,10 @@ const actionOPtions: Array<Action> = ['Upload File', 'Remove File']
 const selectedAction = shallowRef<Action>(actionOPtions[0])
 
 export const useFTP = () => {
+
+  onBeforeUnmount(() => {
+    inputFiles.value = []
+  })
   const loadingUpload = shallowRef(false)
 
   /**

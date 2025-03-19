@@ -48,6 +48,10 @@ const MachineServices = {
   },
   deleteFile(params: { fileName?: string; machine_id: number }): Promise<AxiosResponse> {
     return API({ params }).delete(`/machines/remove-files`)
+  },
+
+  deleteClearCache(): Promise<AxiosResponse> {
+    return API().delete('/machines/clear-cache')
   }
 }
 

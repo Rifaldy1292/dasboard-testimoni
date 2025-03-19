@@ -167,9 +167,17 @@ const handleExecute = (): void => {
   }
 }
 
-const handleClearFile = () => {
-  inputFiles.value = []
-  isCreatedMainProgram.value = false
+const handleClearFile = async() => {
+  try {
+    loadingUpload.value = true
+    inputFiles.value = []
+    isCreatedMainProgram.value = false
+    await MachineServices.deleteClearCache()
+  } catch (error) {
+    handleErrorAPI(error, toast)
+  } finally {
+    loadingUpload.value = false
+  }
 }
 </script>
 

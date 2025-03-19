@@ -85,6 +85,11 @@ machineRouter.delete(
     authMiddleware,
     MachineController.removeFileFromMachine
 )
+machineRouter.delete(
+    "/clear-cache",
+    authMiddleware,
+    MachineController.clearCache
+)
 
 machineRouter.get('/start-time', authMiddleware, MachineController.getStartTime)
 machineRouter.put('/start-time', authMiddleware, MachineController.editStartTime)

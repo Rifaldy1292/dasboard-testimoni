@@ -14,6 +14,11 @@ const pwHp = 'android'
 const portHp = 2221
 
 class MachineController {
+
+    static clearCache(req, res) {
+        encryptionCache.clear()
+        res.status(200).json({ message: 'cache cleared' })
+    }
     /**
    * @description Transfer file to machine using FTP
    * @param {request} req - Request object

@@ -88,7 +88,7 @@ class UserController {
             const { name, NIK, role_id, password } = req.body;
 
             // hash setelah password di validasi
-            const hashedPassword = await encryptPassword(password, 10);
+            const hashedPassword = await encryptPassword(password);
 
             await User.create({
                 name,
