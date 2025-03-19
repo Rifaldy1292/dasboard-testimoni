@@ -22,8 +22,6 @@ type DocsMacro =
   | 'CALCULATE_TOTAL_CUTTING_TIME'
 type Docs = Record<DocsMacro, string>
 
-const M98P7000 = 'M98P7000'
-
 export const contentMainProgram = ({
   inputFiles,
   selectedOneMachine,
@@ -95,6 +93,8 @@ export const contentMainProgram = ({
       }
     }
 
+    const M198P = 'M198P'
+
     const macroData = `${docs.USER_ID}=${user.id}
 ${docs.G_CODE_NAME}=${gCodeName}
 ${docs.K_NUM}=${kNum}
@@ -103,7 +103,15 @@ ${docs.TOOL_NAME}=${toolName}
 ${docs.TOTAL_CUTTING_TIME}=${totalCuttingTime}
 ${docs.CALCULATE_TOTAL_CUTTING_TIME}=${totalProgram}.${calculateTotalCuttingTime}`
 
-    const body = `T${toolNumber}
+    const body500 = `${macroData}
+G54 G90 G00 G01 Z0. F3000
+G17
+${M198P}${file.name.slice(1)}
+G0Z0.
+M05
+`
+
+    const body540 = `T${toolNumber}
 M06
 H${toolNumber}
 ${macroData}
@@ -112,7 +120,7 @@ G90G00X0Y0
 G${selectedCoordinate}Z${inputStartPoint}.00
 M${selectedCoolant}
 G05P10000
-M198P${file.name.slice(1)}
+${M198P}${file.name.slice(1)}
 G05P0
 `
 
@@ -124,27 +132,53 @@ G${selectedWorkPosition}G90G01X0.Y0.F5000
 G90G43Z${selectedCoordinate}.H#4120
 M07
 M251
-M198P${file.name.slice(1)}
+${M198P}${file.name.slice(1)}
 M09
 G91G28Z0.
 G91G28Y0.
 `
 
-    return { body, body560 }
+    return { body500, body540, body560 }
   })
-  const content = `%
+
+  const content500 = `%
 O00${selectedProgramNumber}
-${bodyContent.map((item) => item.body).join('\n')}
+${bodyContent.map((item) => item.body500).join('\n')}
 M30
 %`
-  if (selectedOneMachine.startMacro !== 560) return content
+
+  const content540 = `%
+O00${selectedProgramNumber}
+${bodyContent.map((item) => item.body540).join('\n')}
+M30
+%`
 
   const content560 = `%
 O00${selectedProgramNumber}
 ${bodyContent.map((item) => item.body560).join('\n')}
 M30
 %`
-  return content560
+
+  const content = (startMacro: 500 | 540 | 560) => {
+    const result = `%
+O00${selectedProgramNumber}
+${bodyContent.map((item) => item[`body${startMacro}`]).join('\n')}
+M30
+%`
+
+    return result
+  }
+
+  // switch (selectedOneMachine.startMacro) {
+  //   case 500:
+  //     return content500
+  //   case 540:
+  //     return content540
+  //   case 560:
+  //     return content560
+  // }
+
+  return content(selectedOneMachine.startMacro)
 }
 
 // const expectedFormat = `%
