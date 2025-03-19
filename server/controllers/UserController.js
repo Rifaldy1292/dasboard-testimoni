@@ -24,11 +24,13 @@ class UserController {
             };
 
             const users = await User.findAll({
-                // where: {
-                //     role_id: OPERATOR_ROLE_ID,
-                // },
+                where: {
+                    role_id: OPERATOR_ROLE_ID,
+                },
                 attributes: ['name', 'profile_image'],
                 include: [machineLogQuery],
+                // order created at log
+                // order: [[{ model: MachineLog }, 'createdAt', 'ASC']],
             });
 
             const formattedUsers = users.map(user => {
@@ -37,7 +39,8 @@ class UserController {
                 const { MachineLogs, ...userData } = user.dataValues;
                 userData.detail = MachineLogs[0]
                 return userData || null
-            }).filter(user => user.detail);
+                // sort by created at desc
+            }).filter(user => user.detail).sort((a, b) => new Date(b.detail.createdAt) - new Date(a.detail.createdAt));
             // .filter(user => user !== null);
 
             res.status(200).json({ status: 200, message: 'success get user machine', data: formattedUsers });
