@@ -2,10 +2,11 @@
 import Timeline from 'primevue/timeline'
 import type { Machine, MachineTimeline, ObjMachineTimeline } from '@/types/machine.type'
 import ModalEditDescription from './ModalEditDescription.vue'
-import { shallowRef } from 'vue'
+import { computed, shallowRef } from 'vue'
 
 const { machine } = defineProps<{
   machine: MachineTimeline
+  date: string
 }>()
 
 const visibleDialogForm = shallowRef<boolean>(false)
@@ -41,7 +42,6 @@ const convertStringDifferenceToMilisecond = (str: string): number => {
   return total
 }
 
-
 const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
   const milisecond = convertStringDifferenceToMilisecond(obj.timeDifference)
   const minute = Math.round(milisecond / (1000 * 60))
@@ -54,6 +54,23 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
     return `${width}px`
   }
   return defaultWidth
+}
+
+const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string => {
+  /**
+   * @example obj.timeDifference: 1h 2m 3s
+   * @example obj.timeDifference: 2m 3s
+   * @example obj.timeDifference: 3s
+   */
+  // return index.toString()
+  const isLastIndex = index === machine.MachineLogs.length - 1
+  if (!isLastIndex) return obj.timeDifference
+  const arr = obj.timeDifference.split(' ')
+  // find h m s
+  const indexH = arr.findIndex((item) => item.includes('h'))
+  const indexM = arr.findIndex((item) => item.includes('m'))
+  const indexS = arr.findIndex((item) => item.includes('s'))
+  return `now`
 }
 </script>
 
@@ -88,7 +105,7 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
         </div>
       </template> -->
 
-      <template #content="{ item }: { item: ObjMachineTimeline }">
+      <template #content="{ item, index }: { item: ObjMachineTimeline; index: number }">
         <div
           :style="{
             backgroundColor: iconTimeline(item.current_status).color,
@@ -107,7 +124,9 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
             style="font-size: 1rem"
           />
           <br />
-          <span class="font-medium text-white dark:text-black">{{ item.timeDifference }} </span>
+          <span class="font-medium text-white dark:text-black"
+            >{{ handleTimeDifference(item, index) }}
+          </span>
           <br />
 
           <span class="font-medium text-white dark:text-black">{{ item.k_num }} </span>
@@ -118,9 +137,7 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
           >
 
           <br />
-          <span class="font-medium text-black dark:text-white"
-            >{{ item.operator ?? '-' }}
-          </span>
+          <span class="font-medium text-black dark:text-white">{{ item.operator ?? '-' }} </span>
           <!-- 
           <span>{{ convertStringDifferenceToMilisecond(item.timeDifference) }}</span>
           <span>test{{ customWidthBoxTimeline(item) }}</span> -->

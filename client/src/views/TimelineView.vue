@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
@@ -41,7 +41,6 @@ watch(
     // console.log({ test, typeof: typeof test })
   }
 )
-
 </script>
 
 <template>
@@ -54,18 +53,20 @@ watch(
           <DatePickerDay v-model:date-option="dateOption" />
         </div>
         <DataNotFound :condition="timelineMachines?.data?.length === 0" />
-        <span
-          v-if="timelineMachines?.date"
-          class="text-lg font-semibold text-black dark:text-white"
-          >{{ new Date(timelineMachines?.date as string).toLocaleDateString() }}</span
-        >
-        <div
-          v-for="machine in timelineMachines?.data || []"
-          :key="machine.name"
-          class="border border-gray-950 dark:border-gray-500 overflow-x-auto"
-        >
-          <TimelineMachine :machine="machine" />
-        </div>
+        <template v-if="timelineMachines?.data.length">
+          <span
+            v-if="timelineMachines?.date"
+            class="text-lg font-semibold text-black dark:text-white"
+            >{{ new Date(timelineMachines?.date as string).toLocaleDateString() }}</span
+          >
+          <div
+            v-for="machine in timelineMachines.data"
+            :key="machine.name"
+            class="border border-gray-950 dark:border-gray-500 overflow-x-auto"
+          >
+            <TimelineMachine :machine="machine" :date="timelineMachines.date as string" />
+          </div>
+        </template>
       </div>
     </template>
   </DefaultLayout>

@@ -1,7 +1,7 @@
 import { getValueFromContent } from '@/components/modules/TransferFile/utils/contentMainProgram.util'
 import MachineServices from '@/services/machine.service'
 import type { ContentFile, ValueFromContent } from '@/types/ftp.type'
-import { onBeforeUnmount, ref, shallowRef } from 'vue'
+import { ref, shallowRef } from 'vue'
 
 const inputFiles = ref<ContentFile[]>([])
 const uploadType = shallowRef<'folder' | 'file'>('file')
@@ -10,10 +10,9 @@ const actionOPtions: Array<Action> = ['Upload File', 'Remove File']
 const selectedAction = shallowRef<Action>(actionOPtions[0])
 
 export const useFTP = () => {
-
-  onBeforeUnmount(() => {
-    inputFiles.value = []
-  })
+  // onBeforeUnmount(() => {
+  //   inputFiles.value = []
+  // })
   const loadingUpload = shallowRef(false)
 
   /**
@@ -73,8 +72,11 @@ export const useFTP = () => {
 
       const calculateTotalCuttingTime = extendedFiles.map((item, index) => {
         const sliceFiles = extendedFiles.slice(index)
-        const totalProgram = extendedFiles.length - index 
-        const calculateTotalCuttingTime = sliceFiles.reduce((acc, curr) => acc + (curr.totalCuttingTime as number), 0)
+        const totalProgram = extendedFiles.length - index
+        const calculateTotalCuttingTime = sliceFiles.reduce(
+          (acc, curr) => acc + (curr.totalCuttingTime as number),
+          0
+        )
         return {
           ...item,
           calculateTotalCuttingTime,
