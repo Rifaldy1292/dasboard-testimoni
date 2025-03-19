@@ -5,12 +5,11 @@
  * @param {mqtt.Client} mqttClient - The MQTT client instance.
  * @param {WebSocket.Server} wss - The WebSocket server instance.
  */
-const { Machine, MachineLog, CuttingTime } = require('../models');
+const { Machine } = require('../models');
 const { updateLastMachineLog } = require('../utils/getRunningTime');
-const MachineWebsocket = require('../websocket/MachineWebsocket');
-const { createCuttingTime, handleChangeMachineStatus, createMachineAndLogFirstTime } = require('./MachineMqtt');
+const { handleChangeMachineStatus, createMachineAndLogFirstTime } = require('./MachineMqtt');
 const WebSocket = require('ws');
-const { clientPreferences, messageTypeWebsocketClient } = require('../websocket/handleWebsocket');
+require('../websocket/handleWebsocket');
 
 const mqttTopics = [
     'mc-1/data', 'mc-2/data', 'mc-3/data', 'mc-4/data', 'mc-5/data',
@@ -53,9 +52,6 @@ const handleMqtt = (mqttClient, wss) => {
             const parseMessage = JSON.parse(message.toString());
             // console.log(parseMessage, 77777)
 
-            // create cutting time here
-            await createCuttingTime();
-
             const existMachine = await Machine.findOne({ where: { name: parseMessage.name } });
 
             // create machine & log if machine not exist
@@ -69,7 +65,7 @@ const handleMqtt = (mqttClient, wss) => {
             }
 
             existMachine.status = parseMessage.status;
-            
+
             await existMachine.save();
             await updateLastMachineLog(existMachine.id);
             // await updateLastMachineLog(existMachine.id, runningHour);

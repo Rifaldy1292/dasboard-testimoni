@@ -8,7 +8,7 @@ const { PORT } = require("./config/config.env");
 const handleMqtt = require("./mqtt/handleMqtt");
 const router = require("./routes");
 const { handleWebsocket } = require("./websocket/handleWebsocket");
-const { handleChangeDate } = require("./helpers/cronjob");
+const { handleChangeDate, handleCreateCuttingTime } = require("./helpers/cronjob");
 
 
 
@@ -32,6 +32,7 @@ app.use("/api", router);
 handleWebsocket(wss)
 handleMqtt(mqttClient, wss)
 handleChangeDate()
+handleCreateCuttingTime()
 
 server.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);

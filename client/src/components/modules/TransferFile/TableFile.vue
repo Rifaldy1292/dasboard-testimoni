@@ -11,7 +11,7 @@ const toast = useToast()
 const confirm = useConfirm()
 
 const { selectedOneMachine } = useMachine()
-const { selectedAction } = useFTP()
+const { selectedAction, inputFiles } = useFTP()
 
 const fileList = ref<string[]>([])
 const loading = shallowRef(false)
@@ -20,6 +20,9 @@ watch(
   [() => selectedOneMachine.value?.id, () => selectedAction.value],
   ([machine_id, action]) => {
     console.log(123)
+    if (action === 'Remove File') {
+      inputFiles.value = []
+    }
     if (machine_id && action === 'Remove File') {
       fetchFileList(machine_id)
     } else {
