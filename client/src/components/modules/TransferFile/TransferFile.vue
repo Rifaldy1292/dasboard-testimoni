@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { FormField } from '@primevue/forms'
-import { computed, inject, shallowRef } from 'vue'
+import { computed, inject, onUnmounted } from 'vue'
 import { useMachine } from '@/composables/useMachine'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import { useFTP } from '@/composables/useFTP'
@@ -18,6 +18,11 @@ import { useConfirm } from 'primevue'
 import { useRouter } from 'vue-router'
 import happpySound from '@/assets/sounds/happy.mp3'
 
+onUnmounted(() => {
+  handleClearFile()
+  // console.log('unmoun')
+})
+
 const toast = useToast()
 const confirm = useConfirm()
 const router = useRouter()
@@ -33,12 +38,19 @@ const {
 
 const userData = inject('userData') as UserLocalStorage
 
-const { handleUploadFolder, uploadType, inputFiles, loadingUpload, selectedAction } = useFTP()
+const {
+  handleUploadFolder,
+  uploadType,
+  inputFiles,
+  loadingUpload,
+  selectedAction,
+  isCreatedMainProgram,
+  handleClearFile
+} = useFTP()
+
 const disableUploadFolder = computed<boolean>(() => {
   return !selectedOneMachine.value
 })
-
-const isCreatedMainProgram = shallowRef<boolean>(false)
 
 const handleSubmit = async () => {
   loadingUpload.value = true
@@ -63,13 +75,13 @@ const handleSubmit = async () => {
         message: 'Do you want to logout?',
         icon: 'pi pi-exclamation-triangle',
         accept: () => {
+          console.log('trigger')
           localStorage.clear()
           router.replace('/login')
           toast.add({
             severity: 'success',
             summary: 'Success',
             detail: 'Logged out successfully',
-            life: 3000,
             customMusic: happpySound
           })
         },
@@ -78,7 +90,7 @@ const handleSubmit = async () => {
           severity: 'secondary',
           outlined: true
         },
-        reject: () => {}
+        reject: handleClearFile
       })
     }, 1000)
   } catch (error) {
@@ -162,19 +174,6 @@ const handleExecute = (): void => {
     // console.log(inputFiles.value[0].lastModified)
   } catch (error) {
     console.log(error)
-  } finally {
-    loadingUpload.value = false
-  }
-}
-
-const handleClearFile = async() => {
-  try {
-    loadingUpload.value = true
-    inputFiles.value = []
-    isCreatedMainProgram.value = false
-    await MachineServices.deleteClearCache()
-  } catch (error) {
-    handleErrorAPI(error, toast)
   } finally {
     loadingUpload.value = false
   }

@@ -9,7 +9,7 @@ let { dateQuery, config } = require('../utils/dateQuery');
 const { encryptToNumber } = require('../helpers/crypto');
 const encryptionCache = require('../config/encryptionCache');
 
-const hostHp = '192.168.43.200'
+const hostHp = '192.168.8.119'
 const pwHp = 'android'
 const portHp = 2221
 
