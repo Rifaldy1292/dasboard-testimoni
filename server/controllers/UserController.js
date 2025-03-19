@@ -19,7 +19,7 @@ class UserController {
                 attributes: ['id', 'machine_id', 'createdAt', 'g_code_name', 'k_num', 'output_wp', 'total_cutting_time', 'description', 'current_status', 'calculate_total_cutting_time'],
                 include: [{
                     model: Machine,
-                    attributes: ['name']
+                    attributes: ['name', 'type']
                 }]
             };
 

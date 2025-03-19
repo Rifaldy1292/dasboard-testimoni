@@ -10,7 +10,7 @@ import { computed, onMounted } from 'vue'
 
 onMounted(async () => {
   await fetchOperatorMachine()
-  await fetchUsers({role: 'Operator'})
+  await fetchUsers({ role: 'Operator' })
 })
 
 const { fetchUsers, loadingFetch, users, fetchOperatorMachine, operatorMachines } = useUsers()
@@ -29,43 +29,42 @@ const extendendUsers = computed<ExtendedUser[]>(() => {
     /**
      * @example 2.22222 calculate_total_cutting_time
      */
-    const { Machine, createdAt, total_cutting_time, current_status, profile_image, calculate_total_cutting_time } = user.detail
+    const { Machine, createdAt, current_status, profile_image, calculate_total_cutting_time } =
+      user.detail
     const calculate = calculate_total_cutting_time.split('.')
     const totalProgram = calculate[0]
     const remainingTime = calculate[1]
 
     const temp = {
-      ...user, 
+      ...user,
       status: current_status,
       remaining: `${totalProgram} Program`,
       time: convertSecondsToHours(Number(remainingTime)),
       lastUpdate: new Date(createdAt).toLocaleString(),
       photo: profile_image,
       process: '00001(M06 ATC)',
-      machine: Machine.name 
+      machine: `${Machine.name} (${Machine.type}) `
     }
     return temp
   })
-  console.log({result})
+  console.log({ result })
 
   // return multipleResult.flat()
   return result
 })
 
 function convertSecondsToHours(seconds: number) {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secondsRemainder = seconds % 60;
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const secondsRemainder = seconds % 60
 
-    let result = [];
-    if (hours > 0) result.push(`${hours}h`);
-    if (minutes > 0) result.push(`${minutes}m`);
-    if (secondsRemainder > 0) result.push(`${secondsRemainder}s`);
+  let result = []
+  if (hours > 0) result.push(`${hours}h`)
+  if (minutes > 0) result.push(`${minutes}m`)
+  if (secondsRemainder > 0) result.push(`${secondsRemainder}s`)
 
-    return result.length > 0 ? result.join(" ") : "0s";
+  return result.length > 0 ? result.join(' ') : '0s'
 }
-
-
 </script>
 
 <template>
