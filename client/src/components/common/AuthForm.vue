@@ -223,7 +223,7 @@ const showConfirmPassword = shallowRef<boolean>(false)
           type="submit"
           class="w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
         >
-          {{ page !== 'Sign in' ? 'Submit' : 'page' }}
+          {{ page !== 'Sign in' ? 'Submit' : page }}
         </button>
       </div>
       <!-- <p class="text-gray-800 text-sm !mt-8 text-center">
