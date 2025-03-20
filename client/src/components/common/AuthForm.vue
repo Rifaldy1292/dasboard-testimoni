@@ -68,7 +68,9 @@ const resolver = computed(() => {
         .string()
         .nonempty('NIK is required')
         .min(7, 'minimum NIK length is 7')
-        .max(7, 'max NIK length is 7'),
+        .max(7, 'max NIK length is 7')
+        .regex(/^[A-Z]+$/, 'NIK must be uppercase')
+        .refine((nikValue) => {}),
       // required if page is sign up
       name: showFormField.value.name
         ? z.string().min(3, 'Name must be at least 3 characters')

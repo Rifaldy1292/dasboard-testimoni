@@ -27,6 +27,11 @@ const resolver = zodResolver(
       .refine((file) => file.type.startsWith('image/'), {
         message: 'Profile picture must be an image'
       })
+      .optional(),
+    password: z
+      .string()
+      .min(3, 'Password must be at least 3 characters')
+      .max(20, 'Password must be at most 10 characters')
       .optional()
   })
 )
