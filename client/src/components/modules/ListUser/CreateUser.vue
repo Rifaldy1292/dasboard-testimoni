@@ -39,8 +39,8 @@ const resolver = zodResolver(
     NIK: z
       .string()
       .nonempty('NIK is required')
-      .min(7, 'minimum NIK length is 7')
-      .max(7, 'max NIK length is 7'),
+      .length(7, 'NIK must be 7 characters')
+      .regex(/^RK\d{5}$/, 'NIK must start with RK followed by 4 digits'),
     password: z
       .string()
       .nonempty('Password is required')
