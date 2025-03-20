@@ -33,7 +33,7 @@ const UserServices = {
   checkToken: (token: string): Promise<AxiosResponse> => {
     return API({ token }).get('/users/check-token')
   },
-  editprofile: (body: EditProfile): Promise<AxiosResponse<ApiResponse<{ imageUrl: string }>>> => {
+  editprofile: (body: EditProfile): Promise<AxiosResponse<ApiResponse<{ imageUrl: string | null }>>> => {
     const headers = {
       'Content-Type': 'multipart/form-data'
     }

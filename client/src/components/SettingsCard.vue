@@ -31,22 +31,23 @@ const resolver = zodResolver(
     password: z
       .string()
       .min(3, 'Password must be at least 3 characters')
-      .max(20, 'Password must be at most 10 characters')
+      .max(20, 'Password must be at most 20 characters')
       .optional()
   })
 )
 
-const defaultFormValue = computed<EditProfile & { imageUrl: string | null }>(() => {
+type DefaultFormValue = EditProfile & { imageUrl: string | null; password?: string }
+const defaultFormValue = computed<DefaultFormValue>(() => {
   return {
     name: user.value?.name || '',
-    imageUrl: user.value?.imageUrl || null,
-    profilePicture: null
+    imageUrl: user.value?.imageUrl === undefined ? null : user.value?.imageUrl,
+    profilePicture: null,
+    password: ''
   }
 })
 
-const formValues = ref<EditProfile & { imageUrl: string | null }>(defaultFormValue.value)
+const formValues = ref<DefaultFormValue>(defaultFormValue.value)
 const showPassword = shallowRef<boolean>(false)
-const inputPassword = shallowRef<string>('')
 
 watch(
   () => user.value,
@@ -54,24 +55,31 @@ watch(
     formValues.value = {
       imageUrl: user.value?.imageUrl || null,
       name: user.value?.name,
-      profilePicture: null
+      profilePicture: null,
+      password: ''
     }
   }
 )
 
 const handleSubmit = async (e: FormSubmitEvent) => {
   try {
-    if (!e.valid) return console.log('invalid')
-    // console.log(formValues.value === defaultFormValue.value)
-    if (formValues.value === defaultFormValue.value) return
-    console.log({ payload: formValues.value })
+    const isSameValue =
+      formValues.value.name === defaultFormValue.value.name &&
+      formValues.value.imageUrl === defaultFormValue.value.imageUrl &&
+      formValues.value.password === defaultFormValue.value.password
+    if (!e.valid || isSameValue) return console.log('invalid')
+
+    // console.log({ isSameValue })
     const { data } = await UserServices.editprofile(formValues.value)
-    formValues.value.imageUrl = data.data?.imageUrl
+    if (data.data?.imageUrl) {
+      formValues.value.imageUrl = data.data.imageUrl
+    }
     toast.add({
       severity: 'success',
       summary: 'Success',
       detail: data.message
     })
+    await getDetailUser()
     // Handle form submission for personal information
   } catch (error) {
     console.error(error)
@@ -177,7 +185,7 @@ const handleFileChange = (event: Event) => {
                 <label class="text-gray-800 text-sm mb-2 block">Password</label>
                 <div class="relative flex items-center">
                   <InputText
-                    v-model:model-value="inputPassword"
+                    v-model:model-value="formValues.password"
                     :type="showPassword ? 'text' : 'password'"
                     class="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
                     placeholder="Enter password"

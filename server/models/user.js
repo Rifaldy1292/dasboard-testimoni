@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -12,68 +10,73 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       // User has one role
-      User.belongsTo(models.Role, { foreignKey: 'role_id' });
-      User.hasMany(models.Machine, { foreignKey: 'user_id' });
-      User.hasMany(models.MachineLog, { foreignKey: 'user_id' });
+      User.belongsTo(models.Role, { foreignKey: "role_id" });
+      User.hasMany(models.Machine, { foreignKey: "user_id" });
+      User.hasMany(models.MachineLog, { foreignKey: "user_id" });
     }
   }
-  User.init({
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-        notNull: true,
-        min: 3
-      }
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-        notNull: true,
-        len: [3, 20]
-      }
-    },
-    role_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    NIK: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-      validate: {
-        notEmpty: {
-          msg: 'NIK cannot be empty'
+  User.init(
+    {
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: true,
+          notNull: true,
+          min: 3,
         },
-        notNull: {
-          msg: 'NIK cannot be null'
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: true,
+          notNull: true,
+          min: 3,
+          max: 20,
         },
-        len: [7, 7], // memastikan panjang NIK tetap 9 karakter
-
-      }
+      },
+      role_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      NIK: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+          notEmpty: {
+            msg: "NIK cannot be empty",
+          },
+          notNull: {
+            msg: "NIK cannot be null",
+          },
+          len: [7, 7], // memastikan panjang NIK tetap 9 karakter
+        },
+      },
+      machine_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      profile_image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
-    machine_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    profile_image: {
-      type: DataTypes.STRING,
-      allowNull: true
+    {
+      sequelize,
+      modelName: "User",
     }
-  }, {
-    sequelize,
-    modelName: 'User',
-  });
+  );
   User.beforeCreate(async (user, options) => {
-
-    const existNIK = await User.findOne({ where: { NIK: user.NIK }, attributes: ['NIK'] });
+    const existNIK = await User.findOne({
+      where: { NIK: user.NIK },
+      attributes: ["NIK"],
+    });
     if (existNIK) {
-      throw new Error('NIK already exists');
+      throw new Error("NIK already exists");
     }
-  })
+  });
 
   return User;
 };
