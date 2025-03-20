@@ -78,6 +78,7 @@ const resolver = computed(() => {
             .string()
             .nonempty('Password is required')
             .min(3, 'Password must be at least 3 characters')
+            .max(20, 'Password must be at most 20 characters')
         : z.string().optional(),
 
       confirmPassword: showFormField.value.confirmPassword
@@ -222,15 +223,22 @@ const showConfirmPassword = shallowRef<boolean>(false)
           type="submit"
           class="w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
         >
-          {{ page }}
+          {{ page !== 'Sign in' ? 'Submit' : 'page' }}
         </button>
       </div>
-      <p class="text-gray-800 text-sm !mt-8 text-center">
+      <!-- <p class="text-gray-800 text-sm !mt-8 text-center">
         {{ page === 'Sign in' ? "Don't have an account?" : 'Already have an account?' }}
         <a
           :href="page === 'Sign in' ? '/register' : '/login'"
           class="text-blue-600 hover:underline ml-1 whitespace-nowrap font-semibold"
           >{{ page === 'Sign in' ? 'Register' : 'Login' }} here</a
+        >
+      </p> -->
+
+      <p class="text-gray-800 text-sm !mt-8 text-center">
+        {{ 'Already have an account?' }}
+        <a href="/login" class="text-blue-600 hover:underline ml-1 whitespace-nowrap font-semibold"
+          >Login here</a
         >
       </p>
     </div>
