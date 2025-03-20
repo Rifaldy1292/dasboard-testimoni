@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, shallowRef, watch } from 'vue'
 import userPhoto from '@/assets/images/user/user-03.png'
 import { InputText, Message } from 'primevue'
-import { Form, FormField } from '@primevue/forms'
+import { Form, FormField, type FormSubmitEvent } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import { z } from 'zod'
 import { AxiosError } from 'axios'
@@ -45,6 +45,9 @@ const defaultFormValue = computed<EditProfile & { imageUrl: string | null }>(() 
 })
 
 const formValues = ref<EditProfile & { imageUrl: string | null }>(defaultFormValue.value)
+const showPassword = shallowRef<boolean>(false)
+const inputPassword = shallowRef<string>('')
+
 watch(
   () => user.value,
   () => {
@@ -56,9 +59,10 @@ watch(
   }
 )
 
-const handleSubmit = async () => {
+const handleSubmit = async (e: FormSubmitEvent) => {
   try {
-    console.log(formValues.value === defaultFormValue.value)
+    if (!e.valid) return console.log('invalid')
+    // console.log(formValues.value === defaultFormValue.value)
     if (formValues.value === defaultFormValue.value) return
     console.log({ payload: formValues.value })
     const { data } = await UserServices.editprofile(formValues.value)
@@ -162,6 +166,36 @@ const handleFileChange = (event: Event) => {
                   size="small"
                   variant="simple"
                   >{{ $form.name?.error?.message }}</Message
+                >
+              </div>
+            </FormField>
+          </div>
+
+          <div class="mb-5.5">
+            <FormField name="password">
+              <div>
+                <label class="text-gray-800 text-sm mb-2 block">Password</label>
+                <div class="relative flex items-center">
+                  <InputText
+                    v-model:model-value="inputPassword"
+                    :type="showPassword ? 'text' : 'password'"
+                    class="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
+                    placeholder="Enter password"
+                  />
+                  <button
+                    type="button"
+                    @click="showPassword = !showPassword"
+                    class="w-4 h-4 absolute right-4"
+                  >
+                    <i :class="showPassword ? 'fa fa-eye-slash' : 'fa fa-eye'" />
+                  </button>
+                </div>
+                <Message
+                  v-if="$form.password?.invalid"
+                  severity="error"
+                  size="small"
+                  variant="simple"
+                  >{{ $form.password?.error?.message }}</Message
                 >
               </div>
             </FormField>

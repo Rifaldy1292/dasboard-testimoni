@@ -23,20 +23,7 @@ interface ShowFormField {
   confirmPassword: boolean
 }
 
-const { isForgotPasswordPage, isResetPasswordPage } = defineProps<AuthFormProps>()
-
 const route = useRoute()
-const page = shallowRef<'Sign in' | 'Sign up'>(route.name === 'login' ? 'Sign in' : 'Sign up')
-const password = ref<string | undefined>()
-
-const showFormField = computed<ShowFormField>(() => {
-  return {
-    name: (page.value === 'Sign up' || isResetPasswordPage) && !isForgotPasswordPage,
-    NIK: true,
-    password: !isForgotPasswordPage,
-    confirmPassword: (page.value === 'Sign up' || isResetPasswordPage) && !isForgotPasswordPage
-  }
-})
 
 const resolver = computed(() => {
   if (isResetPasswordPage) {
@@ -54,6 +41,7 @@ const resolver = computed(() => {
               .string()
               .nonempty('Confirm password is required')
               .min(3, 'Password must be at least 3 characters')
+              .max(20, 'Password must be at most 20 characters')
               .refine((val) => val === password.value, {
                 message: 'Password not match'
               })
@@ -86,6 +74,7 @@ const resolver = computed(() => {
             .string()
             .nonempty('Confirm password is required')
             .min(3, 'Password must be at least 3 characters')
+            .max(20, 'Password must be at most 20 characters')
             .refine((val) => val === password.value, {
               message: 'Password not match'
             })
@@ -94,8 +83,21 @@ const resolver = computed(() => {
   )
 })
 
+const { isForgotPasswordPage, isResetPasswordPage } = defineProps<AuthFormProps>()
+
+const page = shallowRef<'Sign in' | 'Sign up'>(route.name === 'login' ? 'Sign in' : 'Sign up')
+const password = ref<string | undefined>()
 const showPassword = shallowRef<boolean>(false)
 const showConfirmPassword = shallowRef<boolean>(false)
+
+const showFormField = computed<ShowFormField>(() => {
+  return {
+    name: (page.value === 'Sign up' || isResetPasswordPage) && !isForgotPasswordPage,
+    NIK: true,
+    password: !isForgotPasswordPage,
+    confirmPassword: (page.value === 'Sign up' || isResetPasswordPage) && !isForgotPasswordPage
+  }
+})
 </script>
 
 <template>
