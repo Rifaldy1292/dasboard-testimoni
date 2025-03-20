@@ -5,13 +5,13 @@ import AuthView from '@/views/Authentication/AuthView.vue'
 import ForgotPasswordView from '@/views/Authentication/ForgotPasswordView.vue'
 import UsersView from '@/views/UsersView.vue'
 import ResetPasswordView from '@/views/Authentication/ResetPasswordView.vue'
-import OperatorsView from '@/views/OperatorsView.vue'
 import EditProfileView from '@/views/EditProfileView.vue'
 import TimelineView from '@/views/TimelineView.vue'
 import CuttingTimeView from '@/views/CuttingTimeView.vue'
 import RunningTimeView from '@/views/RunningTimeView.vue'
 import TransferFileView from '@/views/TransferFileView.vue'
 import DashboardSettingView from '@/views/DashboardSettingView.vue'
+import RemainingView from '@/views/RemainingView.vue'
 
 const routes: Readonly<RouteRecordRaw[]> = [
   {
@@ -60,11 +60,11 @@ const routes: Readonly<RouteRecordRaw[]> = [
         }
       },
       {
-        path: '/operators',
-        name: 'Operators',
-        component: OperatorsView,
+        path: '/remaining',
+        name: 'remaining',
+        component: RemainingView,
         meta: {
-          title: 'Operator List'
+          title: 'Remaining'
         }
       },
       {

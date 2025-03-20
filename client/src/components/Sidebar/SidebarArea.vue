@@ -211,8 +211,8 @@ const menuGroups = computed<MenuGroup[]>(() => {
                   </svg>`
         },
         {
-          label: 'Operators',
-          route: '/operators',
+          label: 'Remaining',
+          route: '/remaining',
           visible: true,
           icon: `<svg
                     class="fill-current"

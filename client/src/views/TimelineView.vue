@@ -52,8 +52,8 @@ watch(
         <div class="flex justify-end">
           <DatePickerDay v-model:date-option="dateOption" />
         </div>
-        <DataNotFound :condition="timelineMachines?.data?.length === 0" />
-        <template v-if="timelineMachines?.data.length">
+        <DataNotFound :condition="!timelineMachines?.data?.length" />
+        <template v-if="timelineMachines?.data?.length">
           <span
             v-if="timelineMachines?.date"
             class="text-lg font-semibold text-black dark:text-white"

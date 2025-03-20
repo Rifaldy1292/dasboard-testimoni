@@ -13,7 +13,7 @@ onMounted(async () => {
   await fetchUsers({ role: 'Operator' })
 })
 
-const { fetchUsers, loadingFetch, users, fetchOperatorMachine, operatorMachines } = useUsers()
+const { fetchUsers, loadingFetch, fetchOperatorMachine, operatorMachines } = useUsers()
 
 interface ExtendedUser extends User {
   status: 'Running' | 'Stopped'
@@ -69,10 +69,10 @@ function convertSecondsToHours(seconds: number) {
 
 <template>
   <DefaultLayout>
-    <BreadcrumbDefault pageTitle="Operator List" />
+    <BreadcrumbDefault pageTitle="Remaining" />
     <LoadingAnimation :state="loadingFetch" />
-    <DataNotFound :condition="users.length === 0" tittle="Operators" />
-    <div v-if="users.length > 0" class="grid grid-cols-3 gap-4">
+    <DataNotFound :condition="extendendUsers.length === 0" />
+    <div v-if="extendendUsers.length > 0" class="grid grid-cols-3 gap-4">
       <Card
         v-for="(operator, index) in extendendUsers"
         :key="index"
