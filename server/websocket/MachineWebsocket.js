@@ -165,10 +165,10 @@ module.exports = class MachineWebsocket {
                 const lastLog = await MachineLog.findOne({
                     where: {
                         machine_id: machine.id,
-                        updatedAt: dateQuery(nowDate)
+                        createdAt: dateQuery(nowDate)
                     },
-                    order: [['updatedAt', 'DESC']],
-                    attributes: ['running_today', 'current_status', 'updatedAt']
+                    order: [['createdAt', 'DESC']],
+                    attributes: ['running_today', 'current_status', 'createdAt']
                 });
                 // console.log(lastLog, 123)
 

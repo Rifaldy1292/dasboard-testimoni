@@ -265,10 +265,10 @@ class MachineController {
                 const log = await MachineLog.findOne({
                     where: {
                         machine_id,
-                        updatedAt: dateQuery(fixDate)
+                        createdAt: dateQuery(fixDate)
                     },
                     attributes: ['running_today'],
-                    order: [['updatedAt', 'DESC']]
+                    order: [['createdAt', 'DESC']]
                 });
 
                 const numberOfLog = log?.running_today ?? 0

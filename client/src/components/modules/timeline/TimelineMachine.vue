@@ -76,9 +76,11 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
 
 <template>
   <div class="card">
-    <span class="flex justify-center text-3xl font-bold tetx-black dark:text-white">
-      {{ machine.name }} &nbsp;
-      <span :style="{ color: iconTimeline(machine.status).color }"> {{ machine.status }}</span>
+    <span
+      :style="{ color: iconTimeline(machine.status).color }"
+      class="flex justify-center text-3xl font-bold tetx-black dark:text-white"
+    >
+      {{ machine.name }}
     </span>
 
     <Timeline :value="machine.MachineLogs" layout="horizontal" align="top">
