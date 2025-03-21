@@ -11,7 +11,7 @@ defineProps<{
       <div class="max-w-md w-full">
         <a href="#">
           <img
-            src="@/assets/images/logo/yamaha-gakki.svg"
+            src="@/assets/images/logo/yamaha-motor.svg"
             alt="logo"
             class="w-40 mb-8 mx-auto block"
           />

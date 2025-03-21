@@ -29,11 +29,17 @@ const extendendUsers = computed<ExtendedUser[]>(() => {
     /**
      * @example 2.22222 calculate_total_cutting_time
      */
-    const { Machine, createdAt, current_status, profile_image, calculate_total_cutting_time } =
-      user.detail
+    const {
+      Machine,
+      createdAt,
+      current_status,
+      profile_image,
+      calculate_total_cutting_time,
+      g_code_name
+    } = user.detail
     const calculate = calculate_total_cutting_time.split('.')
     const totalProgram = calculate[0]
-    const remainingTime = calculate[1]
+    const remainingTime = calculate[1].slice(0, -1)
 
     const temp = {
       ...user,
@@ -42,7 +48,7 @@ const extendendUsers = computed<ExtendedUser[]>(() => {
       time: convertSecondsToHours(Number(remainingTime)),
       lastUpdate: new Date(createdAt).toLocaleString(),
       photo: profile_image,
-      process: '00001(M06 ATC)',
+      process: 'O' + g_code_name.slice(-4),
       machine: `${Machine.name} (${Machine.type}) `
     }
     return temp
