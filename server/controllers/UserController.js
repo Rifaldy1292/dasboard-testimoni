@@ -45,25 +45,40 @@ class UserController {
         // order: [[{ model: MachineLog }, 'createdAt', 'ASC']],
       });
 
-      const formattedUsers = users
-        .map((user) => {
+      const formattedUsers = await Promise.all(
+        (users || []).map(async (user) => {
           delete user.dataValues.id;
           // delete user.dataValues.name
           const { MachineLogs, ...userData } = user.dataValues;
-          userData.detail = MachineLogs[0];
+          const log = MachineLogs[0];
+          if (!log) return null;
+          const lasLogMachine = await MachineLog.findOne({
+            where: { machine_id: log.machine_id },
+            attributes: ["id"],
+            order: [["createdAt", "DESC"]],
+          });
+          console.log(log.id === lasLogMachine.id, {
+            log: log.machine_id,
+            lasLogMachine: lasLogMachine.id,
+          });
+          const isLastLog = log.id === lasLogMachine.id;
+          userData.detail = isLastLog ? log : null;
           return userData || null;
           // sort by created at desc
         })
-        .filter((user) => user.detail)
-        .sort(
-          (a, b) => new Date(b.detail.createdAt) - new Date(a.detail.createdAt)
-        );
+      );
+
       // .filter(user => user !== null);
 
       res.status(200).json({
         status: 200,
         message: "success get user machine",
-        data: formattedUsers,
+        data: formattedUsers
+          .filter((user) => user !== null && user.detail !== null)
+          .sort(
+            (a, b) =>
+              new Date(b.detail.createdAt) - new Date(a.detail.createdAt)
+          ),
       });
     } catch (error) {
       serverError(error, res, "Failed to get user machine");
