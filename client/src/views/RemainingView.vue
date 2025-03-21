@@ -39,7 +39,7 @@ const extendendUsers = computed<ExtendedUser[]>(() => {
     } = user.detail
     const calculate = calculate_total_cutting_time.split('.')
     const totalProgram = calculate[0]
-    const remainingTime = calculate[1].slice(0, -2)
+    const remainingTime = calculate[1].slice(0, -1)
 
     const temp = {
       ...user,
