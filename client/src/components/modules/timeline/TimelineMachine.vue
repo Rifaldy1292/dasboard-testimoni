@@ -2,7 +2,7 @@
 import Timeline from 'primevue/timeline'
 import type { Machine, MachineTimeline, ObjMachineTimeline } from '@/types/machine.type'
 import ModalEditDescription from './ModalEditDescription.vue'
-import { computed, shallowRef } from 'vue'
+import { shallowRef } from 'vue'
 
 const { machine } = defineProps<{
   machine: MachineTimeline
@@ -70,7 +70,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
   const indexH = arr.findIndex((item) => item.includes('h'))
   const indexM = arr.findIndex((item) => item.includes('m'))
   const indexS = arr.findIndex((item) => item.includes('s'))
-  return `now`
+  return 'next'
 }
 </script>
 
@@ -131,10 +131,10 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
           </span>
           <br />
 
-          <span class="font-medium text-white dark:text-black">{{ item.k_num }} </span>
+          <span class="font-medium text-yellow-300">{{ item.k_num }} </span>
           <br />
 
-          <span class="font-medium text-white dark:text-black"
+          <span class="font-medium text-indigo-700"
             >{{ item.g_code_name }} - {{ item.output_wp }}</span
           >
 

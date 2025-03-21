@@ -182,7 +182,9 @@ const handleFileChange = (event: Event) => {
           <div class="mb-5.5">
             <FormField name="password">
               <div>
-                <label class="text-gray-800 text-sm mb-2 block">Password</label>
+                <label class="mb-3 block text-sm font-medium text-black dark:text-white"
+                  >Password</label
+                >
                 <div class="relative flex items-center">
                   <InputText
                     v-model:model-value="formValues.password"

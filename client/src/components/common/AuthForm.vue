@@ -237,7 +237,7 @@ const showFormField = computed<ShowFormField>(() => {
         >
       </p> -->
 
-      <p class="text-gray-800 text-sm !mt-8 text-center">
+      <p v-if="page !== 'Sign in'" class="text-gray-800 text-sm !mt-8 text-center">
         {{ 'Already have an account?' }}
         <a href="/login" class="text-blue-600 hover:underline ml-1 whitespace-nowrap font-semibold"
           >Login here</a
