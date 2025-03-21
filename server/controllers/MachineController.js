@@ -1,394 +1,477 @@
-const { Machine, MachineLog, CuttingTime, EncryptData } = require('../models');
-const dateCuttingTime = require('../utils/dateCuttingTime');
-const { serverError } = require('../utils/serverError');
-const countHour = require('../utils/countHour');
+const { Machine, MachineLog, CuttingTime, EncryptData } = require("../models");
+const dateCuttingTime = require("../utils/dateCuttingTime");
+const { serverError } = require("../utils/serverError");
+const countHour = require("../utils/countHour");
 
-const { PassThrough } = require('stream'); // ✅ Tambahkan ini
-const { Client } = require('basic-ftp');
-let { dateQuery, config } = require('../utils/dateQuery');
-const { encryptToNumber } = require('../helpers/crypto');
-const encryptionCache = require('../config/encryptionCache');
+const { PassThrough } = require("stream"); // ✅ Tambahkan ini
+const { Client } = require("basic-ftp");
+let { dateQuery, config } = require("../utils/dateQuery");
+const { encryptToNumber } = require("../helpers/crypto");
+const encryptionCache = require("../config/encryptionCache");
 
-const hostHp = '192.168.8.119'
-const pwHp = 'android'
-const portHp = 2221
+const hostHp = "192.168.8.119";
+const pwHp = "android";
+const portHp = 2221;
 
 class MachineController {
-
-    static clearCache(req, res) {
-        encryptionCache.clear()
-        res.status(200).json({ message: 'cache cleared' })
-    }
-    /**
+  static clearCache(req, res) {
+    encryptionCache.clear();
+    res.status(200).json({ message: "cache cleared" });
+  }
+  /**
    * @description Transfer file to machine using FTP
    * @param {request} req - Request object
    * @param {response} res - Response object
    */
-    static async transferFiles(req, res) {
-        const client = new Client();
-        try {
-            /**
-             * @prop {string} machine_id - Machine ID
-             */
-            const { machine_id } = req.body
-            /**
-             * @prop {Array} files - Array of uploaded files
-             */
-            const { files } = req
-            console.log({ body: req.body })
-            if (!machine_id) return res.status(400).json({ message: 'machine_id is required', status: 400 })
-            if (!files || files.length === 0) {
-                return res.status(400).json({ message: 'No file uploaded', status: 400 });
-            }
-            const { ip_address, name } = await Machine.findOne({ where: { id: machine_id }, attributes: ['ip_address', 'name'] })
-            if (!ip_address) {
-                return res.status(400).json({ message: 'Machine not found', status: 400 });
-            }
+  static async transferFiles(req, res) {
+    const client = new Client();
+    try {
+      /**
+       * @prop {string} machine_id - Machine ID
+       */
+      const { machine_id } = req.body;
+      /**
+       * @prop {Array} files - Array of uploaded files
+       */
+      const { files } = req;
+      console.log({ body: req.body });
+      if (!machine_id)
+        return res
+          .status(400)
+          .json({ message: "machine_id is required", status: 400 });
+      if (!files || files.length === 0) {
+        return res
+          .status(400)
+          .json({ message: "No file uploaded", status: 400 });
+      }
+      const { ip_address, name } = await Machine.findOne({
+        where: { id: machine_id },
+        attributes: ["ip_address", "name"],
+      });
+      if (!ip_address) {
+        return res
+          .status(400)
+          .json({ message: "Machine not found", status: 400 });
+      }
 
-            // console.log(machineIp.dataValues.ip_address, 22)
-            await client.access({
-                host: ip_address,
-                port: 21,
-                user: "MC",
-                password: "MC",
-                // host: hostHp,
-                // port: portHp,
-                // user: pwHp,
-                // password: pwHp,
-                secure: false,
-            })
+      // console.log(machineIp.dataValues.ip_address, 22)
+      await client.access({
+        host: ip_address,
+        port: 21,
+        user: "MC",
+        password: "MC",
+        // host: hostHp,
+        // port: portHp,
+        // user: pwHp,
+        // password: pwHp,
+        secure: false,
+      });
 
-            const remotePath = '/Storage Card/USER/DataCenter';
-            if (name === 'MC-14' || name === 'MC-15') {
-                await client.ensureDir(remotePath); // Pastikan direktori tujuan ada
-            }
+      const remotePath = "/Storage Card/USER/DataCenter";
+      if (name === "MC-14" || name === "MC-15") {
+        await client.ensureDir(remotePath); // Pastikan direktori tujuan ada
+      }
 
-            for (const file of files) {
-                const stream = new PassThrough(); // ✅ Buat stream dari Buffer
-                stream.end(file.buffer);
-                console.log(`Uploading: ${file.originalname}`); // Debugging
+      for (const file of files) {
+        const stream = new PassThrough(); // ✅ Buat stream dari Buffer
+        stream.end(file.buffer);
+        console.log(`Uploading: ${file.originalname}`); // Debugging
 
-                const customMachine = name === 'MC-14' || name === 'MC-15'
+        const customMachine = name === "MC-14" || name === "MC-15";
 
-                const path = customMachine ? `${remotePath}/${file.originalname}` : file.originalname
+        const path = customMachine
+          ? `${remotePath}/${file.originalname}`
+          : file.originalname;
 
-                await client.uploadFrom(stream, path);
-            }
+        await client.uploadFrom(stream, path);
+      }
 
-
-            // ✅ Setelah sukses transfer, simpan hasil enkripsi ke database
-            for (const [encrypt_number, original_text] of encryptionCache.entries()) {
-                const existingData = await EncryptData.findOne({ where: { encrypt_number }, attributes: ['id'] });
-                if (!existingData) {
-                    await EncryptData.create({ encrypt_number, original_text });
-                }
-            }
-
-            // ✅ Hapus dari Map setelah tersimpan ke database
-            encryptionCache.clear();
-
-            res.status(200).json({ status: 200, message: 'Files uploaded successfully' })
-
-        } catch (error) {
-            console.log({ error, message: error.message })
-            if (error.code === 'ECONNREFUSED') return res.status(500).json({ message: 'Failed to connect to machine', status: 500 })
-            if (error.code === 550 || error.message === '550 STOR requested action not taken: File exists.') {
-                return res.status(400).json({ status: 400, message: 'File already exists on machine' })
-            }
-
-            serverError(error, res, 'Failed to transfer files');
-        } finally {
-            client.close()
+      // ✅ Setelah sukses transfer, simpan hasil enkripsi ke database
+      for (const [encrypt_number, original_text] of encryptionCache.entries()) {
+        const existingData = await EncryptData.findOne({
+          where: { encrypt_number },
+          attributes: ["id"],
+        });
+        if (!existingData) {
+          await EncryptData.create({ encrypt_number, original_text });
         }
+      }
+
+      // ✅ Hapus dari Map setelah tersimpan ke database
+      encryptionCache.clear();
+
+      res
+        .status(200)
+        .json({ status: 200, message: "Files uploaded successfully" });
+    } catch (error) {
+      console.log({ error, message: error.message });
+      if (error.code === "ECONNREFUSED")
+        return res
+          .status(500)
+          .json({ message: "Failed to connect to machine", status: 500 });
+      if (
+        error.code === 550 ||
+        error.message === "550 STOR requested action not taken: File exists."
+      ) {
+        return res
+          .status(400)
+          .json({ status: 400, message: "File already exists on machine" });
+      }
+
+      serverError(error, res, "Failed to transfer files");
+    } finally {
+      client.close();
     }
+  }
 
-    static async removeFileFromMachine(req, res) {
-        const client = new Client()
-        try {
-            // type all or single
-            const { fileName, machine_id } = req.query
+  static async removeFileFromMachine(req, res) {
+    const client = new Client();
+    try {
+      // type all or single
+      const { fileName, machine_id } = req.query;
 
-            if (!machine_id) return res.status(400).json({ message: 'machine_id is required', status: 400 })
-            const { ip_address, name } = await Machine.findOne({
-                where: { id: machine_id },
-                attributes: ['ip_address', 'name']
-            })
+      if (!machine_id)
+        return res
+          .status(400)
+          .json({ message: "machine_id is required", status: 400 });
+      const { ip_address, name } = await Machine.findOne({
+        where: { id: machine_id },
+        attributes: ["ip_address", "name"],
+      });
 
-            if (!ip_address) return res.status(400).json({ message: 'Machine not found', status: 400 })
-            await client.access({
-                // host: "172.20.80.210",//mesin CNC
-                // host: "192.168.8.119",//mesin CNC
-                host: ip_address,
-                port: 21,
-                user: "MC",
-                password: "MC",
-                secure: false,
-            })
+      if (!ip_address)
+        return res
+          .status(400)
+          .json({ message: "Machine not found", status: 400 });
+      await client.access({
+        // host: "172.20.80.210",//mesin CNC
+        // host: "192.168.8.119",//mesin CNC
+        host: ip_address,
+        port: 21,
+        user: "MC",
+        password: "MC",
+        secure: false,
+      });
 
-            const customMachine = name === 'MC-14' || name === 'MC-15'
-            const remotePath = '/Storage Card/USER/DataCenter';
+      const customMachine = name === "MC-14" || name === "MC-15";
+      const remotePath = "/Storage Card/USER/DataCenter";
 
-            // remove all files
-            if (!fileName) {
-                if (!customMachine) {
-                    await client.removeDir('/');
-                    return res.status(200).json({ status: 200, message: `All files removed from ${name}` })
-                }
-
-                await client.ensureDir(remotePath); // Pastikan direktori tujuan ada
-                await client.removeDir(remotePath);
-                return res.status(200).json({ status: 200, message: `All files removed from ${name}` })
-            }
-
-            // remove single file
-            if (customMachine) {
-                await client.cd(remotePath)
-            }
-            await client.remove(fileName);
-            return res.status(200).json({ status: 200, message: `File ${fileName} removed from ${name}` })
-
-
-        } catch (error) {
-            serverError(error, res, 'Failed to remove all file from machine');
-        } finally {
-            client.close()
+      // remove all files
+      if (!fileName) {
+        if (!customMachine) {
+          await client.removeDir("/");
+          return res
+            .status(200)
+            .json({ status: 200, message: `All files removed from ${name}` });
         }
+
+        await client.ensureDir(remotePath); // Pastikan direktori tujuan ada
+        await client.removeDir(remotePath);
+        return res
+          .status(200)
+          .json({ status: 200, message: `All files removed from ${name}` });
+      }
+
+      // remove single file
+      if (customMachine) {
+        await client.cd(remotePath);
+      }
+      await client.remove(fileName);
+      return res.status(200).json({
+        status: 200,
+        message: `File ${fileName} removed from ${name}`,
+      });
+    } catch (error) {
+      serverError(error, res, "Failed to remove all file from machine");
+    } finally {
+      client.close();
     }
+  }
 
-    static async encyptContentValue(req, res) {
-        try {
-            /**
-             * @prop {string} gCodeName - G code name
-             * @prop {string} kNum - K num
-             * @prop {string} outputWP - Output wp
-             * @prop {string} toolName - Tool name
-             * @prop {string} totalCuttingTime - Total cutting time
-             */
-            const { gCodeName, kNum, outputWP, toolName } = req.body
+  static async encyptContentValue(req, res) {
+    try {
+      /**
+       * @prop {string} gCodeName - G code name
+       * @prop {string} kNum - K num
+       * @prop {string} outputWP - Output wp
+       * @prop {string} toolName - Tool name
+       * @prop {string} totalCuttingTime - Total cutting time
+       */
+      const { gCodeName, kNum, outputWP, toolName } = req.body;
 
-            if (!gCodeName || !kNum || !outputWP || !toolName) {
-                return res.status(400).json({ message: 'gCodeName, kNum, outputWP, toolName, totalCuttingTime is required', status: 400 })
-            }
+      if (!gCodeName || !kNum || !outputWP || !toolName) {
+        return res.status(400).json({
+          message:
+            "gCodeName, kNum, outputWP, toolName, totalCuttingTime is required",
+          status: 400,
+        });
+      }
 
-            const encryptValue = {
-                gCodeName: encryptToNumber(gCodeName),
-                kNum: encryptToNumber(kNum),
-                outputWP: encryptToNumber(outputWP),
-                toolName: encryptToNumber(toolName),
-            }
+      const encryptValue = {
+        gCodeName: encryptToNumber(gCodeName),
+        kNum: encryptToNumber(kNum),
+        outputWP: encryptToNumber(outputWP),
+        toolName: encryptToNumber(toolName),
+      };
 
-            res.status(201).json({ status: 201, message: 'success encrypt content value', data: encryptValue });
-        } catch (error) {
-            serverError(error, res, 'Failed to encrypt content value');
+      res.status(201).json({
+        status: 201,
+        message: "success encrypt content value",
+        data: encryptValue,
+      });
+    } catch (error) {
+      serverError(error, res, "Failed to encrypt content value");
+    }
+  }
+
+  static getStartTime(req, res) {
+    res.status(200).json({
+      data: { startHour: config.startHour, startMinute: config.startMinute },
+      message: "succesfully get start time ",
+    });
+  }
+
+  static editStartTime(req, res) {
+    try {
+      const { reqStartHour, reqStartMinute } = req.body;
+      if (
+        (typeof reqStartHour !== "number", typeof reqStartMinute !== "number")
+      )
+        return res
+          .status(400)
+          .json({ message: "reqStartHour and reqStartMinute is Required" });
+
+      config.startHour = reqStartHour;
+      config.startMinute = reqStartMinute;
+      res.status(201).json({ message: "succesfully Edit start time " });
+    } catch (error) {
+      serverError(error, res, "failed to Edit start time");
+    }
+  }
+
+  static async getCuttingTime(req, res) {
+    try {
+      const { period } = req.query;
+      const { date } = dateCuttingTime(period);
+
+      const cuttingTime = await CuttingTime.findOne({
+        where: { period: date },
+        attributes: ["period", "target"],
+      });
+
+      // machineIds from query, default all
+      const machineIds =
+        req.query.machineIds ??
+        (await Machine.findAll({ attributes: ["id", "name"] }));
+
+      if (!cuttingTime || !machineIds.length) {
+        return res.status(204).send();
+      }
+
+      const sortedMachineIds = machineIds.sort((a, b) => {
+        const numberA = parseInt(a.name.slice(3));
+        const numberB = parseInt(b.name.slice(3));
+        return numberA - numberB;
+      });
+
+      // 28
+      const totalDayInMonth = date.getDate();
+
+      const objTargetCuttingTime = objectTargetCuttingTime(
+        cuttingTime.target,
+        totalDayInMonth
+      );
+
+      // [1,2,3...31]
+      const allDayInMonth = Array.from(
+        { length: totalDayInMonth },
+        (_, i) => i + 1
+      );
+
+      const allDateInMonth = Array.from({ length: totalDayInMonth }, (_, i) => {
+        i++;
+        const day = new Date(date.getFullYear(), date.getMonth(), i + 1);
+        return day;
+      });
+
+      const cuttingTimeInMonth = await Promise.all(
+        sortedMachineIds.map(async (machine) => {
+          const data = await MachineController.getCuttingTimeByMachineId({
+            machine_id: machine.id,
+            allDateInMonth,
+          });
+          return { name: machine.name, ...data };
+        })
+      );
+
+      const extendedCuttingTimeInMonth = [
+        objTargetCuttingTime,
+        ...cuttingTimeInMonth,
+      ];
+
+      const data = {
+        cuttingTime,
+        allDayInMonth,
+        cuttingTimeInMonth: extendedCuttingTimeInMonth,
+      };
+      res
+        .status(200)
+        .json({ status: 200, message: "success get cutting time", data });
+    } catch (error) {
+      serverError(error, res, "Failed to get cutting time");
+    }
+  }
+
+  static async getCuttingTimeByMachineId({ machine_id, allDateInMonth }) {
+    try {
+      if (!machine_id || !allDateInMonth)
+        throw new Error("machine_id or allDateInMonth is required");
+
+      const getLogAllDateInMonth = await Promise.all(
+        allDateInMonth.map(async (dateValue) => {
+          console.log({ dateValue }, 333);
+          const fixDate = new Date(dateValue.toISOString().split("T")[0]);
+          const log = await MachineLog.findOne({
+            where: {
+              machine_id,
+              createdAt: dateQuery(fixDate),
+            },
+            attributes: ["running_today"],
+            order: [["createdAt", "DESC"]],
+          });
+
+          const numberOfLog = log?.running_today ?? 0;
+
+          return numberOfLog;
+        })
+      );
+
+      // const example = [1, 2, 3, 4, 9, 0, 2, 0, 1, 0]
+      // expect res[1, 3, 6, 10, 19, 19, 21, 21, 22, 22]
+      // [value index 0, value index 0 + 1, value index 0, 1, 2]
+      const formattedCountLog = [];
+      for (let i = 0; i < getLogAllDateInMonth.length; i++) {
+        let sum = 0;
+        for (let j = 0; j <= i; j++) {
+          sum += getLogAllDateInMonth[j];
         }
+        formattedCountLog.push(sum);
+      }
+
+      const convertCountLogToHours = formattedCountLog.map((count) =>
+        countHour.convertMilisecondToHour(count)
+      );
+      const runningToday = getLogAllDateInMonth.map((count) =>
+        countHour.convertMilisecondToHour(count)
+      );
+
+      return { data: convertCountLogToHours, actual: runningToday };
+    } catch (error) {
+      console.error({ error }, 88888888888888);
+      throw new Error(error);
     }
+  }
 
-    static getStartTime(req, res) {
-        res.status(200).json({ data: { startHour: config.startHour, startMinute: config.startMinute }, message: 'succesfully get start time ' })
-    }
+  static async getMachineOption(req, res) {
+    try {
+      const machines = await Machine.findAll({ attributes: ["id", "name"] });
 
-    static editStartTime(req, res) {
-        try {
-            const { reqStartHour, reqStartMinute } = req.body
-            if (typeof reqStartHour !== 'number', typeof reqStartMinute !== 'number') return res.status(400).json({ message: 'reqStartHour and reqStartMinute is Required' })
+      const sortedMachine = machines.sort((a, b) => {
+        const numberA = parseInt(a.name.slice(3));
+        const numberB = parseInt(b.name.slice(3));
+        return numberA - numberB;
+      });
 
-            config.startHour = reqStartHour
-            config.startMinute = reqStartMinute
-            res.status(201).json({ message: 'succesfully Edit start time ' })
+      if (!sortedMachine.length) {
+        return res.status(200).send({ data: [] });
+      }
 
-        } catch (error) {
-            serverError(error, res, 'failed to Edit start time')
+      const formattedMachines = sortedMachine.map((machine) => {
+        const { name } = machine;
+        const result = { ...machine.dataValues };
+        if (name === "MC-1" || name === "MC-6") {
+          result.startMacro = 500;
+        } else if (name === "MC-14" || name === "MC-15") {
+          result.startMacro = 560;
+        } else {
+          result.startMacro = 540;
         }
+        return result;
+      });
+
+      res.status(200).json({
+        status: 200,
+        message: "success get machine option",
+        data: formattedMachines,
+      });
+    } catch (error) {
+      serverError(error, res, "Failed to get machine option");
     }
+  }
 
-    static async getCuttingTime(req, res) {
-        try {
-            const { period } = req.query;
-            const { date } = dateCuttingTime(period)
+  static async getListFiles(req, res) {
+    const client = new Client();
+    try {
+      const { machine_id } = req.params;
 
-            const cuttingTime = await CuttingTime.findOne({ where: { period: date }, attributes: ['period', 'target'] });
+      const { ip_address, name } = await Machine.findOne({
+        where: { id: machine_id },
+        attributes: ["ip_address", "name"],
+      });
+      if (!ip_address)
+        return res
+          .status(400)
+          .json({ message: "Machine not found", status: 400 });
 
-            // machineIds from query, default all
-            const machineIds = req.query.machineIds ?? await Machine.findAll({ attributes: ['id', 'name'] });
+      console.log(ip_address, 222);
 
-            if (!cuttingTime || !machineIds.length) {
-                return res.status(204).send()
-            }
-
-            const sortedMachineIds = machineIds.sort((a, b) => {
-                const numberA = parseInt(a.name.slice(3));
-                const numberB = parseInt(b.name.slice(3));
-                return numberA - numberB;
-            });
-
-            // 28
-            const totalDayInMonth = date.getDate()
-
-            const objTargetCuttingTime = objectTargetCuttingTime(cuttingTime.target, totalDayInMonth)
-
-            // [1,2,3...31]
-            const allDayInMonth = Array.from({ length: totalDayInMonth }, (_, i) => i + 1);
-
-            const allDateInMonth = Array.from({ length: totalDayInMonth }, (_, i) => {
-                i++
-                const day = new Date(date.getFullYear(), date.getMonth(), i + 1)
-                return day
-            });
-
-            const cuttingTimeInMonth = await Promise.all(sortedMachineIds.map(async (machine) => {
-                const data = await MachineController.getCuttingTimeByMachineId({ machine_id: machine.id, allDateInMonth })
-                return { name: machine.name, ...data }
-            }));
-
-            const extendedCuttingTimeInMonth = [objTargetCuttingTime, ...cuttingTimeInMonth]
-
-
-            const data = {
-                cuttingTime,
-                allDayInMonth,
-                cuttingTimeInMonth: extendedCuttingTimeInMonth
-            }
-            res.status(200).json({ status: 200, message: 'success get cutting time', data });
-        } catch (error) {
-            serverError(error, res, 'Failed to get cutting time');
-        }
+      await client.access({
+        // host: "172.20.80.210",//mesin CNC
+        // host: "192.168.8.119",//mesin CNC
+        host: ip_address,
+        port: 21,
+        user: "MC",
+        password: "MC",
+        secure: false,
+      });
+      if (name === "MC-14" || name === "MC-15") {
+        const remotePath = "/Storage Card/USER/DataCenter/";
+        await client.cd(remotePath);
+      }
+      const files = await client.list();
+      const fileNames = files.map((file) => {
+        return {
+          fileName: file.name,
+        };
+      });
+      res.status(200).json({
+        status: 200,
+        message: "success get list files",
+        data: fileNames,
+      });
+    } catch (error) {
+      serverError(error, res, "Failed to get list files");
+    } finally {
+      client.close();
     }
-
-    static async getCuttingTimeByMachineId({ machine_id, allDateInMonth }) {
-        try {
-            if (!machine_id || !allDateInMonth) throw new Error('machine_id or allDateInMonth is required')
-
-
-            const getLogAllDateInMonth = await Promise.all(allDateInMonth.map(async (dateValue) => {
-                console.log({ dateValue }, 333)
-                const fixDate = new Date(dateValue.toISOString().split('T')[0])
-                const log = await MachineLog.findOne({
-                    where: {
-                        machine_id,
-                        createdAt: dateQuery(fixDate)
-                    },
-                    attributes: ['running_today'],
-                    order: [['createdAt', 'DESC']]
-                });
-
-                const numberOfLog = log?.running_today ?? 0
-
-                return numberOfLog;
-            }))
-
-
-            // const example = [1, 2, 3, 4, 9, 0, 2, 0, 1, 0]
-            // expect res[1, 3, 6, 10, 19, 19, 21, 21, 22, 22]
-            // [value index 0, value index 0 + 1, value index 0, 1, 2]
-            const formattedCountLog = []
-            for (let i = 0; i < getLogAllDateInMonth.length; i++) {
-                let sum = 0
-                for (let j = 0; j <= i; j++) {
-                    sum += getLogAllDateInMonth[j]
-                }
-                formattedCountLog.push(sum)
-
-            }
-
-            const convertCountLogToHours = formattedCountLog.map((count) => countHour.convertMilisecondToHour(count))
-            const runningToday = getLogAllDateInMonth.map((count) => countHour.convertMilisecondToHour(count))
-
-            return { data: convertCountLogToHours, actual: runningToday }
-        } catch (error) {
-            console.error({ error }, 88888888888888)
-            throw new Error(error);
-        }
-    }
-
-    static async getMachineOption(req, res) {
-        try {
-            const machines = await Machine.findAll({ attributes: ['id', 'name'] });
-
-            const sortedMachine = machines.sort((a, b) => {
-                const numberA = parseInt(a.name.slice(3));
-                const numberB = parseInt(b.name.slice(3));
-                return numberA - numberB;
-            })
-
-            if (!sortedMachine.length) {
-                return res.status(200).send({ data: [] })
-            }
-
-            const formattedMachines = sortedMachine.map((machine) => {
-                const { name } = machine
-                const result = { ...machine.dataValues }
-                if (name === 'MC-1' || name === 'MC-6') {
-                    result.startMacro = 500
-                } else if (name === 'MC-14' || name === 'MC-15') {
-                    result.startMacro = 560
-                } else {
-                    result.startMacro = 540
-                }
-                return result
-            })
-
-
-            res.status(200).json({ status: 200, message: 'success get machine option', data: formattedMachines });
-        } catch (error) {
-            serverError(error, res, 'Failed to get machine option');
-        }
-    }
-
-    static async getListFiles(req, res) {
-        const client = new Client()
-        try {
-            const { machine_id } = req.params
-
-            const { ip_address, name } = await Machine.findOne({ where: { id: machine_id }, attributes: ['ip_address', 'name'] })
-            if (!ip_address) return res.status(400).json({ message: 'Machine not found', status: 400 })
-
-            console.log(ip_address, 222)
-
-
-            await client.access({
-                // host: "172.20.80.210",//mesin CNC
-                // host: "192.168.8.119",//mesin CNC
-                host: ip_address,
-                port: 21,
-                user: "MC",
-                password: "MC",
-                secure: false,
-            })
-            if (name === 'MC-14' || name === 'MC-15') {
-                const remotePath = '/Storage Card/USER/DataCenter/';
-                await client.cd(remotePath)
-            }
-            const files = await client.list()
-            const fileNames = files.map((file) => {
-                return {
-                    fileName: file.name,
-                }
-            })
-            res.status(200).json({ status: 200, message: 'success get list files', data: fileNames });
-
-        } catch (error) {
-            serverError(error, res, 'Failed to get list files');
-        } finally {
-            client.close()
-        }
-    }
-
+  }
 }
 
 const objectTargetCuttingTime = (target, totalDayInMonth) => {
+  const targetPerDay = target / totalDayInMonth; // Calculate target hours per day
 
-    const targetPerDay = target / totalDayInMonth; // Calculate target hours per day
+  const calculatedTargets = Array.from(
+    { length: totalDayInMonth },
+    (_, i) => (i + 1) * targetPerDay
+  ); // Calculate cumulative target for each day
 
-    const calculatedTargets = Array.from({ length: totalDayInMonth }, (_, i) => (i + 1) * targetPerDay); // Calculate cumulative target for each day
-
-    const formattedResult = calculatedTargets.map((item) => Math.round(item))
-    // console.log({ test, length: test.length });
-    return {
-        name: 'Target',
-        data: formattedResult, // data ubah jadi actual
-    };
-}
-
+  const formattedResult = calculatedTargets.map((item) => Math.round(item));
+  // console.log({ test, length: test.length });
+  return {
+    name: "Target",
+    data: formattedResult, // data ubah jadi actual
+  };
+};
 
 module.exports = MachineController;
 
