@@ -57,10 +57,10 @@ class UserController {
             attributes: ["id"],
             order: [["createdAt", "DESC"]],
           });
-          console.log(log.id === lasLogMachine.id, {
-            log: log.machine_id,
-            lasLogMachine: lasLogMachine.id,
-          });
+          // console.log(log.id === lasLogMachine.id, {
+          //   log: log.machine_id,
+          //   lasLogMachine: lasLogMachine.id,
+          // });
           const isLastLog = log.id === lasLogMachine.id;
           userData.detail = isLastLog ? log : null;
           return userData || null;
