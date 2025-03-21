@@ -11,15 +11,17 @@ module.exports = {
                 NODE_ENV: 'production',
             },
         },
-        // {
-        //     name: "express-server",
-        //     cwd: "./server",
-        //     script: "npm",
-        //     args: "start",
-        //     env: {
-        //         NODE_ENV: "production",
-        //         PORT: 2222, // Sesuaikan dengan port server
-        //     },
-        // },
+
+        {
+            name: "node-red",
+            script: "npx",
+            args: "node-red",
+            env: {
+                NODE_ENV: "production",
+            },
+        }
     ],
 };
+
+
+
