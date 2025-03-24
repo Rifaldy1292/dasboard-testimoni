@@ -112,7 +112,7 @@ M05
 `
 
     const body540 = `T${toolNumber}
-M06
+M6
 H${toolNumber}
 ${macroData}
 G${selectedWorkPosition}
@@ -138,7 +138,18 @@ G91G28Z0.
 G91G28Y0.
 `
 
-    return { body500, body540, body560 }
+    const bodyMC16 = `T${toolNumber} M6
+${macroData}
+G${selectedWorkPosition} G90 G0 X0 Y0.
+G43 Z${selectedCoordinate}. H${toolNumber}
+Z0.
+G5. 1 Q1
+${M198P}${file.name.slice(1)}
+G5. 1 Q0
+G0 Z50.
+`
+
+    return { body500, body540, body560, bodyMC16 }
   })
 
   const content500 = `%
@@ -158,6 +169,14 @@ O00${selectedProgramNumber}
 ${bodyContent.map((item) => item.body560).join('\n')}
 M30
 %`
+
+  const contentMC16 = `%
+O00${selectedProgramNumber}
+${bodyContent.map((item) => item.bodyMC16).join('\n')}
+M30
+%`
+
+  if (selectedOneMachine.name === 'MC-16') return contentMC16
 
   const content = (startMacro: 500 | 540 | 560) => {
     const result = `%
@@ -180,48 +199,6 @@ M30
 
   return content(selectedOneMachine.startMacro)
 }
-
-// const expectedFormat = `%
-// O3054
-// M98P7000
-// T3
-// M06
-// G05.1Q1NUM(AICC ON)
-// G65P9684H3Z0CK-NUMR-NUM :
-// G65P0092Q0.1E3D-NUM :
-// H3
-// G54
-// G90G00X0Y0
-// G45Z200.00
-// M50
-// M07
-// G05P10000
-// M198P0300
-// G05P0
-// G05.1Q0(AICC OFF)
-// G65P9685H3Q0.1Z0
-
-// M98P7000
-// T5
-// M06
-// G05.1Q1NUM(AICC ON)
-// G65P9684H5Z0CK-NUMR-NUM :
-// G65P0092Q0.1E5D-NUM :
-// H5
-// G54
-// G90G00X0Y0
-// G45Z200.00
-// M50
-// M07
-// G05P10000
-// M198P0301
-// G05P0
-// G05.1Q0(AICC OFF)
-// G65P9685H5Q0.1Z0
-
-// M98P7000
-// M30
-// %`
 
 export const getValueFromContent = (content: string): ValueFromContent => {
   const kNum = content.match(/K-NUM : ([^)]+)/g)

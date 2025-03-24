@@ -56,6 +56,6 @@ export interface CuttingTimeMachine {
 
 export type MachineOption = {
   id: number
-  name: string
+  name: 'MC-1' | 'MC-2' | 'MC-3' | 'MC-4' | 'MC-5' | 'MC-6' | 'MC-14' | 'MC-15' | 'MC-16'
   startMacro: 500 | 540 | 560
 }

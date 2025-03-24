@@ -6,6 +6,7 @@ import useToast from '@/composables/useToast'
 import { ref, shallowRef } from 'vue'
 
 type ProcessType = 'NC' | 'Drill'
+
 interface AdditionalOptions {
   programNumberOptions: Array<number>
   workPositionOptions: Array<number>

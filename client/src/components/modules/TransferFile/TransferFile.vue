@@ -20,7 +20,6 @@ import happpySound from '@/assets/sounds/happy.mp3'
 
 onUnmounted(() => {
   handleClearFile()
-  // console.log('unmoun')
 })
 
 const toast = useToast()
