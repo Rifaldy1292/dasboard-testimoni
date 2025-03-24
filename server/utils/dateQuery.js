@@ -22,25 +22,17 @@ const dateQuery = (dateOption) => {
 
   // Create a new Date object from the provided dateOption to avoid mutation
   const nowDate = dateOption ? new Date(dateOption) : new Date();
-  console.log("nowDate:", nowDate);
 
-  // Convert nowDate to local time (we need to account for the local time zone offset)
-  const localTime = new Date(
-    nowDate.getTime() - nowDate.getTimezoneOffset() * 60000
-  );
-  console.log("localTime:", localTime); // Shows the date converted to local time
+  // const fixDate = new Date(nowDate.toISOString().split("T")[0]);
 
   // Start time at 7:00 AM on the given date
-  const startInDay = new Date(nowDate); // Make a copy of localTime for startInDay
-  // startInDay.setHours(startHour, startMinute, 0, 0);
-  startInDay.setHours(startHour, startMinute, 0, 0);
-  console.log("startInDay:", startInDay);
+  const startInDay = new Date(nowDate);
+  startInDay.setUTCHours(startHour, startMinute, 0, 0);
 
   // End time at 6:59 AM on the next day
-  const endOfDay = new Date(nowDate); // Make a copy of localTime for endOfDay
-  endOfDay.setDate(localTime.getDate() + 1); // Move to the next day
-  endOfDay.setHours(startHour - 1, endMinute, 59, 999); // Set time to 6:59:59.999 AM
-  console.log("endOfDay:", endOfDay);
+  const endOfDay = new Date(nowDate);
+  endOfDay.setUTCDate(endOfDay.getUTCDate() + 1); // Move to the next day
+  endOfDay.setUTCHours(startHour - 1, endMinute, 59, 999); // Set time to 6:59:59.999 AM
 
   // Return the date range for the query
   return {
@@ -50,6 +42,7 @@ const dateQuery = (dateOption) => {
 
 module.exports = { dateQuery, config };
 
-// const test = new Date();
-// test.setHours(7, 0, 0, 0);
-// console.log(test.toISOString());
+// const test = new Date().toISOString().split("T")[0];
+// const test2 = new Date(test);
+// test2.setUTCHours(7, 0, 0, 0);
+// console.log(test2);

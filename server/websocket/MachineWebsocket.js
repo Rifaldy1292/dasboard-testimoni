@@ -1,4 +1,3 @@
-const { Op, where } = require("sequelize");
 const { Machine, MachineLog, User } = require("../models");
 const { percentage, totalHour } = require("../utils/countHour");
 const { dateQuery } = require("../utils/dateQuery");
@@ -66,7 +65,7 @@ module.exports = class MachineWebsocket {
       // default date is today
       const currentDate = date || new Date();
       const dateOption = new Date(currentDate);
-      console.log(dateQuery(dateOption), 333);
+      // console.log(dateQuery(dateOption), 333);
       const machines = await Machine.findAll({
         include: [
           {

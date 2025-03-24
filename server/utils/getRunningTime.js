@@ -10,7 +10,8 @@ const { serverError } = require("./serverError");
 const updateLastMachineLog = async (machine_id) => {
   try {
     // get running time in now
-    console.log(dateQuery());
+    // const dateRange = dateQuery()
+    // console.log(dateRange);
     const logs = await MachineLog.findAll({
       where: {
         machine_id,
@@ -19,6 +20,8 @@ const updateLastMachineLog = async (machine_id) => {
       order: [["createdAt", "ASC"]],
       attributes: ["createdAt", "current_status", "id", "running_today"],
     });
+
+    // console.log('length', logs.length);
 
     if (logs.length === 0) return;
 
@@ -42,12 +45,14 @@ const updateLastMachineLog = async (machine_id) => {
     }
 
     // update running today in last log
-    await MachineLog.update(
+    const update = await MachineLog.update(
       { running_today: totalRunningTime },
       {
         where: { id: logs[logs.length - 1].id },
       }
     )
+
+    // console.log(update);
 
   } catch (error) {
     serverError(error)
