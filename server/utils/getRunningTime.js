@@ -56,7 +56,7 @@ const updateLastMachineLog = async (machine_id) => {
 };
 
 // const updateLastMachineLogMonth = async () => {
-//     let error = null
+//     lt error = null
 //     let data;
 //     try {
 //         const nowDay = new Date();

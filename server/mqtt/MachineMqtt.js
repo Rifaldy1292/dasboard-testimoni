@@ -51,16 +51,10 @@ const handleIsManualLog = async (machine_id, status) => {
             attributes: ['createdAt', 'id', 'description'],
             order: [['createdAt', 'DESC']],
         });
-        if (lastMachineLog === null) return;
+        if (lastMachineLog === null) return false;
         const differenceTime = new Date() - new Date(lastMachineLog?.createdAt);
         const fiveTenMinutes = 15 * 60 * 1000;
-        const isManual = differenceTime <= fiveTenMinutes && status === 'Running';
-        if (isManual && !lastMachineLog?.description) {
-            await MachineLog.update({
-                description: 'Manual Operation',
-                status: 'Running',
-            }, { where: { id: lastMachineLog?.id } });
-        }
+        const isManual = differenceTime <= fiveTenMinutes
         return isManual
     } catch (error) {
         serverError(error);
@@ -80,7 +74,7 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     try {
         const { user_id, status, g_code_name, k_num, output_wp, tool_name, total_cutting_time, calculate_total_cutting_time } = parseMessage
         // Find the last log for today
-        await handleIsManualLog(existMachine.id, status);
+        const isManual = await handleIsManualLog(existMachine.id, status);
 
         const decryptGCodeName = await decryptFromNumber(g_code_name);
         const decryptKNum = await decryptFromNumber(k_num);
@@ -97,7 +91,8 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
             user_id,
             machine_id: existMachine.id,
             previous_status: existMachine.status,
-            current_status: status,
+            current_status: isManual ? 'Running' : status,
+            description: isManual ? 'Manual Operation' : null,
             g_code_name: decryptGCodeName,
             k_num: decryptKNum,
             output_wp: decryptOutputWp,
