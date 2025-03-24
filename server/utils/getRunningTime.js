@@ -4,6 +4,7 @@ const { dateQuery } = require("./dateQuery");
 const updateLastMachineLog = async (machineId) => {
   try {
     // get running time in now
+    console.log(dateQuery());
     const logs = await MachineLog.findAll({
       where: {
         machine_id: machineId,
@@ -33,10 +34,11 @@ const updateLastMachineLog = async (machineId) => {
     }
     // logs[logs.length - 1].running_today = totalRunningTime
     const lastLog = logs[logs.length - 1];
-    console.log({ lastLog: lastLog.dataValues });
+    // console.log({ lastLog: lastLog.dataValues });
     if (lastLog) {
       lastLog.running_today = totalRunningTime;
       await lastLog.save();
+      console.log(222);
       // await MachineLog.update(
       // { running_today: totalRunningTime },
       // {

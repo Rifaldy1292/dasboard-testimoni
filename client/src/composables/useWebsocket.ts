@@ -83,7 +83,7 @@ const useWebSocket = (payloadType?: PayloadType) => {
       } catch (error) {
         console.error('Invalid WebSocket message', error)
       } finally {
-      
+        loadingWebsocket.value = false
       }
     }
 
