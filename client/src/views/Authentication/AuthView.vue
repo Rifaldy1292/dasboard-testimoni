@@ -44,7 +44,7 @@ const submitForm = async (e: FormSubmitEvent): Promise<void> => {
       })
 
       setTimeout(() => {
-        router.replace({ name: 'dashboard' })
+        router.replace({ name: 'transferFile' })
       }, 500)
     } catch (error) {
       if (error instanceof AxiosError && error.response && error.response.data) {
