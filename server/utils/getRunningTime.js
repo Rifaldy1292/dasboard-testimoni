@@ -1,18 +1,26 @@
 const { MachineLog } = require("../models");
 const { dateQuery } = require("./dateQuery");
-
-const updateLastMachineLog = async (machineId) => {
+const { serverError } = require("./serverError");
+/**
+ * Update the running time of the last machine log of a given machine.
+ * 
+ * @param {number} machine_id - The ID of the machine to update.
+ * @returns {Promise<void>}
+ */
+const updateLastMachineLog = async (machine_id) => {
   try {
     // get running time in now
     console.log(dateQuery());
     const logs = await MachineLog.findAll({
       where: {
-        machine_id: machineId,
+        machine_id,
         createdAt: dateQuery(),
       },
       order: [["createdAt", "ASC"]],
       attributes: ["createdAt", "current_status", "id", "running_today"],
     });
+
+    if (logs.length === 0) return;
 
     let totalRunningTime = 0; // Dalam milidetik
     let lastRunningTimestamp = null;
@@ -32,22 +40,18 @@ const updateLastMachineLog = async (machineId) => {
     if (lastRunningTimestamp) {
       totalRunningTime += new Date() - new Date(lastRunningTimestamp);
     }
-    // logs[logs.length - 1].running_today = totalRunningTime
-    const lastLog = logs[logs.length - 1];
-    // console.log({ lastLog: lastLog.dataValues });
-    if (lastLog) {
-      lastLog.running_today = totalRunningTime;
-      await lastLog.save();
-      console.log(222);
-      // await MachineLog.update(
-      // { running_today: totalRunningTime },
-      // {
-      //   where: { id: lastLog.id },
-      // }
-      //   );
-    }
+
+    // update running today in last log
+    await MachineLog.update(
+      { running_today: totalRunningTime },
+      {
+        where: { id: logs[logs.length - 1].id },
+      }
+    )
+
   } catch (error) {
-    console.log({ error, message: error.message }, "from updateLastMachineLog");
+    serverError(error)
+    console.log("from updateLastMachineLog");
   }
 };
 

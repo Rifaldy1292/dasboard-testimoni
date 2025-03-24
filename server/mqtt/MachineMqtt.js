@@ -5,6 +5,7 @@ const { clientPreferences, messageTypeWebsocketClient } = require('../websocket/
 const MachineWebsocket = require('../websocket/MachineWebsocket');
 const { dateQuery } = require('../utils/dateQuery');
 const { decryptFromNumber } = require('../helpers/crypto');
+const { serverError } = require('../utils/serverError');
 
 const createCuttingTime = async () => {
     try {
@@ -33,6 +34,40 @@ function formatTimeDifference(ms) {
     return result.length > 0 ? result.join(" ") : "0s";
 }
 
+/**
+ * Handles the manual logging of machine operations.
+ * 
+ * @param {number} machine_id - The ID of the machine to check for manual logs.
+ * @param {'Running' | 'Stopped'} status - The current status of the machine.
+ * @returns {Promise<boolean>} - Returns true if the operation is manual, false otherwise.
+ */
+const handleIsManualLog = async (machine_id, status) => {
+    try {
+        const lastMachineLog = await MachineLog.findOne({
+            where: {
+                machine_id,
+                createdAt: dateQuery()
+            },
+            attributes: ['createdAt', 'id', 'description'],
+            order: [['createdAt', 'DESC']],
+        });
+        if (lastMachineLog === null) return;
+        const differenceTime = new Date() - new Date(lastMachineLog?.createdAt);
+        const fiveTenMinutes = 15 * 60 * 1000;
+        const isManual = differenceTime <= fiveTenMinutes && status === 'Running';
+        if (isManual && !lastMachineLog?.description) {
+            await MachineLog.update({
+                description: 'Manual Operation',
+                status: 'Running',
+            }, { where: { id: lastMachineLog?.id } });
+        }
+        return isManual
+    } catch (error) {
+        serverError(error);
+        return false
+    }
+}
+
 
 /**
  * Handles machine status changes, creating new logs when necessary.
@@ -45,25 +80,7 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     try {
         const { user_id, status, g_code_name, k_num, output_wp, tool_name, total_cutting_time, calculate_total_cutting_time } = parseMessage
         // Find the last log for today
-        const lastMachineLog = await MachineLog.findOne({
-            where: {
-                machine_id: existMachine.id,
-                createdAt: dateQuery()
-            },
-            attributes: ['createdAt', 'id'],
-            order: [['createdAt', 'DESC']],
-        });
-
-        // Check if the status change is within 10 minutes of the last log
-        // and if the new status is 'Running'
-        const differenceTime = new Date() - new Date(lastMachineLog?.createdAt);
-        const tenMinutes = 10 * 60 * 1000;
-        const isManual = differenceTime <= tenMinutes && status === 'Running';
-        if (isManual) {
-            // Update the last log to indicate it was a manual operation
-            lastMachineLog.description = 'Manual Operation';
-            lastMachineLog.save();
-        }
+        await handleIsManualLog(existMachine.id, status);
 
         const decryptGCodeName = await decryptFromNumber(g_code_name);
         const decryptKNum = await decryptFromNumber(k_num);
@@ -71,6 +88,9 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
         const decryptToolName = await decryptFromNumber(tool_name);
 
         // console.log({ decryptGCodeName, decryptKNum, decryptToolName, decryptOutputWp, decryptTotalCuttingTime }, 124)
+
+        // update machine status
+        await Machine.update({ status }, { where: { id: existMachine.id } });
 
         // Create a new log with the updated status
         await MachineLog.create({
@@ -82,7 +102,7 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
             k_num: decryptKNum,
             output_wp: decryptOutputWp,
             tool_name: decryptToolName,
-            total_cutting_time: total_cutting_time ||0,
+            total_cutting_time: total_cutting_time || 0,
             calculate_total_cutting_time: calculate_total_cutting_time || 0,
         });
 
@@ -143,7 +163,6 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
         const decryptOutputWp = await decryptFromNumber(output_wp);
         const decryptToolName = await decryptFromNumber(tool_name);
 
-
         // running_today default 0
         return await MachineLog.create({
             machine_id: createMachine.id,
@@ -161,4 +180,4 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
     }
 }
 
-module.exports = {  createCuttingTime, handleChangeMachineStatus, createMachineAndLogFirstTime };
+module.exports = { createCuttingTime, handleChangeMachineStatus, createMachineAndLogFirstTime, handleIsManualLog };

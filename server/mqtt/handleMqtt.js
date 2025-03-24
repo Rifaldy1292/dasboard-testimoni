@@ -52,7 +52,8 @@ const handleMqtt = (mqttClient, wss) => {
             const parseMessage = JSON.parse(message.toString());
             // console.log(parseMessage, 77777)
 
-            const existMachine = await Machine.findOne({ where: { name: parseMessage.name } });
+            // TODO: ini bisa improve performa, include MachineLog, 
+            const existMachine = await Machine.findOne({ where: { name: parseMessage.name }, attributes: ['id', 'status'] });
 
             // create machine & log if machine not exist
             if (existMachine === null) {
@@ -64,9 +65,6 @@ const handleMqtt = (mqttClient, wss) => {
                 await handleChangeMachineStatus(existMachine, parseMessage, wss);
             }
 
-            existMachine.status = parseMessage.status;
-
-            await existMachine.save();
             await updateLastMachineLog(existMachine.id);
             // await updateLastMachineLog(existMachine.id, runningHour);
 

@@ -31,20 +31,20 @@ const dateQuery = (dateOption) => {
   console.log("localTime:", localTime); // Shows the date converted to local time
 
   // Start time at 7:00 AM on the given date
-  const startInDay = new Date(localTime); // Make a copy of localTime for startInDay
+  const startInDay = new Date(nowDate); // Make a copy of localTime for startInDay
   // startInDay.setHours(startHour, startMinute, 0, 0);
   startInDay.setHours(startHour, startMinute, 0, 0);
   console.log("startInDay:", startInDay);
 
   // End time at 6:59 AM on the next day
-  const endOfDay = new Date(localTime); // Make a copy of localTime for endOfDay
+  const endOfDay = new Date(nowDate); // Make a copy of localTime for endOfDay
   endOfDay.setDate(localTime.getDate() + 1); // Move to the next day
   endOfDay.setHours(startHour - 1, endMinute, 59, 999); // Set time to 6:59:59.999 AM
   console.log("endOfDay:", endOfDay);
 
   // Return the date range for the query
   return {
-    [Op.between]: [startInDay.toString(), endOfDay.toString()],
+    [Op.between]: [startInDay, endOfDay],
   };
 };
 
