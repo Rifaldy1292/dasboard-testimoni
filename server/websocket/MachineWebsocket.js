@@ -65,6 +65,11 @@ module.exports = class MachineWebsocket {
       // default date is today
       const currentDate = date || new Date();
       const dateOption = new Date(currentDate);
+      dateOption.setUTCFullYear(
+        dateOption.getUTCFullYear(),
+        dateOption.getUTCMonth(),
+        dateOption.getUTCDate() + 1
+      );
       // console.log(dateQuery(dateOption), 333);
       const machines = await Machine.findAll({
         include: [
@@ -166,6 +171,11 @@ module.exports = class MachineWebsocket {
   static async percentages(client, date) {
     try {
       const nowDate = date ? new Date(date) : new Date();
+      nowDate.setUTCFullYear(
+        nowDate.getUTCFullYear(),
+        nowDate.getUTCMonth(),
+        nowDate.getUTCDate() + 1
+      );
 
       const machines = await Machine.findAll({
         attributes: ["id", "name", "type"],

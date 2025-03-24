@@ -9,6 +9,8 @@ const { Op } = require("sequelize");
  * @returns {Object} The date query object with startInDay and endOfDay properties.
  */
 
+// TODO: besok cek datequery ketika get cutting time
+
 const config = {
   startHour: 7,
   startMinute: 0,
@@ -27,12 +29,20 @@ const dateQuery = (dateOption) => {
 
   // Start time at 7:00 AM on the given date
   const startInDay = new Date(nowDate);
-  startInDay.setUTCFullYear(startInDay.getUTCFullYear(), startInDay.getUTCMonth(), startInDay.getUTCDate());
+  startInDay.setUTCFullYear(
+    startInDay.getUTCFullYear(),
+    startInDay.getUTCMonth(),
+    startInDay.getUTCDate()
+  );
   startInDay.setUTCHours(startHour, startMinute, 0, 0);
 
   // End time at 6:59 AM on the next day
   const endOfDay = new Date(nowDate);
-  endOfDay.setUTCFullYear(endOfDay.getUTCFullYear(), endOfDay.getUTCMonth(), endOfDay.getUTCDate() + 1);
+  endOfDay.setUTCFullYear(
+    endOfDay.getUTCFullYear(),
+    endOfDay.getUTCMonth(),
+    endOfDay.getUTCDate() + 1
+  );
 
   endOfDay.setUTCHours(startHour - 1, endMinute, 59, 999); // Set time to 6:59:59.999 AM
 
