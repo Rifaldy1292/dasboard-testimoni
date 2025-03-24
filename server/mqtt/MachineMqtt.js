@@ -175,4 +175,63 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
     }
 }
 
-module.exports = { createCuttingTime, handleChangeMachineStatus, createMachineAndLogFirstTime, handleIsManualLog };
+/**
+ * Update the running time of the last machine log of a given machine.
+ * 
+ * @param {number} machine_id - The ID of the machine to update.
+ * @returns {Promise<void>}
+ */
+const updateLastMachineLog = async (machine_id) => {
+    try {
+        // get running time in now
+        // const dateRange = dateQuery()
+        // console.log(dateRange);
+        const logs = await MachineLog.findAll({
+            where: {
+                machine_id,
+                createdAt: dateQuery(),
+            },
+            order: [["createdAt", "ASC"]],
+            attributes: ["createdAt", "current_status", "id", "running_today"],
+        });
+
+        // console.log('length', logs.length);
+
+        if (logs.length === 0) return;
+
+        let totalRunningTime = 0; // Dalam milidetik
+        let lastRunningTimestamp = null;
+
+        logs.forEach((log) => {
+            if (log.current_status === "Running") {
+                lastRunningTimestamp = log.createdAt;
+            } else if (lastRunningTimestamp) {
+                const duration =
+                    new Date(log.createdAt) - new Date(lastRunningTimestamp);
+                totalRunningTime += duration;
+                lastRunningTimestamp = null;
+            }
+        });
+
+        // Jika masih dalam status running hingga sekarang
+        if (lastRunningTimestamp) {
+            totalRunningTime += new Date() - new Date(lastRunningTimestamp);
+        }
+
+        // update running today in last log
+        await MachineLog.update(
+            { running_today: totalRunningTime },
+            {
+                where: { id: logs[logs.length - 1].id },
+            }
+        )
+
+        // console.log(update);
+
+    } catch (error) {
+        serverError(error)
+        console.log("from updateLastMachineLog");
+    }
+};
+
+module.exports = { createCuttingTime, handleChangeMachineStatus, createMachineAndLogFirstTime, updateLastMachineLog };

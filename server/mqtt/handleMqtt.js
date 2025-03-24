@@ -6,8 +6,7 @@
  * @param {WebSocket.Server} wss - The WebSocket server instance.
  */
 const { Machine } = require('../models');
-const { updateLastMachineLog } = require('../utils/getRunningTime');
-const { handleChangeMachineStatus, createMachineAndLogFirstTime } = require('./MachineMqtt');
+const { handleChangeMachineStatus, createMachineAndLogFirstTime, updateLastMachineLog } = require('./MachineMqtt');
 const WebSocket = require('ws');
 require('../websocket/handleWebsocket');
 
