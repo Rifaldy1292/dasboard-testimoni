@@ -94,7 +94,7 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     // console.log({ isManual }, 333)
 
     // update machine status
-    await Machine.update({ status: isManual ? "Running" : status }, { where: { id: existMachine.id } });
+    await Machine.update({ status }, { where: { id: existMachine.id } });
 
     const decryptGCodeName = await decryptFromNumber(g_code_name);
     const decryptKNum = await decryptFromNumber(k_num);

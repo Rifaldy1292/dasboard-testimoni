@@ -143,7 +143,7 @@ module.exports = class MachineWebsocket {
 
         return {
           name: machine.name,
-          status: machine.status,
+          status: logs[logs.length - 1].current_status,
           MachineLogs: logs,
         };
       });
