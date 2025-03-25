@@ -8,51 +8,53 @@ const key = Buffer.from("1234567890123456"); // Harus 16 karakter untuk AES-128
 const algorithm = "aes-128-ecb"; // Mode ECB agar tidak perlu IV
 
 /**
- * 
- * @param {string} text 
+ *
+ * @param {string} text
  * @returns {number}
  */
 const encryptToNumber = (text) => {
-    try {
-        if (!text) return;
+  try {
+    if (!text) return 0;
 
-        const cipher = crypto.createCipheriv(algorithm, key, null);
-        const encrypted = cipher.update(text, "utf8", "hex") + cipher.final("hex");
+    const cipher = crypto.createCipheriv(algorithm, key, null);
+    const encrypted = cipher.update(text, "utf8", "hex") + cipher.final("hex");
 
-        // Konversi hasil enkripsi ke BigInt
-        const bigNumber = BigInt("0x" + encrypted);
+    // Konversi hasil enkripsi ke BigInt
+    const bigNumber = BigInt("0x" + encrypted);
 
-        // Batasi ke 7 digit dengan BigInt
-        const limitedNumber = Number(bigNumber % BigInt(1_000_000_0));
-        encryptionCache.set(limitedNumber, text);
-        return limitedNumber;
-    } catch (error) {
-        serverError(error)
-    }
-}
+    // Batasi ke 7 digit dengan BigInt
+    const limitedNumber = Number(bigNumber % BigInt(1_000_000_0));
+    encryptionCache.set(limitedNumber, text);
+    return limitedNumber;
+  } catch (error) {
+    serverError(error);
+    return 0;
+  }
+};
 
 /**
- * 
- * @param {number} encryptedNumber  
+ *
+ * @param {number} encryptedNumber
  * @returns {Promise<string | null>}
  */
 const decryptFromNumber = async (encryptedNumber) => {
-    try {
-        if (!encryptedNumber || typeof encryptedNumber !== "number") return null;
-        // console.log(encryptedNumber, 123)
-        // Cari di database berdasarkan angka enkripsi
-        const result = await EncryptData.findOne({
-            where: { encrypt_number: encryptedNumber }, attributes: ["original_text"]
-        });
+  try {
+    if (!encryptedNumber || typeof encryptedNumber !== "number") return null;
+    // console.log(encryptedNumber, 123)
+    // Cari di database berdasarkan angka enkripsi
+    const result = await EncryptData.findOne({
+      where: { encrypt_number: encryptedNumber },
+      attributes: ["original_text"],
+    });
 
-        if (!result) return null
+    if (!result) return null;
 
-        // Jika ditemukan, kembalikan teks aslinya
-        return result.original_text
-    } catch (error) {
-        console.error("Database Error:", error);
-        return null;
-    }
+    // Jika ditemukan, kembalikan teks aslinya
+    return result.original_text;
+  } catch (error) {
+    console.error("Database Error:", error);
+    return null;
+  }
 };
 
 // Contoh penggunaan
@@ -65,8 +67,7 @@ const decryptFromNumber = async (encryptedNumber) => {
 //     console.log("Decrypted Text:", decryptedText);
 // })();
 
-
 module.exports = {
-    encryptToNumber,
-    decryptFromNumber
-}
+  encryptToNumber,
+  decryptFromNumber,
+};

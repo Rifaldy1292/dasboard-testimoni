@@ -124,6 +124,14 @@ class MachineController {
     }
   }
 
+  /**
+   * Remove file from machine
+   * @param {Request} req - request object
+   * @param {Response} res - response object
+   * @param {string} req.query.machine_id - machine id
+   * @param {string} [req.query.fileName] - file name to remove, if not provided, all files will be removed
+   * @returns {Promise<void>}
+   */
   static async removeFileFromMachine(req, res) {
     const client = new Client();
     try {
@@ -188,24 +196,20 @@ class MachineController {
     }
   }
 
+  /**
+   * Encrypt content value
+   * @param {Express.Request} req.body - Request body
+   * @param {string | undefined} [req.body.gCodeName] - G code name
+   * @param {string} req.body.kNum - K num
+   * @param {string} req.body.outputWP - Output wp
+   * @param {string} req.body.toolName - Tool name
+   * @param {string} req.body.totalCuttingTime - Total cutting time
+   * @returns {Promise<Object>} - Response with encrypted content value
+   * @throws {Error} - If there is an error when encrypting content value
+   */
   static async encyptContentValue(req, res) {
     try {
-      /**
-       * @prop {string} gCodeName - G code name
-       * @prop {string} kNum - K num
-       * @prop {string} outputWP - Output wp
-       * @prop {string} toolName - Tool name
-       * @prop {string} totalCuttingTime - Total cutting time
-       */
       const { gCodeName, kNum, outputWP, toolName } = req.body;
-
-      if (!gCodeName || !kNum || !outputWP || !toolName) {
-        return res.status(400).json({
-          message:
-            "gCodeName, kNum, outputWP, toolName, totalCuttingTime is required",
-          status: 400,
-        });
-      }
 
       const encryptValue = {
         gCodeName: encryptToNumber(gCodeName),
