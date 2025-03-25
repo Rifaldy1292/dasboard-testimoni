@@ -28,9 +28,8 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0
     },
     calculate_total_cutting_time: {
-      type: DataTypes.DECIMAL(8, 5),
-      allowNull: false,
-      defaultValue: 0
+      type: DataTypes.STRING,
+      allowNull: true
     },
     previous_status: DataTypes.STRING,
     current_status: DataTypes.STRING,
