@@ -23,6 +23,7 @@ interface ExtendedUser extends User {
   photo: string
   process: string
   machine: string
+  runningOn: string
 }
 const extendendUsers = computed<ExtendedUser[]>(() => {
   const result = operatorMachines.value.map((user) => {
@@ -37,19 +38,27 @@ const extendendUsers = computed<ExtendedUser[]>(() => {
       calculate_total_cutting_time,
       g_code_name
     } = user.detail
-    const calculate = calculate_total_cutting_time.split('.')
-    const totalProgram = calculate[0]
-    const remainingTime = calculate[1]
+    const calculate = calculate_total_cutting_time
+      ? calculate_total_cutting_time.split(' ')
+      : ([] as string[])
+    const totalProgram = calculate[0] || '-'
+    const remainingTime = calculate[1] || '-'
+
+    const gcodeName = g_code_name ? `O${g_code_name.slice(-4)}` : '-'
+    const created_at = new Date(createdAt as string)
+    const now = new Date()
+    const runningOn = now.getTime() - created_at.getTime()
 
     const temp = {
       ...user,
       status: current_status,
       remaining: `${totalProgram} Program`,
       time: convertSecondsToHours(Number(remainingTime)),
-      lastUpdate: new Date(createdAt).toLocaleString(),
+      lastUpdate: created_at.toLocaleString(),
       photo: profile_image,
-      process: 'O' + g_code_name.slice(-4),
-      machine: `${Machine.name} (${Machine.type}) `
+      process: gcodeName,
+      machine: `${Machine.name} (${Machine.type}) `,
+      runningOn: convertSecondsToHours(Math.round(runningOn / 1000))
     }
     return temp
   })
@@ -127,7 +136,9 @@ function convertSecondsToHours(seconds: number) {
             size="small"
           />
           <div class="text-right mt-2 text-xs text-gray-400">
-            Last Update: {{ operator.lastUpdate }}
+            <span>Running On: {{ operator.runningOn }}</span>
+            <br />
+            <span>Last Update: {{ operator.lastUpdate }}</span>
           </div>
         </template>
       </Card>

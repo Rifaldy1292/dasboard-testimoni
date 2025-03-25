@@ -20,10 +20,15 @@ export interface User {
   imageUrl: null | string
 }
 
+type Nullable<T extends object, R = null> = {
+  [P in keyof T]: T[P] | R
+}
+
 export interface OperatorMachine {
-  detail: Omit<ObjMachineTimeline & { calculate_total_cutting_time: string }, 'timeDifference' | 'description'> & { Machine: { name: string, type?: string } }
+  detail: Omit<
+    Nullable<ObjMachineTimeline & { calculate_total_cutting_time: string }>,
+    'timeDifference' | 'description'
+  > & { Machine: { name: string; type?: string } }
   name: string
   profile_image: null | string
 }
-
-
