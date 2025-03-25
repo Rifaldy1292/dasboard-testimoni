@@ -23,8 +23,9 @@ export const useFTP = () => {
     const hour = totalCuttingTime.split(':')[0]
     const minute = totalCuttingTime.split(':')[1]
     const second = totalCuttingTime.split(':')[2]
+    const calculate = parseInt(hour) * 3600 + parseInt(minute) * 60 + parseInt(second)
 
-    return parseInt(hour) * 3600 + parseInt(minute) * 60 + parseInt(second)
+    return Math.round(calculate)
   }
 
   const handleUploadFolder = async (event: Event): Promise<void> => {
