@@ -108,7 +108,7 @@ const handleExecute = (): void => {
       selectedCoolant: selectedCoolant.value,
       selectedCoordinate: selectedCoordinate.value,
       selectedOneMachine: selectedOneMachine.value as MachineOption,
-      selectedProgramNumber: selectedProgramNumber,
+      selectedProgramNumber: selectedProgramNumber.value,
       inputStartPoint: inputStartPoint.value,
       selectedWorkPosition: selectedWorkPosition.value,
       user: userData
@@ -116,7 +116,7 @@ const handleExecute = (): void => {
 
     const mainProgramContent: ContentFile = {
       content,
-      name: 'O00' + selectedProgramNumber,
+      name: 'O00' + selectedProgramNumber.value,
       gCodeName: '',
       kNum: '',
       outputWP: '',

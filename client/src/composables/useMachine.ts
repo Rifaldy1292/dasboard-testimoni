@@ -8,7 +8,6 @@ import { ref, shallowRef } from 'vue'
 type ProcessType = 'NC' | 'Drill'
 
 interface AdditionalOptions {
-  programNumberOptions: Array<number>
   workPositionOptions: Array<number>
   coordinateOptions: Array<number>
   coolantOptions: Array<number>
@@ -17,10 +16,6 @@ interface AdditionalOptions {
 
 const additionalOptions: AdditionalOptions = {
   // 1000, 1111, 2000, 2222
-  programNumberOptions: [
-    1000, 1111, 2000, 2222, 3000, 3333, 4000, 4444, 5000, 5555, 6000, 6666, 7000, 7777, 8000, 8888,
-    9000, 9999
-  ],
   // 54-59
   workPositionOptions: Array.from({ length: 6 }, (_, i) => i + 54),
   coordinateOptions: [43, 143],
@@ -38,12 +33,15 @@ const selectedOneMachine = ref<MachineOption | undefined>(undefined)
 const loadingDropdown = shallowRef<boolean>(false)
 const machineOptions = ref<MachineOption[]>([])
 
-const selectedProgramNumber = 30
+const defaultMainProgram = 30
+
+const selectedProgramNumber = shallowRef<number>(defaultMainProgram)
 const selectedWorkPosition = shallowRef<number>(workPositionOptions[0])
 const selectedCoordinate = shallowRef<number>(coordinateOptions[0])
 const inputStartPoint = shallowRef<number>(52)
 const selectedCoolant = shallowRef<number>(coolantOptions[1])
 const selectedProcessType = shallowRef<'NC' | 'Drill'>(processTypeOptions[0])
+
 
 export const useMachine = () => {
   const toast = useToast()
@@ -100,6 +98,6 @@ export const useMachine = () => {
     selectedProgramNumber,
     selectedWorkPosition,
     inputStartPoint,
-    selectedProcessType
+    selectedProcessType,
   }
 }

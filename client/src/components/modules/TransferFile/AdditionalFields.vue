@@ -2,6 +2,7 @@
 import { useFTP } from '@/composables/useFTP'
 import { useMachine } from '@/composables/useMachine'
 import { InputNumber, Select } from 'primevue'
+import { watchEffect } from 'vue'
 
 defineProps<{ isDisableAll: boolean }>()
 
@@ -15,13 +16,20 @@ const {
   selectedProcessType,
   selectedCoordinate,
   selectedWorkPosition,
-  inputStartPoint
+  inputStartPoint,
+  selectedProgramNumber
 } = useMachine()
 
 const { uploadType, actionOPtions, selectedAction } = useFTP()
 
 const { workPositionOptions, coordinateOptions, coolantOptions, processTypeOptions } =
   additionalOptions
+
+watchEffect(() => {
+  if (selectedOneMachine.value?.name === 'MC-16') {
+    selectedProgramNumber.value = selectedWorkPosition.value - 24
+  }
+})
 </script>
 
 <template>
