@@ -38,7 +38,7 @@ const handleInputToolNumber = () => {
         :useGrouping="false"
       />
     </div>
-    <div class="max-h-70 overflow-x-scroll">
+    <div class="max-h-70 overflow-x-auto">
       <!-- <pre v-if="!isResultFile" style="white-space: pre-wrap">
  {{ handlePreviewContent(file) }}</pre
       > -->
