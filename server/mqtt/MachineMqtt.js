@@ -47,7 +47,7 @@ function formatTimeDifference(ms) {
  * @param {'Running' | 'Stopped'} status - The current status of the machine.
  * @returns {Promise<boolean>} - Returns true if the operation is manual, false otherwise.
  */
-const handleIsManualLog = async (machine_id, status) => {
+const handleIsManualLog = async (machine_id) => {
   try {
     const lastMachineLog = await MachineLog.findOne({
       where: {
@@ -88,7 +88,13 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
       calculate_total_cutting_time,
     } = parseMessage;
     // Find the last log for today
+
     const isManual = await handleIsManualLog(existMachine.id, status);
+
+    // console.log({ isManual }, 333)
+
+    // update machine status
+    await Machine.update({ status: isManual ? "Running" : status }, { where: { id: existMachine.id } });
 
     const decryptGCodeName = await decryptFromNumber(g_code_name);
     const decryptKNum = await decryptFromNumber(k_num);
@@ -96,9 +102,6 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     const decryptToolName = await decryptFromNumber(tool_name);
 
     // console.log({ decryptGCodeName, decryptKNum, decryptToolName, decryptOutputWp, decryptTotalCuttingTime }, 124)
-
-    // update machine status
-    await Machine.update({ status }, { where: { id: existMachine.id } });
 
     // Create a new log with the updated status
     await MachineLog.create({
