@@ -11,7 +11,7 @@ const { file, index } = defineProps<{
 }>()
 
 const { inputFiles } = useFTP()
-const inputToolNumber = shallowRef<number>(0)
+const inputToolNumber = shallowRef<number>(file.toolNumber)
 
 const handleInputToolNumber = () => {
   // console.log({ index, inputToolNumber: inputToolNumber.value })

@@ -113,11 +113,10 @@ M05
 
     const body540 = `T${toolNumber}
 M6
-H${toolNumber}
 ${macroData}
 G${selectedWorkPosition}
 G90G00X0Y0
-G${selectedCoordinate}Z${inputStartPoint}.00
+G${selectedCoordinate}Z${inputStartPoint}.00H${toolNumber}
 M${selectedCoolant}
 G05P10000
 ${M198P}${file.name.slice(1)}
