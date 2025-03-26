@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useFTP } from '@/composables/useFTP'
 import type { ContentFile } from '@/types/ftp.type'
-import { InputNumber } from 'primevue'
-import { shallowRef } from 'vue'
+import { InputNumber, type InputNumberInputEvent } from 'primevue'
 
 const { file, index } = defineProps<{
   file: ContentFile
@@ -11,12 +10,18 @@ const { file, index } = defineProps<{
 }>()
 
 const { inputFiles } = useFTP()
-const inputToolNumber = shallowRef<number>(file.toolNumber)
 
-const handleInputToolNumber = () => {
-  // console.log({ index, inputToolNumber: inputToolNumber.value })
-  inputFiles.value[index].toolNumber = inputToolNumber.value
-  // console.log(inputFiles.value[index])
+const handleInputToolNumber = (event: InputNumberInputEvent): void => {
+  const inputToolNumber = event.value as number
+  // O1234  to 34
+  const fileName = inputFiles.value[index].name.slice(-2)
+  const newInputFiles = inputFiles.value.map((item) => {
+    const test = fileName === item.name.slice(-2)
+    if (!test) return item
+    return { ...item, toolNumber: inputToolNumber }
+  })
+
+  inputFiles.value = newInputFiles
 }
 </script>
 
@@ -31,8 +36,8 @@ const handleInputToolNumber = () => {
       >
       <br />
       <InputNumber
-        v-model:model-value="inputToolNumber"
-        @update:model-value="handleInputToolNumber"
+        v-model:model-value="inputFiles[index].toolNumber"
+        @input="handleInputToolNumber"
         size="small"
         aria-label="inputToolNumber"
         :useGrouping="false"

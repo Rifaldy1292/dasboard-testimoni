@@ -11,7 +11,6 @@ const actionOPtions: Array<Action> = ['Upload File', 'Remove File']
 const selectedAction = shallowRef<Action>(actionOPtions[0])
 
 export const useFTP = () => {
-
   const loadingUpload = shallowRef(false)
   const isCreatedMainProgram = shallowRef<boolean>(false)
 
@@ -87,7 +86,7 @@ export const useFTP = () => {
 
       inputFiles.value = calculateTotalCuttingTime
 
-      console.log({ calculateTotalCuttingTime })
+      // console.log({ calculateTotalCuttingTime })
 
       console.log(inputFiles.value, 'inputFiles')
     } catch (error: unknown) {
@@ -119,7 +118,7 @@ export const useFTP = () => {
       totalCuttingTime
     })
   }
-  const handleClearFile = async() => {
+  const handleClearFile = async () => {
     try {
       loadingUpload.value = true
       inputFiles.value = []

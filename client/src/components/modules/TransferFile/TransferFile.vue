@@ -47,8 +47,11 @@ const {
   handleClearFile
 } = useFTP()
 
-const disableUploadFolder = computed<boolean>(() => {
-  return !selectedOneMachine.value
+const disabled = computed<{ disableExecute: boolean; disableUpload: boolean }>(() => {
+  const disableUpload = !selectedOneMachine.value
+  const disableExecute = !inputFiles.value.length
+
+  return { disableExecute, disableUpload }
 })
 
 const handleSubmit = async () => {
@@ -188,14 +191,6 @@ const handleExecute = (): void => {
     <div class="border-b border-stroke py-4 px-7 dark:border-strokedark">
       <h3 class="font-medium text-black dark:text-white text-center">Transfer File Form</h3>
     </div>
-    <!-- <Form
-      v-slot="$form"
-      @submit="handleSubmit"
-      :resolver="resolver"
-      :validate-on-blur="true"
-      :validate-on-submit="true"
-      :validate-on-value-update="true"
-    > -->
     <div class="grid grid-cols-1 p-7 gap-8">
       <!-- <div class="col-span-5 xl:col-span-3"> -->
       <!-- Machine Section -->
@@ -215,18 +210,18 @@ const handleExecute = (): void => {
           <div
             id="FileUpload"
             :class="`relative mb-5.5 block w-full h-40 cursor-pointer appearance-none rounded border-2 border-dashed border-primary bg-gray py-4 px-4 dark:bg-meta-4 sm:py-7.5 ${
-              disableUploadFolder ? 'cursor-not-allowed opacity-50' : ''
+              disabled.disableUpload ? 'cursor-not-allowed opacity-50' : ''
             }`"
           >
             <FormField name="files">
               <input
                 type="file"
-                :disabled="disableUploadFolder"
+                :disabled="disabled.disableUpload"
                 @change="handleUploadFolder($event)"
                 :webkitdirectory="uploadType === 'folder'"
                 multiple
                 :style="{
-                  cursor: disableUploadFolder ? 'not-allowed' : 'pointer'
+                  cursor: disabled.disableUpload ? 'not-allowed' : 'pointer'
                 }"
                 class="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
               />
@@ -281,7 +276,7 @@ const handleExecute = (): void => {
           </button>
           <button
             v-if="isCreatedMainProgram"
-            :disabled="disableUploadFolder && inputFiles.length === 0"
+            :disabled="disabled.disableExecute"
             class="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90"
             type="submit"
             @click="handleSubmit"
@@ -290,10 +285,10 @@ const handleExecute = (): void => {
           </button>
           <button
             v-if="!isCreatedMainProgram"
-            :disabled="disableUploadFolder && inputFiles.length === 0"
+            :disabled="disabled.disableExecute"
             @click="handleExecute"
             :style="{
-              cursor: disableUploadFolder ? 'not-allowed' : 'pointer'
+              cursor: disabled.disableExecute ? 'not-allowed' : 'pointer'
             }"
             class="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90"
             type="submit"
