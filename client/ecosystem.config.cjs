@@ -3,7 +3,9 @@ module.exports = {
     {
       name: `vue-client`,
       script: 'serve',
-      cwd: './client',
+      autorestart: true,
+      watch: true,
+      // cwd: './client',
       env: {
         PM2_SERVE_PATH: './dist',
         PM2_SERVE_PORT: 5173,
@@ -11,17 +13,28 @@ module.exports = {
         NODE_ENV: 'production'
       }
     },
+
+    {
+      name: 'express-server',
+      script: 'node',
+      args: 'app.js',
+      cwd: '../server',
+      watch: true,
+      autorestart: true,
+    },
     {
       name: 'node-red',
-      script: 'node-red',
-      args: [],
-      instances: 1,
-      autorestart: true,
+      script: 'cmd',
+      args: '/c node-red',
       watch: false,
-      max_memory_restart: '1G',
+      autorestart: true,
       env: {
         NODE_ENV: 'production'
       }
     }
   ]
 }
+
+// dashboard - machine / client / ecosystem.config.cjs
+// dashboard - machine / server
+
