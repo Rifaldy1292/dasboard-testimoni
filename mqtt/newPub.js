@@ -7,7 +7,7 @@ const port = 3000;
 // Konfigurasi MQTT broker
 const mqttBroker = 'mqtt://localhost:1883';
 const mqttTopics = ['mc-1/data',
-    // 'mc-2/data', 'mc-3/data', 'mc-4/data', 'mc-5/data', 'mc-6/data', 'mc-7/data', 'mc-8/data', 'mc-9/data', 'mc-10/data', 'mc-11/data', 'mc-12/data', 'mc-13/data', 'mc-14/data', 'mc-15/data', 'mc-16/data'
+    'mc-2/data', 'mc-3/data', 'mc-4/data', 'mc-5/data', 'mc-6/data', 'mc-7/data', 'mc-8/data', 'mc-9/data', 'mc-10/data', 'mc-11/data', 'mc-12/data', 'mc-13/data', 'mc-14/data', 'mc-15/data', 'mc-16/data'
 ];
 // Inisialisasi klien MQTT
 const client = mqtt.connect(mqttBroker);

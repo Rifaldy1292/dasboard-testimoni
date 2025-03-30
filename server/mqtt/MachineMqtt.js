@@ -9,6 +9,7 @@ const MachineWebsocket = require("../websocket/MachineWebsocket");
 const { dateQuery } = require("../utils/dateQuery");
 const { decryptFromNumber } = require("../helpers/crypto");
 const { serverError } = require("../utils/serverError");
+const { existMachinesCache } = require("../cache");
 
 const createCuttingTime = async () => {
   try {
@@ -54,7 +55,7 @@ const handleIsManualLog = async (machine_id) => {
         machine_id,
         createdAt: dateQuery(),
       },
-      attributes: ["createdAt", "id", "description"],
+      attributes: ["createdAt"],
       order: [["createdAt", "DESC"]],
     });
     if (lastMachineLog === null) return false;
@@ -95,6 +96,9 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
 
     // update machine status
     await Machine.update({ status }, { where: { id: existMachine.id } });
+
+    // update exist machines cache
+    existMachinesCache.set(existMachine.name, { ...existMachine, status });
 
     const decryptGCodeName = await decryptFromNumber(g_code_name);
     const decryptKNum = await decryptFromNumber(k_num);
@@ -184,6 +188,13 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
       name,
       status,
       ip_address: ipAddress,
+    });
+
+    //  push to cache
+    existMachinesCache.set(name, {
+      id: createMachine.id,
+      name,
+      status,
     });
 
     const decryptGCodeName = await decryptFromNumber(g_code_name);

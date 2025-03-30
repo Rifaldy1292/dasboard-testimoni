@@ -8,6 +8,7 @@ const {
 const WebSocket = require("ws");
 require("../websocket/handleWebsocket");
 const mqtt = require('mqtt');
+const { existMachinesCache } = require("../cache");
 
 const mqttClient = mqtt.connect('mqtt://localhost:1883');
 
@@ -31,12 +32,6 @@ const mqttTopics = [
 ];
 
 /**
- * A map that stores the latest status of each machine. The key is the machine name.
- * @type {Map<string, { id: number; name: string; status: 'Running' | 'Stopped' }>} 
- */
-const existMachinesCache = new Map();
-
-/**
  * @param {WebSocket.Server} wss
  */
 const handleMqtt = (wss) => {
@@ -46,6 +41,7 @@ const handleMqtt = (wss) => {
       mqttClient.subscribe(topic);
     });
 
+    // get exist machines and set to cache
     try {
       const existMachines = await Machine.findAll({
         attributes: ["id", "name", "status"],
@@ -86,13 +82,10 @@ const handleMqtt = (wss) => {
       const parseMessage = JSON.parse(message.toString());
       // console.log(parseMessage, 77777)
 
-      const existMachine = await Machine.findOne({
-        where: { name: parseMessage.name },
-        attributes: ["id", "status"],
-      });
+      const existMachine = existMachinesCache.get(parseMessage.name);
 
       // create machine & log if machine not exist
-      if (existMachine === null) {
+      if (!existMachine) {
         return await createMachineAndLogFirstTime(parseMessage);
       }
 
@@ -111,7 +104,11 @@ const handleMqtt = (wss) => {
     }
   });
 
-  mqttClient.on('')
+  // clear cache
+  mqttClient.on("offline", () => {
+    console.log("MQTT client disconnected", 777);
+    existMachinesCache.clear();
+  });
 };
 
 module.exports = handleMqtt;
