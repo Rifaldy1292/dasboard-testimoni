@@ -9,5 +9,7 @@ const encryptionCache = new Map();
  * @type {Map<string, { id: number; status: 'Running' | 'Stopped' }>} 
  */
 const existMachinesCache = new Map();
+// existMachinesCache.set('MC-1', { id: 1, name: 'MC-1', status: 'Running' });
+// console.log(existMachinesCache.get('MC-1'));
 
 module.exports = { encryptionCache, existMachinesCache };

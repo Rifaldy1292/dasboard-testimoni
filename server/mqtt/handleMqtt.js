@@ -32,7 +32,7 @@ const mqttTopics = [
 
 /**
  * A map that stores the latest status of each machine. The key is the machine name.
- * @type {Map<string, { id: number; status: 'Running' | 'Stopped' }>} 
+ * @type {Map<string, { id: number; name: string; status: 'Running' | 'Stopped' }>} 
  */
 const existMachinesCache = new Map();
 
@@ -40,11 +40,28 @@ const existMachinesCache = new Map();
  * @param {WebSocket.Server} wss
  */
 const handleMqtt = (wss) => {
-  mqttClient.on("connect", () => {
+  mqttClient.on("connect", async () => {
     mqttTopics.forEach((topic) => {
       console.log("MQTT client connected", topic);
       mqttClient.subscribe(topic);
     });
+
+    try {
+      const existMachines = await Machine.findAll({
+        attributes: ["id", "name", "status"],
+      })
+
+      existMachines.forEach((machine) => {
+        existMachinesCache.set(machine.name, {
+          id: machine.id,
+          name: machine.name,
+          status: machine.status,
+        });
+      });
+    } catch (error) {
+      serverError(error, "Failed to get exist machines");
+    }
+
   });
 
   mqttClient.on("message", async (topic, message) => {
