@@ -1,11 +1,5 @@
-/**
- * Handles MQTT connections and messages, updating machine status and logs, and
- * sending updates via WebSocket.
- *
- * @param {mqtt.Client} mqttClient - The MQTT client instance.
- * @param {WebSocket.Server} wss - The WebSocket server instance.
- */
 const { Machine } = require("../models");
+const { serverError } = require("../utils/serverError");
 const {
   handleChangeMachineStatus,
   createMachineAndLogFirstTime,
@@ -13,6 +7,9 @@ const {
 } = require("./MachineMqtt");
 const WebSocket = require("ws");
 require("../websocket/handleWebsocket");
+const mqtt = require('mqtt');
+
+const mqttClient = mqtt.connect('mqtt://localhost:1883');
 
 const mqttTopics = [
   "mc-1/data",
@@ -34,12 +31,16 @@ const mqttTopics = [
 ];
 
 /**
- *
- * @param {mqtt.Client} mqttClient
+ * A map that stores the latest status of each machine. The key is the machine name.
+ * @type {Map<string, { id: number; status: 'Running' | 'Stopped' }>} 
+ */
+const existMachinesCache = new Map();
+
+/**
  * @param {WebSocket.Server} wss
  */
-const handleMqtt = (mqttClient, wss) => {
-  mqttClient.on("connect", async () => {
+const handleMqtt = (wss) => {
+  mqttClient.on("connect", () => {
     mqttTopics.forEach((topic) => {
       console.log("MQTT client connected", topic);
       mqttClient.subscribe(topic);
@@ -68,7 +69,6 @@ const handleMqtt = (mqttClient, wss) => {
       const parseMessage = JSON.parse(message.toString());
       // console.log(parseMessage, 77777)
 
-      // TODO: ini bisa improve performa, include MachineLog,
       const existMachine = await Machine.findOne({
         where: { name: parseMessage.name },
         attributes: ["id", "status"],
@@ -88,25 +88,13 @@ const handleMqtt = (mqttClient, wss) => {
       // await updateLastMachineLog(existMachine.id, runningHour);
     } catch (error) {
       if (error.message === "Unexpected token < in JSON at position 0") {
-        return console.error({ error, message: "Invalid JSON" });
+        return serverError(error, "Invalid JSON");
       }
-      console.error({ error, message: error.message });
+      serverError(error, "Failed to handle MQTT message");
     }
-
-    // wss.clients.forEach(async (client) => {
-    //     if (client.readyState === WebSocket.OPEN) {
-    //         const percentageMessage = messageTypeWebsocketClient.get(client)?.has('percentage');
-    //         if (percentageMessage) {
-    //             console.log(true)
-    //             await MachineWebsocket.percentages(client);
-    //         }
-    //         // else {
-    //         //     // console.log(false)
-    //         // }
-    //     }
-    // });
-    // console.timeEnd('Proses');
   });
+
+  mqttClient.on('')
 };
 
 module.exports = handleMqtt;

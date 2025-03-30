@@ -7,7 +7,7 @@ const { PassThrough } = require("stream"); // ✅ Tambahkan ini
 const { Client } = require("basic-ftp");
 let { dateQuery, config } = require("../utils/dateQuery");
 const { encryptToNumber } = require("../helpers/crypto");
-const encryptionCache = require("../config/encryptionCache");
+const { encryptionCache } = require("../cache");
 
 const hostHp = "192.168.8.119";
 const pwHp = "android";

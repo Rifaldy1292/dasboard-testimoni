@@ -2,7 +2,7 @@ const { EncryptData } = require("../models");
 
 const crypto = require("crypto");
 const { serverError } = require("../utils/serverError");
-const encryptionCache = require("../config/encryptionCache");
+const { encryptionCache } = require("../cache");
 
 const key = Buffer.from("1234567890123456"); // Harus 16 karakter untuk AES-128
 const algorithm = "aes-128-ecb"; // Mode ECB agar tidak perlu IV

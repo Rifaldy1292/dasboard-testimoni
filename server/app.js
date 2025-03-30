@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const WebSocket = require("ws");
-const mqtt = require('mqtt');
 const path = require('path');
 const { createServer } = require('http')
 const { PORT } = require("./config/config.env");
@@ -11,12 +10,9 @@ const { handleWebsocket } = require("./websocket/handleWebsocket");
 const { handleChangeDate, handleCreateCuttingTime } = require("./helpers/cronjob");
 
 
-
-
 const app = express();
 const server = createServer(app)
 const wss = new WebSocket.Server({ server });
-const mqttClient = mqtt.connect('mqtt://localhost:1883');
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -30,9 +26,10 @@ app.use(
 
 app.use("/api", router);
 handleWebsocket(wss)
-handleMqtt(mqttClient, wss)
+handleMqtt(wss)
 handleChangeDate()
 handleCreateCuttingTime()
+
 
 server.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);

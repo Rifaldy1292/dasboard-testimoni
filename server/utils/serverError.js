@@ -8,7 +8,7 @@
  */
 const serverError = (error, res, message) => {
     console.log({ error, message: error.message });
-    if (res) return res.status(500).json({ status: 500, message });
+    if (res && message) return res.status(500).json({ status: 500, message });
 }
 
 module.exports = { serverError }
