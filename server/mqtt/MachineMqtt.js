@@ -91,11 +91,12 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     // Find the last log for today
 
     const isManual = await handleIsManualLog(existMachine.id, status);
+    const newStatus = isManual ? "Running" : status
 
     // console.log({ isManual }, 333)
 
     // update machine status
-    await Machine.update({ status }, { where: { id: existMachine.id } });
+    await Machine.update({ status: newStatus }, { where: { id: existMachine.id } });
 
     // update exist machines cache
     existMachinesCache.set(existMachine.name, { ...existMachine, status });
@@ -112,7 +113,7 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
       user_id,
       machine_id: existMachine.id,
       previous_status: existMachine.status,
-      current_status: isManual ? "Running" : status,
+      current_status: newStatus,
       description: isManual ? "Manual Operation" : null,
       g_code_name: decryptGCodeName,
       k_num: decryptKNum,
