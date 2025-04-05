@@ -3,7 +3,7 @@ const { serverError } = require("../utils/serverError");
 const {
   handleChangeMachineStatus,
   createMachineAndLogFirstTime,
-  updateLastMachineLog,
+  updateRunningTodayLastMachineLog,
 } = require("./MachineMqtt");
 const WebSocket = require("ws");
 require("../websocket/handleWebsocket");
@@ -91,11 +91,11 @@ const handleMqtt = (wss) => {
 
       // if status change
       if (existMachine.status !== parseMessage.status) {
-        return await handleChangeMachineStatus(existMachine, parseMessage, wss);
+        await handleChangeMachineStatus(existMachine, parseMessage, wss);
       }
 
       if (existMachine.status === "Running") {
-        return await updateLastMachineLog(existMachine.id);
+        return await updateRunningTodayLastMachineLog(existMachine.id);
       }
     } catch (error) {
       if (error.message === "Unexpected token < in JSON at position 0") {

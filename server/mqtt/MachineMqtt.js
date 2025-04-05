@@ -24,41 +24,40 @@ const createCuttingTime = async () => {
       });
     }
   } catch (error) {
-    console.error({ error, message: error.message });
+    serverError(error, "createCuttingTime");
   }
 };
 
-function formatTimeDifference(ms) {
-  const seconds = Math.floor(ms / 1000) % 60;
-  const minutes = Math.floor(ms / (1000 * 60)) % 60;
-  const hours = Math.floor(ms / (1000 * 60 * 60));
-
-  let result = [];
-  if (hours > 0) result.push(`${hours}h`);
-  if (minutes > 0) result.push(`${minutes}m`);
-  if (seconds > 0) result.push(`${seconds}s`);
-
-  return result.length > 0 ? result.join(" ") : "0s";
+/**
+ * 
+ * @param {string} createdAt 
+ * @returns {boolean}
+ */
+const isManualLog = (createdAt) => {
+  if (!createdAt) return false;
+  const timeDifference = new Date() - new Date(createdAt);
+  const fiveTenMinutes = 15 * 60 * 1000;
+  return timeDifference <= fiveTenMinutes;
 }
 
-/**
- * Determines if a machine operation should be considered manual based on the time elapsed since the last log.
- * 
- * @async
- * @param {{createdAt: Date}|null} lastMachineLog - The last machine log entry or null if no previous logs exist
- * @returns {boolean} Returns true if the operation is considered manual (within 15 minutes of last log),
- *                            false if it's not manual or if an error occurs
- * @description
- * This function checks if the time difference between now and the last machine log
- * is less than or equal to 15 minutes (900,000 milliseconds). If so, the operation
- * is considered manual. This helps distinguish between automated and manual machine operations.
- */
-const checkIsManualLog = (lastMachineLog) => {
-  if (!lastMachineLog || typeof lastMachineLog !== 'object') return false;
-  const differenceTime = new Date() - new Date(lastMachineLog?.createdAt);
-  const fiveTenMinutes = 15 * 60 * 1000;
-  const isManual = differenceTime <= fiveTenMinutes;
-  return isManual;
+// trigger when can create log
+const checkIsManualLog = async (machine_id) => {
+  try {
+    const lastMachineLog = await MachineLog.findOne({
+      where: { machine_id, createdAt: dateQuery() },
+      attributes: ["id", "createdAt"],
+      order: [["createdAt", "DESC"]],
+    });
+    if (!lastMachineLog) {
+      return false;
+    }
+
+    return isManualLog(lastMachineLog.createdAt);
+  } catch (error) {
+    serverError(error, "checkIsManualLog");
+    return false;
+  }
+
 };
 
 /**
@@ -82,12 +81,12 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     } = parseMessage;
     // Find the last log for today
 
-    const { totalRunningTime, lastLog } = await getRunningTimeMachineLog(existMachine.id);
-    const isManual = checkIsManualLog(lastLog);
+    const isManual = await checkIsManualLog(existMachine.id);
     const newStatus = isManual ? "Running" : status
-    const running_today = totalRunningTime || 0;
 
-    // console.log({ isManual }, 333)
+    console.log({ isManual, isSameStatus: newStatus === existMachine.status }, 333)
+    // not update if status is same
+    if (newStatus === existMachine.status) return;
 
     // update machine status
     await Machine.update({ status: newStatus }, { where: { id: existMachine.id } });
@@ -99,16 +98,12 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     const decryptOutputWp = await decryptFromNumber(output_wp);
     const decryptToolName = await decryptFromNumber(tool_name);
 
-    // console.log({ decryptGCodeName, decryptKNum, decryptToolName, decryptOutputWp, decryptTotalCuttingTime }, 124)
-
     // Create a new log with the updated status
     await MachineLog.create({
       user_id,
       machine_id: existMachine.id,
-      running_today,
       previous_status: existMachine.status,
       current_status: newStatus,
-      description: isManual ? "Manual Operation" : null,
       g_code_name: decryptGCodeName,
       k_num: decryptKNum,
       output_wp: decryptOutputWp,
@@ -148,31 +143,27 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
       }
     });
   } catch (error) {
-    console.log({ error, message: error.message });
+    serverError(error, "handleChangeMachineStatus");
   }
 };
 
 /**
  * Calculates the total running time of a machine based on today's machine logs
  * 
- * @async
  * @param {number|string} machine_id - ID of the machine to calculate running time for
  * @returns {Promise<{totalRunningTime: number, lastLog: {id: number, createdAt: Date} }|undefined>} Object containing totalRunningTime and lastMachineLog, or undefined if no logs exist
  * @throws {Error} If an error occurs during the calculation process
  */
 const getRunningTimeMachineLog = async (machine_id) => {
   try {
-    // Get date range for today
-    const dateRange = dateQuery();
-
     // Fetch all machine logs for today, ordered by creation time
     const logs = await MachineLog.findAll({
       where: {
         machine_id,
-        createdAt: dateRange,
+        createdAt: dateQuery(),
       },
       order: [["createdAt", "ASC"]],
-      attributes: ["id", "createdAt", "current_status", "running_today"],
+      attributes: ["id", "createdAt", "current_status", "running_today",],
     });
 
     // If no logs found, return undefined
@@ -276,7 +267,7 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
       calculate_total_cutting_time: calculate_total_cutting_time || 0,
     });
   } catch (error) {
-    console.log({ error, message: error.message });
+    serverError(error, "createMachineAndLogFirstTime");
   }
 };
 
@@ -288,19 +279,26 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
  * @param {number} machine_id - The ID of the machine to update.
  * @returns {Promise<void>}
  */
-const updateLastMachineLog = async (machine_id) => {
+const updateRunningTodayLastMachineLog = async (machine_id) => {
   try {
     const { totalRunningTime, lastLog } = await getRunningTimeMachineLog(machine_id);
 
+    if (!lastLog) return
+
+    const isManual = isManualLog(lastLog.createdAt);
+
     // update running today in last log
     await MachineLog.update(
-      { running_today: totalRunningTime },
+      {
+        running_today: totalRunningTime,
+        description: isManual ? "Manual Operation" : null,
+      },
       {
         where: { id: lastLog.id },
       }
     );
   } catch (error) {
-    serverError(error, "updateLastMachineLog");
+    serverError(error, "updateRunningTodayLastMachineLog");
   }
 };
 
@@ -308,5 +306,5 @@ module.exports = {
   createCuttingTime,
   handleChangeMachineStatus,
   createMachineAndLogFirstTime,
-  updateLastMachineLog,
+  updateRunningTodayLastMachineLog,
 };
