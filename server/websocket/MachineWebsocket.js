@@ -107,7 +107,7 @@ module.exports = class MachineWebsocket {
         .map((machine) => {
           return {
             ...machine.dataValues,
-            name: `${machine.name} (${machine.dataValues.type})`,
+            name: `${machine.name} (${machine.dataValues.type ?? ''})`,
           };
         })
         .sort((a, b) => {
@@ -216,7 +216,7 @@ module.exports = class MachineWebsocket {
 
           const result = {
             status: lastLog?.current_status || "Stopped",
-            name: `${machine.name} (${machine.dataValues.type})`,
+            name: `${machine.name} (${machine.dataValues.type ?? ''})`,
             description: countDescription(lastLog?.running_today || 0),
             percentage: [runningTime, 100 - runningTime],
           };
