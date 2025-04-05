@@ -87,10 +87,10 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     } = parseMessage;
     // Find the last log for today
 
-    const { totalRunningTime, lastLog } = await getRunningTimeMachineLog(existMachine.id);
-    const isManual = await handleIsManualLog(lastLog);
+    const runningTime = await getRunningTimeMachineLog(existMachine.id);
+    const isManual = await handleIsManualLog(runningTime?.totalRunningTime);
     const newStatus = isManual ? "Running" : status
-    const running_today = totalRunningTime ?? 0;
+    const running_today = runningTime?.totalRunningTime || 0;
 
     // console.log({ isManual }, 333)
 
@@ -152,70 +152,6 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
       } else if (percentageMessage) {
         await MachineWebsocket.percentages(client);
       }
-    });
-  } catch (error) {
-    console.log({ error, message: error.message });
-  }
-};
-
-
-/**
- * Creates a machine and logs the first entry with the provided message data.
- *
- * @param {Object} parseMessage - The parsed message containing machine data.
- * @param {string} parseMessage.name - Name of the machine.
- * @param {'Running'|'Stopped'} parseMessage.status - Status of the machine.
- * @param {number} parseMessage.user_id - User ID associated with the machine.
- * @param {string} parseMessage.ipAddress - IP address of the machine.
- * @param {number} parseMessage.output_wp - Encrypted output workpiece value.
- * @param {number} parseMessage.k_num - Encrypted K number value.
- * @param {number} parseMessage.tool_name - Encrypted tool name value.
- * @param {number} parseMessage.total_cutting_time - Encrypted total cutting time value.
- */
-const createMachineAndLogFirstTime = async (parseMessage) => {
-  try {
-    const {
-      name,
-      status,
-      user_id,
-      g_code_name,
-      k_num,
-      output_wp,
-      tool_name,
-      total_cutting_time,
-      ipAddress,
-      calculate_total_cutting_time,
-    } = parseMessage;
-
-    const createMachine = await Machine.create({
-      name,
-      status,
-      ip_address: ipAddress,
-    });
-
-    //  push to cache
-    existMachinesCache.set(name, {
-      id: createMachine.id,
-      name,
-      status,
-    });
-
-    const decryptGCodeName = await decryptFromNumber(g_code_name);
-    const decryptKNum = await decryptFromNumber(k_num);
-    const decryptOutputWp = await decryptFromNumber(output_wp);
-    const decryptToolName = await decryptFromNumber(tool_name);
-
-    // running_today default 0
-    return await MachineLog.create({
-      machine_id: createMachine.id,
-      current_status: createMachine.status,
-      user_id,
-      g_code_name: decryptGCodeName,
-      k_num: decryptKNum,
-      output_wp: decryptOutputWp,
-      tool_name: decryptToolName,
-      total_cutting_time: total_cutting_time || 0,
-      calculate_total_cutting_time: calculate_total_cutting_time || 0,
     });
   } catch (error) {
     console.log({ error, message: error.message });
@@ -286,6 +222,72 @@ const getRunningTimeMachineLog = async (machine_id) => {
   }
 };
 
+
+/**
+ * Creates a machine and logs the first entry with the provided message data.
+ *
+ * @param {Object} parseMessage - The parsed message containing machine data.
+ * @param {string} parseMessage.name - Name of the machine.
+ * @param {'Running'|'Stopped'} parseMessage.status - Status of the machine.
+ * @param {number} parseMessage.user_id - User ID associated with the machine.
+ * @param {string} parseMessage.ipAddress - IP address of the machine.
+ * @param {number} parseMessage.output_wp - Encrypted output workpiece value.
+ * @param {number} parseMessage.k_num - Encrypted K number value.
+ * @param {number} parseMessage.tool_name - Encrypted tool name value.
+ * @param {number} parseMessage.total_cutting_time - Encrypted total cutting time value.
+ */
+const createMachineAndLogFirstTime = async (parseMessage) => {
+  try {
+    const {
+      name,
+      status,
+      user_id,
+      g_code_name,
+      k_num,
+      output_wp,
+      tool_name,
+      total_cutting_time,
+      ipAddress,
+      calculate_total_cutting_time,
+    } = parseMessage;
+
+    const createMachine = await Machine.create({
+      name,
+      status,
+      ip_address: ipAddress,
+    });
+
+    //  push to cache
+    existMachinesCache.set(name, {
+      id: createMachine.id,
+      name,
+      status,
+    });
+
+    const decryptGCodeName = await decryptFromNumber(g_code_name);
+    const decryptKNum = await decryptFromNumber(k_num);
+    const decryptOutputWp = await decryptFromNumber(output_wp);
+    const decryptToolName = await decryptFromNumber(tool_name);
+
+    // running_today default 0
+    return await MachineLog.create({
+      machine_id: createMachine.id,
+      current_status: createMachine.status,
+      user_id,
+      g_code_name: decryptGCodeName,
+      k_num: decryptKNum,
+      output_wp: decryptOutputWp,
+      tool_name: decryptToolName,
+      total_cutting_time: total_cutting_time || 0,
+      calculate_total_cutting_time: calculate_total_cutting_time || 0,
+    });
+  } catch (error) {
+    console.log({ error, message: error.message });
+  }
+};
+
+
+
 /**
  * Update the running time of the last machine log of a given machine.
  *
@@ -294,13 +296,13 @@ const getRunningTimeMachineLog = async (machine_id) => {
  */
 const updateLastMachineLog = async (machine_id) => {
   try {
-    const { totalRunningTime, lastMachineLogId } = await getRunningTimeMachineLog(machine_id);
+    const { totalRunningTime, lastLog } = await getRunningTimeMachineLog(machine_id);
 
     // update running today in last log
     await MachineLog.update(
       { running_today: totalRunningTime },
       {
-        where: { id: lastMachineLogId },
+        where: { id: lastLog.id },
       }
     );
   } catch (error) {

@@ -65,12 +65,7 @@ module.exports = class MachineWebsocket {
       // default date is today
       const currentDate = date || new Date();
       const dateOption = new Date(currentDate);
-      // dateOption.setUTCFullYear(
-      //   dateOption.getUTCFullYear(),
-      //   dateOption.getUTCMonth(),
-      //   dateOption.getUTCDate()
-      // );
-      // console.log(dateQuery(dateOption), 333);
+
       const machines = await Machine.findAll({
         include: [
           {
@@ -103,25 +98,24 @@ module.exports = class MachineWebsocket {
         attributes: ["name", "status", "type"],
       });
 
-      const sortedMachines = machines
-        .map((machine) => {
-          return {
-            ...machine.dataValues,
-            name: `${machine.name} (${machine.dataValues.type ?? ''})`,
-          };
-        })
-        .sort((a, b) => {
-          const numberA = parseInt(a.name.slice(3));
-          const numberB = parseInt(b.name.slice(3));
-          return numberA - numberB;
-        });
+      const sortedMachines = machines.map((machine) => {
+        const { name, type } = machine.dataValues;
+        return {
+          ...machine.dataValues,
+          name: name + `${type ? ` (${type})` : ""}`,
+        };
+      }).sort((a, b) => {
+        const numberA = parseInt(a.name.slice(3));
+        const numberB = parseInt(b.name.slice(3));
+        return numberA - numberB;
+      });
 
-      client.send(JSON.stringify({ type: "asd", data: sortedMachines }));
 
       if (!sortedMachines.length) {
         client.send(JSON.stringify({ type: "timeline", data: [] }));
         return;
       }
+      client.send(JSON.stringify({ type: "asd", data: sortedMachines }));
 
       const formattedMachines = sortedMachines.map((machine) => {
         const logs = machine.MachineLogs.map((log, indexLog) => {
@@ -171,11 +165,6 @@ module.exports = class MachineWebsocket {
   static async percentages(client, date) {
     try {
       const nowDate = date ? new Date(date) : new Date();
-      // nowDate.setUTCFullYear(
-      //   nowDate.getUTCFullYear(),
-      //   nowDate.getUTCMonth(),
-      //   nowDate.getUTCDate()
-      // );
 
       const machines = await Machine.findAll({
         attributes: ["id", "name", "type"],
@@ -196,27 +185,16 @@ module.exports = class MachineWebsocket {
             order: [["createdAt", "DESC"]],
             attributes: ["running_today", "current_status", "createdAt"],
           });
-          // console.log(lastLog, 123)
-
-          // const test = await MachineLog.findAll({
-          //     where: {
-          //         machine_id: machine.id,
-          //         updatedAt: dateQuery(nowDate)
-          //     },
-          //     order: [['updatedAt', 'DESC']],
-          //     attributes: ['running_today', 'current_status'],
-          //     limit: 5
-          // });
-          // console.log(test, 123)
 
           const runningTime = percentage(
             lastLog?.running_today || 0,
             perfectTime
           );
+          const name = machine.dataValues.type ? `${machine.name} (${machine.dataValues.type})` : machine.name;
 
           const result = {
             status: lastLog?.current_status || "Stopped",
-            name: `${machine.name} (${machine.dataValues.type ?? ''})`,
+            name,
             description: countDescription(lastLog?.running_today || 0),
             percentage: [runningTime, 100 - runningTime],
           };
