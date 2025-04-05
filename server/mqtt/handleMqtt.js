@@ -91,11 +91,12 @@ const handleMqtt = (wss) => {
 
       // if status change
       if (existMachine.status !== parseMessage.status) {
-        await handleChangeMachineStatus(existMachine, parseMessage, wss);
+        return await handleChangeMachineStatus(existMachine, parseMessage, wss);
       }
 
-      await updateLastMachineLog(existMachine.id);
-      // await updateLastMachineLog(existMachine.id, runningHour);
+      if (existMachine.status === "Running") {
+        return await updateLastMachineLog(existMachine.id);
+      }
     } catch (error) {
       if (error.message === "Unexpected token < in JSON at position 0") {
         return serverError(error, "Invalid JSON");
@@ -104,11 +105,11 @@ const handleMqtt = (wss) => {
     }
   });
 
-  // clear cache
-  mqttClient.on("offline", () => {
-    console.log("MQTT client disconnected", 777);
-    existMachinesCache.clear();
-  });
+  // // clear cache
+  // mqttClient.on("offline", () => {
+  //   console.log("MQTT client disconnected", 777);
+  //   existMachinesCache.clear();
+  // });
 };
 
 module.exports = handleMqtt;

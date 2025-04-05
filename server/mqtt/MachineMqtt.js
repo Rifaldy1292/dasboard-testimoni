@@ -42,22 +42,19 @@ function formatTimeDifference(ms) {
 }
 
 /**
- * Handles the manual logging of machine operations.
- *
- * @param {number} machine_id - The ID of the machine to check for manual logs.
- * @param {'Running' | 'Stopped'} status - The current status of the machine.
- * @returns {Promise<boolean>} - Returns true if the operation is manual, false otherwise.
+ * Determines if a machine operation should be considered manual based on the time elapsed since the last log.
+ * 
+ * @async
+ * @param {{createdAt: Date}|null} lastMachineLog - The last machine log entry or null if no previous logs exist
+ * @returns {Promise<boolean>} Returns true if the operation is considered manual (within 15 minutes of last log),
+ *                            false if it's not manual or if an error occurs
+ * @description
+ * This function checks if the time difference between now and the last machine log
+ * is less than or equal to 15 minutes (900,000 milliseconds). If so, the operation
+ * is considered manual. This helps distinguish between automated and manual machine operations.
  */
-const handleIsManualLog = async (machine_id) => {
+const handleIsManualLog = async (lastMachineLog) => {
   try {
-    const lastMachineLog = await MachineLog.findOne({
-      where: {
-        machine_id,
-        createdAt: dateQuery(),
-      },
-      attributes: ["createdAt"],
-      order: [["createdAt", "DESC"]],
-    });
     if (lastMachineLog === null) return false;
     const differenceTime = new Date() - new Date(lastMachineLog?.createdAt);
     const fiveTenMinutes = 15 * 60 * 1000;
@@ -90,8 +87,10 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     } = parseMessage;
     // Find the last log for today
 
-    const isManual = await handleIsManualLog(existMachine.id, status);
+    const { totalRunningTime, lastLog } = await getRunningTimeMachineLog(existMachine.id);
+    const isManual = await handleIsManualLog(lastLog);
     const newStatus = isManual ? "Running" : status
+    const running_today = totalRunningTime ?? 0;
 
     // console.log({ isManual }, 333)
 
@@ -112,6 +111,7 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     await MachineLog.create({
       user_id,
       machine_id: existMachine.id,
+      running_today,
       previous_status: existMachine.status,
       current_status: newStatus,
       description: isManual ? "Manual Operation" : null,
@@ -157,6 +157,8 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     console.log({ error, message: error.message });
   }
 };
+
+
 /**
  * Creates a machine and logs the first entry with the provided message data.
  *
@@ -221,6 +223,70 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
 };
 
 /**
+ * Calculates the total running time of a machine based on today's machine logs
+ * 
+ * @async
+ * @param {number|string} machine_id - ID of the machine to calculate running time for
+ * @returns {Promise<{totalRunningTime: number, lastLog: {id: number, createdAt: Date} }|undefined>} Object containing totalRunningTime and lastMachineLog, or undefined if no logs exist
+ * @throws {Error} If an error occurs during the calculation process
+ */
+const getRunningTimeMachineLog = async (machine_id) => {
+  try {
+    // Get date range for today
+    const dateRange = dateQuery();
+
+    // Fetch all machine logs for today, ordered by creation time
+    const logs = await MachineLog.findAll({
+      where: {
+        machine_id,
+        createdAt: dateRange,
+      },
+      order: [["createdAt", "ASC"]],
+      attributes: ["id", "createdAt", "current_status", "running_today"],
+    });
+
+    // If no logs found, return undefined
+    if (!logs.length) {
+      return undefined;
+    }
+
+    // Calculate total running time
+    let totalRunningTime = 0; // In milliseconds
+    let lastRunningTimestamp = null;
+
+    // Iterate through each log to calculate running duration
+    logs.forEach((log) => {
+      const { current_status, createdAt } = log;
+
+      if (current_status === "Running") {
+        // Record the start time of running status
+        lastRunningTimestamp = createdAt;
+      } else if (lastRunningTimestamp) {
+        // Calculate duration from last running timestamp to current log
+        const duration = new Date(createdAt) - new Date(lastRunningTimestamp);
+        totalRunningTime += duration;
+        lastRunningTimestamp = null;
+      }
+    });
+
+    // If the last status is still running, calculate duration until now
+    if (lastRunningTimestamp) {
+      const currentTime = new Date();
+      totalRunningTime += currentTime - new Date(lastRunningTimestamp);
+    }
+
+    // Return calculation results and the ID of the last log
+    return {
+      totalRunningTime,
+      lastLog: logs[logs.length - 1],
+    };
+  } catch (error) {
+    // Log error and propagate it to the caller
+    serverError(error, "getRunningTimeMachineLog");
+  }
+};
+
+/**
  * Update the running time of the last machine log of a given machine.
  *
  * @param {number} machine_id - The ID of the machine to update.
@@ -228,53 +294,17 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
  */
 const updateLastMachineLog = async (machine_id) => {
   try {
-    // get running time in now
-    const dateRange = dateQuery();
-    // console.log(dateRange);
-    const logs = await MachineLog.findAll({
-      where: {
-        machine_id,
-        createdAt: dateRange,
-      },
-      order: [["createdAt", "ASC"]],
-      attributes: ["createdAt", "current_status", "id", "running_today"],
-    });
-
-    // console.log('length', logs.length);
-
-    if (logs.length === 0) return;
-
-    let totalRunningTime = 0; // Dalam milidetik
-    let lastRunningTimestamp = null;
-
-    logs.forEach((log) => {
-      if (log.current_status === "Running") {
-        lastRunningTimestamp = log.createdAt;
-      } else if (lastRunningTimestamp) {
-        const duration =
-          new Date(log.createdAt) - new Date(lastRunningTimestamp);
-        totalRunningTime += duration;
-        lastRunningTimestamp = null;
-      }
-    });
-
-    // Jika masih dalam status running hingga sekarang
-    if (lastRunningTimestamp) {
-      totalRunningTime += new Date() - new Date(lastRunningTimestamp);
-    }
+    const { totalRunningTime, lastMachineLogId } = await getRunningTimeMachineLog(machine_id);
 
     // update running today in last log
     await MachineLog.update(
       { running_today: totalRunningTime },
       {
-        where: { id: logs[logs.length - 1].id },
+        where: { id: lastMachineLogId },
       }
     );
-
-    // console.log(update);
   } catch (error) {
-    serverError(error);
-    console.log("from updateLastMachineLog");
+    serverError(error, "updateLastMachineLog");
   }
 };
 
