@@ -13,15 +13,14 @@ const { inputFiles } = useFTP()
 
 const handleInputToolNumber = (event: InputNumberInputEvent): void => {
   const inputToolNumber = event.value as number
-  // O1234  to 34
+  // 1234 to 34
   const fileName = inputFiles.value[index].name.slice(-2)
-  const newInputFiles = inputFiles.value.map((item) => {
-    const test = fileName === item.name.slice(-2)
-    if (!test) return item
+
+  inputFiles.value = inputFiles.value.map((item, indexFile) => {
+    const hasSameFileNameSuffix = fileName === item.name.slice(-2)
+    if (!hasSameFileNameSuffix || indexFile < index) return item
     return { ...item, toolNumber: inputToolNumber }
   })
-
-  inputFiles.value = newInputFiles
 }
 </script>
 

@@ -46,24 +46,19 @@ function formatTimeDifference(ms) {
  * 
  * @async
  * @param {{createdAt: Date}|null} lastMachineLog - The last machine log entry or null if no previous logs exist
- * @returns {Promise<boolean>} Returns true if the operation is considered manual (within 15 minutes of last log),
+ * @returns {boolean} Returns true if the operation is considered manual (within 15 minutes of last log),
  *                            false if it's not manual or if an error occurs
  * @description
  * This function checks if the time difference between now and the last machine log
  * is less than or equal to 15 minutes (900,000 milliseconds). If so, the operation
  * is considered manual. This helps distinguish between automated and manual machine operations.
  */
-const handleIsManualLog = async (lastMachineLog) => {
-  try {
-    if (lastMachineLog === null) return false;
-    const differenceTime = new Date() - new Date(lastMachineLog?.createdAt);
-    const fiveTenMinutes = 15 * 60 * 1000;
-    const isManual = differenceTime <= fiveTenMinutes;
-    return isManual;
-  } catch (error) {
-    serverError(error);
-    return false;
-  }
+const checkIsManualLog = (lastMachineLog) => {
+  if (!lastMachineLog || typeof lastMachineLog !== 'object') return false;
+  const differenceTime = new Date() - new Date(lastMachineLog?.createdAt);
+  const fiveTenMinutes = 15 * 60 * 1000;
+  const isManual = differenceTime <= fiveTenMinutes;
+  return isManual;
 };
 
 /**
@@ -87,18 +82,17 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     } = parseMessage;
     // Find the last log for today
 
-    const runningTime = await getRunningTimeMachineLog(existMachine.id);
-    const isManual = await handleIsManualLog(runningTime?.totalRunningTime);
+    const { totalRunningTime, lastLog } = await getRunningTimeMachineLog(existMachine.id);
+    const isManual = checkIsManualLog(lastLog);
     const newStatus = isManual ? "Running" : status
-    const running_today = runningTime?.totalRunningTime || 0;
+    const running_today = totalRunningTime || 0;
 
     // console.log({ isManual }, 333)
 
     // update machine status
     await Machine.update({ status: newStatus }, { where: { id: existMachine.id } });
-
     // update exist machines cache
-    existMachinesCache.set(existMachine.name, { ...existMachine, status });
+    existMachinesCache.set(existMachine.name, { ...existMachine, status: newStatus });
 
     const decryptGCodeName = await decryptFromNumber(g_code_name);
     const decryptKNum = await decryptFromNumber(k_num);

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, shallowRef, watch, watchEffect } from 'vue'
+import { computed, shallowRef, watch } from 'vue'
 import type { DialogFormProps } from '@/components/DialogForm/DialogForm.type'
 import DialogForm from '@/components/DialogForm/DialogForm.vue'
 import { Button, InputText } from 'primevue'
@@ -30,10 +30,6 @@ watch(
     inputDescription.value = selectedMachine?.description as string
   }
 )
-
-watchEffect(() => {
-  console.log(isDocs, 'isDocs')
-})
 
 const handleSubmitForm = () => {
   if (
