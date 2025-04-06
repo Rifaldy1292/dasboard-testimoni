@@ -94,9 +94,7 @@ const handleMqtt = (wss) => {
         await handleChangeMachineStatus(existMachine, parseMessage, wss);
       }
 
-      if (existMachine.status === "Running") {
-        return await updateRunningTodayLastMachineLog(existMachine.id);
-      }
+      await updateRunningTodayLastMachineLog(existMachine.id);
     } catch (error) {
       if (error.message === "Unexpected token < in JSON at position 0") {
         return serverError(error, "Invalid JSON");
