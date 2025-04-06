@@ -86,7 +86,21 @@ const handleMqtt = (wss) => {
 
       // create machine & log if machine not exist
       if (!existMachine) {
-        return await createMachineAndLogFirstTime(parseMessage);
+        const findExistMachine = await Machine.findOne({
+          where: { name: parseMessage.name },
+          attributes: ["id", "name", "status"],
+        });
+        if (!findExistMachine) {
+          return await createMachineAndLogFirstTime(parseMessage);
+        }
+
+        existMachinesCache.set(findExistMachine.name, {
+          id: findExistMachine.id,
+          name: findExistMachine.name,
+          status: findExistMachine.status,
+        });
+
+        existMachine = existMachinesCache.get(findExistMachine.name);
       }
 
       // if status change
@@ -94,7 +108,9 @@ const handleMqtt = (wss) => {
         await handleChangeMachineStatus(existMachine, parseMessage, wss);
       }
 
-      await updateRunningTodayLastMachineLog(existMachine.id);
+      if (existMachine.status === "Running") {
+        return await updateRunningTodayLastMachineLog(existMachine.id);
+      }
     } catch (error) {
       if (error.message === "Unexpected token < in JSON at position 0") {
         return serverError(error, "Invalid JSON");

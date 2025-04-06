@@ -40,7 +40,7 @@ const isManualLog = (createdAt) => {
   return timeDifference <= fiveTenMinutes;
 }
 
-// trigger when can create log
+// trigger when create log
 const checkIsManualLog = async (machine_id) => {
   try {
     const lastMachineLog = await MachineLog.findOne({
@@ -86,7 +86,10 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
 
     console.log({ isManual, isSameStatus: newStatus === existMachine.status }, 333)
     // not update if status is same
-    if (newStatus === existMachine.status) return;
+    if (newStatus === existMachine.status) {
+      if (newStatus !== "Running") return;
+      return updateRunningTodayLastMachineLog(existMachine.id);
+    };
 
     // update machine status
     await Machine.update({ status: newStatus }, { where: { id: existMachine.id } });
@@ -111,6 +114,8 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
       total_cutting_time: total_cutting_time || 0,
       calculate_total_cutting_time: calculate_total_cutting_time || 0,
     });
+
+    await updateRunningTodayLastMachineLog(existMachine.id);
 
     // Send an update to all connected clients
     wss.clients.forEach(async (client) => {
