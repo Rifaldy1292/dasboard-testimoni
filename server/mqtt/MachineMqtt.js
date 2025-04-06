@@ -105,14 +105,14 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     await MachineLog.create({
       user_id,
       machine_id: existMachine.id,
-      previous_status: existMachine.status,
       current_status: newStatus,
+      previous_status: existMachine.status,
       g_code_name: decryptGCodeName,
       k_num: decryptKNum,
       output_wp: decryptOutputWp,
       tool_name: decryptToolName,
       total_cutting_time: total_cutting_time || 0,
-      calculate_total_cutting_time: calculate_total_cutting_time || 0,
+      calculate_total_cutting_time: calculate_total_cutting_time || null,
     });
 
     await updateRunningTodayLastMachineLog(existMachine.id);
@@ -261,15 +261,16 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
 
     // running_today default 0
     return await MachineLog.create({
+      user_id,
       machine_id: createMachine.id,
       current_status: createMachine.status,
-      user_id,
+      previous_status: null,
       g_code_name: decryptGCodeName,
       k_num: decryptKNum,
       output_wp: decryptOutputWp,
       tool_name: decryptToolName,
       total_cutting_time: total_cutting_time || 0,
-      calculate_total_cutting_time: calculate_total_cutting_time || 0,
+      calculate_total_cutting_time: calculate_total_cutting_time || null,
     });
   } catch (error) {
     serverError(error, "createMachineAndLogFirstTime");

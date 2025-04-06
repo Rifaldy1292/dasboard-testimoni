@@ -26,7 +26,7 @@ module.exports = {
       name: 'node-red',
       script: 'cmd',
       args: '/c node-red',
-      watch: false,
+      watch: true,
       autorestart: true,
       env: {
         NODE_ENV: 'production'
