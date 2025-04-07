@@ -5,16 +5,14 @@ import ModalEditDescription from './ModalEditDescription.vue'
 import { shallowRef } from 'vue'
 import ModalDocumentation from './ModalDocumentation.vue'
 
-const { machine, isDocs } = defineProps<{
+const { machine } = defineProps<{
   machine: MachineTimeline
-  isDocs?: boolean
 }>()
 
 const visibleDialogForm = shallowRef<boolean>(false)
 const visibleDialogFormDocumentation = shallowRef<boolean>(false)
 const selectedLog = shallowRef<ObjMachineTimeline | undefined>()
 const handleClickIcon = (e: ObjMachineTimeline): void => {
-  if (!isDocs) return
   selectedLog.value = e
   visibleDialogForm.value = true
   console.log(selectedLog.value)
@@ -84,11 +82,11 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
       class="flex justify-center text-3xl font-bold tetx-black dark:text-white gap-2"
     >
       {{ machine.name }}
-      <span>
+      <span class="cursor-pointer">
         <i
           @click="visibleDialogFormDocumentation = true"
           v-tooltip.top="'Documentation'"
-          class="pi pi-info-circle"
+          class="pi pi-info-circle cursor-pointer"
           style="font-size: 1rem"
       /></span>
     </span>
@@ -130,7 +128,6 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
               >{{ item.createdAt }} - {{ item.description }}
             </i>
             <i
-              :disable="isDocs"
               v-if="item.current_status === 'Stopped'"
               @click="handleClickIcon(item)"
               v-tooltip.top="'Edit'"
@@ -171,7 +168,6 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
       v-model:visible-dialog-form="visibleDialogForm"
       :selected-machine="selectedLog"
       :machine-name="machine.name"
-      :is-docs="isDocs"
     />
 
     <ModalDocumentation v-model:visible-dialog-form="visibleDialogFormDocumentation" />

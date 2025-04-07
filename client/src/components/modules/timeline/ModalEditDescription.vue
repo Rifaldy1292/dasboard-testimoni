@@ -7,10 +7,9 @@ import type { ObjMachineTimeline } from '@/types/machine.type'
 import type { EditLogDescription } from '@/dto/machine.dto'
 import useWebSocket from '@/composables/useWebsocket'
 
-const { selectedMachine, machineName, isDocs } = defineProps<{
+const { selectedMachine, machineName } = defineProps<{
   selectedMachine?: ObjMachineTimeline
   machineName: string
-  isDocs?: boolean
 }>()
 
 const visibleDialogForm = defineModel<boolean>('visibleDialogForm', {
@@ -35,8 +34,7 @@ const handleSubmitForm = () => {
   if (
     !selectedMachine ||
     inputDescription.value === selectedMachine.description ||
-    !inputDescription.value.trim() ||
-    !isDocs
+    !inputDescription.value.trim()
   )
     return undefined
 
