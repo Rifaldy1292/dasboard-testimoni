@@ -19,6 +19,7 @@ export const useFTP = () => {
    * @param totalCuttingTime example 0 : 30 : 34
    */
   const getCuttingTimeInSecond = (totalCuttingTime: string): number => {
+    if (!totalCuttingTime) return 0
     const hour = totalCuttingTime.split(':')[0]
     const minute = totalCuttingTime.split(':')[1]
     const second = totalCuttingTime.split(':')[2]
