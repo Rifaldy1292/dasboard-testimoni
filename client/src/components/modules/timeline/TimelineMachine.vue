@@ -122,7 +122,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
               backgroundColor: iconTimeline(item.current_status).color,
               width: customWidthBoxTimeline(item)
             }"
-            :class="`p-1 h-100`"
+            :class="`px-2 ml h-100 text-center flex flex-col`"
           >
             <i class="font-bold text-black dark:text-white"
               >{{ item.createdAt }} - {{ item.description }}
@@ -134,20 +134,16 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
               class="pi pi-pencil"
               style="font-size: 1rem"
             />
-            <br />
             <span class="font-medium text-white dark:text-black"
               >{{ handleTimeDifference(item, index) }}
             </span>
-            <br />
 
             <span class="font-medium text-yellow-300">{{ item.k_num }} </span>
-            <br />
 
             <span class="font-medium text-indigo-700"
               >{{ item.g_code_name }} - {{ item.output_wp }}</span
             >
 
-            <br />
             <span class="font-medium text-black dark:text-white">{{ item.operator ?? '-' }} </span>
             <!-- 
             <span>{{ convertStringDifferenceToMilisecond(item.timeDifference) }}</span>
