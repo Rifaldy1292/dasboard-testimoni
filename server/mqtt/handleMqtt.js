@@ -7,10 +7,10 @@ const {
 } = require("./MachineMqtt");
 const WebSocket = require("ws");
 require("../websocket/handleWebsocket");
-const mqtt = require('mqtt');
+const mqtt = require("mqtt");
 const { existMachinesCache } = require("../cache");
 
-const mqttClient = mqtt.connect('mqtt://localhost:1883');
+const mqttClient = mqtt.connect("mqtt://localhost:1883");
 
 const mqttTopics = [
   "mc-1/data",
@@ -45,7 +45,7 @@ const handleMqtt = (wss) => {
     try {
       const existMachines = await Machine.findAll({
         attributes: ["id", "name", "status"],
-      })
+      });
 
       existMachines.forEach((machine) => {
         existMachinesCache.set(machine.name, {
@@ -57,7 +57,6 @@ const handleMqtt = (wss) => {
     } catch (error) {
       serverError(error, "Failed to get exist machines");
     }
-
   });
 
   mqttClient.on("message", async (topic, message) => {
@@ -82,7 +81,7 @@ const handleMqtt = (wss) => {
       const parseMessage = JSON.parse(message.toString());
       // console.log(parseMessage, 77777)
 
-      const existMachine = existMachinesCache.get(parseMessage.name);
+      let existMachine = existMachinesCache.get(parseMessage.name);
 
       // create machine & log if machine not exist
       if (!existMachine) {
@@ -94,6 +93,7 @@ const handleMqtt = (wss) => {
           return await createMachineAndLogFirstTime(parseMessage);
         }
 
+        // if machine exist in db, set to cache
         existMachinesCache.set(findExistMachine.name, {
           id: findExistMachine.id,
           name: findExistMachine.name,
@@ -118,12 +118,6 @@ const handleMqtt = (wss) => {
       serverError(error, "Failed to handle MQTT message");
     }
   });
-
-  // // clear cache
-  // mqttClient.on("offline", () => {
-  //   console.log("MQTT client disconnected", 777);
-  //   existMachinesCache.clear();
-  // });
 };
 
 module.exports = handleMqtt;

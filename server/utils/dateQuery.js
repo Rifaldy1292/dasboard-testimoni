@@ -13,7 +13,7 @@ const { Op } = require("sequelize");
 
 const config = {
   startHour: 7,
-  startMinute: 0,
+  startMinute: 30,
 };
 
 // let endMinute = startMinute === 0 ? 59 : startMinute - 1

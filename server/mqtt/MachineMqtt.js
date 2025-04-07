@@ -29,8 +29,8 @@ const createCuttingTime = async () => {
 };
 
 /**
- * 
- * @param {string} createdAt 
+ *
+ * @param {string} createdAt
  * @returns {boolean}
  */
 const isManualLog = (createdAt) => {
@@ -38,7 +38,7 @@ const isManualLog = (createdAt) => {
   const timeDifference = new Date() - new Date(createdAt);
   const fiveTenMinutes = 15 * 60 * 1000;
   return timeDifference <= fiveTenMinutes;
-}
+};
 
 // trigger when create log
 const checkIsManualLog = async (machine_id) => {
@@ -57,7 +57,6 @@ const checkIsManualLog = async (machine_id) => {
     serverError(error, "checkIsManualLog");
     return false;
   }
-
 };
 
 /**
@@ -82,25 +81,37 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     // Find the last log for today
 
     const isManual = await checkIsManualLog(existMachine.id);
-    const newStatus = isManual ? "Running" : status
+    const newStatus = isManual ? "Running" : status;
 
-    console.log({ isManual, isSameStatus: newStatus === existMachine.status }, 333)
+    console.log(
+      { isManual, isSameStatus: newStatus === existMachine.status },
+      333
+    );
     // not update if status is same
     if (newStatus === existMachine.status) {
-      if (newStatus !== "Running") return;
-      return updateRunningTodayLastMachineLog(existMachine.id);
-    };
+      if (newStatus === "Running") {
+        return updateRunningTodayLastMachineLog(existMachine.id);
+      }
+      return;
+    }
 
     // update machine status
-    await Machine.update({ status: newStatus }, { where: { id: existMachine.id } });
+    await Machine.update(
+      { status: newStatus },
+      { where: { id: existMachine.id } }
+    );
     // update exist machines cache
-    existMachinesCache.set(existMachine.name, { ...existMachine, status: newStatus });
+    existMachinesCache.set(existMachine.name, {
+      ...existMachine,
+      status: newStatus,
+    });
 
     const decryptGCodeName = await decryptFromNumber(g_code_name);
     const decryptKNum = await decryptFromNumber(k_num);
     const decryptOutputWp = await decryptFromNumber(output_wp);
     const decryptToolName = await decryptFromNumber(tool_name);
 
+    await updateRunningTodayLastMachineLog(existMachine.id, true);
     // Create a new log with the updated status
     await MachineLog.create({
       user_id,
@@ -114,8 +125,6 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
       total_cutting_time: total_cutting_time || 0,
       calculate_total_cutting_time: calculate_total_cutting_time || null,
     });
-
-    await updateRunningTodayLastMachineLog(existMachine.id);
 
     // Send an update to all connected clients
     wss.clients.forEach(async (client) => {
@@ -154,7 +163,7 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
 
 /**
  * Calculates the total running time of a machine based on today's machine logs
- * 
+ *
  * @param {number|string} machine_id - ID of the machine to calculate running time for
  * @returns {Promise<{totalRunningTime: number, lastLog: {id: number, createdAt: Date} }|undefined>} Object containing totalRunningTime and lastMachineLog, or undefined if no logs exist
  * @throws {Error} If an error occurs during the calculation process
@@ -168,7 +177,7 @@ const getRunningTimeMachineLog = async (machine_id) => {
         createdAt: dateQuery(),
       },
       order: [["createdAt", "ASC"]],
-      attributes: ["id", "createdAt", "current_status", "running_today",],
+      attributes: ["id", "createdAt", "current_status", "running_today"],
     });
 
     // If no logs found, return undefined
@@ -211,7 +220,6 @@ const getRunningTimeMachineLog = async (machine_id) => {
     serverError(error, "getRunningTimeMachineLog");
   }
 };
-
 
 /**
  * Creates a machine and logs the first entry with the provided message data.
@@ -277,23 +285,36 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
   }
 };
 
-
-
 /**
  * Update the running time of the last machine log of a given machine.
  *
  * @param {number} machine_id - The ID of the machine to update.
+ * @param {boolean} withDescription - Whether to include the description in the update.
  * @returns {Promise<void>}
  */
-const updateRunningTodayLastMachineLog = async (machine_id) => {
+const updateRunningTodayLastMachineLog = async (
+  machine_id,
+  withDescription
+) => {
   try {
-    const { totalRunningTime, lastLog } = await getRunningTimeMachineLog(machine_id);
+    const { totalRunningTime, lastLog } = await getRunningTimeMachineLog(
+      machine_id
+    );
 
-    if (!lastLog) return
+    if (!lastLog) return;
+    if (!withDescription) {
+      return await MachineLog.update(
+        {
+          running_today: totalRunningTime,
+        },
+        {
+          where: { id: lastLog.id },
+        }
+      );
+    }
 
     const isManual = isManualLog(lastLog.createdAt);
 
-    // update running today in last log
     await MachineLog.update(
       {
         running_today: totalRunningTime,
@@ -303,6 +324,8 @@ const updateRunningTodayLastMachineLog = async (machine_id) => {
         where: { id: lastLog.id },
       }
     );
+
+    // update running today in last log
   } catch (error) {
     serverError(error, "updateRunningTodayLastMachineLog");
   }
