@@ -1,16 +1,5 @@
 const { Op } = require("sequelize");
 
-/**
- * Creates a date query object for the given date option.
- * If no date option is provided, the current date is used.
- * The date query object contains the start and end of day dates in the format 'YYYY-MM-DDTHH:mm:ss.sssZ'.
- * The start of day is set to 7:30 AM and the end of day is set to 7:29:59 PM of the next day.
- * @param {string|Date} [dateOption] - The date option in the format 'YYYY-MM-DD' or a Date object.
- * @returns {Object} The date query object with startInDay and endOfDay properties.
- */
-
-// TODO: besok cek datequery ketika get cutting time
-
 const config = {
   startHour: 7,
   startMinute: 30,
@@ -18,10 +7,18 @@ const config = {
 
 // let endMinute = startMinute === 0 ? 59 : startMinute - 1
 
+/**
+ * Creates a date query object for the given date option.
+ * If no date option is provided, the current date is used.
+ * The date query object contains the start and end of day dates in the format 'YYYY-MM-DDTHH:mm:ss.sssZ'.
+ * The start of day is set to 7:30 AM and the end of day is set to 7:29:59 PM of the next day.
+ * @param {string| undefined} [dateOption] - The date option in the format 'YYYY-MM-DD' or a Date object.
+ * @returns {Object} The date query object with startInDay and endOfDay properties.
+ */
+
 const dateQuery = (dateOption) => {
   const { startMinute, startHour } = config;
   const endMinute = startMinute === 0 ? 59 : startMinute - 1;
-  const timezoneOffset = 7;
 
   // Create a new Date object from the provided dateOption to avoid mutation
   const nowDate = dateOption
