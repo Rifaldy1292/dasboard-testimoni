@@ -32,5 +32,23 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'DailyConfig',
   });
+
+  DailyConfig.beforeCreate(async (dailyConfig, options) => {
+    const { startFirstShift, startSecondShift } = dailyConfig;
+    if (startFirstShift >= startSecondShift) {
+      throw new Error('Start time of first shift must be less than start time of second shift');
+    }
+
+    // unique constraint on date
+    const existingDailyConfig = await DailyConfig.findOne({
+      where: {
+        date: dailyConfig.date,
+      },
+    });
+    if (existingDailyConfig) {
+      throw new Error('Daily config already exists for this date');
+    }
+  });
+
   return DailyConfig;
 };
