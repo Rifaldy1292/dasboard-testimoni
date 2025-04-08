@@ -7,7 +7,7 @@ const { PORT } = require("./config/config.env");
 const handleMqtt = require("./mqtt/handleMqtt");
 const router = require("./routes");
 const { handleWebsocket } = require("./websocket/handleWebsocket");
-const { handleChangeDate, handleCreateCuttingTime } = require("./helpers/cronjob");
+const handleCronJob = require("./helpers/cronjob");
 
 
 const app = express();
@@ -25,10 +25,13 @@ app.use(
 );
 
 app.use("/api", router);
-handleWebsocket(wss)
-handleMqtt(wss)
-handleChangeDate()
-handleCreateCuttingTime()
+(async () => {
+  await handleCronJob()
+})()
+handleWebsocket(wss);
+handleMqtt(wss);
+
+
 
 
 server.listen(PORT, () => {

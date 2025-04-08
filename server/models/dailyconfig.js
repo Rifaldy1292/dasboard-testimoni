@@ -34,16 +34,24 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   DailyConfig.beforeCreate(async (dailyConfig, options) => {
-    const { startFirstShift, startSecondShift } = dailyConfig;
-    if (startFirstShift >= startSecondShift) {
+    const { startFirstShift, startSecondShift, date } = dailyConfig;
+    console.log({ dailyConfig })
+    // Konversi string waktu ke menit untuk perbandingan yang akurat
+    const [firstHour, firstMinute] = startFirstShift.split(':').map(Number);
+    const [secondHour, secondMinute] = startSecondShift.split(':').map(Number);
+
+    const firstTimeInMinutes = firstHour * 60 + firstMinute;
+    const secondTimeInMinutes = secondHour * 60 + secondMinute;
+
+    if (firstTimeInMinutes >= secondTimeInMinutes) {
       throw new Error('Start time of first shift must be less than start time of second shift');
     }
 
     // unique constraint on date
     const existingDailyConfig = await DailyConfig.findOne({
       where: {
-        date: dailyConfig.date,
-      },
+        date,
+      }, attributes: ['date']
     });
     if (existingDailyConfig) {
       throw new Error('Daily config already exists for this date');
