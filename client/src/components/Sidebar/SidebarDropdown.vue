@@ -17,7 +17,7 @@ const handleItemClick = (index: number) => {
 <template>
   <ul class="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
     <template v-for="(childItem, index) in items" :key="index">
-      <li>
+      <li v-if="childItem.visible">
         <router-link
           :to="childItem.route"
           @click="handleItemClick(index)"
@@ -26,7 +26,7 @@ const handleItemClick = (index: number) => {
             '!text-white': childItem.label === sidebarStore.selected
           }"
         >
-        <span v-html="childItem.icon"></span>
+          <span v-html="childItem.icon"></span>
           {{ childItem.label }}
         </router-link>
       </li>
