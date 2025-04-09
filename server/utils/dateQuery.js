@@ -20,12 +20,10 @@ const dateQuery = (dateOption) => {
   const { startMinute, startHour } = config;
   const endMinute = startMinute === 0 ? 59 : startMinute - 1;
 
-  // Create a new Date object from the provided dateOption to avoid mutation
+  // example: 2025-04-09
   const nowDate = dateOption
-    ? new Date(dateOption).toISOString().split("T")[0]
-    : new Date().toISOString().split("T")[0];
-
-  // const fixDate = new Date(nowDate.toISOString().split("T")[0]);
+    ? new Date(dateOption).toLocaleDateString('en-CA')
+    : new Date().toLocaleDateString('en-CA');
 
   // Start time at 7:00 AM on the given date
   const startInDay = new Date(nowDate);

@@ -219,6 +219,63 @@ module.exports = class MachineWebsocket {
     }
   }
 
+  static async newPercentages(client, date) {
+    try {
+      const nowDate = date ? new Date(date) : new Date();
+
+      const machines = await Machine.findAll({
+        attributes: ["id", "name", "type"],
+      });
+      // check if machines is empty or nowDate is greater than current date
+      if (!machines.length || nowDate.getTime() > new Date().getTime()) {
+        client.send(JSON.stringify({ type: "percentage", data: [] }));
+        return;
+      }
+
+      const machinesWithLastLog = await Promise.all(
+        machines.map(async (machine) => {
+          const lastLog = await MachineLog.findOne({
+            where: {
+              machine_id: machine.id,
+              createdAt: dateQuery(nowDate),
+            },
+            order: [["createdAt", "DESC"]],
+            attributes: ["running_today", "current_status", "createdAt"],
+          });
+
+          const runningTime = percentage(
+            lastLog?.running_today || 0,
+            perfectTime
+          );
+          const name = machine.dataValues.type ? `${machine.name} (${machine.dataValues.type})` : machine.name;
+
+          const result = {
+            status: lastLog?.current_status || "Stopped",
+            name,
+            description: countDescription(lastLog?.running_today || 0),
+            percentage: [runningTime, 100 - runningTime],
+          };
+          return result;
+        })
+      );
+
+      const data = {
+        data: machinesWithLastLog.sort((a, b) => {
+          const numberA = parseInt(a.name.slice(3));
+          const numberB = parseInt(b.name.slice(3));
+          return numberA - numberB;
+        }),
+        date: nowDate,
+      };
+      client.send(JSON.stringify({ type: "percentage", data }));
+    } catch (e) {
+      console.log({ e, message: e.message });
+      client.send(
+        JSON.stringify({ type: "error", message: "Failed to get percentage" })
+      );
+    }
+  }
+
   static async editLogDescription(client, data) {
     try {
       const { id, description } = data;

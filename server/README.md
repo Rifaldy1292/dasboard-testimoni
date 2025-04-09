@@ -1,3 +1,5 @@
+-- Active: 1744146286139@@127.0.0.1@5432@postgres@public
+
 # SETUP SERVER EXPRESS WITH SEQUELIZE ORM
 
 1. pnpm init -y
@@ -64,5 +66,9 @@ npx sequelize-cli migration:generate --name add_tool_name_to_machinelog
 npx sequelize-cli model:generate --name DailyConfig --attributes date:date,startFirstShift:time,startSecondShift:time,description:string
 
 backup db: "C:\Program Files\PostgreSQL\17\bin\pg_dump.exe" -U postgres -h localhost -p 5432 -F c -b -v -f dashboard_machine_backup.dump yamaha_dashboard_machine
+
+# Hapus database yang sudah ada
+
+"C:\Program Files\PostgreSQL\17\bin\dropdb.exe" -U postgres yamaha_dashboard_machine
 
 restore db: "C:\Program Files\PostgreSQL\17\bin\pg_restore.exe" -U postgres -h localhost -p 5432 -d yamaha_dashboard_machine -v dashboard_machine_backup.dump
