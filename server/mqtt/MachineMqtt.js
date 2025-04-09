@@ -297,15 +297,14 @@ const updateRunningTodayLastMachineLog = async (
   withDescription
 ) => {
   try {
-    const { totalRunningTime, lastLog } = await getRunningTimeMachineLog(
-      machine_id
-    );
+    const getRunningTime = await getRunningTimeMachineLog(machine_id);
 
-    if (!lastLog) return;
+    if (!getRunningTime?.lastLog) return;
+    const { lastLog, totalRunningTime } = getRunningTime;
     if (!withDescription) {
       return await MachineLog.update(
         {
-          running_today: totalRunningTime,
+          running_today: totalRunningTime || 0,
         },
         {
           where: { id: lastLog.id },
@@ -317,7 +316,7 @@ const updateRunningTodayLastMachineLog = async (
 
     await MachineLog.update(
       {
-        running_today: totalRunningTime,
+        running_today: totalRunningTime || 0,
         description: isManual ? "Manual Operation" : null,
       },
       {

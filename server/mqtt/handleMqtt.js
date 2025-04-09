@@ -79,9 +79,13 @@ const handleMqtt = (wss) => {
              }
              */
       const parseMessage = JSON.parse(message.toString());
-      // console.log(parseMessage, 77777)
+      // console.log(parseMessage, 77777);
 
       let existMachine = existMachinesCache.get(parseMessage.name);
+      // console.log({
+      //   existMachine: existMachine?.status,
+      //   parse: parseMessage?.status,
+      // });
 
       // create machine & log if machine not exist
       if (!existMachine) {
