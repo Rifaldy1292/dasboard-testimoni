@@ -232,42 +232,8 @@ module.exports = class MachineWebsocket {
         return;
       }
 
-      const machinesWithLastLog = await Promise.all(
-        machines.map(async (machine) => {
-          const lastLog = await MachineLog.findOne({
-            where: {
-              machine_id: machine.id,
-              createdAt: dateQuery(nowDate),
-            },
-            order: [["createdAt", "DESC"]],
-            attributes: ["running_today", "current_status", "createdAt"],
-          });
 
-          const runningTime = percentage(
-            lastLog?.running_today || 0,
-            perfectTime
-          );
-          const name = machine.dataValues.type ? `${machine.name} (${machine.dataValues.type})` : machine.name;
 
-          const result = {
-            status: lastLog?.current_status || "Stopped",
-            name,
-            description: countDescription(lastLog?.running_today || 0),
-            percentage: [runningTime, 100 - runningTime],
-          };
-          return result;
-        })
-      );
-
-      const data = {
-        data: machinesWithLastLog.sort((a, b) => {
-          const numberA = parseInt(a.name.slice(3));
-          const numberB = parseInt(b.name.slice(3));
-          return numberA - numberB;
-        }),
-        date: nowDate,
-      };
-      client.send(JSON.stringify({ type: "percentage", data }));
     } catch (e) {
       console.log({ e, message: e.message });
       client.send(

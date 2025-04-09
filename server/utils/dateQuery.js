@@ -3,20 +3,46 @@ const { Op } = require("sequelize");
 const config = {
   startHour: 7,
   startMinute: 30,
+  id: null,
 };
 
-// let endMinute = startMinute === 0 ? 59 : startMinute - 1
 
 /**
  * Creates a date query object for the given date option.
  * If no date option is provided, the current date is used.
  * The date query object contains the start and end of day dates in the format 'YYYY-MM-DDTHH:mm:ss.sssZ'.
  * The start of day is set to 7:30 AM and the end of day is set to 7:29:59 PM of the next day.
- * @param {string| undefined} [dateOption] - The date option in the format 'YYYY-MM-DD' or a Date object.
+ * @param {Date| undefined} [dateOption] - The date option to create the date query for.
  * @returns {Object} The date query object with startInDay and endOfDay properties.
  */
 
 const dateQuery = (dateOption) => {
+  const { startMinute, startHour } = config;
+  const endMinute = startMinute === 0 ? 59 : startMinute - 1;
+
+  // example: 2025-04-09
+  const nowDate = dateOption
+    ? new Date(dateOption).toLocaleDateString('en-CA')
+    : new Date().toLocaleDateString('en-CA');
+
+  // Start time at 7:00 AM on the given date
+  const startInDay = new Date(nowDate);
+  startInDay.setHours(startHour, startMinute, 0, 0);
+
+  // End time at 6:59 AM on the next day
+  const endOfDay = new Date(nowDate);
+  endOfDay.setDate(endOfDay.getDate() + 1);
+  // console.log(endOfDay.getDate());
+
+  endOfDay.setHours(startHour - 1, endMinute, 59, 999); // Set time to 6:59:59.999 AM
+
+  // Return the date range for the query
+  return {
+    [Op.between]: [startInDay, endOfDay],
+  };
+};
+
+const updateDateQuery = async (dateOption) => {
   const { startMinute, startHour } = config;
   const endMinute = startMinute === 0 ? 59 : startMinute - 1;
 

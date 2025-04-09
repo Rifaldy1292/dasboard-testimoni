@@ -15,6 +15,7 @@ onMounted(async () => {
 const confirm = useConfirm()
 const toast = useToast()
 const selectedDate = ref<Date>()
+const id = shallowRef<number | null>(null)
 const dateFromServer = ref<Date>()
 const loading = shallowRef<boolean>(false)
 
@@ -67,7 +68,8 @@ const editStartTime = async (): Promise<void> => {
     loading.value = true
     const { data } = await MachineServices.putStartTIme({
       reqStartHour: Number(selectedDate.value?.getHours()),
-      reqStartMinute: Number(selectedDate.value?.getMinutes())
+      reqStartMinute: Number(selectedDate.value?.getMinutes()),
+      id: id.value as number
     })
     toast.add({
       severity: 'success',
@@ -90,6 +92,7 @@ const fetchStartTime = async () => {
     const date = new Date(new Date().setHours(data.data.startHour, data.data.startMinute))
     selectedDate.value = date
     dateFromServer.value = date
+    id.value = data.data.id
   } catch (error) {
     console.log(error)
   } finally {

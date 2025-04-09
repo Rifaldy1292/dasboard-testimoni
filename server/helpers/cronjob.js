@@ -47,13 +47,26 @@ const createDailyConfig = async () => {
     try {
         console.log('trigger create daily config');
         const date = new Date().toLocaleDateString('en-CA')
-        const findingDailyConfig = await DailyConfig.findOne({
+        /** 
+         * @example 02:04:00
+         * @type {string | null} startSecondShift
+         */
+        const { dataValues } = await DailyConfig.findOne({
             where: {
                 date,
             },
-            attributes: ['date']
+            attributes: ['startFirstShift', 'id']
         });
-        if (findingDailyConfig) return;
+
+
+        if (dataValues) {
+            const { startFirstShift, id } = dataValues
+            config.startHour = startFirstShift.split(':')[0];
+            config.startMinute = startFirstShift.toString().split(':')[1];
+            config.id = id
+            return
+        }
+
 
         let secondShiftHour = config.startHour + 12;
         if (secondShiftHour >= 24) secondShiftHour -= 24;
@@ -63,7 +76,7 @@ const createDailyConfig = async () => {
             startSecondShift: `${secondShiftHour}:${config.startMinute}`,
         }
         await DailyConfig.create({
-            date: date,
+            date,
             ...defaultValueDailyConfig,
         });
     } catch (error) {

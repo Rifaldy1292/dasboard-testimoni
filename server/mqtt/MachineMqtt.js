@@ -216,7 +216,6 @@ const getRunningTimeMachineLog = async (machine_id) => {
       lastLog: logs[logs.length - 1],
     };
   } catch (error) {
-    // Log error and propagate it to the caller
     serverError(error, "getRunningTimeMachineLog");
   }
 };
