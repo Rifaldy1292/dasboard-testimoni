@@ -31,7 +31,7 @@ const MachineServices = {
   },
 
   getStartTime: (): Promise<
-    AxiosResponse<ApiResponse<{ startHour: number; startMinute: number }>>
+    AxiosResponse<ApiResponse<{ startHour: number; startMinute: number; id: number | null }>>
   > => {
     return API().get('/machines/start-time')
   },
@@ -39,6 +39,7 @@ const MachineServices = {
   putStartTIme: (body: {
     reqStartHour: number
     reqStartMinute: number
+    id: number
   }): Promise<AxiosResponse> => {
     return API().put('machines/start-time', body)
   },

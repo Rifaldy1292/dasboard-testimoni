@@ -46,4 +46,5 @@ const nowDate = new Date('2025-02-22 14:20');
 const prevDate = new Date('2025-02-22 13:00');
 const diff = nowDate - prevDate;
 
-console.log(formatTimeDifference(diff)); // Output: "1h"
+// console.log(formatTimeDifference(diff)); // Output: "1h"
+console.log(new Date().toLocaleDateString('en-CA'))

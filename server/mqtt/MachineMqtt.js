@@ -10,6 +10,7 @@ const { dateQuery } = require("../utils/dateQuery");
 const { decryptFromNumber } = require("../helpers/crypto");
 const { serverError } = require("../utils/serverError");
 const { existMachinesCache } = require("../cache");
+const { getRunningTimeMachineLog } = require("../utils/machineUtils");
 
 const createCuttingTime = async () => {
   try {
@@ -43,8 +44,9 @@ const isManualLog = (createdAt) => {
 // trigger when create log
 const checkIsManualLog = async (machine_id) => {
   try {
+    const range = await dateQuery()
     const lastMachineLog = await MachineLog.findOne({
-      where: { machine_id, createdAt: dateQuery() },
+      where: { machine_id, createdAt: range },
       attributes: ["id", "createdAt"],
       order: [["createdAt", "DESC"]],
     });
@@ -161,65 +163,7 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
   }
 };
 
-/**
- * Calculates the total running time of a machine based on today's machine logs
- *
- * @param {number|string} machine_id - ID of the machine to calculate running time for
- * @returns {Promise<{totalRunningTime: number, lastLog: {id: number, createdAt: Date} }|undefined>} Object containing totalRunningTime and lastMachineLog, or undefined if no logs exist
- * @throws {Error} If an error occurs during the calculation process
- */
-const getRunningTimeMachineLog = async (machine_id) => {
-  try {
-    // Fetch all machine logs for today, ordered by creation time
-    const logs = await MachineLog.findAll({
-      where: {
-        machine_id,
-        createdAt: dateQuery(),
-      },
-      order: [["createdAt", "ASC"]],
-      attributes: ["id", "createdAt", "current_status", "running_today"],
-    });
 
-    // If no logs found, return undefined
-    if (!logs.length) {
-      return undefined;
-    }
-
-    // Calculate total running time
-    let totalRunningTime = 0; // In milliseconds
-    let lastRunningTimestamp = null;
-
-    // Iterate through each log to calculate running duration
-    logs.forEach((log) => {
-      const { current_status, createdAt } = log;
-
-      if (current_status === "Running") {
-        // Record the start time of running status
-        lastRunningTimestamp = createdAt;
-      } else if (lastRunningTimestamp) {
-        // Calculate duration from last running timestamp to current log
-        const duration = new Date(createdAt) - new Date(lastRunningTimestamp);
-        totalRunningTime += duration;
-        lastRunningTimestamp = null;
-      }
-    });
-
-    // If the last status is still running, calculate duration until now
-    if (lastRunningTimestamp) {
-      const currentTime = new Date();
-      totalRunningTime += currentTime - new Date(lastRunningTimestamp);
-    }
-
-    // Return calculation results and the ID of the last log
-    return {
-      totalRunningTime,
-      lastLog: logs[logs.length - 1],
-    };
-  } catch (error) {
-    // Log error and propagate it to the caller
-    serverError(error, "getRunningTimeMachineLog");
-  }
-};
 
 /**
  * Creates a machine and logs the first entry with the provided message data.
@@ -324,7 +268,6 @@ const updateRunningTodayLastMachineLog = async (
       }
     );
 
-    // update running today in last log
   } catch (error) {
     serverError(error, "updateRunningTodayLastMachineLog");
   }

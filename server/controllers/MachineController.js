@@ -1,13 +1,14 @@
-const { Machine, MachineLog, CuttingTime, EncryptData } = require("../models");
+const { Machine, MachineLog, CuttingTime, EncryptData, DailyConfig } = require("../models");
 const dateCuttingTime = require("../utils/dateCuttingTime");
 const { serverError } = require("../utils/serverError");
 const countHour = require("../utils/countHour");
 
 const { PassThrough } = require("stream"); // ✅ Tambahkan ini
 const { Client } = require("basic-ftp");
-let { dateQuery, config } = require("../utils/dateQuery");
+let { config } = require("../utils/dateQuery");
 const { encryptToNumber } = require("../helpers/crypto");
 const { encryptionCache } = require("../cache");
+const { getRunningTimeMachineLog } = require("../utils/machineUtils");
 
 const hostHp = "192.168.8.119";
 const pwHp = "android";
@@ -229,24 +230,44 @@ class MachineController {
   }
 
   static getStartTime(req, res) {
+    const { startHour, id, startMinute } = config
     res.status(200).json({
-      data: { startHour: config.startHour, startMinute: config.startMinute },
+      data: { startHour, id, startMinute },
       message: "succesfully get start time ",
     });
   }
 
-  static editStartTime(req, res) {
+  static async editStartTime(req, res) {
     try {
-      const { reqStartHour, reqStartMinute } = req.body;
+      const { reqStartHour, reqStartMinute, id } = req.body;
       if (
-        (typeof reqStartHour !== "number", typeof reqStartMinute !== "number")
-      )
+        (typeof reqStartHour !== "number" || typeof reqStartMinute !== "number" || !id)
+      ) {
         return res
           .status(400)
-          .json({ message: "reqStartHour and reqStartMinute is Required" });
+          .json({ message: "invalid request!", status: 400 });
+      }
+      let hourStartSecond = reqStartHour + 12
+      if (hourStartSecond > 24) {
+        hourStartSecond = hourStartSecond - 24
+      }
+
+      const { startFirstShift, startSecondShift } = { startFirstShift: `${reqStartHour}:${reqStartMinute}`, startSecondShift: `${hourStartSecond}:${reqStartMinute}` };
+
+      const countUpdate = await DailyConfig.update(
+        { startFirstShift, startSecondShift },
+        { where: { id } }
+      );
+
+      if (countUpdate[0] === 0) {
+        return res
+          .status(400)
+          .json({ message: "failed to update start time" });
+      }
 
       config.startHour = reqStartHour;
       config.startMinute = reqStartMinute;
+      config.id = id;
       res.status(201).json({ message: "succesfully Edit start time " });
     } catch (error) {
       serverError(error, res, "failed to Edit start time");
@@ -262,6 +283,10 @@ class MachineController {
         where: { period: date },
         attributes: ["period", "target"],
       });
+
+      if (!cuttingTime) {
+        throw new Error("cutting time not found");
+      }
 
       // machineIds from query, default all
       const machineIds =
@@ -291,18 +316,18 @@ class MachineController {
         { length: totalDayInMonth },
         (_, i) => i + 1
       );
+      // const allDayInMonth = [9]
 
       const allDateInMonth = Array.from({ length: totalDayInMonth }, (_, i) => {
-        i++;
-        const day = new Date(date.getFullYear(), date.getMonth(), i + 1);
+        const day = new Date(date.getUTCFullYear(), date.getUTCMonth(), i + 1);
         return day;
-      });
+      })
 
       const cuttingTimeInMonth = await Promise.all(
         sortedMachineIds.map(async (machine) => {
           const data = await MachineController.getCuttingTimeByMachineId({
             machine_id: machine.id,
-            allDateInMonth,
+            allDateInMonth: allDateInMonth,
           });
           return { name: machine.name, ...data };
         })
@@ -328,26 +353,27 @@ class MachineController {
 
   static async getCuttingTimeByMachineId({ machine_id, allDateInMonth }) {
     try {
-      if (!machine_id || !allDateInMonth)
+      if (!machine_id || !allDateInMonth) {
         throw new Error("machine_id or allDateInMonth is required");
+      }
 
       const getLogAllDateInMonth = await Promise.all(
         allDateInMonth.map(async (dateValue) => {
-          console.log({ dateValue }, 333);
-          const log = await MachineLog.findOne({
-            where: {
-              machine_id,
-              createdAt: dateQuery(dateValue),
-            },
-            attributes: ["running_today"],
-            order: [["createdAt", "DESC"]],
-          });
+          // console.log({ dateValue }, 333);
+          const reqDate = new Date(dateValue).toLocaleDateString("en-CA");
+          const date = new Date().toLocaleDateString("en-CA");
+          if (reqDate > date) {
+            return 0;
+          }
+          const runningToday = await getRunningTimeMachineLog(machine_id, dateValue);
 
-          const numberOfLog = log?.running_today ?? 0;
+          const numberOfLog = runningToday?.totalRunningTime ?? 0;
 
           return numberOfLog;
         })
       );
+
+      // console.log({ getLogAllDateInMonth })
 
       // const example = [1, 2, 3, 4, 9, 0, 2, 0, 1, 0]
       // expect res[1, 3, 6, 10, 19, 19, 21, 21, 22, 22]
@@ -370,8 +396,7 @@ class MachineController {
 
       return { data: convertCountLogToHours, actual: runningToday };
     } catch (error) {
-      console.error({ error }, 88888888888888);
-      throw new Error(error);
+      serverError(error, "Failed to get cutting time by machine id");
     }
   }
 
