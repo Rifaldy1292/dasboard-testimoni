@@ -51,7 +51,7 @@ const createDailyConfig = async () => {
          * @example 02:04:00
          * @type {string | null} startSecondShift
          */
-        const { dataValues } = await DailyConfig.findOne({
+        const findDailyConfig = await DailyConfig.findOne({
             where: {
                 date,
             },
@@ -59,8 +59,8 @@ const createDailyConfig = async () => {
         });
 
 
-        if (dataValues) {
-            const { startFirstShift, id } = dataValues
+        if (findDailyConfig) {
+            const { startFirstShift, id } = findDailyConfig.dataValues
             config.startHour = startFirstShift.split(':')[0];
             config.startMinute = startFirstShift.toString().split(':')[1];
             config.id = id

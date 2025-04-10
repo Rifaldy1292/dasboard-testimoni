@@ -1,6 +1,7 @@
 const { Machine, MachineLog, User } = require("../models");
 const { percentage, totalHour } = require("../utils/countHour");
 const { dateQuery } = require("../utils/dateQuery");
+const { getRunningTimeMachineLog } = require("../utils/machineUtils");
 
 /**
  * Perfect time constant.
@@ -28,9 +29,8 @@ function convertDateTime(date) {
  * @returns {string} The running time description.
  */
 function countDescription(totalRunningHours) {
-  const count = totalHour(totalRunningHours);
-  const hour = count.split(".")[0];
-  const minute = count.split(".")[1];
+  const hour = Math.floor(totalRunningHours / (1000 * 60 * 60));
+  const minute = Math.round((totalRunningHours / (1000 * 60)) % 60);
   return `${hour} hour ${minute} minute / ${perfectTime} hour`;
 }
 
@@ -177,25 +177,28 @@ module.exports = class MachineWebsocket {
 
       const machinesWithLastLog = await Promise.all(
         machines.map(async (machine) => {
-          const lastLog = await MachineLog.findOne({
-            where: {
-              machine_id: machine.id,
-              createdAt: dateQuery(nowDate),
-            },
-            order: [["createdAt", "DESC"]],
-            attributes: ["running_today", "current_status", "createdAt"],
-          });
+          const { dataValues } = machine;
+          const getRunningTime = await getRunningTimeMachineLog(dataValues.id, date ? nowDate : undefined);
+          // console.log({ totalRunningTime, lastLog });
+          if (!getRunningTime) {
+            return {
+              status: 'Stopped',
+              name: dataValues.type ? `${machine.name} (${dataValues.type})` : machine.name,
+              description: countDescription(0),
+              percentage: [0, 100],
+            };
+          }
 
           const runningTime = percentage(
-            lastLog?.running_today || 0,
+            getRunningTime.totalRunningTime ?? 0,
             perfectTime
           );
-          const name = machine.dataValues.type ? `${machine.name} (${machine.dataValues.type})` : machine.name;
+          const name = dataValues.type ? `${machine.name} (${dataValues.type})` : machine.name;
 
           const result = {
-            status: lastLog?.current_status || "Stopped",
+            status: getRunningTime.lastLog.dataValues.current_status,
             name,
-            description: countDescription(lastLog?.running_today || 0),
+            description: countDescription(getRunningTime.totalRunningTime || 0),
             percentage: [runningTime, 100 - runningTime],
           };
           return result;
@@ -210,30 +213,8 @@ module.exports = class MachineWebsocket {
         }),
         date: nowDate,
       };
+      // console.log(data.data.map((a) => a.percentage), 3)
       client.send(JSON.stringify({ type: "percentage", data }));
-    } catch (e) {
-      console.log({ e, message: e.message });
-      client.send(
-        JSON.stringify({ type: "error", message: "Failed to get percentage" })
-      );
-    }
-  }
-
-  static async newPercentages(client, date) {
-    try {
-      const nowDate = date ? new Date(date) : new Date();
-
-      const machines = await Machine.findAll({
-        attributes: ["id", "name", "type"],
-      });
-      // check if machines is empty or nowDate is greater than current date
-      if (!machines.length || nowDate.getTime() > new Date().getTime()) {
-        client.send(JSON.stringify({ type: "percentage", data: [] }));
-        return;
-      }
-
-
-
     } catch (e) {
       console.log({ e, message: e.message });
       client.send(
