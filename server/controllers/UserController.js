@@ -10,9 +10,10 @@ const { dateQuery } = require("../utils/dateQuery");
 class UserController {
   static async getUserMAchine(req, res) {
     try {
+      const range = await dateQuery();
       const machineLogQuery = {
         model: MachineLog,
-        where: { createdAt: dateQuery() },
+        where: { createdAt: range },
         order: [["createdAt", "DESC"]],
         limit: 1,
         attributes: [

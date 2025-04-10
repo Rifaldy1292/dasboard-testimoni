@@ -44,8 +44,9 @@ const isManualLog = (createdAt) => {
 // trigger when create log
 const checkIsManualLog = async (machine_id) => {
   try {
+    const range = await dateQuery()
     const lastMachineLog = await MachineLog.findOne({
-      where: { machine_id, createdAt: dateQuery() },
+      where: { machine_id, createdAt: range },
       attributes: ["id", "createdAt"],
       order: [["createdAt", "DESC"]],
     });
@@ -267,7 +268,6 @@ const updateRunningTodayLastMachineLog = async (
       }
     );
 
-    // update running today in last log
   } catch (error) {
     serverError(error, "updateRunningTodayLastMachineLog");
   }

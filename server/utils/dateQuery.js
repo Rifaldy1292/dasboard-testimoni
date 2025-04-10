@@ -25,13 +25,14 @@ const dateQuery = async (dateOption) => {
   let nowDate = new Date().toLocaleDateString('en-CA');
 
   if (dateOption) {
-    const { startFirstShift, date } = await DailyConfig.findOne({
+    const findDailyConfig = await DailyConfig.findOne({
       where: {
         date: new Date(dateOption.toLocaleDateString('en-CA')),
       },
       attributes: ['startFirstShift', 'date'],
     });
-    if (startFirstShift) {
+    if (findDailyConfig) {
+      const { startFirstShift, date } = findDailyConfig.dataValues;
       const [stringStartHour, stringStartMinute] = startFirstShift.split(':').map(Number);
       nowDate = date;
       startHour = Number(stringStartHour);
@@ -59,9 +60,3 @@ const dateQuery = async (dateOption) => {
 };
 
 module.exports = { dateQuery, config };
-
-
-// // example: 2025-04-09
-// let nowDate = new Date().toLocaleDateString('en-CA');
-// let prevDate = '2025-04-08';
-// // console.log(nowDate > prevDate, 22, nowDate, prevDate);
