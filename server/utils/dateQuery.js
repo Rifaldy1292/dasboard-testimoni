@@ -1,4 +1,6 @@
 const { Op } = require("sequelize");
+const { DailyConfig } = require('../models')
+
 
 const config = {
   startHour: 7,
@@ -16,14 +18,29 @@ const config = {
  * @returns {Object} The date query object with startInDay and endOfDay properties.
  */
 
-const dateQuery = (dateOption) => {
-  const { startMinute, startHour } = config;
-  const endMinute = startMinute === 0 ? 59 : startMinute - 1;
-
+const dateQuery = async (dateOption) => {
+  let startMinute = config.startMinute;
+  let startHour = config.startHour;
   // example: 2025-04-09
-  const nowDate = dateOption
-    ? new Date(dateOption).toLocaleDateString('en-CA')
-    : new Date().toLocaleDateString('en-CA');
+  let nowDate = new Date().toLocaleDateString('en-CA');
+
+  if (dateOption) {
+    const findDailyConfig = await DailyConfig.findOne({
+      where: {
+        date: new Date(dateOption.toLocaleDateString('en-CA')),
+      },
+      attributes: ['startFirstShift', 'date'],
+    });
+    if (findDailyConfig) {
+      const { startFirstShift, date } = findDailyConfig.dataValues;
+      const [stringStartHour, stringStartMinute] = startFirstShift.split(':').map(Number);
+      nowDate = date;
+      startHour = Number(stringStartHour);
+      startMinute = Number(stringStartMinute);
+    }
+  }
+
+  const endMinute = startMinute === 0 ? 59 : startMinute - 1;
 
   // Start time at 7:00 AM on the given date
   const startInDay = new Date(nowDate);
@@ -34,33 +51,7 @@ const dateQuery = (dateOption) => {
   endOfDay.setDate(endOfDay.getDate() + 1);
   // console.log(endOfDay.getDate());
 
-  endOfDay.setHours(startHour - 1, endMinute, 59, 999); // Set time to 6:59:59.999 AM
-
-  // Return the date range for the query
-  return {
-    [Op.between]: [startInDay, endOfDay],
-  };
-};
-
-const updateDateQuery = async (dateOption) => {
-  const { startMinute, startHour } = config;
-  const endMinute = startMinute === 0 ? 59 : startMinute - 1;
-
-  // example: 2025-04-09
-  const nowDate = dateOption
-    ? new Date(dateOption).toLocaleDateString('en-CA')
-    : new Date().toLocaleDateString('en-CA');
-
-  // Start time at 7:00 AM on the given date
-  const startInDay = new Date(nowDate);
-  startInDay.setHours(startHour, startMinute, 0, 0);
-
-  // End time at 6:59 AM on the next day
-  const endOfDay = new Date(nowDate);
-  endOfDay.setDate(endOfDay.getDate() + 1);
-  // console.log(endOfDay.getDate());
-
-  endOfDay.setHours(startHour - 1, endMinute, 59, 999); // Set time to 6:59:59.999 AM
+  endOfDay.setHours(startHour, endMinute, 59, 999); // Set time to 6:59:59.999 AM
 
   // Return the date range for the query
   return {
@@ -69,8 +60,3 @@ const updateDateQuery = async (dateOption) => {
 };
 
 module.exports = { dateQuery, config };
-// jakarta timezone
-// const test = new Date("2025-02-22 14:20");
-// const test2 = new Date(test);
-// // test2.setUTCHours(7, 0, 0, 0);
-// console.log(test2, 8);

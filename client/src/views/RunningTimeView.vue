@@ -7,12 +7,14 @@ import useWebSocket from '@/composables/useWebsocket'
 import DataNotFound from '@/components/common/DataNotFound.vue'
 import DatePickerDay from '@/components/common/DatePickerDay.vue'
 import { computed, ref, shallowRef, watch } from 'vue'
+import { useRoute } from 'vue-router'
 // import { watchEffect } from 'vue'
 const { percentageMachines, loadingWebsocket, sendMessage } = useWebSocket('percentage')
 
 const nowDate = new Date()
 const dateOption = ref<Date>(nowDate)
 const intervalId = shallowRef<number | null>(null)
+const route = useRoute()
 
 watch(
   () => dateOption.value,
@@ -33,6 +35,7 @@ watch(
   ([valueDateOPtion, percentageData]) => {
     if (intervalId.value) clearInterval(intervalId.value)
     // refetch per 5 minute if date not change
+    if (route.path !== '/running-time') return
     if (valueDateOPtion === nowDate && percentageData?.length) {
       intervalId.value = setInterval(
         () => {
