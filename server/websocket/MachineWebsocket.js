@@ -65,14 +65,14 @@ module.exports = class MachineWebsocket {
       // default date is today
       const currentDate = date || new Date();
       const dateOption = new Date(currentDate);
+      const rules = await dateQuery(date ? dateOption : undefined);
 
       const machines = await Machine.findAll({
         include: [
           {
             model: MachineLog,
             where: {
-              // ambil data sesuai hari ini
-              createdAt: dateQuery(dateOption),
+              createdAt: rules,
             },
             attributes: [
               "id",
