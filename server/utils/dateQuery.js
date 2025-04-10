@@ -34,7 +34,7 @@ const dateQuery = async (dateOption) => {
     if (findDailyConfig) {
       const { startFirstShift, date } = findDailyConfig.dataValues;
       const [stringStartHour, stringStartMinute] = startFirstShift.split(':').map(Number);
-      nowDate = date;
+      nowDate = new Date(date).toLocaleDateString('en-CA');
       startHour = Number(stringStartHour);
       startMinute = Number(stringStartMinute);
     }

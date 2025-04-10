@@ -64,7 +64,7 @@ const menuGroups = computed<MenuGroup[]>(() => {
             {
               label: 'For Operators',
               route: '/manual',
-              visible: role !== 'Admin',
+              visible: false,
               icon: `<i class="fa-solid fa-table fa-fade"></i>  `
             }
           ]
