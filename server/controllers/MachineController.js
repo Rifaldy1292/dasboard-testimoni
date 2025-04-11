@@ -11,7 +11,6 @@ let { config } = require("../utils/dateQuery");
 const { encryptToNumber } = require("../helpers/crypto");
 const { encryptionCache } = require("../cache");
 const { getRunningTimeMachineLog } = require("../utils/machineUtils");
-const { error } = require("console");
 
 const hostHp = "192.168.43.99";
 const pwHp = "android";
@@ -59,15 +58,15 @@ class MachineController {
 
       // console.log(machineIp.dataValues.ip_address, 22)
       await client.access({
-        // host: ip_address,
-        // port: 21,
-        // user: "MC",
-        // password: "MC",
-        host: hostHp,
-        port: portHp,
-        user: pwHp,
-        password: pwHp,
-        secure: false,
+        host: ip_address,
+        port: 21,
+        user: "MC",
+        password: "MC",
+        // host: hostHp,
+        // port: portHp,
+        // user: pwHp,
+        // password: pwHp,
+        // secure: false,
       });
 
       const remotePath = "/Storage Card/USER/DataCenter";
@@ -184,14 +183,14 @@ class MachineController {
           .json({ message: "Machine not found", status: 400 });
       }
       await client.access({
-        // host: ip_address,
-        // port: 21,
-        // user: "MC",
-        // password: "MC",
-        host: hostHp,
-        port: portHp,
-        user: pwHp,
-        password: pwHp,
+        host: ip_address,
+        port: 21,
+        user: "MC",
+        password: "MC",
+        // host: hostHp,
+        // port: portHp,
+        // user: pwHp,
+        // password: pwHp,
         secure: false,
       });
 
@@ -262,14 +261,14 @@ class MachineController {
       // console.log(ip_address, 222);
 
       await client.access({
-        host: hostHp,
-        port: portHp,
-        user: pwHp,
-        password: pwHp,
-        // host: ip_address,
-        // port: 21,
-        // user: "MC",
-        // password: "MC",
+        // host: hostHp,
+        // port: portHp,
+        // user: pwHp,
+        // password: pwHp,
+        host: ip_address,
+        port: 21,
+        user: "MC",
+        password: "MC",
         secure: false,
       });
 
