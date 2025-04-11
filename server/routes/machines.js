@@ -13,7 +13,59 @@ machineRouter.get(
     MachineController.getCuttingTime
 );
 
-const date = new Date()
+
+// dropdown
+machineRouter.get(
+    "/options",
+    authMiddleware,
+    MachineController.getMachineOption
+)
+
+const storage = multer.memoryStorage();
+const middlewareTransferFiles = multer({ storage: storage, limits: { fieldSize: 50 * 1024 * 1024, } });
+
+machineRouter.post(
+    "/transfer",
+    middlewareTransferFiles.array('files', 300),
+    authMiddleware,
+    MachineController.transferFiles)
+
+machineRouter.post(
+    "/encrypt-content",
+    authMiddleware,
+    MachineController.encyptContentValue
+)
+
+machineRouter.get(
+    "/list-files/:machine_id",
+    authMiddleware,
+    MachineController.getListFiles
+)
+
+machineRouter.delete(
+    "/remove-files",
+    authMiddleware,
+    MachineController.removeFileFromMachine
+)
+
+machineRouter.post(
+    "/undo-delete-files",
+    authMiddleware,
+    MachineController.undoRemove
+)
+machineRouter.delete(
+    "/clear-cache",
+    authMiddleware,
+    MachineController.clearCache
+)
+
+machineRouter.get('/start-time', authMiddleware, MachineController.getStartTime)
+machineRouter.put('/start-time', authMiddleware, MachineController.editStartTime)
+
+
+
+/**
+ * const date = new Date()
 const allDateInMonth = Array.from({ length: 31 }, (_, i) => {
     i++
     const day = new Date(date.getFullYear(), date.getMonth(), i + 1)
@@ -52,46 +104,7 @@ machineRouter.get(
     }
 );
 
-// dropdown
-machineRouter.get(
-    "/options",
-    authMiddleware,
-    MachineController.getMachineOption
-)
-
-const storage = multer.memoryStorage();
-const middlewareTransferFiles = multer({ storage: storage, limits: { fieldSize: 50 * 1024 * 1024, } });
-
-machineRouter.post(
-    "/transfer",
-    middlewareTransferFiles.array('files', 300),
-    authMiddleware,
-    MachineController.transferFiles)
-
-machineRouter.post(
-    "/encrypt-content",
-    authMiddleware,
-    MachineController.encyptContentValue
-)
-
-machineRouter.get(
-    "/list-files/:machine_id",
-    authMiddleware,
-    MachineController.getListFiles
-)
-
-machineRouter.delete(
-    "/remove-files",
-    authMiddleware,
-    MachineController.removeFileFromMachine
-)
-machineRouter.delete(
-    "/clear-cache",
-    authMiddleware,
-    MachineController.clearCache
-)
-
-machineRouter.get('/start-time', authMiddleware, MachineController.getStartTime)
-machineRouter.put('/start-time', authMiddleware, MachineController.editStartTime)
+ */
 
 module.exports = machineRouter;
+

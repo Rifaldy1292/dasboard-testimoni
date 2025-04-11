@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import { useFTP } from '@/composables/useFTP'
 import { useMachine } from '@/composables/useMachine'
 import useToast from '@/composables/useToast'
@@ -13,14 +14,17 @@ const confirm = useConfirm()
 const { selectedOneMachine } = useMachine()
 const { selectedAction, inputFiles } = useFTP()
 
-const fileList = ref<string[]>([])
+type FileList = {
+  fileName: string
+  isDeleted: boolean
+}
+const fileList = ref<FileList[]>([])
 const loading = shallowRef(false)
 
 watch(
   [() => selectedOneMachine.value?.id, () => selectedAction.value],
   ([machine_id, action]) => {
-    console.log(123)
-    if (action === 'Remove File') {
+    if (action !== 'Remove File') {
       inputFiles.value = []
     }
     if (machine_id && action === 'Remove File') {
@@ -45,32 +49,42 @@ const fetchFileList = async (machine_id: number): Promise<void> => {
   }
 }
 
-const handleRemoveFile = async (
-  button: 'removeAll' | 'remove',
+const handleSuccessOpeeration = async (message: string): Promise<void> => {
+  toast.add({
+    severity: 'success',
+    summary: 'Success',
+    detail: message
+  })
+  return await fetchFileList(selectedOneMachine.value?.id as number)
+}
+
+const handleClickIcon = async (
+  button: 'removeAll' | 'remove' | 'undo',
   fileName?: string
 ): Promise<void> => {
   try {
     loading.value = true
-    let message = ''
-    if (button === 'removeAll') {
-      const { data } = await MachineServices.deleteFile({
-        machine_id: selectedOneMachine.value?.id as number
-      })
-      message = data.message
-    } else {
-      const { data } = await MachineServices.deleteFile({
-        fileName: fileName as string,
-        machine_id: selectedOneMachine.value?.id as number
-      })
-      message = data.message
+    const machine_id = selectedOneMachine.value?.id as number
+    switch (button) {
+      case 'removeAll': {
+        const { data } = await MachineServices.deleteFile({ machine_id })
+        return handleSuccessOpeeration(data.message)
+      }
+      case 'remove': {
+        const { data } = await MachineServices.deleteFile({
+          fileName: fileName as string,
+          machine_id
+        })
+        return handleSuccessOpeeration(data.message)
+      }
+      case 'undo': {
+        const { data } = await MachineServices.undoDeleteFile({
+          fileName: fileName as string,
+          machine_id
+        })
+        return handleSuccessOpeeration(data.message)
+      }
     }
-    toast.add({
-      severity: 'success',
-      summary: 'Success',
-      detail: message
-    })
-
-    fetchFileList(selectedOneMachine.value?.id as number)
   } catch (error) {
     handleErrorAPI(error, toast)
   } finally {
@@ -78,22 +92,30 @@ const handleRemoveFile = async (
   }
 }
 
-const handleClickButton = (button: 'removeAll' | 'remove', fileName?: string): void => {
+const handleClickButton = (button: 'removeAll' | 'remove' | 'undo', fileName?: string): void => {
   if (!fileList.value.length) return
-  const header =
-    button === 'removeAll'
-      ? `Remove All file from ${selectedOneMachine.value?.name}`
-      : `Remove file ${fileName} from ${selectedOneMachine.value?.name}`
+  let header = ''
+  switch (button) {
+    case 'removeAll':
+      header = 'Remove All Files'
+      break
+    case 'remove':
+      header = 'Remove File'
+      break
+    case 'undo':
+      header = 'Undo Remove File'
+      break
+  }
   confirm.require({
     header,
-    message: 'This action cannot be undo',
+    message: 'Are you sure?',
     icon: 'pi pi-exclamation-triangle',
     accept: () => {
-      handleRemoveFile(button, fileName)
+      handleClickIcon(button, fileName)
     },
     reject: () => {},
     acceptProps: {
-      label: 'Remove',
+      label: button === 'undo' ? 'Undo' : 'Remove',
       severity: 'danger'
     },
     rejectProps: {
@@ -106,6 +128,7 @@ const handleClickButton = (button: 'removeAll' | 'remove', fileName?: string): v
 </script>
 
 <template>
+  <LoadingAnimation :state="loading" />
   <Button
     v-if="fileList.length"
     disabled
@@ -117,12 +140,20 @@ const handleClickButton = (button: 'removeAll' | 'remove', fileName?: string): v
   <DataTable :loading :value="fileList" :size="'large'" lazy showGridlines selection-mode="single">
     <Column header="File Name" field="fileName"> </Column>
     <Column :header="'Actions'" class="!text-end">
-      <template #body="{ data }: { data: { fileName: string } }">
-        <div class="flex gap-3">
+      <template #body="{ data }: { data: FileList }">
+        <div class="flex gap-5">
           <i
+            v-if="!data.isDeleted"
             v-tooltip.top="'delete'"
             @click="handleClickButton('remove', data.fileName)"
             class="pi pi-trash !text-red-500"
+            style="font-size: 1rem"
+          />
+          <i
+            v-if="data.isDeleted"
+            v-tooltip.top="'undo'"
+            @click="handleClickButton('undo', data.fileName)"
+            class="pi pi-undo !text-blue-500"
             style="font-size: 1rem"
           />
         </div>

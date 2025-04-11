@@ -13,10 +13,10 @@ import { contentMainProgram } from './utils/contentMainProgram.util'
 import type { MachineOption } from '@/types/machine.type'
 import type { ContentFile } from '@/types/ftp.type'
 import type { UserLocalStorage } from '@/types/localStorage.type'
-import TableFile from './TableFile.vue'
 import { useConfirm } from 'primevue'
 import { useRouter } from 'vue-router'
 import happpySound from '@/assets/sounds/happy.mp3'
+import RemoveFile from './RemoveFile.vue'
 
 onUnmounted(() => {
   handleClearFile()
@@ -298,8 +298,8 @@ const handleExecute = (): void => {
           </button>
         </div>
       </template>
-      <template v-else>
-        <TableFile />
+      <template v-else-if="selectedAction === 'Remove File'">
+        <RemoveFile />
       </template>
     </div>
     <template v-if="!isCreatedMainProgram">

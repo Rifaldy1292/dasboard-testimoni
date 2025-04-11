@@ -44,11 +44,20 @@ const MachineServices = {
     return API().put('machines/start-time', body)
   },
 
-  getFileList(machine_id: number): Promise<AxiosResponse<ApiResponse<string[]>>> {
+  getFileList(
+    machine_id: number
+  ): Promise<AxiosResponse<ApiResponse<{ fileName: string; isDeleted: boolean }[]>>> {
     return API().get(`/machines/list-files/${machine_id}`)
   },
   deleteFile(params: { fileName?: string; machine_id: number }): Promise<AxiosResponse> {
     return API({ params }).delete(`/machines/remove-files`)
+  },
+
+  undoDeleteFile(params: {
+    fileName: string
+    machine_id: number
+  }): Promise<AxiosResponse<ApiResponse<unknown>>> {
+    return API({ params }).post(`/machines/undo-delete-files`)
   },
 
   deleteClearCache(): Promise<AxiosResponse> {

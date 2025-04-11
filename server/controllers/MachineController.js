@@ -4,18 +4,22 @@ const { serverError } = require("../utils/serverError");
 const countHour = require("../utils/countHour");
 
 const { PassThrough } = require("stream"); // ✅ Tambahkan ini
+const fs = require("fs");
+const path = require("path");
 const { Client } = require("basic-ftp");
 let { config } = require("../utils/dateQuery");
 const { encryptToNumber } = require("../helpers/crypto");
 const { encryptionCache } = require("../cache");
 const { getRunningTimeMachineLog } = require("../utils/machineUtils");
+const { error } = require("console");
 
-const hostHp = "192.168.8.119";
+const hostHp = "192.168.43.99";
 const pwHp = "android";
 const portHp = 2221;
+const localDir = (machine_id) => path.join(__dirname, "..", "public", "cnc_files", machine_id);
 
 class MachineController {
-  static clearCache(req, res) {
+  static clearCache(_, res) {
     encryptionCache.clear();
     res.status(200).json({ message: "cache cleared" });
   }
@@ -23,23 +27,21 @@ class MachineController {
    * @description Transfer file to machine using FTP
    * @param {request} req - Request object
    * @param {response} res - Response object
+   * @param {boolean} isUndo - If true, undo the transfer
    */
-  static async transferFiles(req, res) {
+  static async transferFiles(req, res, isUndo) {
     const client = new Client();
     try {
-      /**
-       * @prop {string} machine_id - Machine ID
-       */
       const { machine_id } = req.body;
       /**
        * @prop {Array} files - Array of uploaded files
        */
       const { files } = req;
-      console.log({ body: req.body });
-      if (!machine_id)
+      if (!machine_id) {
         return res
           .status(400)
           .json({ message: "machine_id is required", status: 400 });
+      }
       if (!files || files.length === 0) {
         return res
           .status(400)
@@ -57,14 +59,14 @@ class MachineController {
 
       // console.log(machineIp.dataValues.ip_address, 22)
       await client.access({
-        host: ip_address,
-        port: 21,
-        user: "MC",
-        password: "MC",
-        // host: hostHp,
-        // port: portHp,
-        // user: pwHp,
-        // password: pwHp,
+        // host: ip_address,
+        // port: 21,
+        // user: "MC",
+        // password: "MC",
+        host: hostHp,
+        port: portHp,
+        user: pwHp,
+        password: pwHp,
         secure: false,
       });
 
@@ -87,7 +89,7 @@ class MachineController {
         await client.uploadFrom(stream, path);
       }
 
-      // ✅ Setelah sukses transfer, simpan hasil enkripsi ke database
+      //  Setelah sukses transfer, simpan hasil enkripsi ke database
       for (const [encrypt_number, original_text] of encryptionCache.entries()) {
         const existingData = await EncryptData.findOne({
           where: { encrypt_number },
@@ -98,18 +100,16 @@ class MachineController {
         }
       }
 
-      // ✅ Hapus dari Map setelah tersimpan ke database
+      //  Hapus dari Map setelah tersimpan ke database
       encryptionCache.clear();
 
       res
         .status(200)
-        .json({ status: 200, message: "Files uploaded successfully" });
+        .json({ status: 200, message: ` Successfully ${isUndo ? 'undo' : 'remove'} files` });
     } catch (error) {
       console.log({ error, message: error.message });
       if (error.code === "ECONNREFUSED")
-        return res
-          .status(500)
-          .json({ message: "Failed to connect to machine", status: 500 });
+        return serverError(error, res, "Failed to connect to machine")
       if (
         error.code === 550 ||
         error.message === "550 STOR requested action not taken: File exists."
@@ -122,6 +122,36 @@ class MachineController {
       serverError(error, res, "Failed to transfer files");
     } finally {
       client.close();
+    }
+  }
+
+  static async undoRemove(req, res) {
+    try {
+      const { machine_id, fileName } = req.query;
+      if (!machine_id || !fileName) {
+        return res
+          .status(400)
+          .json({ message: "machine_id and fileName are required", status: 400 });
+      }
+
+      // check if file exists on pc
+      const localDirectory = localDir(machine_id);
+      const filePath = path.join(localDirectory, fileName);
+      if (!fs.existsSync(filePath)) {
+        return res
+          .status(400)
+          .json({ message: "File not found on PC", status: 400 });
+      }
+      //get file 
+      const file = fs.readFileSync(filePath);
+      req.files = [{ buffer: file, originalname: fileName }];
+      req.body = { machine_id };
+
+      await MachineController.transferFiles(req, res, true);
+      // remove file from pc
+      fs.unlinkSync(filePath);
+    } catch (error) {
+      serverError(error, res, 'Failed to undo file')
     }
   }
 
@@ -148,26 +178,42 @@ class MachineController {
         attributes: ["ip_address", "name"],
       });
 
-      if (!ip_address)
+      if (!ip_address) {
         return res
           .status(400)
           .json({ message: "Machine not found", status: 400 });
+      }
       await client.access({
-        // host: "172.20.80.210",//mesin CNC
-        // host: "192.168.8.119",//mesin CNC
-        host: ip_address,
-        port: 21,
-        user: "MC",
-        password: "MC",
+        // host: ip_address,
+        // port: 21,
+        // user: "MC",
+        // password: "MC",
+        host: hostHp,
+        port: portHp,
+        user: pwHp,
+        password: pwHp,
         secure: false,
       });
 
       const customMachine = name === "MC-14" || name === "MC-15";
       const remotePath = "/Storage Card/USER/DataCenter";
+      const localDirectory = localDir(machine_id);
+      // make sure directory public/cnc_files/machine_id exist on pc
+      if (!fs.existsSync(localDirectory)) {
+        fs.mkdirSync(localDirectory, { recursive: true });
+      }
 
       // remove all files
       if (!fileName) {
         if (!customMachine) {
+          // // push all files in machine to public/cnc_files/machine_id
+          const allFiles = await client.list();
+          for (const file of allFiles) {
+            await client.downloadTo(
+              path.join(localDirectory, file.name),
+              file.name
+            );
+          }
           await client.removeDir("/");
           return res
             .status(200)
@@ -180,11 +226,13 @@ class MachineController {
           .status(200)
           .json({ status: 200, message: `All files removed from ${name}` });
       }
-
       // remove single file
       if (customMachine) {
         await client.cd(remotePath);
       }
+
+      await client.downloadTo(path.join(localDirectory, fileName), fileName);
+
       await client.remove(fileName);
       return res.status(200).json({
         status: 200,
@@ -192,6 +240,67 @@ class MachineController {
       });
     } catch (error) {
       serverError(error, res, "Failed to remove all file from machine");
+    } finally {
+      client.close();
+    }
+  }
+
+  static async getListFiles(req, res) {
+    const client = new Client();
+    try {
+      const { machine_id } = req.params;
+
+      const { ip_address, name } = await Machine.findOne({
+        where: { id: machine_id },
+        attributes: ["ip_address", "name"],
+      });
+      if (!ip_address)
+        return res
+          .status(400)
+          .json({ message: "Machine not found", status: 400 });
+
+      // console.log(ip_address, 222);
+
+      await client.access({
+        host: hostHp,
+        port: portHp,
+        user: pwHp,
+        password: pwHp,
+        // host: ip_address,
+        // port: 21,
+        // user: "MC",
+        // password: "MC",
+        secure: false,
+      });
+
+      const customDirMachine = name === "MC-14" || name === "MC-15";
+      if (customDirMachine) {
+        const remotePath = "/Storage Card/USER/DataCenter/";
+        await client.cd(remotePath);
+      }
+      // get all files from local directory
+      const files = await client.list();
+      const fileNames = files.map((file) => ({ fileName: file.name, isDeleted: false }));
+      const localDirectory = localDir(machine_id);
+
+      if (!fs.existsSync(localDirectory)) {
+        fs.mkdirSync(localDirectory, { recursive: true });
+      }
+      const localFiles = fs.readdirSync(localDirectory);
+      const localFileNames = localFiles.map((file) => ({
+        fileName: file,
+        isDeleted: true,
+      }));
+      const allFiles = [...fileNames, ...localFileNames];
+      // compare local files with remote
+
+      res.status(200).json({
+        status: 200,
+        message: "success get list files",
+        data: allFiles,
+      });
+    } catch (error) {
+      serverError(error, res, "Failed to get list files");
     } finally {
       client.close();
     }
@@ -437,52 +546,7 @@ class MachineController {
     }
   }
 
-  static async getListFiles(req, res) {
-    const client = new Client();
-    try {
-      const { machine_id } = req.params;
 
-      const { ip_address, name } = await Machine.findOne({
-        where: { id: machine_id },
-        attributes: ["ip_address", "name"],
-      });
-      if (!ip_address)
-        return res
-          .status(400)
-          .json({ message: "Machine not found", status: 400 });
-
-      console.log(ip_address, 222);
-
-      await client.access({
-        // host: "172.20.80.210",//mesin CNC
-        // host: "192.168.8.119",//mesin CNC
-        host: ip_address,
-        port: 21,
-        user: "MC",
-        password: "MC",
-        secure: false,
-      });
-      if (name === "MC-14" || name === "MC-15") {
-        const remotePath = "/Storage Card/USER/DataCenter/";
-        await client.cd(remotePath);
-      }
-      const files = await client.list();
-      const fileNames = files.map((file) => {
-        return {
-          fileName: file.name,
-        };
-      });
-      res.status(200).json({
-        status: 200,
-        message: "success get list files",
-        data: fileNames,
-      });
-    } catch (error) {
-      serverError(error, res, "Failed to get list files");
-    } finally {
-      client.close();
-    }
-  }
 }
 
 const objectTargetCuttingTime = (target, totalDayInMonth) => {
