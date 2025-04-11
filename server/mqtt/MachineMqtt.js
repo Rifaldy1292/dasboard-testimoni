@@ -10,7 +10,7 @@ const { dateQuery } = require("../utils/dateQuery");
 const { decryptFromNumber } = require("../helpers/crypto");
 const { serverError } = require("../utils/serverError");
 const { existMachinesCache } = require("../cache");
-const { getRunningTimeMachineLog } = require("../utils/machineUtils");
+// const { getRunningTimeMachineLog } = require("../utils/machineUtils");
 
 const createCuttingTime = async () => {
   try {
@@ -37,17 +37,17 @@ const createCuttingTime = async () => {
 const isManualLog = (createdAt) => {
   if (!createdAt) return false;
   const timeDifference = new Date() - new Date(createdAt);
-  const fiveTenMinutes = 15 * 60 * 1000;
-  return timeDifference <= fiveTenMinutes;
+  const sixTeenMinutes = 16 * 60 * 1000;
+  return timeDifference < sixTeenMinutes;
 };
 
 // trigger when create log
 const checkIsManualLog = async (machine_id) => {
   try {
-    const range = await dateQuery()
+    const range = await dateQuery();
     const lastMachineLog = await MachineLog.findOne({
       where: { machine_id, createdAt: range },
-      attributes: ["id", "createdAt"],
+      attributes: ["createdAt"],
       order: [["createdAt", "DESC"]],
     });
     if (!lastMachineLog) {
@@ -91,9 +91,9 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     );
     // not update if status is same
     if (newStatus === existMachine.status) {
-      if (newStatus === "Running") {
-        return updateRunningTodayLastMachineLog(existMachine.id);
-      }
+      // if (newStatus === "Running") {
+      //   return updateRunningTodayLastMachineLog(existMachine.id);
+      // }
       return;
     }
 
@@ -162,8 +162,6 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     serverError(error, "handleChangeMachineStatus");
   }
 };
-
-
 
 /**
  * Creates a machine and logs the first entry with the provided message data.
@@ -241,33 +239,36 @@ const updateRunningTodayLastMachineLog = async (
   withDescription
 ) => {
   try {
-    const getRunningTime = await getRunningTimeMachineLog(machine_id);
-
-    if (!getRunningTime?.lastLog) return;
-    const { lastLog, totalRunningTime } = getRunningTime;
-    if (!withDescription) {
-      return await MachineLog.update(
-        {
-          running_today: totalRunningTime || 0,
-        },
-        {
-          where: { id: lastLog.id },
-        }
-      );
+    // const { lastLog, totalRunningTime } = getRunningTime;
+    const range = await dateQuery();
+    const lastLog = await MachineLog.findOne({
+      where: { machine_id, createdAt: range },
+      attributes: ["id", "createdAt"],
+      order: [["createdAt", "DESC"]],
+    });
+    if (!withDescription || !lastLog) {
+      // return await MachineLog.update(
+      //   {
+      //     // running_today: totalRunningTime || 0,
+      //   },
+      //   {
+      //     where: { id: lastLog.id },
+      //   }
+      // );
+      return;
     }
 
     const isManual = isManualLog(lastLog.createdAt);
 
     await MachineLog.update(
       {
-        running_today: totalRunningTime || 0,
+        // running_today: totalRunningTime || 0,
         description: isManual ? "Manual Operation" : null,
       },
       {
         where: { id: lastLog.id },
       }
     );
-
   } catch (error) {
     serverError(error, "updateRunningTodayLastMachineLog");
   }
