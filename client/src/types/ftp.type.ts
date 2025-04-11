@@ -7,6 +7,7 @@ export type ContentFile = {
   outputWP: string | number
   toolName: string | number
   totalCuttingTime: string | number
+  workPosition: number
   calculateTotalCuttingTime?: number
   totalProgram?: number
 }

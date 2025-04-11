@@ -30,7 +30,6 @@ const {
   selectedOneMachine,
   selectedProgramNumber,
   selectedCoordinate,
-  selectedWorkPosition,
   inputStartPoint,
   selectedCoolant
 } = useMachine()
@@ -39,6 +38,7 @@ const userData = inject('userData') as UserLocalStorage
 
 const {
   handleUploadFolder,
+  selectedWorkPosition,
   uploadType,
   inputFiles,
   loadingUpload,
@@ -126,7 +126,8 @@ const handleExecute = (): void => {
       toolName: '',
       totalCuttingTime: '',
       toolNumber: 0,
-      calculateTotalCuttingTime: 0
+      calculateTotalCuttingTime: 0,
+      workPosition: 0
     }
 
     const extendedFiles: ContentFile[] = [mainProgramContent, ...inputFiles.value]

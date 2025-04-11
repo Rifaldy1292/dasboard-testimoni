@@ -15,24 +15,36 @@ const {
   selectedCoolant,
   selectedProcessType,
   selectedCoordinate,
-  selectedWorkPosition,
-  inputStartPoint,
-  selectedProgramNumber
+  inputStartPoint
 } = useMachine()
 
-const { uploadType, actionOPtions, selectedAction } = useFTP()
+const { uploadType, actionOPtions, selectedAction, selectedWorkPosition, inputFiles } = useFTP()
 
 const { workPositionOptions, coordinateOptions, coolantOptions, processTypeOptions } =
   additionalOptions
 
 watch(
-  [() => selectedOneMachine.value?.name, () => selectedWorkPosition.value],
-  ([machineName, workPosition]) => {
-    if (machineName === 'MC-16') {
-      selectedProgramNumber.value = workPosition - 24
-    }
+  () => selectedWorkPosition.value,
+  (newVal) => {
+    inputFiles.value = inputFiles.value.map((file) => {
+      return {
+        ...file,
+        workPosition: newVal
+      }
+    })
+
+    console.log(inputFiles.value, 'new')
   }
 )
+
+// watch(
+//   [() => selectedOneMachine.value?.name, () => selectedWorkPosition.value],
+//   ([machineName, workPosition]) => {
+//     if (machineName === 'MC-16') {
+//       selectedProgramNumber.value = workPosition - 24
+//     }
+//   }
+// )
 </script>
 
 <template>

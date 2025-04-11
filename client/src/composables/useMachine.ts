@@ -23,8 +23,7 @@ const additionalOptions: AdditionalOptions = {
   processTypeOptions: ['NC', 'Drill']
 }
 
-const { workPositionOptions, coordinateOptions, coolantOptions, processTypeOptions } =
-  additionalOptions
+const { coordinateOptions, coolantOptions, processTypeOptions } = additionalOptions
 
 const loadingFetch = shallowRef<boolean>(false)
 const cuttingTimeMachines = ref<CuttingTimeMachine | undefined>(undefined)
@@ -36,12 +35,10 @@ const machineOptions = ref<MachineOption[]>([])
 const defaultMainProgram = 30
 
 const selectedProgramNumber = shallowRef<number>(defaultMainProgram)
-const selectedWorkPosition = shallowRef<number>(workPositionOptions[0])
 const selectedCoordinate = shallowRef<number>(coordinateOptions[0])
 const inputStartPoint = shallowRef<number>(52)
 const selectedCoolant = shallowRef<number>(coolantOptions[1])
 const selectedProcessType = shallowRef<'NC' | 'Drill'>(processTypeOptions[0])
-
 
 export const useMachine = () => {
   const toast = useToast()
@@ -96,8 +93,7 @@ export const useMachine = () => {
     selectedCoolant,
     selectedCoordinate,
     selectedProgramNumber,
-    selectedWorkPosition,
     inputStartPoint,
-    selectedProcessType,
+    selectedProcessType
   }
 }

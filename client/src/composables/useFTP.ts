@@ -9,6 +9,7 @@ const uploadType = shallowRef<'folder' | 'file'>('file')
 type Action = 'Upload File' | 'Remove File'
 const actionOPtions: Array<Action> = ['Upload File', 'Remove File']
 const selectedAction = shallowRef<Action>(actionOPtions[0])
+const selectedWorkPosition = shallowRef<number>(54)
 
 export const useFTP = () => {
   const loadingUpload = shallowRef(false)
@@ -116,7 +117,8 @@ export const useFTP = () => {
       gCodeName,
       outputWP,
       toolName,
-      totalCuttingTime
+      totalCuttingTime,
+      workPosition: selectedWorkPosition.value
     })
   }
   const handleClearFile = async () => {
@@ -140,6 +142,7 @@ export const useFTP = () => {
     selectedAction,
     actionOPtions,
     isCreatedMainProgram,
-    handleClearFile
+    handleClearFile,
+    selectedWorkPosition
   }
 }

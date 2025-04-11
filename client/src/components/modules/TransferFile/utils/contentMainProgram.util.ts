@@ -28,7 +28,7 @@ export const contentMainProgram = ({
   user,
   selectedCoolant,
   selectedCoordinate,
-  selectedWorkPosition,
+  // selectedWorkPosition,
   inputStartPoint,
   selectedProgramNumber
 }: params): string => {
@@ -41,8 +41,10 @@ export const contentMainProgram = ({
       toolName,
       totalCuttingTime,
       calculateTotalCuttingTime,
-      totalProgram
+      totalProgram,
+      workPosition
     } = file
+    const selectedWorkPosition = workPosition
 
     let docs: Docs = {
       G_CODE_NAME: '',
