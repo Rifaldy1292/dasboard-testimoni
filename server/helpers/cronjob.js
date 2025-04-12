@@ -106,6 +106,16 @@ const handleResetMachineStatus = async () => {
     }
 }
 
+const deleteCncFiles = async () => {
+    const folderPath = path.join(__dirname, 'public', 'cnc_files');
+    try {
+        await fs.promises.rm(folderPath, { recursive: true, force: true });
+        console.log('successfully deletted folder cnc_files')
+    } catch (err) {
+        serverError(err, 'failed delete folder cnc_files')
+    }
+};
+
 /**
  * Initializes and schedules all cron jobs for the application.
  * Sets up jobs for machine status reset, cutting time creation, and daily configuration creation.
@@ -129,6 +139,7 @@ const handleCronJob = async () => {
         await createCuttingTime();
         await createDailyConfig();
         await handleResetMachineStatus();
+        await deleteCncFiles()
     });
 
     console.log('cronjob finished')
