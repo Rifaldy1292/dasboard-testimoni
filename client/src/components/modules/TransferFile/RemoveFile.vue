@@ -6,7 +6,7 @@ import useToast from '@/composables/useToast'
 import MachineServices from '@/services/machine.service'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import { Button, Column, DataTable, useConfirm } from 'primevue'
-import { ref, shallowRef, watch } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 
 const toast = useToast()
 const confirm = useConfirm()
@@ -125,16 +125,21 @@ const handleClickButton = (button: 'removeAll' | 'remove' | 'undo', fileName?: s
     }
   })
 }
+
+const isDisableRemoveAll = computed<boolean>(() => {
+  const name = selectedOneMachine.value?.name
+  return name !== 'MC-16'
+})
 </script>
 
 <template>
   <LoadingAnimation :state="loading" />
   <Button
     v-if="fileList.length"
-    disabled
-    style="cursor: not-allowed"
+    :disabled="isDisableRemoveAll"
     @click="handleClickButton('removeAll')"
     label="Remove All files"
+    :class="`${isDisableRemoveAll && 'cursor-not-allowed'}`"
     severity="warn"
   />
   <DataTable :loading :value="fileList" :size="'large'" lazy showGridlines selection-mode="single">
