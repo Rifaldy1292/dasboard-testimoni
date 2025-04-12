@@ -1,0 +1,596 @@
+2025-04-12 12:54:09.814 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/ [1]  ******************************************************************************** 
+2025-04-12 12:54:09.869 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/ [6]  Starting HumanOS Standard Edition x86 (Version 2.8.5.3100). 
+2025-04-12 12:54:09.869 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/ [6]  MainPath:       C:\Program Files (x86)\CyberTech\HumanOS.IoT.Runtimes\HumanOS.IoT.Runtime-win.x86-v2.8\ 
+2025-04-12 12:54:09.869 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/ [6]  CurrentPath:    C:\Program Files (x86)\CyberTech\HumanOS.IoT.Designer\ 
+2025-04-12 12:54:09.869 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/ [6]  AppSettingsDir: d:\project dashboard monitoring yamaha\oee collecting data\Build\default\ 
+2025-04-12 12:54:09.899 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/ [6]  DataPath:       d:\project dashboard monitoring yamaha\oee collecting data\Build\default\Data\ 
+2025-04-12 12:54:09.899 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/ [6]  ConfigPath:     d:\project dashboard monitoring yamaha\oee collecting data\Build\default\Config\ 
+2025-04-12 12:54:09.899 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/ [6]  PluginPath:     C:\Program Files (x86)\CyberTech\HumanOS.IoT.Runtimes\HumanOS.IoT.Runtime-win.x86-v2.8\ 
+2025-04-12 12:54:09.901 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/LicenseManager [6]  File-based license manager created. 
+2025-04-12 12:54:10.116 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/LicenseManager [6]  Standard-License ok 'f2221d44-1631-4b53-9cc6-376515312429'. 
+2025-04-12 12:54:10.118 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/LicenseManager [6]    Expiration : 9999-12-31T23:59:59 
+2025-04-12 12:54:10.121 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/LicenseManager [6]    Customer   : Leo Chen (leochen@atop.com.tw) 
+2025-04-12 12:54:10.121 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/LicenseManager [6]    Company    : PT. ATOP Indonesia Technologies 
+2025-04-12 12:54:10.121 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/LicenseManager [6]    Address    : Jalan Letjend S. Parman Kav.12, 3rd Floor, Unit 308, Jakarta Barat,, 11480 DKI Jakarta 
+2025-04-12 12:54:10.121 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/LicenseManager [6]    Country    : Indonesia 
+2025-04-12 12:54:10.149 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Starting HumanOS Kernel... 
+2025-04-12 12:54:10.150 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Kernel Settings: 
+2025-04-12 12:54:10.150 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]    ServiceId         : b52e3b13-e3a1-4fd6-8d71-c95daa1dc1f8 
+2025-04-12 12:54:10.150 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]    ServiceName       : HumanOS.IoT.Gateway.default 
+2025-04-12 12:54:10.150 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]    SpaceType         : HumanOS.Kernel.DataModel.Space.TInMemoryNodeSpace, HumanOS.Kernel 
+2025-04-12 12:54:10.150 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]    SharedSpaceType   :  
+2025-04-12 12:54:10.151 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]    SharedSpaceAddress: localhost 
+2025-04-12 12:54:10.151 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]    RepositoryType    :  
+2025-04-12 12:54:10.151 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]    RepositoryPath    : d:\project dashboard monitoring yamaha\oee collecting data\Build\default\Data\DataRepository\ 
+2025-04-12 12:54:10.151 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]    RepositoryPrefix  : hos 
+2025-04-12 12:54:10.151 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]    CleanAndRepairMode: None 
+2025-04-12 12:54:10.154 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Loaded 83 common assemblies for scripting 
+2025-04-12 12:54:10.227 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Loading plug-ins for [DataObjectPluginManager] ... 
+2025-04-12 12:54:10.227 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  ... loading done. 
+2025-04-12 12:54:10.242 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Loading plug-ins for [DataBasePluginManager] ... 
+2025-04-12 12:54:10.243 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [TMessageBusPlugin_{0DAE9067-44EB-40B9-9385-DD6EFB353E11}] found. 
+2025-04-12 12:54:10.243 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [TMySQLDataBasePlugin_{288FEE8A-DCF1-457F-BE21-2D11EB5413E3}] found. 
+2025-04-12 12:54:10.243 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [TPostgreSQLDataBasePlugin_{70AA188E-E39D-4C86-B201-6D5412962899}] found. 
+2025-04-12 12:54:10.244 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [TMessageBusPlugin_{3B931DFC-8FE7-416F-A9A4-AF8156ACEDAE}] found. 
+2025-04-12 12:54:10.244 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [TSQLiteDataBasePlugin_{A3B98DDF-93FB-42A4-9DE3-F711CCE42011}] found. 
+2025-04-12 12:54:10.244 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  ... loading done. 
+2025-04-12 12:54:10.248 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Loading plug-ins for [ProcessorPluginManager] ... 
+2025-04-12 12:54:10.248 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  ... loading done. 
+2025-04-12 12:54:10.249 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  No shared nodespace configured. 
+2025-04-12 12:54:10.335 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Loading plug-ins for [DriverPluginManager] ... 
+2025-04-12 12:54:10.335 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.ActiveDirectory_{C51BD624-BE93-458C-9F30-1DC12E0CCB24}] found. 
+2025-04-12 12:54:10.335 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.AllenBradleyControl_{E6A0F206-EC58-4581-933A-6072DE31B5E3}] found. 
+2025-04-12 12:54:10.335 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.AndronControl_{93A7CEDD-5463-41D7-93EF-C04460D0B1B6}] found. 
+2025-04-12 12:54:10.335 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.BalluffBisV_{ED53B0F7-0D3A-4B82-A9F6-191B0DD47EA5}] found. 
+2025-04-12 12:54:10.336 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.BeckhoffControl_{DBC6DEB3-951F-4A23-8477-7D8784995A95}] found. 
+2025-04-12 12:54:10.336 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.BluetoothDeviceDriver_{11034AA5-13C7-4D05-83E0-361BC816E779}] found. 
+2025-04-12 12:54:10.336 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.FanucControl_{B3CCD1A7-A49B-46FC-B983-5284992F6444}] found. 
+2025-04-12 12:54:10.336 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.FileReader_{94CAFEC2-7910-41F6-8185-C35CA768FABA}] found. 
+2025-04-12 12:54:10.336 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.GPIODriver_{50C53868-7CB8-4FCA-A3CA-1BA6E1F5A9AE}] found. 
+2025-04-12 12:54:10.336 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.HeidenhainControl_{20C836DB-38E9-4B04-BFED-542E2FF5C72F}] found. 
+2025-04-12 12:54:10.336 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.HostControl_{46F00888-DAC9-4BB8-A0A2-703E7716624C}] found. 
+2025-04-12 12:54:10.336 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.KnxBusDriver_{2C42F493-2FF8-4E59-9A82-FAAC966992CF}] found. 
+2025-04-12 12:54:10.336 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.ModbusTcpControl_{4A06A655-36C2-4430-AE27-AAAA4A431395}] found. 
+2025-04-12 12:54:10.336 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.MqttControl_{E78FB177-AEDC-4A3A-A237-B9835738FD68}] found. 
+2025-04-12 12:54:10.336 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.NumControl.Axium_{B1EB8556-0EE9-40C1-B4D0-22DCA4C07C59}] found. 
+2025-04-12 12:54:10.337 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.NumControl.Flexium_{EFFD2B2F-89B0-4D38-BAC5-E6BFC3EA7498}] found. 
+2025-04-12 12:54:10.337 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.OkumaControl_{4CAC473D-0369-43EC-9765-903B23C564BE}] found. 
+2025-04-12 12:54:10.337 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.OpcDaControl_{FAAB832E-2D4B-41EA-9041-68278B99BDC1}] found. 
+2025-04-12 12:54:10.337 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.OpcUaControl_{F022EE3C-A2A5-428A-B588-46ABACAE39EE}] found. 
+2025-04-12 12:54:10.337 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.SerialDeviceDriver_{7DCF8CCB-9878-4529-AD21-49F509807FB6}] found. 
+2025-04-12 12:54:10.337 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.SiemensS7Control_{F25F68F9-C720-4DD9-8A28-957C84AAA98C}] found. 
+2025-04-12 12:54:10.337 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.SinumerikControl_{B657332C-A383-47EE-BEDD-6156AF9C9083}] found. 
+2025-04-12 12:54:10.337 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.SmartDeviceDriver_{E6541B4B-DC0E-4A6D-922A-FBE9E87BC479}] found. 
+2025-04-12 12:54:10.337 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [TSqlClient_{510AE5C1-AA0B-4882-8406-A24191F17049}] found. 
+2025-04-12 12:54:10.337 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [TSshClientDriver_{900EA6EC-6361-48B9-ADAE-18D89393B7E6}] found. 
+2025-04-12 12:54:10.337 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.TcpClientControl_{82AD96A4-5E4C-4FA6-B302-219CD92731BD}] found. 
+2025-04-12 12:54:10.338 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.VideoCamera_{51F3D53D-8353-4BDC-B037-39C2644D0D6A}] found. 
+2025-04-12 12:54:10.338 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.WebControl_{BE79A86B-38EE-4FAA-805A-1DB46A06E65D}] found. 
+2025-04-12 12:54:10.338 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  ... loading done. 
+2025-04-12 12:54:10.366 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Loading plug-ins for [DeviceDetectorPluginManager] ... 
+2025-04-12 12:54:10.367 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.DeviceDetectors_{9D078B95-6322-44D2-989D-87A1FCA283B9}] found. 
+2025-04-12 12:54:10.435 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.UHAL.DeviceDetectors_{9D078B95-6322-44D2-989D-87A1FCA283B9}] enabled. 
+2025-04-12 12:54:10.598 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.UHAL.DeviceDetectors_{9D078B95-6322-44D2-989D-87A1FCA283B9}] instantiated. 
+2025-04-12 12:54:10.599 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.UHAL.SmartDeviceDetector_{757D454C-4A72-4F99-A7DF-6147E0478F60}] found. 
+2025-04-12 12:54:10.600 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.UHAL.SmartDeviceDetector_{757D454C-4A72-4F99-A7DF-6147E0478F60}] disabled. 
+2025-04-12 12:54:10.600 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.UHAL.UsbDeviceDetectors_{F4DE1753-DA46-4C0C-B34B-96B550F4FC17}] found. 
+2025-04-12 12:54:10.600 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.UHAL.UsbDeviceDetectors_{F4DE1753-DA46-4C0C-B34B-96B550F4FC17}] disabled. 
+2025-04-12 12:54:10.600 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  ... loading done. 
+2025-04-12 12:54:10.627 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Loading plug-ins for [ServicePluginManager] ... 
+2025-04-12 12:54:10.628 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.PeSeL.AzureIoTClient_{CB02C837-73C4-43AA-BC9D-F04BAA8FF692}] found. 
+2025-04-12 12:54:10.628 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.PeSeL.AzureIoTClient_{CB02C837-73C4-43AA-BC9D-F04BAA8FF692}] disabled. 
+2025-04-12 12:54:10.628 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.PeSeL.CsvDataLogger_{E4666421-B016-4E88-AC45-02F1A3C9A122}] found. 
+2025-04-12 12:54:10.628 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.PeSeL.CsvDataLogger_{E4666421-B016-4E88-AC45-02F1A3C9A122}] disabled. 
+2025-04-12 12:54:10.628 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.PeSeL.InfluxDbLogger_{B5751F8F-59FA-47C8-9C11-6B8186863476}] found. 
+2025-04-12 12:54:10.629 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.PeSeL.InfluxDbLogger_{B5751F8F-59FA-47C8-9C11-6B8186863476}] disabled. 
+2025-04-12 12:54:10.629 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.PeSeL.MQTTClient_{16E29C41-3CE5-4FD6-8D61-2E47C93C7A7A}] found. 
+2025-04-12 12:54:10.629 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.PeSeL.MQTTClient_{16E29C41-3CE5-4FD6-8D61-2E47C93C7A7A}] disabled. 
+2025-04-12 12:54:10.629 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.PeSeL.MqttServer_{73534114-43E1-4591-9FAD-93991367625F}] found. 
+2025-04-12 12:54:10.629 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.PeSeL.MqttServer_{73534114-43E1-4591-9FAD-93991367625F}] disabled. 
+2025-04-12 12:54:10.629 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.PeSeL.MTConnectAgent_{7EB614F1-1626-4342-8F9D-C1F26E623E22}] found. 
+2025-04-12 12:54:10.630 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.PeSeL.MTConnectAgent_{7EB614F1-1626-4342-8F9D-C1F26E623E22}] disabled. 
+2025-04-12 12:54:10.630 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.PeSeL.NodeSpaceDataLogger_{F433A67F-4216-4BAA-9CBE-555FD4905682}] found. 
+2025-04-12 12:54:10.630 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.PeSeL.NodeSpaceDataLogger_{F433A67F-4216-4BAA-9CBE-555FD4905682}] disabled. 
+2025-04-12 12:54:10.630 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.PeSeL.OPCUAServer_{3B3421CB-92E5-4D51-B172-33A180F21824}] found. 
+2025-04-12 12:54:10.635 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.PeSeL.OPCUAServer_{3B3421CB-92E5-4D51-B172-33A180F21824}] enabled. 
+2025-04-12 12:54:10.639 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/LicenseManager [11]  Product feature '{3B3421CB-92E5-4D51-B172-33A180F21824}' accepted. 
+2025-04-12 12:54:10.664 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.PeSeL.OPCUAServer_{3B3421CB-92E5-4D51-B172-33A180F21824}] instantiated. 
+2025-04-12 12:54:10.665 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.PeSeL.RabbitMqClient_{06966891-F18F-464E-87DA-1A4E97EE9CB0}] found. 
+2025-04-12 12:54:10.665 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.PeSeL.RabbitMqClient_{06966891-F18F-464E-87DA-1A4E97EE9CB0}] disabled. 
+2025-04-12 12:54:10.665 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.PeSeL.RestDataLogger_{10F72D63-2858-49D5-9B3F-DD06C92FA804}] found. 
+2025-04-12 12:54:10.665 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.PeSeL.RestDataLogger_{10F72D63-2858-49D5-9B3F-DD06C92FA804}] disabled. 
+2025-04-12 12:54:10.665 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.PeSeL.SmartDeviceClient_{682DF75B-821A-463A-84B0-FBE5907F74E0}] found. 
+2025-04-12 12:54:10.666 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.PeSeL.SmartDeviceClient_{682DF75B-821A-463A-84B0-FBE5907F74E0}] disabled. 
+2025-04-12 12:54:10.666 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.PeSeL.SparkPlugClient_{5AEE79B6-1F80-4DD4-8CDD-3E085B9B9250}] found. 
+2025-04-12 12:54:10.666 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.PeSeL.SparkPlugClient_{5AEE79B6-1F80-4DD4-8CDD-3E085B9B9250}] disabled. 
+2025-04-12 12:54:10.666 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.PeSeL.SqlDataLogger_{5F446805-C274-4E09-9BEE-573ECE5CF28F}] found. 
+2025-04-12 12:54:10.666 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.PeSeL.SqlDataLogger_{5F446805-C274-4E09-9BEE-573ECE5CF28F}] disabled. 
+2025-04-12 12:54:10.666 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.PeSeL.WebService_{650A866D-5958-4FF6-BB11-B0A74CC76151}] found. 
+2025-04-12 12:54:10.666 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  Plug-in [HumanOS.PeSeL.WebService_{650A866D-5958-4FF6-BB11-B0A74CC76151}] disabled. 
+2025-04-12 12:54:10.667 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [6]  ... loading done. 
+2025-04-12 12:54:10.669 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/ [6]  Server is running ok. 
+2025-04-12 12:54:10.670 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [8]  Starting up server... 
+2025-04-12 12:54:10.670 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [11]  Plug-in [HumanOS.UHAL.FanucControl_{B3CCD1A7-A49B-46FC-B983-5284992F6444}] enabled. 
+2025-04-12 12:54:10.671 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/LicenseManager [11]  Product feature '{B3CCD1A7-A49B-46FC-B983-5284992F6444}' accepted. 
+2025-04-12 12:54:10.680 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [9]  Plug-in [HumanOS.UHAL.FanucControl_{B3CCD1A7-A49B-46FC-B983-5284992F6444}] instantiated. 
+2025-04-12 12:54:10.709 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/LicenseManager [9]  Device License ok '01701aa6-8ebc-415f-b545-17a4d6ee557c'.
+  Expiration : 9999-12-31T23:59:59
+  Device     : MC-1 ()
+  Control    : CNC Milling
+ 
+2025-04-12 12:54:10.713 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [9]  Device [MC-1@192.168.1.101:8193] detected. 
+2025-04-12 12:54:10.742 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [9]  Main TaskProcessor created. 
+2025-04-12 12:54:10.743 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [9]  DynamicDataProcessor created. 
+2025-04-12 12:54:10.744 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [9]  ModalDataProcessor created. 
+2025-04-12 12:54:10.744 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [9]  ToolDataProcessor created. 
+2025-04-12 12:54:10.744 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [9]  AlarmEventProcessor created. 
+2025-04-12 12:54:10.841 +07:00 [WRN] DESKTOP-BCOSC66/HumanOS/ [8]  Missing certificate for OpcUaServer 'OPC-UA Server'. Try to create certificate 'CN=OPC-UA Server/O=UnifiedAutomation/DC=DESKTOP-BCOSC66' in 'd:\project dashboard monitoring yamaha\oee collecting data\Build\default\Config\HumanOS.PeSeL.OPCUAServer\CertificateStores\own'. 
+2025-04-12 12:54:12.604 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/ [8]  Create root node manager (OpcUaNodeManager) 
+2025-04-12 12:54:12.609 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [8]  Startup OpcUaNodeManager 
+2025-04-12 12:54:12.894 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [8]  Endpoint [opc.tcp://DESKTOP-BCOSC66:48050/ [SignAndEncrypt:Basic256Sha256:Binary]]: Status = Good 
+2025-04-12 12:54:12.894 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [8]  Endpoint [opc.tcp://DESKTOP-BCOSC66:48050/ [Sign:Basic256Sha256:Binary]]: Status = Good 
+2025-04-12 12:54:12.895 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [8]  Endpoint [opc.tcp://DESKTOP-BCOSC66:48050/ [SignAndEncrypt:Aes128Sha256RsaOaep:Binary]]: Status = Good 
+2025-04-12 12:54:12.895 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [8]  Endpoint [opc.tcp://DESKTOP-BCOSC66:48050/ [Sign:Aes128Sha256RsaOaep:Binary]]: Status = Good 
+2025-04-12 12:54:12.895 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [8]  Endpoint [opc.tcp://DESKTOP-BCOSC66:48050/ [SignAndEncrypt:Basic256:Binary]]: Status = Good 
+2025-04-12 12:54:12.895 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [8]  Endpoint [opc.tcp://DESKTOP-BCOSC66:48050/ [Sign:Basic256:Binary]]: Status = Good 
+2025-04-12 12:54:12.895 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [8]  Endpoint [opc.tcp://DESKTOP-BCOSC66:48050/ [None:None:Binary]]: Status = Good 
+2025-04-12 12:54:12.896 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [8]  Server is running 
+2025-04-12 12:54:13.377 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [9]  Main TaskProcessor started. 
+2025-04-12 12:54:13.378 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [9]  DynamicDataProcessor started. 
+2025-04-12 12:54:13.380 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [9]  ModalDataProcessor started. 
+2025-04-12 12:54:13.380 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [9]  ToolDataProcessor started. 
+2025-04-12 12:54:13.380 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [9]  AlarmEventProcessor started. 
+2025-04-12 12:54:13.408 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/LicenseManager [9]  Device License ok 'e82e25cd-b5f9-49b8-9152-ee31a462007d'.
+  Expiration : 9999-12-31T23:59:59
+  Device     : MC-11 ()
+  Control    : CNC Milling
+ 
+2025-04-12 12:54:13.409 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [9]  Device [MC-11@192.168.1.111:8193] detected. 
+2025-04-12 12:54:13.409 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [9]  Main TaskProcessor created. 
+2025-04-12 12:54:13.410 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [9]  DynamicDataProcessor created. 
+2025-04-12 12:54:13.410 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [9]  ModalDataProcessor created. 
+2025-04-12 12:54:13.410 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [9]  ToolDataProcessor created. 
+2025-04-12 12:54:13.410 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [9]  AlarmEventProcessor created. 
+2025-04-12 12:54:13.466 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [9]  Main TaskProcessor started. 
+2025-04-12 12:54:13.467 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [9]  DynamicDataProcessor started. 
+2025-04-12 12:54:13.467 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [9]  ModalDataProcessor started. 
+2025-04-12 12:54:13.468 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [9]  ToolDataProcessor started. 
+2025-04-12 12:54:13.468 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [9]  AlarmEventProcessor started. 
+2025-04-12 12:54:13.482 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/LicenseManager [9]  Device License ok '2cb62690-14b6-4834-b84a-442f34b2e1eb'.
+  Expiration : 9999-12-31T23:59:59
+  Device     : MC-14 ()
+  Control    : CNC Milling
+ 
+2025-04-12 12:54:13.483 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [9]  Device [MC-14@192.168.1.114:8193] detected. 
+2025-04-12 12:54:13.483 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [9]  Main TaskProcessor created. 
+2025-04-12 12:54:13.483 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [9]  DynamicDataProcessor created. 
+2025-04-12 12:54:13.483 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [9]  ModalDataProcessor created. 
+2025-04-12 12:54:13.483 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [9]  ToolDataProcessor created. 
+2025-04-12 12:54:13.483 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [9]  AlarmEventProcessor created. 
+2025-04-12 12:54:13.532 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [9]  Main TaskProcessor started. 
+2025-04-12 12:54:13.533 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [9]  DynamicDataProcessor started. 
+2025-04-12 12:54:13.533 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [9]  ModalDataProcessor started. 
+2025-04-12 12:54:13.534 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [9]  ToolDataProcessor started. 
+2025-04-12 12:54:13.534 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [9]  AlarmEventProcessor started. 
+2025-04-12 12:54:13.566 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/LicenseManager [9]  Device License ok '5192ed01-41b3-46eb-b888-253b4afd891b'.
+  Expiration : 9999-12-31T23:59:59
+  Device     : MC-15 ()
+  Control    : CNC Milling
+ 
+2025-04-12 12:54:13.566 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [9]  Device [MC-15@192.168.1.115:8193] detected. 
+2025-04-12 12:54:13.566 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [9]  Main TaskProcessor created. 
+2025-04-12 12:54:13.566 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [9]  DynamicDataProcessor created. 
+2025-04-12 12:54:13.566 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [9]  ModalDataProcessor created. 
+2025-04-12 12:54:13.567 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [9]  ToolDataProcessor created. 
+2025-04-12 12:54:13.567 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [9]  AlarmEventProcessor created. 
+2025-04-12 12:54:13.617 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [9]  Main TaskProcessor started. 
+2025-04-12 12:54:13.618 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [9]  DynamicDataProcessor started. 
+2025-04-12 12:54:13.618 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [9]  ModalDataProcessor started. 
+2025-04-12 12:54:13.619 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [9]  ToolDataProcessor started. 
+2025-04-12 12:54:13.619 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [9]  AlarmEventProcessor started. 
+2025-04-12 12:54:13.626 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [38]  Nc1: Program Management initialized: CurrentDir='//CNC_MEM/USER/LIBRARY/'. 
+2025-04-12 12:54:13.637 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/LicenseManager [9]  Device License ok 'fd1435c5-9d93-4ae1-88aa-d1c576e96c18'.
+  Expiration : 9999-12-31T23:59:59
+  Device     : MC-16 ()
+  Control    : CNC Milling
+ 
+2025-04-12 12:54:13.638 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [9]  Device [MC-16@192.168.1.116:8193] detected. 
+2025-04-12 12:54:13.638 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [9]  Main TaskProcessor created. 
+2025-04-12 12:54:13.638 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [9]  DynamicDataProcessor created. 
+2025-04-12 12:54:13.638 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [9]  ModalDataProcessor created. 
+2025-04-12 12:54:13.638 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [9]  ToolDataProcessor created. 
+2025-04-12 12:54:13.638 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [9]  AlarmEventProcessor created. 
+2025-04-12 12:54:13.681 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [9]  Main TaskProcessor started. 
+2025-04-12 12:54:13.682 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [9]  DynamicDataProcessor started. 
+2025-04-12 12:54:13.682 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [9]  ModalDataProcessor started. 
+2025-04-12 12:54:13.682 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [9]  ToolDataProcessor started. 
+2025-04-12 12:54:13.683 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [9]  AlarmEventProcessor started. 
+2025-04-12 12:54:13.698 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/LicenseManager [9]  Device License ok '032efefb-2e45-4902-b620-3579ad469791'.
+  Expiration : 9999-12-31T23:59:59
+  Device     : MC-4 ()
+  Control    : CNC Milling
+ 
+2025-04-12 12:54:13.699 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [9]  Device [MC-4@192.168.1.104:8193] detected. 
+2025-04-12 12:54:13.699 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [9]  Main TaskProcessor created. 
+2025-04-12 12:54:13.699 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [9]  DynamicDataProcessor created. 
+2025-04-12 12:54:13.699 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [9]  ModalDataProcessor created. 
+2025-04-12 12:54:13.699 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [9]  ToolDataProcessor created. 
+2025-04-12 12:54:13.699 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [9]  AlarmEventProcessor created. 
+2025-04-12 12:54:13.704 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [44]  Nc1: Program Management initialized: CurrentDir='//CNC_MEM/USER/LIBRARY/'. 
+2025-04-12 12:54:13.705 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [41]  ToolDataProcessor: connected. 
+2025-04-12 12:54:13.705 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [42]  AlarmEventProcessor: AE updater for address 'Nc1.NcAlarmEvent:0' added. 
+2025-04-12 12:54:13.706 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [42]  AlarmEventProcessor: connected. 
+2025-04-12 12:54:13.707 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [39]  DynamicDataProcessor: connected. 
+2025-04-12 12:54:13.707 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [40]  ModalDataProcessor: connected. 
+2025-04-12 12:54:13.717 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [38]  DNC[1]: Initialized. Direct Dnc mode = 'Stopped'. 
+2025-04-12 12:54:13.717 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [38]  Connected to Fanuc: Address=Ethernet[192.168.1.114:8193]; Control='Fanuc 31i'; Series='M series'. 
+2025-04-12 12:54:13.717 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [38]  Main TaskProcessor: connected. 
+2025-04-12 12:54:13.720 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [45]  DynamicDataProcessor: connected. 
+2025-04-12 12:54:13.748 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [50]  Nc1: Program Management initialized: CurrentDir='//CNC_MEM/USER/PATH1/'. 
+2025-04-12 12:54:13.751 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [47]  ToolDataProcessor: connected. 
+2025-04-12 12:54:13.752 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [31]  ToolDataProcessor: connected. 
+2025-04-12 12:54:13.752 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [9]  Main TaskProcessor started. 
+2025-04-12 12:54:13.752 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [9]  DynamicDataProcessor started. 
+2025-04-12 12:54:13.753 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [9]  ModalDataProcessor started. 
+2025-04-12 12:54:13.753 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [9]  ToolDataProcessor started. 
+2025-04-12 12:54:13.753 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [9]  AlarmEventProcessor started. 
+2025-04-12 12:54:13.758 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [33]  Nc1: Program Management initialized: CurrentDir='//CNC_MEM/USER/PATH1/'. 
+2025-04-12 12:54:13.769 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [32]  AlarmEventProcessor: AE updater for address 'Nc1.NcAlarmEvent:0' added. 
+2025-04-12 12:54:13.769 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [46]  ModalDataProcessor: connected. 
+2025-04-12 12:54:13.769 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [28]  DNC[1]: Initialized. Direct Dnc mode = 'Stopped'. 
+2025-04-12 12:54:13.769 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [44]  DNC[1]: Initialized. Direct Dnc mode = 'Stopped'. 
+2025-04-12 12:54:13.769 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [28]  Connected to Fanuc: Address=Ethernet[192.168.1.101:8193]; Control='Fanuc 18i'; Series='M series'. 
+2025-04-12 12:54:13.769 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [32]  AlarmEventProcessor: connected. 
+2025-04-12 12:54:13.769 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [28]  Main TaskProcessor: connected. 
+2025-04-12 12:54:13.769 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [48]  AlarmEventProcessor: AE updater for address 'Nc1.NcAlarmEvent:0' added. 
+2025-04-12 12:54:13.769 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [44]  Connected to Fanuc: Address=Ethernet[192.168.1.115:8193]; Control='Fanuc 31i'; Series='M series'. 
+2025-04-12 12:54:13.769 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [48]  AlarmEventProcessor: connected. 
+2025-04-12 12:54:13.770 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [44]  Main TaskProcessor: connected. 
+2025-04-12 12:54:13.770 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/LicenseManager [9]  Device License ok '241b2d42-9fac-4d47-9dd8-630e88743a1d'.
+  Expiration : 9999-12-31T23:59:59
+  Device     : MC-5 ()
+  Control    : CNC Milling
+ 
+2025-04-12 12:54:13.770 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [9]  Device [MC-5@192.168.1.105:8193] detected. 
+2025-04-12 12:54:13.770 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [9]  Main TaskProcessor created. 
+2025-04-12 12:54:13.770 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [9]  DynamicDataProcessor created. 
+2025-04-12 12:54:13.770 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [9]  ModalDataProcessor created. 
+2025-04-12 12:54:13.770 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [9]  ToolDataProcessor created. 
+2025-04-12 12:54:13.770 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [9]  AlarmEventProcessor created. 
+2025-04-12 12:54:13.799 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [53]  ToolDataProcessor: connected. 
+2025-04-12 12:54:13.815 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [36]  ToolDataProcessor: connected. 
+2025-04-12 12:54:13.814 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [9]  Main TaskProcessor started. 
+2025-04-12 12:54:13.815 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [54]  AlarmEventProcessor: AE updater for address 'Nc1.NcAlarmEvent:0' added. 
+2025-04-12 12:54:13.815 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [52]  ModalDataProcessor: connected. 
+2025-04-12 12:54:13.815 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [51]  DynamicDataProcessor: connected. 
+2025-04-12 12:54:13.815 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [50]  DNC[1]: Initialized. Direct Dnc mode = 'Stopped'. 
+2025-04-12 12:54:13.821 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [54]  AlarmEventProcessor: connected. 
+2025-04-12 12:54:13.822 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [50]  Connected to Fanuc: Address=Ethernet[192.168.1.116:8193]; Control='Fanuc 31i-B'; Series='M series'. 
+2025-04-12 12:54:13.822 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [50]  Main TaskProcessor: connected. 
+2025-04-12 12:54:13.822 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [9]  DynamicDataProcessor started. 
+2025-04-12 12:54:13.822 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [9]  ModalDataProcessor started. 
+2025-04-12 12:54:13.823 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [9]  ToolDataProcessor started. 
+2025-04-12 12:54:13.823 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [9]  AlarmEventProcessor started. 
+2025-04-12 12:54:13.836 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [37]  AlarmEventProcessor: AE updater for address 'Nc1.NcAlarmEvent:0' added. 
+2025-04-12 12:54:13.836 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [34]  DynamicDataProcessor: connected. 
+2025-04-12 12:54:13.836 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [33]  DNC[1]: Initialized. Direct Dnc mode = 'Stopped'. 
+2025-04-12 12:54:13.837 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [37]  AlarmEventProcessor: connected. 
+2025-04-12 12:54:13.837 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [33]  Connected to Fanuc: Address=Ethernet[192.168.1.111:8193]; Control='Fanuc 31i'; Series='M series'. 
+2025-04-12 12:54:13.837 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [35]  ModalDataProcessor: connected. 
+2025-04-12 12:54:13.837 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [33]  Main TaskProcessor: connected. 
+2025-04-12 12:54:13.842 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/LicenseManager [9]  Device License ok '63edc0ae-ef62-4186-bbf5-c03be85d236a'.
+  Expiration : 9999-12-31T23:59:59
+  Device     : MC-6 ()
+  Control    : CNC Milling Boring Horizontal
+ 
+2025-04-12 12:54:13.842 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [9]  Device [MC-6@192.168.1.106:8193] detected. 
+2025-04-12 12:54:13.843 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [9]  Main TaskProcessor created. 
+2025-04-12 12:54:13.843 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [9]  DynamicDataProcessor created. 
+2025-04-12 12:54:13.843 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [9]  ModalDataProcessor created. 
+2025-04-12 12:54:13.843 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [9]  ToolDataProcessor created. 
+2025-04-12 12:54:13.843 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [9]  AlarmEventProcessor created. 
+2025-04-12 12:54:13.893 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [9]  Main TaskProcessor started. 
+2025-04-12 12:54:13.893 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [9]  DynamicDataProcessor started. 
+2025-04-12 12:54:13.894 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [9]  ModalDataProcessor started. 
+2025-04-12 12:54:13.894 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [9]  ToolDataProcessor started. 
+2025-04-12 12:54:13.895 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [9]  AlarmEventProcessor started. 
+2025-04-12 12:54:13.907 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/LicenseManager [9]  Device License ok '93256936-6f8d-4a13-bb1c-a196b48b69c3'.
+  Expiration : 9999-12-31T23:59:59
+  Device     : MC-8 ()
+  Control    : CNC Milling
+ 
+2025-04-12 12:54:13.907 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [9]  Device [MC-8@192.168.1.108:8193] detected. 
+2025-04-12 12:54:13.907 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [9]  Main TaskProcessor created. 
+2025-04-12 12:54:13.908 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [9]  DynamicDataProcessor created. 
+2025-04-12 12:54:13.908 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [9]  ModalDataProcessor created. 
+2025-04-12 12:54:13.908 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [9]  ToolDataProcessor created. 
+2025-04-12 12:54:13.908 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [9]  AlarmEventProcessor created. 
+2025-04-12 12:54:13.944 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [37]  Invalid length of operation message. Fixed to 20 characters. 
+2025-04-12 12:54:13.958 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [9]  Main TaskProcessor started. 
+2025-04-12 12:54:13.958 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [9]  DynamicDataProcessor started. 
+2025-04-12 12:54:13.958 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [9]  ModalDataProcessor started. 
+2025-04-12 12:54:13.959 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [9]  ToolDataProcessor started. 
+2025-04-12 12:54:13.959 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [9]  AlarmEventProcessor started. 
+2025-04-12 12:54:13.974 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/LicenseManager [9]  Device License ok 'e5fb727a-8cec-45a6-8e26-e7b1c8404707'.
+  Expiration : 9999-12-31T23:59:59
+  Device     : MC-9 ()
+  Control    : CNC Milling
+ 
+2025-04-12 12:54:13.975 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [9]  Device [MC-9@192.168.1.109:8193] detected. 
+2025-04-12 12:54:13.975 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [9]  Main TaskProcessor created. 
+2025-04-12 12:54:13.975 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [9]  DynamicDataProcessor created. 
+2025-04-12 12:54:13.975 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [9]  ModalDataProcessor created. 
+2025-04-12 12:54:13.975 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [9]  ToolDataProcessor created. 
+2025-04-12 12:54:13.975 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [9]  AlarmEventProcessor created. 
+2025-04-12 12:54:14.021 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [56]  Nc1: Program Management initialized: CurrentDir='//CNC_MEM/USER/PATH1/'. 
+2025-04-12 12:54:14.040 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [9]  Main TaskProcessor started. 
+2025-04-12 12:54:14.041 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [9]  DynamicDataProcessor started. 
+2025-04-12 12:54:14.041 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [9]  ModalDataProcessor started. 
+2025-04-12 12:54:14.042 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [9]  ToolDataProcessor started. 
+2025-04-12 12:54:14.042 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [9]  AlarmEventProcessor started. 
+2025-04-12 12:54:14.084 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [59]  ToolDataProcessor: connected. 
+2025-04-12 12:54:14.100 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [60]  AlarmEventProcessor: AE updater for address 'Nc1.NcAlarmEvent:0' added. 
+2025-04-12 12:54:14.100 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [58]  ModalDataProcessor: connected. 
+2025-04-12 12:54:14.100 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [57]  DynamicDataProcessor: connected. 
+2025-04-12 12:54:14.100 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [56]  DNC[1]: Initialized. Direct Dnc mode = 'Stopped'. 
+2025-04-12 12:54:14.100 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [60]  AlarmEventProcessor: connected. 
+2025-04-12 12:54:14.100 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [56]  Connected to Fanuc: Address=Ethernet[192.168.1.104:8193]; Control='Fanuc 31i-B'; Series='M series'. 
+2025-04-12 12:54:14.101 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [56]  Main TaskProcessor: connected. 
+2025-04-12 12:54:14.132 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [65]  ToolDataProcessor: connected. 
+2025-04-12 12:54:14.147 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [66]  AlarmEventProcessor: AE updater for address 'Nc1.NcAlarmEvent:0' added. 
+2025-04-12 12:54:14.148 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [66]  AlarmEventProcessor: connected. 
+2025-04-12 12:54:14.147 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [62]  DNC[1]: Initialized. Direct Dnc mode = 'Stopped'. 
+2025-04-12 12:54:14.147 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [64]  ModalDataProcessor: connected. 
+2025-04-12 12:54:14.147 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [63]  DynamicDataProcessor: connected. 
+2025-04-12 12:54:14.148 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [62]  Connected to Fanuc: Address=Ethernet[192.168.1.105:8193]; Control='Fanuc 18i'; Series='M series'. 
+2025-04-12 12:54:14.148 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [62]  Main TaskProcessor: connected. 
+2025-04-12 12:54:14.274 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [77]  ToolDataProcessor: connected. 
+2025-04-12 12:54:14.290 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [78]  AlarmEventProcessor: AE updater for address 'Nc1.NcAlarmEvent:0' added. 
+2025-04-12 12:54:14.290 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [76]  ModalDataProcessor: connected. 
+2025-04-12 12:54:14.290 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [78]  AlarmEventProcessor: connected. 
+2025-04-12 12:54:14.290 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [74]  DNC[1]: Initialized. Direct Dnc mode = 'Stopped'. 
+2025-04-12 12:54:14.290 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [75]  DynamicDataProcessor: connected. 
+2025-04-12 12:54:14.290 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [74]  Connected to Fanuc: Address=Ethernet[192.168.1.108:8193]; Control='Fanuc 18i'; Series='M series'. 
+2025-04-12 12:54:14.290 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [74]  Main TaskProcessor: connected. 
+2025-04-12 12:54:14.300 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [80]  Nc1: Program Management initialized: CurrentDir='//CNC_MEM/USER/PATH1/'. 
+2025-04-12 12:54:14.353 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [84]  ToolDataProcessor: connected. 
+2025-04-12 12:54:14.369 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [83]  ModalDataProcessor: connected. 
+2025-04-12 12:54:14.369 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [80]  DNC[1]: Initialized. Direct Dnc mode = 'Stopped'. 
+2025-04-12 12:54:14.369 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [85]  AlarmEventProcessor: AE updater for address 'Nc1.NcAlarmEvent:0' added. 
+2025-04-12 12:54:14.369 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [82]  DynamicDataProcessor: connected. 
+2025-04-12 12:54:14.369 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [80]  Connected to Fanuc: Address=Ethernet[192.168.1.109:8193]; Control='Fanuc 31i-B'; Series='M series'. 
+2025-04-12 12:54:14.369 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [85]  AlarmEventProcessor: connected. 
+2025-04-12 12:54:14.369 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [80]  Main TaskProcessor: connected. 
+2025-04-12 12:54:14.527 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [72]  ToolDataProcessor: connected. 
+2025-04-12 12:54:14.543 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [73]  AlarmEventProcessor: AE updater for address 'Nc1.NcAlarmEvent:0' added. 
+2025-04-12 12:54:14.543 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [70]  DynamicDataProcessor: connected. 
+2025-04-12 12:54:14.543 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [71]  ModalDataProcessor: connected. 
+2025-04-12 12:54:14.543 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [73]  AlarmEventProcessor: connected. 
+2025-04-12 12:54:14.543 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [68]  DNC[1]: Initialized. Direct Dnc mode = 'Stopped'. 
+2025-04-12 12:54:14.543 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [68]  Connected to Fanuc: Address=Ethernet[192.168.1.106:8193]; Control='Fanuc 16i'; Series='M series'. 
+2025-04-12 12:54:14.543 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [68]  Main TaskProcessor: connected. 
+2025-04-12 12:54:15.093 +07:00 [WRN] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [56]  Could not read comment from '//CNC_MEM/USER/LIBRARY/O9704'. Program is read protected. 
+2025-04-12 12:54:15.477 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [29]  DynamicDataProcessor: connected. 
+2025-04-12 12:54:15.477 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [30]  ModalDataProcessor: connected. 
+2025-04-12 12:54:20.435 +07:00 [WRN] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [56]  Could not read comment from '//CNC_MEM/USER/LIBRARY/O9702'. Program is read protected. 
+2025-04-12 12:54:21.490 +07:00 [WRN] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [56]  Could not read comment from '//CNC_MEM/USER/LIBRARY/O9703'. Program is read protected. 
+2025-04-12 12:54:24.862 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [54]  Invalid length of operation message. Fixed to 32 characters. 
+2025-04-12 12:54:25.822 +07:00 [WRN] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [56]  Could not read comment from '//CNC_MEM/USER/LIBRARY/O9704'. Program is read protected. 
+2025-04-12 12:54:33.729 +07:00 [WRN] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [56]  Could not read comment from '//CNC_MEM/USER/LIBRARY/O9702'. Program is read protected. 
+2025-04-12 12:54:34.453 +07:00 [WRN] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [56]  Could not read comment from '//CNC_MEM/USER/LIBRARY/O9703'. Program is read protected. 
+2025-04-12 12:54:38.275 +07:00 [WRN] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [56]  Could not read comment from '//CNC_MEM/USER/LIBRARY/O9704'. Program is read protected. 
+2025-04-12 12:54:46.178 +07:00 [WRN] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [56]  Could not read comment from '//CNC_MEM/USER/LIBRARY/O9702'. Program is read protected. 
+2025-04-12 12:54:47.271 +07:00 [WRN] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [56]  Could not read comment from '//CNC_MEM/USER/LIBRARY/O9703'. Program is read protected. 
+2025-04-12 12:54:51.034 +07:00 [WRN] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [56]  Could not read comment from '//CNC_MEM/USER/LIBRARY/O9704'. Program is read protected. 
+2025-04-12 12:54:59.250 +07:00 [WRN] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [56]  Could not read comment from '//CNC_MEM/USER/LIBRARY/O9702'. Program is read protected. 
+2025-04-12 12:54:59.954 +07:00 [WRN] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [56]  Could not read comment from '//CNC_MEM/USER/LIBRARY/O9700'. Program is read protected. 
+2025-04-12 13:02:23.482 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [79]  OPC-UA Session [ns=1;g=d7c1c4b7-36cf-4262-b9ab-b625cbbdb62e] opened. 
+2025-04-12 13:02:23.520 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [21]  OPC-UA Session [ns=1;g=d7c1c4b7-36cf-4262-b9ab-b625cbbdb62e] activated for Anonymous 
+2025-04-12 13:03:00.518 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [85]  Invalid length of operation message. Fixed to 20 characters. 
+2025-04-12 13:03:02.612 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [61]  OPC-UA Session [ns=1;g=df44caf5-14c4-4876-8c75-d972077e3c81] opened. 
+2025-04-12 13:03:02.618 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [21]  OPC-UA Session [ns=1;g=df44caf5-14c4-4876-8c75-d972077e3c81] activated for Anonymous 
+2025-04-12 13:03:11.864 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [61]  OPC-UA Session [ns=1;g=43522e32-610a-47b5-b795-95475e7a4c6b] opened. 
+2025-04-12 13:03:11.870 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [21]  OPC-UA Session [ns=1;g=43522e32-610a-47b5-b795-95475e7a4c6b] activated for Anonymous 
+2025-04-12 13:03:56.742 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [15]  OPC-UA Session [ns=1;g=d7c1c4b7-36cf-4262-b9ab-b625cbbdb62e] closed. 
+2025-04-12 13:04:02.734 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [15]  OPC-UA Session [ns=1;g=df44caf5-14c4-4876-8c75-d972077e3c81] closed. 
+2025-04-12 13:07:02.257 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [61]  OPC-UA Session [ns=1;g=5fe015c2-7bdf-4c74-9e6e-f598c3574578] opened. 
+2025-04-12 13:07:02.261 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [24]  OPC-UA Session [ns=1;g=5fe015c2-7bdf-4c74-9e6e-f598c3574578] activated for Anonymous 
+2025-04-12 13:07:56.737 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [22]  OPC-UA Session [ns=1;g=43522e32-610a-47b5-b795-95475e7a4c6b] closed. 
+2025-04-12 13:10:09.386 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [13]  OPC-UA Session [ns=1;g=d3985943-c494-4a42-a7fc-d952a3c87593] opened. 
+2025-04-12 13:10:09.391 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [22]  OPC-UA Session [ns=1;g=d3985943-c494-4a42-a7fc-d952a3c87593] activated for Anonymous 
+2025-04-12 13:10:19.983 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [25]  OPC-UA Session [ns=1;g=d6fb32de-66f5-4203-af5b-e338f2f9e697] opened. 
+2025-04-12 13:10:19.987 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [15]  OPC-UA Session [ns=1;g=d6fb32de-66f5-4203-af5b-e338f2f9e697] activated for Anonymous 
+2025-04-12 13:11:02.776 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [16]  OPC-UA Session [ns=1;g=5fe015c2-7bdf-4c74-9e6e-f598c3574578] closed. 
+2025-04-12 13:11:10.434 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [54]  Invalid length of operation message. Fixed to 28 characters. 
+2025-04-12 13:11:10.737 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [23]  OPC-UA Session [ns=1;g=d3985943-c494-4a42-a7fc-d952a3c87593] closed. 
+2025-04-12 13:11:58.444 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [27]  OPC-UA Session [ns=1;g=603c8581-9f60-4557-a456-c3c99ec81bb3] opened. 
+2025-04-12 13:11:58.449 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [16]  OPC-UA Session [ns=1;g=603c8581-9f60-4557-a456-c3c99ec81bb3] activated for Anonymous 
+2025-04-12 13:12:34.739 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [18]  OPC-UA Session [ns=1;g=d6fb32de-66f5-4203-af5b-e338f2f9e697] closed. 
+2025-04-12 13:13:50.311 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [27]  OPC-UA Session [ns=1;g=4e2c5fe4-f9bb-4790-8719-3b4e82a9e9c9] opened. 
+2025-04-12 13:13:50.315 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [21]  OPC-UA Session [ns=1;g=4e2c5fe4-f9bb-4790-8719-3b4e82a9e9c9] activated for Anonymous 
+2025-04-12 13:14:01.470 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [9]  OPC-UA Session [ns=1;g=ddab23c9-9fd6-4e46-aeed-e961d0e76e63] opened. 
+2025-04-12 13:14:01.475 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [23]  OPC-UA Session [ns=1;g=ddab23c9-9fd6-4e46-aeed-e961d0e76e63] activated for Anonymous 
+2025-04-12 13:14:39.158 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [67]  OPC-UA Session [ns=1;g=7fe3c563-5646-4683-a02f-e78b3f6bd16c] opened. 
+2025-04-12 13:14:39.162 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [18]  OPC-UA Session [ns=1;g=7fe3c563-5646-4683-a02f-e78b3f6bd16c] activated for Anonymous 
+2025-04-12 13:14:44.742 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [18]  OPC-UA Session [ns=1;g=603c8581-9f60-4557-a456-c3c99ec81bb3] closed. 
+2025-04-12 13:14:50.736 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [20]  OPC-UA Session [ns=1;g=4e2c5fe4-f9bb-4790-8719-3b4e82a9e9c9] closed. 
+2025-04-12 13:14:51.366 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [79]  OPC-UA Session [ns=1;g=30fab1ea-75f9-475b-86e3-b04c52eed844] opened. 
+2025-04-12 13:14:51.372 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [19]  OPC-UA Session [ns=1;g=30fab1ea-75f9-475b-86e3-b04c52eed844] activated for Anonymous 
+2025-04-12 13:15:02.479 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [9]  OPC-UA Session [ns=1;g=bd6e4384-1c3b-4c76-a36a-4e28cbb96abd] opened. 
+2025-04-12 13:15:02.482 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [18]  OPC-UA Session [ns=1;g=bd6e4384-1c3b-4c76-a36a-4e28cbb96abd] activated for Anonymous 
+2025-04-12 13:15:09.465 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/ [2]  Terminate HumanOS because the process received an external terminate event. 
+2025-04-12 13:15:09.515 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [9]  Shutdown OpcUaNodeManager. 
+2025-04-12 13:15:09.523 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/OpcUaServer [9]  Shutdown OpcUaNodeManager. 
+2025-04-12 13:15:09.566 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [70]  DynamicDataProcessor: begin disconnect 
+2025-04-12 13:15:09.566 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [39]  DynamicDataProcessor: begin disconnect 
+2025-04-12 13:15:09.566 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [75]  DynamicDataProcessor: begin disconnect 
+2025-04-12 13:15:09.566 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [51]  DynamicDataProcessor: begin disconnect 
+2025-04-12 13:15:09.566 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [63]  DynamicDataProcessor: begin disconnect 
+2025-04-12 13:15:09.568 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [45]  DynamicDataProcessor: begin disconnect 
+2025-04-12 13:15:09.591 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [57]  DynamicDataProcessor: begin disconnect 
+2025-04-12 13:15:09.617 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [75]  DynamicDataProcessor: disconnected. 
+2025-04-12 13:15:09.617 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [63]  DynamicDataProcessor: disconnected. 
+2025-04-12 13:15:09.591 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [45]  DynamicDataProcessor: disconnected. 
+2025-04-12 13:15:09.642 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [57]  DynamicDataProcessor: disconnected. 
+2025-04-12 13:15:09.617 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [39]  DynamicDataProcessor: disconnected. 
+2025-04-12 13:15:09.642 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [8]  DynamicDataProcessor stopped. 
+2025-04-12 13:15:09.617 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [51]  DynamicDataProcessor: disconnected. 
+2025-04-12 13:15:09.617 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [70]  DynamicDataProcessor: disconnected. 
+2025-04-12 13:15:09.642 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [69]  DynamicDataProcessor stopped. 
+2025-04-12 13:15:09.642 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [13]  DynamicDataProcessor stopped. 
+2025-04-12 13:15:09.642 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [27]  DynamicDataProcessor stopped. 
+2025-04-12 13:15:09.642 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [81]  DynamicDataProcessor stopped. 
+2025-04-12 13:15:09.642 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [79]  DynamicDataProcessor stopped. 
+2025-04-12 13:15:09.642 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [61]  DynamicDataProcessor stopped. 
+2025-04-12 13:15:09.644 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [64]  ModalDataProcessor: begin disconnect 
+2025-04-12 13:15:09.657 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [64]  ModalDataProcessor: disconnected. 
+2025-04-12 13:15:09.657 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [52]  ModalDataProcessor: begin disconnect 
+2025-04-12 13:15:09.657 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [46]  ModalDataProcessor: begin disconnect 
+2025-04-12 13:15:09.657 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [40]  ModalDataProcessor: begin disconnect 
+2025-04-12 13:15:09.657 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [71]  ModalDataProcessor: begin disconnect 
+2025-04-12 13:15:09.657 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [13]  ModalDataProcessor stopped. 
+2025-04-12 13:15:09.719 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [76]  ModalDataProcessor: begin disconnect 
+2025-04-12 13:15:09.669 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [52]  ModalDataProcessor: disconnected. 
+2025-04-12 13:15:09.691 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [46]  ModalDataProcessor: disconnected. 
+2025-04-12 13:15:09.776 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [27]  ModalDataProcessor stopped. 
+2025-04-12 13:15:09.669 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [82]  DynamicDataProcessor: begin disconnect 
+2025-04-12 13:15:09.719 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [34]  DynamicDataProcessor: begin disconnect 
+2025-04-12 13:15:09.719 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [29]  DynamicDataProcessor: begin disconnect 
+2025-04-12 13:15:09.792 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [65]  ToolDataProcessor: begin disconnect 
+2025-04-12 13:15:09.792 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [47]  ToolDataProcessor: begin disconnect 
+2025-04-12 13:15:09.774 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [76]  ModalDataProcessor: disconnected. 
+2025-04-12 13:15:09.775 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [79]  ModalDataProcessor stopped. 
+2025-04-12 13:15:09.692 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [58]  ModalDataProcessor: begin disconnect 
+2025-04-12 13:15:09.804 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [34]  DynamicDataProcessor: disconnected. 
+2025-04-12 13:15:09.753 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [71]  ModalDataProcessor: disconnected. 
+2025-04-12 13:15:09.853 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [8]  ModalDataProcessor stopped. 
+2025-04-12 13:15:09.805 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [82]  DynamicDataProcessor: disconnected. 
+2025-04-12 13:15:09.719 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [40]  ModalDataProcessor: disconnected. 
+2025-04-12 13:15:09.829 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [29]  DynamicDataProcessor: disconnected. 
+2025-04-12 13:15:09.853 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [47]  ToolDataProcessor: disconnected. 
+2025-04-12 13:15:09.866 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [25]  DynamicDataProcessor stopped. 
+2025-04-12 13:15:09.866 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [58]  ModalDataProcessor: disconnected. 
+2025-04-12 13:15:09.866 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [9]  DynamicDataProcessor stopped. 
+2025-04-12 13:15:09.866 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [53]  ToolDataProcessor: begin disconnect 
+2025-04-12 13:15:09.853 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [65]  ToolDataProcessor: disconnected. 
+2025-04-12 13:15:09.866 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [12]  DynamicDataProcessor stopped. 
+2025-04-12 13:15:09.866 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [61]  ModalDataProcessor stopped. 
+2025-04-12 13:15:09.866 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [81]  ModalDataProcessor stopped. 
+2025-04-12 13:15:09.866 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [27]  ToolDataProcessor stopped. 
+2025-04-12 13:15:09.878 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [13]  ToolDataProcessor stopped. 
+2025-04-12 13:15:09.866 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [69]  ModalDataProcessor stopped. 
+2025-04-12 13:15:09.878 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [53]  ToolDataProcessor: disconnected. 
+2025-04-12 13:15:09.878 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [77]  ToolDataProcessor: begin disconnect 
+2025-04-12 13:15:09.879 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [79]  ToolDataProcessor stopped. 
+2025-04-12 13:15:09.890 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [35]  ModalDataProcessor: begin disconnect 
+2025-04-12 13:15:09.890 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [41]  ToolDataProcessor: begin disconnect 
+2025-04-12 13:15:09.890 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [77]  ToolDataProcessor: disconnected. 
+2025-04-12 13:15:09.890 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [30]  ModalDataProcessor: begin disconnect 
+2025-04-12 13:15:09.913 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [54]  AlarmEventProcessor: begin disconnect 
+2025-04-12 13:15:09.890 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [72]  ToolDataProcessor: begin disconnect 
+2025-04-12 13:15:09.941 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [54]  AlarmEventProcessor: disconnected. 
+2025-04-12 13:15:09.929 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [30]  ModalDataProcessor: disconnected. 
+2025-04-12 13:15:09.890 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [59]  ToolDataProcessor: begin disconnect 
+2025-04-12 13:15:09.954 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [79]  AlarmEventProcessor stopped. 
+2025-04-12 13:15:09.913 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [48]  AlarmEventProcessor: begin disconnect 
+2025-04-12 13:15:09.913 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [41]  ToolDataProcessor: disconnected. 
+2025-04-12 13:15:09.913 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [8]  ToolDataProcessor stopped. 
+2025-04-12 13:15:09.890 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [66]  AlarmEventProcessor: begin disconnect 
+2025-04-12 13:15:09.976 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [81]  ToolDataProcessor stopped. 
+2025-04-12 13:15:09.954 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [72]  ToolDataProcessor: disconnected. 
+2025-04-12 13:15:09.977 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [61]  ToolDataProcessor stopped. 
+2025-04-12 13:15:09.954 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [83]  ModalDataProcessor: begin disconnect 
+2025-04-12 13:15:09.913 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [35]  ModalDataProcessor: disconnected. 
+2025-04-12 13:15:10.002 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [59]  ToolDataProcessor: disconnected. 
+2025-04-12 13:15:10.003 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [42]  AlarmEventProcessor: begin disconnect 
+2025-04-12 13:15:10.003 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [66]  AlarmEventProcessor: disconnected. 
+2025-04-12 13:15:10.003 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [69]  ToolDataProcessor stopped. 
+2025-04-12 13:15:10.017 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [42]  AlarmEventProcessor: disconnected. 
+2025-04-12 13:15:10.003 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [50]  Main TaskProcessor: begin disconnect 
+2025-04-12 13:15:10.003 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [48]  AlarmEventProcessor: disconnected. 
+2025-04-12 13:15:09.975 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [12]  ModalDataProcessor stopped. 
+2025-04-12 13:15:10.017 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [83]  ModalDataProcessor: disconnected. 
+2025-04-12 13:15:10.017 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [25]  ModalDataProcessor stopped. 
+2025-04-12 13:15:10.017 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [13]  AlarmEventProcessor stopped. 
+2025-04-12 13:15:10.018 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [81]  AlarmEventProcessor stopped. 
+2025-04-12 13:15:10.018 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [27]  AlarmEventProcessor stopped. 
+2025-04-12 13:15:10.018 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [9]  ModalDataProcessor stopped. 
+2025-04-12 13:15:10.018 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [50]  DNC[1]: Uninitialized. 
+2025-04-12 13:15:10.022 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [31]  ToolDataProcessor: begin disconnect 
+2025-04-12 13:15:10.022 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [38]  Main TaskProcessor: begin disconnect 
+2025-04-12 13:15:10.034 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [78]  AlarmEventProcessor: begin disconnect 
+2025-04-12 13:15:10.034 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [31]  ToolDataProcessor: disconnected. 
+2025-04-12 13:15:10.056 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [36]  ToolDataProcessor: begin disconnect 
+2025-04-12 13:15:10.034 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [38]  DNC[1]: Uninitialized. 
+2025-04-12 13:15:10.056 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [84]  ToolDataProcessor: begin disconnect 
+2025-04-12 13:15:10.056 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [50]  Main TaskProcessor: disconnected. 
+2025-04-12 13:15:10.056 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [62]  Main TaskProcessor: begin disconnect 
+2025-04-12 13:15:10.045 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [78]  AlarmEventProcessor: disconnected. 
+2025-04-12 13:15:10.056 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [12]  ToolDataProcessor stopped. 
+2025-04-12 13:15:10.067 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [36]  ToolDataProcessor: disconnected. 
+2025-04-12 13:15:10.067 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [60]  AlarmEventProcessor: begin disconnect 
+2025-04-12 13:15:10.079 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [25]  ToolDataProcessor stopped. 
+2025-04-12 13:15:10.079 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [73]  AlarmEventProcessor: begin disconnect 
+2025-04-12 13:15:10.079 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-16] [79]  Main TaskProcessor stopped. 
+2025-04-12 13:15:10.079 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [62]  DNC[1]: Uninitialized. 
+2025-04-12 13:15:10.079 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [8]  AlarmEventProcessor stopped. 
+2025-04-12 13:15:10.078 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [84]  ToolDataProcessor: disconnected. 
+2025-04-12 13:15:10.089 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [44]  Main TaskProcessor: begin disconnect 
+2025-04-12 13:15:10.089 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [60]  AlarmEventProcessor: disconnected. 
+2025-04-12 13:15:10.100 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [73]  AlarmEventProcessor: disconnected. 
+2025-04-12 13:15:10.101 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [69]  AlarmEventProcessor stopped. 
+2025-04-12 13:15:10.101 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [44]  DNC[1]: Uninitialized. 
+2025-04-12 13:15:10.100 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [9]  ToolDataProcessor stopped. 
+2025-04-12 13:15:10.101 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [61]  AlarmEventProcessor stopped. 
+2025-04-12 13:15:10.117 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [38]  Main TaskProcessor: disconnected. 
+2025-04-12 13:15:10.117 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-14] [81]  Main TaskProcessor stopped. 
+2025-04-12 13:15:10.120 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [85]  AlarmEventProcessor: begin disconnect 
+2025-04-12 13:15:10.132 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [85]  AlarmEventProcessor: disconnected. 
+2025-04-12 13:15:10.132 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [32]  AlarmEventProcessor: begin disconnect 
+2025-04-12 13:15:10.132 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [9]  AlarmEventProcessor stopped. 
+2025-04-12 13:15:10.143 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [56]  Main TaskProcessor: begin disconnect 
+2025-04-12 13:15:10.143 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [32]  AlarmEventProcessor: disconnected. 
+2025-04-12 13:15:10.161 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [44]  Main TaskProcessor: disconnected. 
+2025-04-12 13:15:10.161 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [37]  AlarmEventProcessor: begin disconnect 
+2025-04-12 13:15:10.177 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [56]  DNC[1]: Uninitialized. 
+2025-04-12 13:15:10.177 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [68]  Main TaskProcessor: begin disconnect 
+2025-04-12 13:15:10.177 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [12]  AlarmEventProcessor stopped. 
+2025-04-12 13:15:10.177 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [62]  Main TaskProcessor: disconnected. 
+2025-04-12 13:15:10.177 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-15] [27]  Main TaskProcessor stopped. 
+2025-04-12 13:15:10.188 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [37]  AlarmEventProcessor: disconnected. 
+2025-04-12 13:15:10.188 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [68]  DNC[1]: Uninitialized. 
+2025-04-12 13:15:10.188 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-5] [13]  Main TaskProcessor stopped. 
+2025-04-12 13:15:10.188 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [25]  AlarmEventProcessor stopped. 
+2025-04-12 13:15:10.189 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [81]  Device 'MC-14' disconnected. 
+2025-04-12 13:15:10.189 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [79]  Device 'MC-16' disconnected. 
+2025-04-12 13:15:10.189 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [27]  Device 'MC-15' disconnected. 
+2025-04-12 13:15:10.189 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [13]  Device 'MC-5' disconnected. 
+2025-04-12 13:15:10.204 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [74]  Main TaskProcessor: begin disconnect 
+2025-04-12 13:15:10.204 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [74]  DNC[1]: Uninitialized. 
+2025-04-12 13:15:10.206 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [80]  Main TaskProcessor: begin disconnect 
+2025-04-12 13:15:10.206 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [80]  DNC[1]: Uninitialized. 
+2025-04-12 13:15:10.259 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [74]  Main TaskProcessor: disconnected. 
+2025-04-12 13:15:10.270 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [68]  Main TaskProcessor: disconnected. 
+2025-04-12 13:15:10.249 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [56]  Main TaskProcessor: disconnected. 
+2025-04-12 13:15:10.270 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-8] [8]  Main TaskProcessor stopped. 
+2025-04-12 13:15:10.270 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-4] [69]  Main TaskProcessor stopped. 
+2025-04-12 13:15:10.270 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-6] [61]  Main TaskProcessor stopped. 
+2025-04-12 13:15:10.270 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [80]  Main TaskProcessor: disconnected. 
+2025-04-12 13:15:10.271 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-9] [9]  Main TaskProcessor stopped. 
+2025-04-12 13:15:10.271 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [61]  Device 'MC-6' disconnected. 
+2025-04-12 13:15:10.271 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [69]  Device 'MC-4' disconnected. 
+2025-04-12 13:15:10.271 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [8]  Device 'MC-8' disconnected. 
+2025-04-12 13:15:10.271 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [9]  Device 'MC-9' disconnected. 
+2025-04-12 13:15:10.288 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [33]  Main TaskProcessor: begin disconnect 
+2025-04-12 13:15:10.288 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [28]  Main TaskProcessor: begin disconnect 
+2025-04-12 13:15:10.289 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [33]  DNC[1]: Uninitialized. 
+2025-04-12 13:15:10.289 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [28]  DNC[1]: Uninitialized. 
+2025-04-12 13:15:10.350 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [28]  Main TaskProcessor: disconnected. 
+2025-04-12 13:15:10.375 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [33]  Main TaskProcessor: disconnected. 
+2025-04-12 13:15:10.375 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-1] [12]  Main TaskProcessor stopped. 
+2025-04-12 13:15:10.375 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/FanucControlDriver [MC-11] [25]  Main TaskProcessor stopped. 
+2025-04-12 13:15:10.375 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [12]  Device 'MC-1' disconnected. 
+2025-04-12 13:15:10.375 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/Kernel [25]  Device 'MC-11' disconnected. 
+2025-04-12 13:15:10.386 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/ [9]  HumanOS terminated. 
+2025-04-12 13:15:10.388 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/UpdateManager [9]  Checking for configuration updates ... 
+2025-04-12 13:15:10.392 +07:00 [INF] DESKTOP-BCOSC66/HumanOS/UpdateManager [9]  No updates found. 

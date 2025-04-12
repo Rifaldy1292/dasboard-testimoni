@@ -1,0 +1,1189 @@
+{
+  "Id": "fe2ecfa9-b379-4f6f-abe5-c4c2685894fe",
+  "Name": "FanucOEE",
+  "DriverId": "b3ccd1a7-a49b-46fc-b983-5284992f6444",
+  "Address": "",
+  "Variables": [],
+  "Properties": [
+    {
+      "Name": "Description",
+      "DataType": "System.String",
+      "Value": "OEE for OKUMA MachineCenters"
+    }
+  ],
+  "DataNodes": [
+    {
+      "Id": "fecab82e-9a7a-4e50-9bb3-40a218204bbe",
+      "Name": "Available",
+      "Address": "Global.System.Int32:1",
+      "DataType": "System.Int32",
+      "Unit": "",
+      "Access": {
+        "Read": true,
+        "Receive": true
+      },
+      "Properties": [
+        {
+          "Name": "EnableAzureIoT",
+          "DataType": "System.Boolean",
+          "Value": "true"
+        },
+        {
+          "Name": "EnableInflux",
+          "DataType": "System.Boolean",
+          "Value": "true"
+        },
+        {
+          "Name": "EnableMqtt",
+          "DataType": "System.Boolean",
+          "Value": "true"
+        },
+        {
+          "Name": "EnableRest",
+          "DataType": "System.Boolean",
+          "Value": "true"
+        },
+        {
+          "Name": "EnableRmq",
+          "DataType": "System.Boolean",
+          "Value": "true"
+        },
+        {
+          "Name": "mtc:DataItemId",
+          "DataType": "System.String",
+          "Value": "Lavail"
+        },
+        {
+          "Name": "mtc:InformationType",
+          "DataType": "System.String",
+          "Value": "AVAILABILITY"
+        },
+        {
+          "Name": "mtc:Values",
+          "DataType": "System.String",
+          "Value": "1=AVAILABLE;*=NOT_AVAILABLE"
+        },
+        {
+          "Name": "PortMatchId",
+          "DataType": "System.String",
+          "Value": "AvailableType"
+        }
+      ]
+    },
+    {
+      "Id": "3aa909ef-5011-4368-946a-eabd3530ad8e",
+      "Name": "SignOfLife",
+      "Address": "Global.System.Int32:2",
+      "DataType": "System.Int32",
+      "Unit": "",
+      "Access": {
+        "Read": true,
+        "Receive": true
+      },
+      "Properties": [
+        {
+          "Name": "EnableAzureIoT",
+          "DataType": "System.Boolean",
+          "Value": "true"
+        },
+        {
+          "Name": "EnableInflux",
+          "DataType": "System.Boolean",
+          "Value": "true"
+        },
+        {
+          "Name": "EnableMqtt",
+          "DataType": "System.Boolean",
+          "Value": "true"
+        },
+        {
+          "Name": "EnableRmq",
+          "DataType": "System.Boolean",
+          "Value": "true"
+        },
+        {
+          "Name": "EnableRest",
+          "DataType": "System.Boolean",
+          "Value": "true"
+        }
+      ]
+    }
+  ],
+  "ConstantNodes": [],
+  "Commands": [],
+  "Groups": [
+    {
+      "Id": "9d260b35-504b-4922-8ee0-bd74f1b740f9",
+      "Name": "Controller",
+      "Properties": [
+        {
+          "Name": "mtc:ComponentName",
+          "DataType": "System.String",
+          "Value": "Controller"
+        },
+        {
+          "Name": "mtc:ComponentId",
+          "DataType": "System.String",
+          "Value": "Lct1"
+        }
+      ],
+      "DataNodes": [
+        {
+          "Id": "32996154-8b16-4cb1-a805-d69f761a7a39",
+          "Name": "OperationMode",
+          "Address": "Nc1.Dynamic.Float64:8",
+          "DataType": "System.Int32",
+          "Unit": "",
+          "Access": {
+            "Read": true,
+            "Receive": true
+          },
+          "Properties": [
+            {
+              "Name": "mtc:DataItemId",
+              "DataType": "System.String",
+              "Value": "Lpmode"
+            },
+            {
+              "Name": "mtc:InformationType",
+              "DataType": "System.String",
+              "Value": "CONTROLLER_MODE"
+            },
+            {
+              "Name": "mtc:Values",
+              "DataType": "System.String",
+              "Value": "0=MANUAL_DATA_INPUT;1=AUTOMATIC;*=MANUAL"
+            },
+            {
+              "Name": "PortMatchId",
+              "DataType": "System.String",
+              "Value": "OperationModeType"
+            },
+            {
+              "Name": "EnableMqtt",
+              "DataType": "System.Boolean",
+              "Value": "true"
+            },
+            {
+              "Name": "EnableInflux",
+              "DataType": "System.Boolean",
+              "Value": "true"
+            },
+            {
+              "Name": "EnableRmq",
+              "DataType": "System.Boolean",
+              "Value": "true"
+            },
+            {
+              "Name": "EnableRest",
+              "DataType": "System.Boolean",
+              "Value": "true"
+            },
+            {
+              "Name": "EnableAzureIoT",
+              "DataType": "System.Boolean",
+              "Value": "true"
+            }
+          ]
+        },
+        {
+          "Id": "b795aebb-35f3-4495-8e44-6362b742115b",
+          "Name": "AlarmState",
+          "Address": "Nc1.Dynamic.Float64:6",
+          "DataType": "System.Int32",
+          "Unit": "",
+          "Access": {
+            "Read": true,
+            "Receive": true
+          },
+          "Properties": [
+            {
+              "Name": "PortMatchId",
+              "DataType": "System.String",
+              "Value": "AlarmStateType"
+            }
+          ]
+        },
+        {
+          "Id": "1fb59cd3-1e00-4236-934c-b1ac179f5765",
+          "Name": "RunningState",
+          "Address": "Nc1.Dynamic.Float64:5",
+          "DataType": "System.Int32",
+          "Unit": "",
+          "Access": {
+            "Read": true,
+            "Receive": true
+          },
+          "Properties": [
+            {
+              "Name": "mtc:DataItemId",
+              "DataType": "System.String",
+              "Value": "Lpexecution"
+            },
+            {
+              "Name": "mtc:InformationType",
+              "DataType": "System.String",
+              "Value": "EXECUTION"
+            },
+            {
+              "Name": "mtc:Values",
+              "DataType": "System.String",
+              "Value": "*=PROGRAM_STOPPED;2=FEED_HOLD;3=ACTIVE"
+            },
+            {
+              "Name": "PortMatchId",
+              "DataType": "System.String",
+              "Value": "RunningStateType"
+            },
+            {
+              "Name": "EnableMqtt",
+              "DataType": "System.Boolean",
+              "Value": "true"
+            },
+            {
+              "Name": "EnableInflux",
+              "DataType": "System.Boolean",
+              "Value": "true"
+            },
+            {
+              "Name": "EnableRmq",
+              "DataType": "System.Boolean",
+              "Value": "true"
+            },
+            {
+              "Name": "EnableRest",
+              "DataType": "System.Boolean",
+              "Value": "true"
+            },
+            {
+              "Name": "EnableAzureIoT",
+              "DataType": "System.Boolean",
+              "Value": "true"
+            }
+          ]
+        },
+        {
+          "Id": "d72370e5-01ae-4543-bedb-1b0c30e217f6",
+          "Name": "EmergencyState",
+          "Address": "Nc1.Dynamic.Float64:7",
+          "DataType": "System.Int32",
+          "Unit": "",
+          "Access": {
+            "Read": true,
+            "Receive": true
+          },
+          "Properties": [
+            {
+              "Name": "mtc:InformationType",
+              "DataType": "System.String",
+              "Value": "EMERGENCY_STOP"
+            },
+            {
+              "Name": "mtc:DataItemId",
+              "DataType": "System.String",
+              "Value": "estop"
+            },
+            {
+              "Name": "PortMatchId",
+              "DataType": "System.String",
+              "Value": "EmergencyStateType"
+            }
+          ]
+        },
+        {
+          "Id": "54c453a6-8809-4515-bbe4-561747c83db0",
+          "Name": "PowerOnTime",
+          "Address": "Nc1.Timer.Float64:0",
+          "DataType": "System.Double",
+          "Unit": "min",
+          "DataClass": "Stream",
+          "Access": {
+            "Read": true,
+            "Receive": true
+          },
+          "Properties": [
+            {
+              "Name": "mtc:InformationSubType",
+              "DataType": "System.String",
+              "Value": "x:TOTAL"
+            },
+            {
+              "Name": "mtc:InformationType",
+              "DataType": "System.String",
+              "Value": "ACCUMULATED_TIME"
+            },
+            {
+              "Name": "mtc:DataItemId",
+              "DataType": "System.String",
+              "Value": "yltime"
+            }
+          ]
+        },
+        {
+          "Id": "92f0c59e-f733-442e-8473-2795e7c36da6",
+          "Name": "OperationTime",
+          "Address": "Nc1.Timer.Float64:1",
+          "DataType": "System.Double",
+          "Unit": "min",
+          "DataClass": "Stream",
+          "Access": {
+            "Read": true,
+            "Receive": true
+          },
+          "Properties": [
+            {
+              "Name": "mtc:InformationSubType",
+              "DataType": "System.String",
+              "Value": "x:AUTO"
+            },
+            {
+              "Name": "mtc:InformationType",
+              "DataType": "System.String",
+              "Value": "ACCUMULATED_TIME"
+            },
+            {
+              "Name": "mtc:DataItemId",
+              "DataType": "System.String",
+              "Value": "atime"
+            }
+          ]
+        },
+        {
+          "Id": "a488a0e1-8407-41d4-adda-e4dfb9292686",
+          "Name": "PartCounter",
+          "Address": "Nc1.Param.Uint32:6711",
+          "DataType": "System.Int32",
+          "Unit": "",
+          "Access": {
+            "Read": true,
+            "Receive": true
+          },
+          "Properties": [
+            {
+              "Name": "EnableAzureIoT",
+              "DataType": "System.Boolean",
+              "Value": "true"
+            },
+            {
+              "Name": "EnableInflux",
+              "DataType": "System.Boolean",
+              "Value": "true"
+            },
+            {
+              "Name": "EnableMqtt",
+              "DataType": "System.Boolean",
+              "Value": "true"
+            },
+            {
+              "Name": "EnableRest",
+              "DataType": "System.Boolean",
+              "Value": "true"
+            },
+            {
+              "Name": "EnableRmq",
+              "DataType": "System.Boolean",
+              "Value": "true"
+            },
+            {
+              "Name": "mtc:DataItemId",
+              "DataType": "System.String",
+              "Value": "pc"
+            },
+            {
+              "Name": "mtc:InformationType",
+              "DataType": "System.String",
+              "Value": "PART_COUNT"
+            },
+            {
+              "Name": "PortMatchId",
+              "DataType": "System.String",
+              "Value": "PartCounterType"
+            }
+          ]
+        },
+        {
+          "Id": "77d4602e-2137-4009-a2a6-42a1ae31fca5",
+          "Name": "CuttingTime",
+          "Address": "Nc1.Timer.Float64:2",
+          "DataType": "System.Double",
+          "Unit": "min",
+          "DataClass": "Stream",
+          "Access": {
+            "Read": true,
+            "Receive": true
+          },
+          "Properties": [
+            {
+              "Name": "mtc:InformationSubType",
+              "DataType": "System.String",
+              "Value": "x:TOTALCUTTIME"
+            },
+            {
+              "Name": "mtc:InformationType",
+              "DataType": "System.String",
+              "Value": "ACCUMULATED_TIME"
+            },
+            {
+              "Name": "mtc:DataItemId",
+              "DataType": "System.String",
+              "Value": "tcltime"
+            }
+          ]
+        },
+        {
+          "Id": "78748c8d-e8c2-46ef-8eb5-9915c53091f5",
+          "Name": "Custom500",
+          "Address": "Nc1.CustomMV.Float64:500",
+          "DataType": "System.Double",
+          "Unit": "",
+          "Access": {
+            "Read": true,
+            "ReadConversion": {},
+            "Receive": true,
+            "Write": true,
+            "WriteConversion": {}
+          },
+          "Properties": []
+        },
+        {
+          "Id": "dac3175e-380d-47f0-8539-734e79e25402",
+          "Name": "Custom501",
+          "Address": "Nc1.CustomMV.Float64:501",
+          "DataType": "System.Double",
+          "Unit": "",
+          "Access": {
+            "Read": true,
+            "ReadConversion": {},
+            "Receive": true,
+            "Write": true,
+            "WriteConversion": {}
+          },
+          "Properties": []
+        },
+        {
+          "Id": "aef62f80-8589-4bae-9ddd-6f9b8e69dbc6",
+          "Name": "Custom502",
+          "Address": "Nc1.CustomMV.Float64:502",
+          "DataType": "System.Double",
+          "Unit": "",
+          "Access": {
+            "Read": true,
+            "ReadConversion": {},
+            "Receive": true,
+            "Write": true,
+            "WriteConversion": {}
+          },
+          "Properties": []
+        },
+        {
+          "Id": "834cf575-3362-459c-ba27-4df5d3ad1d8a",
+          "Name": "Custom503",
+          "Address": "Nc1.CustomMV.Float64:503",
+          "DataType": "System.Double",
+          "Unit": "",
+          "Access": {
+            "Read": true,
+            "ReadConversion": {},
+            "Receive": true,
+            "Write": true,
+            "WriteConversion": {}
+          },
+          "Properties": []
+        }
+      ],
+      "ConstantNodes": [],
+      "Commands": [],
+      "Groups": [
+        {
+          "Id": "f419ae21-6c68-43a6-bd00-68f0f66e9b8a",
+          "Name": "NCPath1",
+          "Properties": [
+            {
+              "Name": "mtc:ComponentName",
+              "DataType": "System.String",
+              "Value": "Path"
+            },
+            {
+              "Name": "mtc:ComponentId",
+              "DataType": "System.String",
+              "Value": "Lp1"
+            }
+          ],
+          "DataNodes": [
+            {
+              "Id": "5e83fe80-9c21-4533-b1ab-fb845994badb",
+              "Name": "CurrentSpindleSpeed",
+              "Address": "Nc1.Spindle.Float64:1°1",
+              "DataType": "System.Double",
+              "Unit": "1/min",
+              "DataClass": "Stream",
+              "Access": {
+                "Read": true,
+                "Receive": true
+              },
+              "Properties": [
+                {
+                  "Name": "mtc:DataItemId",
+                  "DataType": "System.String",
+                  "Value": "Srpm"
+                },
+                {
+                  "Name": "mtc:InformationType",
+                  "DataType": "System.String",
+                  "Value": "ROTARY_VELOCITY"
+                },
+                {
+                  "Name": "mtc:InformationSubType",
+                  "DataType": "System.String",
+                  "Value": "ACTUAL"
+                }
+              ]
+            },
+            {
+              "Id": "b840c5be-c1c2-4b4c-8896-97365c6e5fdd",
+              "Name": "CurrentFeed",
+              "Address": "Nc1.Dynamic.Float64:4",
+              "DataType": "System.Double",
+              "Unit": "mm/min",
+              "DataClass": "Stream",
+              "Access": {
+                "Read": true,
+                "Receive": true
+              },
+              "Properties": [
+                {
+                  "Name": "mtc:DataItemId",
+                  "DataType": "System.String",
+                  "Value": "cf"
+                },
+                {
+                  "Name": "mtc:InformationSubType",
+                  "DataType": "System.String",
+                  "Value": "ACTUAL"
+                },
+                {
+                  "Name": "mtc:InformationType",
+                  "DataType": "System.String",
+                  "Value": "PATH_FEEDRATE"
+                }
+              ]
+            },
+            {
+              "Id": "d90891dd-ca85-4fa4-8a8e-9e409c0684bf",
+              "Name": "ProgrammedFeed",
+              "Address": "Nc1.Modal.Float64:4°5",
+              "DataType": "System.Double",
+              "Unit": "mm/min",
+              "Access": {
+                "Read": true,
+                "Receive": true
+              },
+              "Properties": [
+                {
+                  "Name": "mtc:InformationSubType",
+                  "DataType": "System.String",
+                  "Value": "COMMANDED"
+                },
+                {
+                  "Name": "mtc:InformationType",
+                  "DataType": "System.String",
+                  "Value": "PATH_FEEDRATE"
+                },
+                {
+                  "Name": "mtc:DataItemId",
+                  "DataType": "System.String",
+                  "Value": "pf"
+                }
+              ]
+            },
+            {
+              "Id": "5fe72b64-44a4-43d3-97f5-e6c84af4057f",
+              "Name": "MainProgram",
+              "Address": "Nc1.Dynamic.Float64:0",
+              "DataType": "System.String",
+              "Unit": "",
+              "Access": {
+                "Read": true,
+                "Receive": true
+              },
+              "Properties": [
+                {
+                  "Name": "PortMatchId",
+                  "DataType": "System.String",
+                  "Value": "MainProgramType"
+                },
+                {
+                  "Name": "EnableMqtt",
+                  "DataType": "System.Boolean",
+                  "Value": "true"
+                },
+                {
+                  "Name": "EnableInflux",
+                  "DataType": "System.Boolean",
+                  "Value": "true"
+                },
+                {
+                  "Name": "EnableRmq",
+                  "DataType": "System.Boolean",
+                  "Value": "true"
+                },
+                {
+                  "Name": "EnableRest",
+                  "DataType": "System.Boolean",
+                  "Value": "true"
+                },
+                {
+                  "Name": "EnableAzureIoT",
+                  "DataType": "System.Boolean",
+                  "Value": "true"
+                }
+              ]
+            },
+            {
+              "Id": "0b94c6d2-3390-4a48-9e59-21c85d32d740",
+              "Name": "CurrentProgram",
+              "Address": "Nc1.Dynamic.Float64:1",
+              "DataType": "System.String",
+              "Unit": "",
+              "Access": {
+                "Read": true,
+                "Receive": true
+              },
+              "Properties": [
+                {
+                  "Name": "mtc:DataItemId",
+                  "DataType": "System.String",
+                  "Value": "Lpprogram"
+                },
+                {
+                  "Name": "mtc:InformationType",
+                  "DataType": "System.String",
+                  "Value": "PROGRAM"
+                },
+                {
+                  "Name": "PortMatchId",
+                  "DataType": "System.String",
+                  "Value": "CurrentProgramType"
+                },
+                {
+                  "Name": "mtc:InformationSubType",
+                  "DataType": "System.String",
+                  "Value": "x:ACTUAL"
+                }
+              ]
+            },
+            {
+              "Id": "21eeac47-b32f-4906-ab27-4751ce68b074",
+              "Name": "CurrentSequenceNr",
+              "Address": "Nc1.Dynamic.Float64:2",
+              "DataType": "System.String",
+              "Unit": "",
+              "Access": {
+                "Read": true,
+                "Receive": true
+              },
+              "Properties": [
+                {
+                  "Name": "mtc:DataItemId",
+                  "DataType": "System.String",
+                  "Value": "seq"
+                },
+                {
+                  "Name": "mtc:InformationType",
+                  "DataType": "System.String",
+                  "Value": "SEQUENCE_NUMBER"
+                }
+              ]
+            },
+            {
+              "Id": "f6f22a34-edc4-4730-be97-b53f6ce57a7e",
+              "Name": "CurrentNcBlock",
+              "Address": "Nc1.Program.String:2",
+              "DataType": "System.String",
+              "Unit": "",
+              "Access": {
+                "Read": true,
+                "Receive": true
+              },
+              "Properties": []
+            },
+            {
+              "Id": "29427832-a984-4601-b5fd-df2b8b492698",
+              "Name": "MainProgramHeader",
+              "Address": "Nc1.Program.String:10",
+              "DataType": "System.String",
+              "Unit": "",
+              "Access": {
+                "Read": true,
+                "Receive": true
+              },
+              "Properties": [
+                {
+                  "Name": "PortMatchId",
+                  "DataType": "System.String",
+                  "Value": "MainProgramHeaderType"
+                },
+                {
+                  "Name": "mtc:Ignore",
+                  "DataType": "System.Boolean",
+                  "Value": "true"
+                }
+              ]
+            },
+            {
+              "Id": "7af215b0-19b4-400a-871f-459c404b2a35",
+              "Name": "CurrentToolId",
+              "Address": "Nc1.Modal.Float64:4°19",
+              "DataType": "System.String",
+              "Unit": "",
+              "Access": {
+                "Read": true,
+                "Receive": true
+              },
+              "Properties": [
+                {
+                  "Name": "mtc:DataItemId",
+                  "DataType": "System.String",
+                  "Value": "tid"
+                },
+                {
+                  "Name": "mtc:InformationType",
+                  "DataType": "System.String",
+                  "Value": "TOOL_NUMBER"
+                }
+              ]
+            },
+            {
+              "Id": "ce583ca9-14bb-4e98-858c-923729b41850",
+              "Name": "ProgrammedSpindleSpeed",
+              "Address": "Nc1.Dynamic.Float64:3",
+              "DataType": "System.Double",
+              "Unit": "1/min",
+              "Access": {
+                "Read": true,
+                "Receive": true
+              },
+              "Properties": [
+                {
+                  "Name": "mtc:DataItemId",
+                  "DataType": "System.String",
+                  "Value": "psrpm"
+                },
+                {
+                  "Name": "mtc:InformationSubType",
+                  "DataType": "System.String",
+                  "Value": "COMMANDED"
+                },
+                {
+                  "Name": "mtc:InformationType",
+                  "DataType": "System.String",
+                  "Value": "ROTARY_VELOCITY"
+                }
+              ]
+            }
+          ],
+          "ConstantNodes": [],
+          "Commands": [],
+          "Groups": []
+        },
+        {
+          "Id": "23365c62-86a6-494e-ab46-5cbc576c90c1",
+          "Name": "Private",
+          "Properties": [],
+          "DataNodes": [
+            {
+              "Id": "a9286dc7-7d94-4d33-8e9f-d58d5e4579f4",
+              "Name": "FeedrateOverrideRaw",
+              "Address": "Pmc1.Pmc_G.Uint8:12",
+              "DataType": "System.Byte",
+              "Unit": "%",
+              "Access": {
+                "Read": true,
+                "Receive": true
+              },
+              "Properties": [
+                {
+                  "Name": "PortMatchId",
+                  "DataType": "System.String",
+                  "Value": "FeedrateOverrideRawType"
+                }
+              ]
+            },
+            {
+              "Id": "1fa3e002-4046-4420-907d-a4c17ff28b6d",
+              "Name": "SpindleOverrideRaw",
+              "Address": "Pmc1.Pmc_G.Uint8:13",
+              "DataType": "System.Byte",
+              "Unit": "%",
+              "Access": {
+                "Read": true,
+                "Receive": true
+              },
+              "Properties": [
+                {
+                  "Name": "PortMatchId",
+                  "DataType": "System.String",
+                  "Value": "SpindleOverrideRawType"
+                }
+              ]
+            }
+          ],
+          "ConstantNodes": [],
+          "Commands": [],
+          "Groups": []
+        }
+      ]
+    }
+  ],
+  "AlarmEventPool": {
+    "Id": "93e32aca-ec27-416b-bc2b-34bb085b2db5",
+    "Name": "MachineAlarming",
+    "Tasks": [
+      {
+        "Id": "608a08a5-046b-4089-9671-d1afb40f9d19",
+        "Name": "SystemAlarms",
+        "Address": "Nc1.NcAlarmEvent:0",
+        "Properties": []
+      }
+    ],
+    "HistoryMode": {
+      "Retention": 720,
+      "SamplingRate": 2000,
+      "HistoryTableName": "",
+      "IdField": "",
+      "TaggedFields": [],
+      "TrackedFields": []
+    },
+    "Properties": [
+      {
+        "Name": "EnableAzureIoT",
+        "DataType": "System.Boolean",
+        "Value": "true"
+      },
+      {
+        "Name": "EnableInflux",
+        "DataType": "System.Boolean",
+        "Value": "true"
+      },
+      {
+        "Name": "EnableMqtt",
+        "DataType": "System.Boolean",
+        "Value": "true"
+      },
+      {
+        "Name": "EnableRest",
+        "DataType": "System.Boolean",
+        "Value": "true"
+      },
+      {
+        "Name": "EnableRmq",
+        "DataType": "System.Boolean",
+        "Value": "true"
+      },
+      {
+        "Name": "mtc:DataItemId",
+        "DataType": "System.String",
+        "Value": "Lsystem"
+      },
+      {
+        "Name": "mtc:InformationType",
+        "DataType": "System.String",
+        "Value": "SYSTEM"
+      },
+      {
+        "Name": "PortMatchId",
+        "DataType": "System.String",
+        "Value": "MachineAlarmingType"
+      }
+    ]
+  },
+  "Skills": [
+    {
+      "Id": "834276bc-0d04-45d5-afd2-7a1e07141f99",
+      "Name": "ProgramManagement",
+      "Properties": []
+    }
+  ],
+  "TaskProcessors": [],
+  "EntityTypes": [],
+  "ProcessingNetworks": [
+    {
+      "Id": "be00ac2b-0b28-421e-9721-65219df5599b",
+      "Name": "DataProcessors",
+      "DataNodes": [],
+      "Links": [],
+      "Processors": [
+        {
+          "Id": "b59bcf6d-bee5-4f92-8035-c7f56c080d15",
+          "Name": "MachineStateProcessor",
+          "InitialData": [
+            "AvailableState <= 0                      => OutputMachineState=900; OutputMachineStateName=\"Power Off\"",
+            "AlarmState != 0                          => OutputMachineState=1;   OutputMachineStateName=\"Disturbance\"",
+            "OperationMode != 1                       => OutputMachineState=100; OutputMachineStateName=\"Setup\"",
+            "OperationMode == 1 and RunningState == 3 => OutputMachineState=200; OutputMachineStateName=\"Production\"",
+            "OperationMode == 1 and RunningState == 2 => OutputMachineState=300; OutputMachineStateName=\"Production Stopped\"",
+            "OperationMode == 1 and RunningState == 1 => OutputMachineState=310; OutputMachineStateName=\"Stopped: Missing Material\"",
+            "OperationMode == 1                       => OutputMachineState=320; OutputMachineStateName=\"Stopped: Missing Personal\""
+          ],
+          "Type": "SituationProcessingNode",
+          "Ports": [
+            {
+              "Name": "AvailableState",
+              "DataType": "System.Int32",
+              "Public": true,
+              "Necessity": "Mandatory",
+              "Properties": [
+                {
+                  "Name": "PortMatchId",
+                  "DataType": "System.String",
+                  "Value": "AvailableType"
+                }
+              ]
+            },
+            {
+              "Name": "OutputMachineState",
+              "DataType": "System.Int32",
+              "FlowDirection": "Output",
+              "Public": true,
+              "Properties": [
+                {
+                  "Name": "PortMatchId",
+                  "DataType": "System.String",
+                  "Value": "OEEMachineStateType"
+                }
+              ]
+            },
+            {
+              "Name": "OutputMachineStateName",
+              "DataType": "System.String",
+              "FlowDirection": "Output",
+              "Public": true,
+              "Properties": [
+                {
+                  "Name": "PortMatchId",
+                  "DataType": "System.String",
+                  "Value": "OEEMachineStateNameType"
+                }
+              ]
+            },
+            {
+              "Id": "17507be4-3b0e-44e9-a079-cb1217629b46",
+              "Name": "AlarmState",
+              "DataType": "System.Int32",
+              "Public": true,
+              "Properties": [
+                {
+                  "Name": "PortMatchId",
+                  "DataType": "System.String",
+                  "Value": "AlarmStateType"
+                }
+              ]
+            },
+            {
+              "Id": "2a531979-1da5-47c0-b127-b78deb7d4965",
+              "Name": "OperationMode",
+              "DataType": "System.Int32",
+              "Public": true,
+              "Properties": [
+                {
+                  "Name": "PortMatchId",
+                  "DataType": "System.String",
+                  "Value": "OperationModeType"
+                }
+              ]
+            },
+            {
+              "Id": "21d6ce52-a75c-4075-9789-0557e1503f68",
+              "Name": "RunningState",
+              "DataType": "System.Int32",
+              "Public": true,
+              "Properties": [
+                {
+                  "Name": "PortMatchId",
+                  "DataType": "System.String",
+                  "Value": "RunningStateType"
+                }
+              ]
+            }
+          ],
+          "Properties": [
+            {
+              "Name": "DelayTime",
+              "DataType": "System.Int32",
+              "Value": "1000"
+            }
+          ]
+        },
+        {
+          "Id": "7e29aa00-f993-428f-a211-fb3a125074c9",
+          "Name": "ProductProcessor",
+          "InitialData": [
+            "Fanuc_ProductProcessor.cs"
+          ],
+          "Type": "CSharpScriptProcessingNode",
+          "Ports": [
+            {
+              "Name": "InputProgramHeader",
+              "DataType": "System.String",
+              "Public": true,
+              "Properties": [
+                {
+                  "Name": "PortMatchId",
+                  "DataType": "System.String",
+                  "Value": "MainProgramHeaderType"
+                }
+              ]
+            },
+            {
+              "Name": "OutputProductName",
+              "DataType": "System.String",
+              "FlowDirection": "Output",
+              "Public": true,
+              "Properties": [
+                {
+                  "Name": "PortMatchId",
+                  "DataType": "System.String",
+                  "Value": "OEEProductNameType"
+                }
+              ]
+            },
+            {
+              "Id": "24d9eb6b-6cba-4016-bcea-d4ad2af54b74",
+              "Name": "OutputProductionStep",
+              "DataType": "System.String",
+              "FlowDirection": "Output",
+              "Public": true,
+              "Properties": [
+                {
+                  "Name": "PortMatchId",
+                  "DataType": "System.String",
+                  "Value": "OEEProductionStepType"
+                }
+              ]
+            }
+          ],
+          "Properties": []
+        },
+        {
+          "Id": "a8bfd8b9-cb4f-42d8-bc60-68fa870e895b",
+          "Name": "FeedrateOverrideProcessor",
+          "InitialData": [
+            "Input == 0 => 0",
+            "Input > 0 => 255 - Input"
+          ],
+          "Type": "SituationProcessingNode",
+          "Ports": [
+            {
+              "Name": "Input",
+              "DataType": "System.Byte",
+              "Public": true,
+              "Necessity": "Mandatory",
+              "Properties": [
+                {
+                  "Name": "PortMatchId",
+                  "DataType": "System.String",
+                  "Value": "FeedrateOverrideRawType"
+                }
+              ]
+            },
+            {
+              "Name": "Output",
+              "DataType": "System.Double",
+              "FlowDirection": "Output",
+              "Public": true,
+              "Properties": [
+                {
+                  "Name": "PortMatchId",
+                  "DataType": "System.String",
+                  "Value": "FeedrateOverrideType"
+                }
+              ]
+            }
+          ],
+          "Properties": [
+            {
+              "Name": "DelayTime",
+              "DataType": "System.Int32",
+              "Value": "0"
+            }
+          ]
+        },
+        {
+          "Id": "37460b32-3c57-44f3-b9d4-ad271c466bb1",
+          "Name": "SpindleOverrideProcessor",
+          "InitialData": [
+            "Input == 0 => 0",
+            "Input > 0 => 255 - Input"
+          ],
+          "Type": "SituationProcessingNode",
+          "Ports": [
+            {
+              "Name": "Input",
+              "DataType": "System.Byte",
+              "Public": true,
+              "Necessity": "Mandatory",
+              "Properties": [
+                {
+                  "Name": "PortMatchId",
+                  "DataType": "System.String",
+                  "Value": "SpindleOverrideRawType"
+                }
+              ]
+            },
+            {
+              "Name": "Output",
+              "DataType": "System.Double",
+              "FlowDirection": "Output",
+              "Public": true,
+              "Properties": [
+                {
+                  "Name": "PortMatchId",
+                  "DataType": "System.String",
+                  "Value": "SpindleOverrideType"
+                }
+              ]
+            }
+          ],
+          "Properties": [
+            {
+              "Name": "DelayTime",
+              "DataType": "System.Int32",
+              "Value": "0"
+            }
+          ]
+        }
+      ],
+      "Properties": [
+        {
+          "Name": "opc-ua:Ignore",
+          "DataType": "System.Boolean",
+          "Value": "true"
+        },
+        {
+          "Name": "mtc:Ignore",
+          "DataType": "System.Boolean",
+          "Value": "true"
+        }
+      ]
+    }
+  ],
+  "Rules": [
+    {
+      "Id": "df35b3c0-144f-44c0-9a84-6068eda56700",
+      "Name": "PortMatchingRule",
+      "Type": "PortMatchingRule",
+      "Properties": [
+        {
+          "Name": "mtc:Ignore",
+          "DataType": "System.Boolean",
+          "Value": "true"
+        },
+        {
+          "Name": "opc-ua:Ignore",
+          "DataType": "System.Boolean",
+          "Value": "true"
+        }
+      ]
+    }
+  ]
+}

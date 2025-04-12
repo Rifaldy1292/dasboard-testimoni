@@ -1,4 +1,10 @@
-const { Machine, MachineLog, CuttingTime, EncryptData, DailyConfig } = require("../models");
+const {
+  Machine,
+  MachineLog,
+  CuttingTime,
+  EncryptData,
+  DailyConfig,
+} = require("../models");
 const dateCuttingTime = require("../utils/dateCuttingTime");
 const { serverError } = require("../utils/serverError");
 const countHour = require("../utils/countHour");
@@ -11,11 +17,13 @@ let { config } = require("../utils/dateQuery");
 const { encryptToNumber } = require("../helpers/crypto");
 const { encryptionCache } = require("../cache");
 const { getRunningTimeMachineLog } = require("../utils/machineUtils");
+const { remove } = require("fs-extra");
 
 const hostHp = "192.168.43.99";
 const pwHp = "android";
 const portHp = 2221;
-const localDir = (machine_id) => path.join(__dirname, "..", "public", "cnc_files", machine_id);
+const localDir = (machine_id) =>
+  path.join(__dirname, "..", "public", "cnc_files", machine_id);
 
 class MachineController {
   static clearCache(_, res) {
@@ -102,13 +110,14 @@ class MachineController {
       //  Hapus dari Map setelah tersimpan ke database
       encryptionCache.clear();
 
-      res
-        .status(200)
-        .json({ status: 200, message: ` Successfully ${isUndo ? 'undo' : 'remove'} files` });
+      res.status(200).json({
+        status: 200,
+        message: ` Successfully ${isUndo ? "undo" : "remove"} files`,
+      });
     } catch (error) {
       console.log({ error, message: error.message });
       if (error.code === "ECONNREFUSED")
-        return serverError(error, res, "Failed to connect to machine")
+        return serverError(error, res, "Failed to connect to machine");
       if (
         error.code === 550 ||
         error.message === "550 STOR requested action not taken: File exists."
@@ -128,9 +137,10 @@ class MachineController {
     try {
       const { machine_id, fileName } = req.query;
       if (!machine_id || !fileName) {
-        return res
-          .status(400)
-          .json({ message: "machine_id and fileName are required", status: 400 });
+        return res.status(400).json({
+          message: "machine_id and fileName are required",
+          status: 400,
+        });
       }
 
       // check if file exists on pc
@@ -141,7 +151,7 @@ class MachineController {
           .status(400)
           .json({ message: "File not found on PC", status: 400 });
       }
-      //get file 
+      //get file
       const file = fs.readFileSync(filePath);
       req.files = [{ buffer: file, originalname: fileName }];
       req.body = { machine_id };
@@ -150,7 +160,7 @@ class MachineController {
       // remove file from pc
       fs.unlinkSync(filePath);
     } catch (error) {
-      serverError(error, res, 'Failed to undo file')
+      serverError(error, res, "Failed to undo file");
     }
   }
 
@@ -230,15 +240,19 @@ class MachineController {
         await client.cd(remotePath);
       }
 
-      await client.downloadTo(path.join(localDirectory, fileName), fileName);
+      const downloadFile = await client.downloadTo(
+        path.join(localDirectory, fileName),
+        fileName
+      );
 
-      await client.remove(fileName);
+      const rmoveFile = await client.remove(fileName);
+      console.log({ removeFile: rmoveFile, downloadFile }, 222);
       return res.status(200).json({
         status: 200,
         message: `File ${fileName} removed from ${name}`,
       });
     } catch (error) {
-      serverError(error, res, "Failed to remove all file from machine");
+      serverError(error, res, "Failed to remove file from machine");
     } finally {
       client.close();
     }
@@ -279,7 +293,10 @@ class MachineController {
       }
       // get all files from local directory
       const files = await client.list();
-      const fileNames = files.map((file) => ({ fileName: file.name, isDeleted: false }));
+      const fileNames = files.map((file) => ({
+        fileName: file.name,
+        isDeleted: false,
+      }));
       const localDirectory = localDir(machine_id);
 
       if (!fs.existsSync(localDirectory)) {
@@ -338,7 +355,7 @@ class MachineController {
   }
 
   static getStartTime(req, res) {
-    const { startHour, id, startMinute } = config
+    const { startHour, id, startMinute } = config;
     res.status(200).json({
       data: { startHour, id, startMinute },
       message: "succesfully get start time ",
@@ -349,18 +366,23 @@ class MachineController {
     try {
       const { reqStartHour, reqStartMinute, id } = req.body;
       if (
-        (typeof reqStartHour !== "number" || typeof reqStartMinute !== "number" || !id)
+        typeof reqStartHour !== "number" ||
+        typeof reqStartMinute !== "number" ||
+        !id
       ) {
         return res
           .status(400)
           .json({ message: "invalid request!", status: 400 });
       }
-      let hourStartSecond = reqStartHour + 12
+      let hourStartSecond = reqStartHour + 12;
       if (hourStartSecond > 24) {
-        hourStartSecond = hourStartSecond - 24
+        hourStartSecond = hourStartSecond - 24;
       }
 
-      const { startFirstShift, startSecondShift } = { startFirstShift: `${reqStartHour}:${reqStartMinute}`, startSecondShift: `${hourStartSecond}:${reqStartMinute}` };
+      const { startFirstShift, startSecondShift } = {
+        startFirstShift: `${reqStartHour}:${reqStartMinute}`,
+        startSecondShift: `${hourStartSecond}:${reqStartMinute}`,
+      };
 
       const countUpdate = await DailyConfig.update(
         { startFirstShift, startSecondShift },
@@ -368,9 +390,7 @@ class MachineController {
       );
 
       if (countUpdate[0] === 0) {
-        return res
-          .status(400)
-          .json({ message: "failed to update start time" });
+        return res.status(400).json({ message: "failed to update start time" });
       }
 
       config.startHour = reqStartHour;
@@ -429,7 +449,7 @@ class MachineController {
       const allDateInMonth = Array.from({ length: totalDayInMonth }, (_, i) => {
         const day = new Date(date.getUTCFullYear(), date.getUTCMonth(), i + 1);
         return day;
-      })
+      });
 
       const cuttingTimeInMonth = await Promise.all(
         sortedMachineIds.map(async (machine) => {
@@ -473,7 +493,10 @@ class MachineController {
           if (reqDate > date) {
             return 0;
           }
-          const runningToday = await getRunningTimeMachineLog(machine_id, dateValue);
+          const runningToday = await getRunningTimeMachineLog(
+            machine_id,
+            dateValue
+          );
 
           const numberOfLog = runningToday?.totalRunningTime ?? 0;
 
@@ -544,8 +567,6 @@ class MachineController {
       serverError(error, res, "Failed to get machine option");
     }
   }
-
-
 }
 
 const objectTargetCuttingTime = (target, totalDayInMonth) => {

@@ -18,9 +18,7 @@ module.exports = {
       name: 'express-server',
       script: 'node',
       args: 'app.js',
-      cwd: '../server',
-      watch: true,
-      autorestart: true
+      cwd: '../server'
     },
     {
       name: 'node-red',
