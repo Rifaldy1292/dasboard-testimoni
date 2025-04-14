@@ -9,7 +9,7 @@ const timelineDocs: MachineTimeline = {
   MachineLogs: [
     {
       createdAt: '07:00(last updated)',
-      description: 'Description is not available while the machine is running(Description)',
+      description: 'Manual operation(can be edited)',
       current_status: 'Running',
       g_code_name: '2501241D1705(G-CODE)',
       id: 1,
