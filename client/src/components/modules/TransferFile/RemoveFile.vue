@@ -4,6 +4,7 @@ import { useFTP } from '@/composables/useFTP'
 import { useMachine } from '@/composables/useMachine'
 import useToast from '@/composables/useToast'
 import MachineServices from '@/services/machine.service'
+import type { MachineName } from '@/types/machine.type'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import { Button, Column, DataTable, useConfirm } from 'primevue'
 import { computed, ref, shallowRef, watch } from 'vue'
@@ -127,8 +128,9 @@ const handleClickButton = (button: 'removeAll' | 'remove' | 'undo', fileName?: s
 }
 
 const isDisableRemoveAll = computed<boolean>(() => {
-  const name = selectedOneMachine.value?.name
-  return name !== 'MC-16'
+  const name = selectedOneMachine.value?.name as MachineName
+  const disabled = name !== 'MC-16' && name !== 'MC-6'
+  return disabled
 })
 </script>
 

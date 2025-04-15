@@ -37,7 +37,7 @@ const createCuttingTime = async () => {
 const isManualLog = (createdAt) => {
   if (!createdAt) return false;
   const timeDifference = new Date() - new Date(createdAt);
-  const sixTeenMinutes = 16 * 60 * 1000;
+  const sixTeenMinutes = 5 * 60 * 1000;
   return timeDifference < sixTeenMinutes;
 };
 
@@ -82,14 +82,14 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     } = parseMessage;
     // Find the last log for today
 
-    // const isManual = await checkIsManualLog(existMachine.id);
-    // const newStatus = isManual ? "Running" : status;
-    const newStatus = status;
+    const isManual = await checkIsManualLog(existMachine.id);
+    const newStatus = isManual ? "Running" : status;
+    // const newStatus = status;
 
-    // console.log(
-    //   { isManual, isSameStatus: newStatus === existMachine.status },
-    //   333
-    // );
+    console.log(
+      { isManual, isSameStatus: newStatus === existMachine.status },
+      333
+    );
     // not update if status is same
     if (newStatus === existMachine.status) {
       // if (newStatus === "Running") {
