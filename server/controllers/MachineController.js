@@ -77,6 +77,9 @@ class MachineController {
         secure: false,
       });
 
+      // ✅ Set ke ASCII mode sebelum upload
+      await client.send("TYPE A");
+
       const remotePath = "/Storage Card/USER/DataCenter";
       if (name === "MC-14" || name === "MC-15") {
         await client.ensureDir(remotePath); // Pastikan direktori tujuan ada
