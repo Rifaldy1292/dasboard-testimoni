@@ -6,7 +6,7 @@ const encryptionCache = new Map();
 
 /**
  * A map that stores the latest status of each machine. The key is the machine name.
- * @type {Map<string, { id: number; name: string; status: 'Running' | 'Stopped' }>} 
+ * @type {Map<string, { id: number; name: string; status: 'Running' | 'Stopped' |'DISCONNECT'| null }>}
  */
 const existMachinesCache = new Map();
 // existMachinesCache.set('MC-1', { id: 1, name: 'MC-1', status: 'Running' });

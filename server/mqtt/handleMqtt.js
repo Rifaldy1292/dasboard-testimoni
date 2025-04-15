@@ -8,6 +8,7 @@ const WebSocket = require("ws");
 require("../websocket/handleWebsocket");
 const mqtt = require("mqtt");
 const { existMachinesCache } = require("../cache");
+const { getAllMachine } = require("../utils/machineUtils");
 
 const mqttClient = mqtt.connect("mqtt://localhost:1883");
 
@@ -39,23 +40,7 @@ const handleMqtt = (wss) => {
       console.log("MQTT client connected", topic);
       mqttClient.subscribe(topic);
     });
-
-    // get exist machines and set to cache
-    try {
-      const existMachines = await Machine.findAll({
-        attributes: ["id", "name", "status"],
-      });
-
-      existMachines.forEach((machine) => {
-        existMachinesCache.set(machine.name, {
-          id: machine.id,
-          name: machine.name,
-          status: machine.status,
-        });
-      });
-    } catch (error) {
-      serverError(error, "Failed to get exist machines");
-    }
+    await getAllMachine();
   });
 
   mqttClient.on("message", async (topic, message) => {

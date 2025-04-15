@@ -37,7 +37,7 @@ const createCuttingTime = async () => {
 const isManualLog = (createdAt) => {
   if (!createdAt) return false;
   const timeDifference = new Date() - new Date(createdAt);
-  const sixTeenMinutes = 5 * 60 * 1000;
+  const sixTeenMinutes = 6 * 60 * 1000;
   return timeDifference < sixTeenMinutes;
 };
 
@@ -244,7 +244,7 @@ const updateRunningTodayLastMachineLog = async (
     const range = await dateQuery();
     const lastLog = await MachineLog.findOne({
       where: { machine_id, createdAt: range },
-      attributes: ["id", "createdAt"],
+      attributes: ["id", "createdAt", "current_status"],
       order: [["createdAt", "DESC"]],
     });
     if (!withDescription || !lastLog) {
@@ -265,6 +265,7 @@ const updateRunningTodayLastMachineLog = async (
       {
         // running_today: totalRunningTime || 0,
         description: isManual ? "Manual Operation" : null,
+        current_status: isManual ? "Running" : lastLog.current_status,
       },
       {
         where: { id: lastLog.id },
