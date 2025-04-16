@@ -37,8 +37,8 @@ const createCuttingTime = async () => {
 const isManualLog = (createdAt) => {
   if (!createdAt) return false;
   const timeDifference = new Date() - new Date(createdAt);
-  const sixTeenMinutes = 6 * 60 * 1000;
-  return timeDifference < sixTeenMinutes;
+  const sixMinutees = 6 * 60 * 1000;
+  return timeDifference < sixMinutees;
 };
 
 // trigger when create log
@@ -237,7 +237,7 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
  */
 const updateRunningTodayLastMachineLog = async (
   machine_id,
-  withDescription
+  withDescription = false
 ) => {
   try {
     // const { lastLog, totalRunningTime } = getRunningTime;
@@ -265,7 +265,7 @@ const updateRunningTodayLastMachineLog = async (
       {
         // running_today: totalRunningTime || 0,
         description: isManual ? "Manual Operation" : null,
-        current_status: isManual ? "Running" : lastLog.current_status,
+        // current_status: isManual ? "Running" : lastLog.current_status,
       },
       {
         where: { id: lastLog.id },
