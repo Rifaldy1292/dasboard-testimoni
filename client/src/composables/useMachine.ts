@@ -19,7 +19,7 @@ const additionalOptions: AdditionalOptions = {
   // 54-59
   workPositionOptions: Array.from({ length: 6 }, (_, i) => i + 54),
   coordinateOptions: [43, 143],
-  coolantOptions: [8, 50],
+  coolantOptions: [8, 36, 50],
   processTypeOptions: ['NC', 'Drill']
 }
 
@@ -37,7 +37,7 @@ const defaultMainProgram = 30
 const selectedProgramNumber = shallowRef<number>(defaultMainProgram)
 const selectedCoordinate = shallowRef<number>(coordinateOptions[0])
 const inputStartPoint = shallowRef<number>(52)
-const selectedCoolant = shallowRef<number>(coolantOptions[1])
+const selectedCoolant = shallowRef<number>(coolantOptions[2])
 const selectedProcessType = shallowRef<'NC' | 'Drill'>(processTypeOptions[0])
 
 export const useMachine = () => {
