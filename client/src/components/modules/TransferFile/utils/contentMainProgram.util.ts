@@ -106,7 +106,7 @@ ${docs.TOTAL_CUTTING_TIME}=${totalCuttingTime}
 ${docs.CALCULATE_TOTAL_CUTTING_TIME}=${totalProgram}.${calculateTotalCuttingTime}`
 
     const body500 = `${macroData}
-G54 G90 G00 G01 Z0. F3000
+G54 G90 G00 G01 Z0. F3000 ${selectedOneMachine.name === 'MC-6' ? `M${selectedCoolant}` : ''}
 G17
 ${M198P}${file.name.slice(1)}
 G0Z0.
