@@ -2,7 +2,7 @@
 import { computed, shallowRef, watch } from 'vue'
 import type { DialogFormProps } from '@/components/DialogForm/DialogForm.type'
 import DialogForm from '@/components/DialogForm/DialogForm.vue'
-import { Button, InputText } from 'primevue'
+import { Button, Select } from 'primevue'
 import type { ObjMachineTimeline } from '@/types/machine.type'
 import type { EditLogDescription } from '@/dto/machine.dto'
 import useWebSocket from '@/composables/useWebsocket'
@@ -30,11 +30,20 @@ watch(
   }
 )
 
+// Daftar opsi untuk dropdown
+const descriptionOptions = [
+  { name: 'Manual Operation', value: 'Manual Operation' },
+  { name: 'Maintenance', value: 'Maintenance' },
+  { name: 'Setup', value: 'Setup' },
+  { name: 'Breakdown', value: 'Breakdown' },
+  { name: 'Idle', value: 'Idle' }
+]
+
 const handleSubmitForm = () => {
   if (
     !selectedMachine ||
     inputDescription.value === selectedMachine.description ||
-    !inputDescription.value.trim()
+    !inputDescription.value?.trim()
   )
     return undefined
 
@@ -55,9 +64,14 @@ const handleSubmitForm = () => {
   <DialogForm v-model:visibleDialogForm="visibleDialogForm" :data="dataDialogConfirm">
     <template #body>
       <div class="flex flex-col gap-4">
-        <InputText
+        <Select
           v-model="inputDescription"
-          :defaultValue="inputDescription"
+          :options="descriptionOptions"
+          optionLabel="name"
+          optionValue="value"
+          placeholder="Pilih atau masukkan deskripsi"
+          :editable="true"
+          class="w-full"
           @keydown.enter="handleSubmitForm"
         />
         <Button label="Submit" @click="handleSubmitForm" />

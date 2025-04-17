@@ -86,13 +86,17 @@ const apexOptions = {
             <span
               test-id="jonfry"
               :style="{ background: badgeBackground(labels[index]) }"
-              class="mr-2 block h-3 w-full max-w-3 rounded-full"
+              class="mr-2 h-3 w-full max-w-3 rounded-full"
             >
               &nbsp;&nbsp;&nbsp;</span
             >
 
-            <p class="flex w-full justify-between text-sm font-medium text-black dark:text-white">
-              <span> {{ labels[index] }} </span>
+            <p
+              class="flex w-full justify-between text-sm font-medium text-black dark:text-white gap-1 xl:gap-2"
+            >
+              <span class="hidden md:block">
+                {{ labels[index] === 'Running' ? 'RUN' : 'STOP' }}
+              </span>
               <span> {{ series }}% </span>
             </p>
           </div>

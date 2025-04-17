@@ -1,13 +1,13 @@
 const { Machine, MachineLog, User } = require("../models");
 const { percentage, totalHour } = require("../utils/countHour");
-const { dateQuery } = require("../utils/dateQuery");
+const { dateQuery, config } = require("../utils/dateQuery");
 const { getRunningTimeMachineLog } = require("../utils/machineUtils");
 
 /**
  * Perfect time constant.
  * @type {number}
  */
-const perfectTime = 24; // hour
+const DEFAULT_PERFECT_TIME = 24; // hour
 
 /**
  * Converts a date to a formatted time string.
@@ -26,12 +26,14 @@ function convertDateTime(date) {
  * Generates a description of the running time.
  *
  * @param {number} totalRunningHours - The total running hours in milliseconds.
+ * @param {number} perfectTime - The perfect running time in hours.
  * @returns {string} The running time description.
  */
-function countDescription(totalRunningHours) {
+function countDescription(totalRunningHours, perfectTimeTime = 24) {
+  console.log({ totalHour, perfectTimeTime }, 555)
   const hour = Math.floor(totalRunningHours / (1000 * 60 * 60));
   const minute = Math.round((totalRunningHours / (1000 * 60)) % 60);
-  return `${hour} hour ${minute} minute / ${perfectTime} hour`;
+  return `${hour} hour ${minute} minute / ${perfectTimeTime} hour`;
 }
 
 /**
@@ -192,6 +194,19 @@ module.exports = class MachineWebsocket {
         return;
       }
 
+      const { startHour, startMinute } = config
+      const nowTime = new Date()
+      const startTime = new Date()
+      startTime.setHours(startHour, startMinute, 0, 0)
+
+      const isNowDate = nowDate.toLocaleDateString('en-CA') === nowTime.toLocaleDateString('en-CA')
+      const calculate = nowTime.getTime() - startTime.getTime()
+      const seconds = Math.floor(calculate / 1000)
+      const minutes = Math.floor(seconds / 60)
+      const hours = Math.round(minutes / 60)
+
+      const perfectTime = isNowDate ? hours : DEFAULT_PERFECT_TIME
+
       const machinesWithLastLog = await Promise.all(
         machines.map(async (machine) => {
           const { dataValues } = machine;
@@ -215,7 +230,7 @@ module.exports = class MachineWebsocket {
           const result = {
             status: getRunningTime.lastLog.dataValues.current_status,
             name,
-            description: countDescription(getRunningTime.totalRunningTime || 0),
+            description: countDescription(getRunningTime.totalRunningTime || 0, perfectTime),
             percentage: [runningTime, 100 - runningTime],
           };
           return result;

@@ -13,7 +13,7 @@ const { PassThrough } = require("stream"); // ✅ Tambahkan ini
 const fs = require("fs");
 const path = require("path");
 const { Client } = require("basic-ftp");
-let { config } = require("../utils/dateQuery");
+let { config, dateQuery } = require("../utils/dateQuery");
 const { encryptToNumber } = require("../helpers/crypto");
 const { encryptionCache } = require("../cache");
 const { getRunningTimeMachineLog } = require("../utils/machineUtils");
@@ -568,6 +568,34 @@ class MachineController {
       });
     } catch (error) {
       serverError(error, res, "Failed to get machine option");
+    }
+  }
+
+  static async checkDescriptionMachineLog(req, res) {
+    try {
+      const { machine_id } = req.body;
+      const range = await dateQuery(undefined)
+
+      // find where description === null
+      const machineLog = await MachineLog.findOne({
+        where: {
+          createdAt: range,
+          machine_id: machine_id,
+          desccription: null
+        }
+      })
+
+      if (machineLog) return res.status(400).json({
+        status: 400,
+        message: "Tidak dapat menambahkan data, karena ada deskripsi timeline yang kosong"
+      })
+
+      res.status(200).json({
+        status: 200,
+        message: "success check description machine log",
+      });
+    } catch (error) {
+      serverError(error, res, "Failed to check description machine log");
     }
   }
 }
