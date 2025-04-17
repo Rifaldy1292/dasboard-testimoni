@@ -1,6 +1,6 @@
 const { existMachinesCache } = require("../cache");
-const { MachineLog, Machine } = require("../models");
-const { dateQuery } = require("./dateQuery");
+const { MachineLog, Machine, DailyConfig } = require("../models");
+const { dateQuery, config } = require("./dateQuery");
 const { serverError } = require("./serverError");
 
 /**
@@ -74,51 +74,27 @@ const getRunningTimeMachineLog = async (machine_id, reqDate) => {
             lastLog,
           };
         }
-        // const findDailyConfig = await DailyConfig.findOne({
-        //     where: {
-        //         date: formattedDate,
-        //     },
-        //     attributes: ['startFirstShift'],
-        // });
 
-        // if (!findDailyConfig) {
-        //     return {
-        //         totalRunningTime: 0,
-        //         lastLog: logs[logs.length - 1],
-        //     };
-        // }
-
-        // const [hour, minute] = findDailyConfig.dataValues.startFirstShift.split(':');
-
-        // // jika tanggal bukan hari ini
-        // const newDate = new Date(formattedDate);
-        // newDate.setDate(newDate.getDate() + 1);
-        // newDate.setHours(hour, minute, 0, 0);
-
-        // const calculate = new Date(newDate) - new Date(lastRunningTimestamp);
-        // totalRunningTime += calculate;
-        // return {
-        //     totalRunningTime,
-        //     lastLog: logs[logs.length - 1],
-        // };
-
-        const nextLogID = lastLog.dataValues.id + 1;
-
-        const nextLogData = await MachineLog.findOne({
+        const findDailyConfig = await DailyConfig.findOne({
           where: {
-            id: nextLogID,
+            date: formattedReqDate,
           },
-          attributes: ["createdAt"],
+          attributes: ["startFirstShift"],
         });
-        if (!nextLogData.dataValues.createdAt) {
+
+        if (!findDailyConfig) {
           return {
             totalRunningTime,
             lastLog,
           };
         }
-        // const calculate = new Date(lastLogDate) - new Date(lastRunningTimestamp);
-        const test = new Date(nextLogData.dataValues.createdAt).toISOString();
-        const calculate = new Date(test) - new Date(lastRunningTimestamp);
+
+
+        const [hour, minute] = findDailyConfig.dataValues.startFirstShift.split(":");
+        const nextDay = new Date(formattedReqDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        nextDay.setHours(hour, minute, 0, 0);
+        const calculate = new Date(nextDay) - new Date(lastRunningTimestamp);
         totalRunningTime += calculate;
       }
     }
