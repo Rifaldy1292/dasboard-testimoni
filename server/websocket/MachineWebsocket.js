@@ -120,11 +120,12 @@ module.exports = class MachineWebsocket {
 
       const formattedMachines = sortedMachines.map((machine) => {
         const logs = machine.MachineLogs.map((log, indexLog) => {
-          const { dataValues } = log;
+          const { dataValues, current_status } = log;
           const operator = dataValues.User?.name || null;
           // calculate_total_cutting_time is in seconds
           const calculate_total_cutting_time = dataValues.calculate_total_cutting_time ? Number(dataValues.calculate_total_cutting_time.split('.')[1]) : 0;
           const currentTime = log.createdAt;
+          const isLastLog = indexLog === machine.MachineLogs.length - 1;
           const nextLog = machine.MachineLogs[indexLog + 1] || null;
           const timeDifference =
             new Date(nextLog?.createdAt || 0) - new Date(currentTime);
@@ -132,10 +133,11 @@ module.exports = class MachineWebsocket {
             ...log.dataValues,
             createdAt: convertDateTime(currentTime),
             timeDifference: formatTimeDifference(timeDifference),
+            k_num: current_status === "Running" ? log.k_num : null,
+            isLastLog,
+            output_wp: current_status === "Running" ? log.output_wp : null,
+            g_code_name: current_status === "Running" ? log.g_code_name : null,
             operator,
-            calculate_total_cutting_time: formatTimeDifference(calculate_total_cutting_time * 1000),
-            aa: formatTimeDifference(calculate_total_cutting_time * 1000),
-
             // log,
             // nextLog,
           };

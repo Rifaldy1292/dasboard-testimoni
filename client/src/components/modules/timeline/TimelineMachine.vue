@@ -123,7 +123,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
           </div>
         </template> -->
 
-        <template #content="{ item, index }: { item: ObjMachineTimeline; index: number }">
+        <template #content="{ item }: { item: ObjMachineTimeline; index: number }">
           <div
             :style="{
               backgroundColor: iconTimeline(item.current_status, item.isNext).color,
@@ -141,7 +141,9 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
               class="pi pi-pencil"
               style="font-size: 1rem"
             />
-            <span class="font-medium text-white dark:text-black">{{ item.timeDifference }} </span>
+            <span class="font-medium text-white dark:text-black"
+              >{{ item.isLastLog ? 'now' : item.timeDifference }}
+            </span>
 
             <span class="font-medium text-yellow-300">{{ item.k_num }} </span>
 
