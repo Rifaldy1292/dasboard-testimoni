@@ -112,6 +112,9 @@ ${M198P}${file.name.slice(1)}
 G0Z0.
 M05
 `
+    const additionalMC4Format = `G91G30ZO.
+G91G28X0Y0.
+`
 
     const body540 = `T${toolNumber}
 M6
@@ -123,6 +126,7 @@ M${selectedCoolant}
 G05P10000
 ${M198P}${file.name.slice(1)}
 G05P0
+${selectedOneMachine.name === 'MC-4' ? additionalMC4Format : ''}
 `
 
     const body560 = `T${toolNumber}
