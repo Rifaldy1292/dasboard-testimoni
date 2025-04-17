@@ -144,12 +144,12 @@ module.exports = class MachineWebsocket {
         });
 
         const nextLog = machine.MachineLogs[machine.MachineLogs.length - 1] || null;
-        console.log(nextLog, 44)
         const nextCalculate = nextLog.calculate_total_cutting_time ? Number(nextLog.calculate_total_cutting_time.split('.')[1]) : 0
         const nextTimeDifference = formatTimeDifference(nextCalculate * 1000)
 
         const extendLogs = isNowDate ? [...logs,
-        { isNext: true, timeDifference: nextTimeDifference, createdAt: 'next', operator: nextLog.User?.name || null }
+
+        { isNext: true, timeDifference: nextTimeDifference, createdAt: 'next', operator: nextLog.User?.name || null, description: dateOption.toLocaleTimeString('en-CA', { hour: 'numeric', minute: 'numeric' }) }
         ] : logs
         // console.log({ nextLog: extendLogs[extendLogs.length - 1] });
 
