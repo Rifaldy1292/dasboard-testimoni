@@ -123,7 +123,6 @@ module.exports = class MachineWebsocket {
           const { dataValues, current_status } = log;
           const operator = dataValues.User?.name || null;
           // calculate_total_cutting_time is in seconds
-          const calculate_total_cutting_time = dataValues.calculate_total_cutting_time ? Number(dataValues.calculate_total_cutting_time.split('.')[1]) : 0;
           const currentTime = log.createdAt;
           const isLastLog = indexLog === machine.MachineLogs.length - 1;
           const nextLog = machine.MachineLogs[indexLog + 1] || null;
@@ -149,7 +148,7 @@ module.exports = class MachineWebsocket {
 
         const extendLogs = isNowDate ? [...logs,
 
-        { isNext: true, timeDifference: nextTimeDifference, createdAt: 'next', operator: nextLog.User?.name || null, description: dateOption.toLocaleTimeString('en-CA', { hour: 'numeric', minute: 'numeric' }) }
+        { isNext: true, timeDifference: nextTimeDifference, createdAt: dateOption.toLocaleTimeString('en-CA', { hour: 'numeric', minute: 'numeric', hour12: false }), operator: nextLog.User?.name || null, description: "Remaining" }
         ] : logs
         // console.log({ nextLog: extendLogs[extendLogs.length - 1] });
 

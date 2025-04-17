@@ -142,7 +142,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
               style="font-size: 1rem"
             />
             <span class="font-medium text-white dark:text-black"
-              >{{ item.isLastLog ? 'now' : item.timeDifference }}
+              >{{ item.isLastLog ? 'next' : item.timeDifference }}
             </span>
 
             <span class="font-medium text-yellow-300">{{ item.k_num }} </span>

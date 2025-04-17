@@ -34,18 +34,10 @@ module.exports = (sequelize, DataTypes) => {
     previous_status: DataTypes.STRING,
     current_status: DataTypes.STRING,
     description: DataTypes.STRING,
-    running_today: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
-      allowNull: false
-    }
   }, {
     sequelize,
     modelName: 'MachineLog',
   });
 
-  // MachineLog.beforeCreate(async (machineLog, options) => {
-  //   console.log({ machineLog: machineLog.running_today }, 'koko', machineLog)
-  // })
   return MachineLog;
 };

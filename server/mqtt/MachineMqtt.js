@@ -210,7 +210,6 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
     const decryptOutputWp = await decryptFromNumber(output_wp);
     const decryptToolName = await decryptFromNumber(tool_name);
 
-    // running_today default 0
     return await MachineLog.create({
       user_id,
       machine_id: createMachine.id,
@@ -248,14 +247,6 @@ const updateRunningTodayLastMachineLog = async (
       order: [["createdAt", "DESC"]],
     });
     if (!withDescription || !lastLog) {
-      // return await MachineLog.update(
-      //   {
-      //     // running_today: totalRunningTime || 0,
-      //   },
-      //   {
-      //     where: { id: lastLog.id },
-      //   }
-      // );
       return;
     }
 
@@ -263,7 +254,6 @@ const updateRunningTodayLastMachineLog = async (
 
     await MachineLog.update(
       {
-        // running_today: totalRunningTime || 0,
         description: isManual ? "Manual Operation" : null,
         // current_status: isManual ? "Running" : lastLog.current_status,
       },

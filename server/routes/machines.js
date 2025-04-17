@@ -62,49 +62,5 @@ machineRouter.delete(
 machineRouter.get('/start-time', authMiddleware, MachineController.getStartTime)
 machineRouter.put('/start-time', authMiddleware, MachineController.editStartTime)
 
-
-
-/**
- * const date = new Date()
-const allDateInMonth = Array.from({ length: 31 }, (_, i) => {
-    i++
-    const day = new Date(date.getFullYear(), date.getMonth(), i + 1)
-    return day
-});
-
-// 2025-03-01
-const test = new Date('2025-03-01')
-const test2 = new Date('2025-03-01T17:00:00.000Z')
-// expect test3 = '2025--3-01' from test2
-const test3 = new Date(test2.toISOString().split('T')[0])
-machineRouter.get(
-    "/cutting-time/id",
-    authMiddleware,
-    async (req, res) => {
-        // const data = await MachineController.getCuttingTimeByMachineId({ machine_id: 461, allDateInMonth });
-        // res.send({ length: data.data.length, data })
-
-        try {
-            const data = await MachineLog.findOne({
-                where: {
-                    machine_id: 461,
-                    updatedAt: {
-                        [Op.between]: [new Date(test3.setHours(0, 0, 0, 0)), new Date(test3.setHours(23, 59, 59, 999))],
-                    },
-                },
-                attributes: ['running_today'],
-                order: [['updatedAt', 'DESC']]
-
-            })
-
-            res.send(data)
-        } catch (error) {
-            console.log({ error, message: error.message })
-        }
-    }
-);
-
- */
-
 module.exports = machineRouter;
 
