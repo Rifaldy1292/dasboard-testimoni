@@ -62,6 +62,12 @@ const MachineServices = {
 
   deleteClearCache(): Promise<AxiosResponse> {
     return API().delete('/machines/clear-cache')
+  },
+
+  getIsReadyTransferFiles(params: {
+    machine_id: number
+  }): Promise<AxiosResponse<ApiResponse<unknown>>> {
+    return API({ params }).get('/machines/is-ready-transfer-files')
   }
 }
 

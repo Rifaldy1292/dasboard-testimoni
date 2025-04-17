@@ -42,7 +42,7 @@ class MachineController {
       const { machine_id } = req.body;
       const { files } = req;
 
-      if (!files || !files.lengt || !machine_id) {
+      if (!files || !files.length || !machine_id) {
         return res.status(400).json({ message: "Bad request", status: 400 });
       }
       const { ip_address, name } = await Machine.findOne({
@@ -579,9 +579,13 @@ class MachineController {
     }
   }
 
-  static async checkDescriptionMachineLog(req, res) {
+  static async checkIsReadyTransferFile(req, res) {
     try {
-      const { machine_id } = req.body;
+      const { machine_id } = req.query;
+      if (!machine_id) return res.status(400).json({
+        status: 400,
+        message: "machine_id is required",
+      });
       const range = await dateQuery(undefined);
 
       // find where description === null
@@ -589,20 +593,19 @@ class MachineController {
         where: {
           createdAt: range,
           machine_id: machine_id,
-          desccription: null,
+          description: null,
+          current_status: "Stopped"
         },
       });
 
       if (machineLog)
-        return res.status(400).json({
-          status: 400,
-          message:
-            "Tidak dapat menambahkan data, karena ada deskripsi timeline yang kosong",
+        return res.status(422).json({
+          status: 422,
+          message: "found machine log with description null",
         });
 
-      res.status(200).json({
-        status: 200,
-        message: "success check description machine log",
+      res.status(204).json({
+        status: 204,
       });
     } catch (error) {
       serverError(error, res, "Failed to check description machine log");

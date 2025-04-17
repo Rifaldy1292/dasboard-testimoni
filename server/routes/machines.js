@@ -61,6 +61,7 @@ machineRouter.delete(
 
 machineRouter.get('/start-time', authMiddleware, MachineController.getStartTime)
 machineRouter.put('/start-time', authMiddleware, MachineController.editStartTime)
+machineRouter.get('/is-ready-transfer-files', authMiddleware, MachineController.checkIsReadyTransferFile)
 
 module.exports = machineRouter;
 

@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import { useFTP } from '@/composables/useFTP'
 import { useMachine } from '@/composables/useMachine'
-import { InputNumber, Select } from 'primevue'
+import useToast from '@/composables/useToast'
+import MachineServices from '@/services/machine.service'
+import type { MachineOption } from '@/types/machine.type'
+import { handleErrorAPI } from '@/utils/handleErrorAPI'
+import { AxiosError } from 'axios'
+import { InputNumber, Select, useConfirm } from 'primevue'
 import { watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 defineProps<{ isDisableAll: boolean }>()
+
+const toast = useToast()
+const confirm = useConfirm()
+const router = useRouter()
 
 const {
   selectedOneMachine,
@@ -18,7 +28,14 @@ const {
   inputStartPoint
 } = useMachine()
 
-const { uploadType, actionOPtions, selectedAction, selectedWorkPosition, inputFiles } = useFTP()
+const {
+  uploadType,
+  actionOPtions,
+  selectedAction,
+  selectedWorkPosition,
+  inputFiles,
+  loadingUpload
+} = useFTP()
 
 const { workPositionOptions, coordinateOptions, coolantOptions, processTypeOptions } =
   additionalOptions
@@ -36,6 +53,39 @@ watch(
     console.log(inputFiles.value, 'new')
   }
 )
+
+const handleSelectMachine = async (machineValue: MachineOption | undefined) => {
+  if (!machineValue) return
+  const { id, name } = machineValue
+  try {
+    loadingUpload.value = true
+    await MachineServices.getIsReadyTransferFiles({ machine_id: id })
+    selectedOneMachine.value = machineValue
+  } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 422) {
+      return confirm.require({
+        header: 'Tidak dapat memilih mesin',
+        message: `Ada deskripsi timeline di ${name} yang belum diisi nih, isi dulu yuk`,
+        icon: 'pi pi-exclamation-triangle',
+        accept: () => {
+          router.push({ name: 'timeline' })
+        },
+        acceptProps: {
+          label: 'Edit',
+          severity: 'success'
+        },
+        rejectProps: {
+          label: 'Cancel',
+          severity: 'secondary',
+          outlined: true
+        }
+      })
+    }
+    handleErrorAPI(error, toast)
+  } finally {
+    loadingUpload.value = false
+  }
+}
 
 // watch(
 //   [() => selectedOneMachine.value?.name, () => selectedWorkPosition.value],
@@ -83,7 +133,7 @@ watch(
           <Select
             filter
             :model-value="selectedOneMachine"
-            @update:model-value="selectedOneMachine = $event"
+            @update:model-value="handleSelectMachine"
             @before-show="getMachineOptions"
             :loading="loadingDropdown"
             :options="machineOptions"

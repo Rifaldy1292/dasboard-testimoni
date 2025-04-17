@@ -189,19 +189,21 @@ const handleExecute = (): void => {
   >
     <LoadingAnimation :state="loadingUpload" />
 
-    <div class="border-b border-stroke py-4 px-7 dark:border-strokedark">
-      <h3 class="font-medium text-black dark:text-white text-center">Transfer File Form</h3>
+    <div class="border-b border-stroke px-7 dark:border-strokedark">
+      <h3 class="font-bold text-xl my-2 text-black dark:text-white text-center">
+        Transfer File Form
+      </h3>
     </div>
-    <div class="grid grid-cols-1 p-7 gap-8">
+    <div class="grid grid-cols-1 px-7 py-6 gap-5">
       <!-- <div class="col-span-5 xl:col-span-3"> -->
       <!-- Machine Section -->
       <AdditionalFields :is-disable-all="isCreatedMainProgram" />
       <template v-if="selectedAction === 'Upload File'">
         <template v-if="!isCreatedMainProgram">
           <!-- upload folder -->
-          <div class="mb-2 flex items-center gap-3">
-            <div class="h-14">
-              <span class="mb-1.5 font-medium text-black dark:text-white"
+          <div class="flex items-center">
+            <div class="h-10">
+              <span class="font-medium text-black dark:text-white"
                 >Upload your {{ uploadType }}</span
               >
             </div>
@@ -210,7 +212,7 @@ const handleExecute = (): void => {
           <!-- File Upload Section -->
           <div
             id="FileUpload"
-            :class="`relative mb-5.5 block w-full h-40 cursor-pointer appearance-none rounded border-2 border-dashed border-primary bg-gray py-4 px-4 dark:bg-meta-4 sm:py-7.5 ${
+            :class="`relative mb-2  block w-full h-60 cursor-pointer appearance-none rounded border-2 border-dashed border-primary bg-gray py-4 px-4 dark:bg-meta-4 sm:py-7.5 ${
               disabled.disableUpload ? 'cursor-not-allowed opacity-50' : ''
             }`"
           >

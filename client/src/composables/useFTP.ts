@@ -2,7 +2,7 @@ import { getValueFromContent } from '@/components/modules/TransferFile/utils/con
 import MachineServices from '@/services/machine.service'
 import type { ContentFile, ValueFromContent } from '@/types/ftp.type'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
-import { ref, shallowRef } from 'vue'
+import { ref, shallowRef, nextTick } from 'vue'
 
 const inputFiles = ref<ContentFile[]>([])
 const uploadType = shallowRef<'folder' | 'file'>('file')
@@ -91,6 +91,15 @@ export const useFTP = () => {
       // console.log({ calculateTotalCuttingTime })
 
       console.log(inputFiles.value, 'inputFiles')
+      await nextTick()
+      // Catat posisi scroll saat ini
+      const currentScrollPosition = window.scrollY || document.documentElement.scrollTop
+
+      // Scroll ke posisi yang lebih bawah
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+      })
     } catch (error: unknown) {
       console.log({ error, message: (error as Error)?.message })
     } finally {
