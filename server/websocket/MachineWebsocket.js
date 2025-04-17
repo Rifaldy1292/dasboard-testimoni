@@ -65,6 +65,7 @@ module.exports = class MachineWebsocket {
       // default date is today
       const currentDate = date || new Date();
       const dateOption = new Date(currentDate);
+      const isNowDate = dateOption.toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
       const range = await dateQuery(date ? dateOption : undefined);
 
       const machines = await Machine.findAll({
@@ -83,8 +84,8 @@ module.exports = class MachineWebsocket {
               "g_code_name",
               "k_num",
               "output_wp",
-              "running_today",
               "createdAt",
+              'calculate_total_cutting_time'
             ],
             include: [
               {
@@ -119,7 +120,10 @@ module.exports = class MachineWebsocket {
 
       const formattedMachines = sortedMachines.map((machine) => {
         const logs = machine.MachineLogs.map((log, indexLog) => {
-          const operator = log.User?.name || null;
+          const { dataValues } = log;
+          const operator = dataValues.User?.name || null;
+          // calculate_total_cutting_time is in seconds
+          const calculate_total_cutting_time = dataValues.calculate_total_cutting_time ? Number(dataValues.calculate_total_cutting_time.split('.')[1]) : 0;
           const currentTime = log.createdAt;
           const nextLog = machine.MachineLogs[indexLog + 1] || null;
           const timeDifference =
@@ -129,16 +133,28 @@ module.exports = class MachineWebsocket {
             createdAt: convertDateTime(currentTime),
             timeDifference: formatTimeDifference(timeDifference),
             operator,
+            calculate_total_cutting_time: formatTimeDifference(calculate_total_cutting_time * 1000),
+            aa: formatTimeDifference(calculate_total_cutting_time * 1000),
 
             // log,
             // nextLog,
           };
         });
 
+        const nextLog = machine.MachineLogs[machine.MachineLogs.length - 1] || null;
+        console.log(nextLog, 44)
+        const nextCalculate = nextLog.calculate_total_cutting_time ? Number(nextLog.calculate_total_cutting_time.split('.')[1]) : 0
+        const nextTimeDifference = formatTimeDifference(nextCalculate * 1000)
+
+        const extendLogs = isNowDate ? [...logs,
+        { isNext: true, timeDifference: nextTimeDifference, createdAt: 'next', operator: nextLog.User?.name || null }
+        ] : logs
+        // console.log({ nextLog: extendLogs[extendLogs.length - 1] });
+
         return {
           name: machine.name,
           status: logs[logs.length - 1].current_status,
-          MachineLogs: logs,
+          MachineLogs: extendLogs,
         };
       });
       const data = {

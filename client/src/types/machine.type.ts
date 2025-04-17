@@ -26,6 +26,8 @@ export type ObjMachineTimeline = {
   total_cutting_time: number
   g_code_name: string
   k_num: string
+  calculate_total_cutting_time: string
+  isNext?: boolean
 }
 
 export type MachineTimeline = {

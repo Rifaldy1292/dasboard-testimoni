@@ -37,10 +37,11 @@ const mqttTopics = [
 const handleMqtt = (wss) => {
   mqttClient.on("connect", async () => {
     mqttTopics.forEach((topic) => {
-      console.log("MQTT client connected", topic);
+      // console.log("MQTT client connected", topic);
       mqttClient.subscribe(topic);
     });
     await getAllMachine();
+    console.log("MQTT client connected");
   });
 
   mqttClient.on("message", async (topic, message) => {

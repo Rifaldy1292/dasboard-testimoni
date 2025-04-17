@@ -1,4 +1,4 @@
-import type { AllMachineTimeline, GetPercentages } from '@/types/machine.type'
+import type { AllMachineTimeline, GetPercentages, ObjMachineTimeline } from '@/types/machine.type'
 import type { PayloadType, payloadWebsocket, WebsocketResponse } from '@/types/websocket.type'
 import useToast from '@/composables/useToast'
 import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
@@ -65,11 +65,8 @@ const useWebSocket = (payloadType?: PayloadType) => {
             })
             break
           case 'timeline':
-            console.log('from server timeline', parsedData)
             timelineMachines.value = data as AllMachineTimeline
-            console.log('timelineMachines.value', timelineMachines.value)
-            // if (data !== timelineMachines.value) {
-            // }
+            console.log('from server timeline', data)
             break
           case 'percentage': {
             console.log('from server percentage', data)

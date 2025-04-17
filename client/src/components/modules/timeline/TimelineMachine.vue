@@ -18,7 +18,13 @@ const handleClickIcon = (e: ObjMachineTimeline): void => {
   console.log(selectedLog.value)
 }
 
-const iconTimeline = (status: Machine['status']): { icon: string; color: string } => {
+const iconTimeline = (
+  status: Machine['status'],
+  isNext?: boolean
+): { icon: string; color: string } => {
+  if (isNext) {
+    return { color: '#adaaa0', icon: 'pi pi-spin pi-cog' }
+  }
   if (status === 'Running') {
     return { icon: 'pi pi-check', color: '#25c205' }
   }
@@ -71,7 +77,8 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
   const indexH = arr.findIndex((item) => item.includes('h'))
   const indexM = arr.findIndex((item) => item.includes('m'))
   const indexS = arr.findIndex((item) => item.includes('s'))
-  return 'next'
+  return obj.timeDifference
+  // return 'next'
 }
 </script>
 
@@ -93,12 +100,12 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
 
     <div class="overflow-x-auto">
       <Timeline :value="machine.MachineLogs" layout="horizontal" align="top">
-        <template #marker="{ item }">
+        <template #marker="{ item }: { item: ObjMachineTimeline }">
           <span
             class="flex w-8 h-8 items-center justify-center text-white rounded-full z-10 shadow-sm"
-            :style="{ backgroundColor: iconTimeline(item.current_status).color }"
+            :style="{ backgroundColor: iconTimeline(item.current_status, item.isNext).color }"
           >
-            <i :class="iconTimeline(item.current_status).icon"></i>
+            <i :class="iconTimeline(item.current_status, item.isNext).icon"></i>
           </span>
         </template>
         <!-- <template #opposite="slotProps">
@@ -119,10 +126,10 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
         <template #content="{ item, index }: { item: ObjMachineTimeline; index: number }">
           <div
             :style="{
-              backgroundColor: iconTimeline(item.current_status).color,
+              backgroundColor: iconTimeline(item.current_status, item.isNext).color,
               width: customWidthBoxTimeline(item)
             }"
-            :class="`px-2 ml h-100 text-center flex flex-col`"
+            :class="`px-2 ml h-100 text-start flex flex-col`"
           >
             <i class="font-bold text-black dark:text-white"
               >{{ item.createdAt }} - {{ item.description }}
@@ -134,9 +141,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
               class="pi pi-pencil"
               style="font-size: 1rem"
             />
-            <span class="font-medium text-white dark:text-black"
-              >{{ handleTimeDifference(item, index) }}
-            </span>
+            <span class="font-medium text-white dark:text-black">{{ item.timeDifference }} </span>
 
             <span class="font-medium text-yellow-300">{{ item.k_num }} </span>
 
@@ -151,10 +156,10 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
           </div>
         </template>
 
-        <template #connector="slotProps">
+        <template #connector="{ item }: { item: ObjMachineTimeline }">
           <div
             class="p-timeline-event-connector"
-            :style="{ backgroundColor: iconTimeline(slotProps.item.current_status).color }"
+            :style="{ backgroundColor: iconTimeline(item.current_status, item.isNext).color }"
           ></div>
         </template>
       </Timeline>
