@@ -30,7 +30,7 @@ function convertDateTime(date) {
  * @returns {string} The running time description.
  */
 function countDescription(totalRunningHours, perfectTimeTime = 24) {
-  console.log({ totalHour, perfectTimeTime }, 555)
+  // console.log({ totalHour, perfectTimeTime }, 555);
   const hour = Math.floor(totalRunningHours / (1000 * 60 * 60));
   const minute = Math.round((totalRunningHours / (1000 * 60)) % 60);
   return `${hour} hour ${minute} minute / ${perfectTimeTime} hour`;
@@ -67,7 +67,9 @@ module.exports = class MachineWebsocket {
       // default date is today
       const currentDate = date || new Date();
       const dateOption = new Date(currentDate);
-      const isNowDate = dateOption.toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
+      const isNowDate =
+        dateOption.toLocaleDateString("en-CA") ===
+        new Date().toLocaleDateString("en-CA");
       const range = await dateQuery(date ? dateOption : undefined);
 
       const machines = await Machine.findAll({
@@ -87,7 +89,7 @@ module.exports = class MachineWebsocket {
               "k_num",
               "output_wp",
               "createdAt",
-              'calculate_total_cutting_time'
+              "calculate_total_cutting_time",
             ],
             include: [
               {
@@ -101,18 +103,19 @@ module.exports = class MachineWebsocket {
         attributes: ["name", "status", "type"],
       });
 
-      const sortedMachines = machines.map((machine) => {
-        const { name, type } = machine.dataValues;
-        return {
-          ...machine.dataValues,
-          name: name + `${type ? ` (${type})` : ""}`,
-        };
-      }).sort((a, b) => {
-        const numberA = parseInt(a.name.slice(3));
-        const numberB = parseInt(b.name.slice(3));
-        return numberA - numberB;
-      });
-
+      const sortedMachines = machines
+        .map((machine) => {
+          const { name, type } = machine.dataValues;
+          return {
+            ...machine.dataValues,
+            name: name + `${type ? ` (${type})` : ""}`,
+          };
+        })
+        .sort((a, b) => {
+          const numberA = parseInt(a.name.slice(3));
+          const numberB = parseInt(b.name.slice(3));
+          return numberA - numberB;
+        });
 
       if (!sortedMachines.length) {
         client.send(JSON.stringify({ type: "timeline", data: [] }));
@@ -144,14 +147,30 @@ module.exports = class MachineWebsocket {
           };
         });
 
-        const nextLog = machine.MachineLogs[machine.MachineLogs.length - 1] || null;
-        const nextCalculate = nextLog.calculate_total_cutting_time ? Number(nextLog.calculate_total_cutting_time.split('.')[1]) : 0
-        const nextTimeDifference = formatTimeDifference(nextCalculate * 1000)
+        const nextLog =
+          machine.MachineLogs[machine.MachineLogs.length - 1] || null;
+        const nextCalculate = nextLog.calculate_total_cutting_time
+          ? Number(nextLog.calculate_total_cutting_time.split(".")[1])
+          : 0;
+        const nextTimeDifference = formatTimeDifference(nextCalculate * 1000);
 
-        const extendLogs = isNowDate ? [...logs,
+        const extendLogs = isNowDate
+          ? [
+              ...logs,
 
-        { isNext: true, timeDifference: nextTimeDifference, createdAt: dateOption.toLocaleTimeString('en-CA', { hour: 'numeric', minute: 'numeric', hour12: false }), operator: nextLog.User?.name || null, description: "Remaining" }
-        ] : logs
+              {
+                isNext: true,
+                timeDifference: nextTimeDifference,
+                createdAt: dateOption.toLocaleTimeString("en-CA", {
+                  hour: "numeric",
+                  minute: "numeric",
+                  hour12: false,
+                }),
+                operator: nextLog.User?.name || null,
+                description: "Remaining",
+              },
+            ]
+          : logs;
         // console.log({ nextLog: extendLogs[extendLogs.length - 1] });
 
         return {
@@ -194,28 +213,35 @@ module.exports = class MachineWebsocket {
         return;
       }
 
-      const { startHour, startMinute } = config
-      const nowTime = new Date()
-      const startTime = new Date()
-      startTime.setHours(startHour, startMinute, 0, 0)
+      const { startHour, startMinute } = config;
+      const nowTime = new Date();
+      const startTime = new Date();
+      startTime.setHours(startHour, startMinute, 0, 0);
 
-      const isNowDate = nowDate.toLocaleDateString('en-CA') === nowTime.toLocaleDateString('en-CA')
-      const calculate = nowTime.getTime() - startTime.getTime()
-      const seconds = Math.floor(calculate / 1000)
-      const minutes = Math.floor(seconds / 60)
-      const hours = Math.round(minutes / 60)
+      const isNowDate =
+        nowDate.toLocaleDateString("en-CA") ===
+        nowTime.toLocaleDateString("en-CA");
+      const calculate = nowTime.getTime() - startTime.getTime();
+      const seconds = Math.floor(calculate / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.round(minutes / 60);
 
-      const perfectTime = isNowDate ? hours : DEFAULT_PERFECT_TIME
+      const perfectTime = isNowDate ? hours : DEFAULT_PERFECT_TIME;
 
       const machinesWithLastLog = await Promise.all(
         machines.map(async (machine) => {
           const { dataValues } = machine;
-          const getRunningTime = await getRunningTimeMachineLog(dataValues.id, date ? nowDate : undefined);
+          const getRunningTime = await getRunningTimeMachineLog(
+            dataValues.id,
+            date ? nowDate : undefined
+          );
           // console.log({ totalRunningTime, lastLog });
           if (!getRunningTime) {
             return {
-              status: 'Stopped',
-              name: dataValues.type ? `${machine.name} (${dataValues.type})` : machine.name,
+              status: "Stopped",
+              name: dataValues.type
+                ? `${machine.name} (${dataValues.type})`
+                : machine.name,
               description: countDescription(0),
               percentage: [0, 100],
             };
@@ -225,12 +251,17 @@ module.exports = class MachineWebsocket {
             getRunningTime.totalRunningTime ?? 0,
             perfectTime
           );
-          const name = dataValues.type ? `${machine.name} (${dataValues.type})` : machine.name;
+          const name = dataValues.type
+            ? `${machine.name} (${dataValues.type})`
+            : machine.name;
 
           const result = {
             status: getRunningTime.lastLog.dataValues.current_status,
             name,
-            description: countDescription(getRunningTime.totalRunningTime || 0, perfectTime),
+            description: countDescription(
+              getRunningTime.totalRunningTime || 0,
+              perfectTime
+            ),
             percentage: [runningTime, 100 - runningTime],
           };
           return result;

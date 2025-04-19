@@ -86,10 +86,10 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     const newStatus = isManual ? "Running" : status;
     // const newStatus = status;
 
-    console.log(
-      { isManual, isSameStatus: newStatus === existMachine.status },
-      333
-    );
+    // console.log(
+    //   { isManual, isSameStatus: newStatus === existMachine.status },
+    //   333
+    // );
     // not update if status is same
     if (newStatus === existMachine.status) {
       // if (newStatus === "Running") {

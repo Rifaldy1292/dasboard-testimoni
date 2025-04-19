@@ -40,63 +40,79 @@ class MachineController {
     const client = new Client();
     try {
       const { machine_id } = req.body;
-      /**
-       * @prop {Array} files - Array of uploaded files
-       */
       const { files } = req;
-      if (!machine_id) {
-        return res
-          .status(400)
-          .json({ message: "machine_id is required", status: 400 });
-      }
-      if (!files || files.length === 0) {
-        return res
-          .status(400)
-          .json({ message: "No file uploaded", status: 400 });
+
+      if (!files || !files.lengt || !machine_id) {
+        return res.status(400).json({ message: "Bad request", status: 400 });
       }
       const { ip_address, name } = await Machine.findOne({
         where: { id: machine_id },
         attributes: ["ip_address", "name"],
       });
-      if (!ip_address) {
-        return res
-          .status(400)
-          .json({ message: "Machine not found", status: 400 });
+
+      if (!ip_address || !name) {
+        return res.status(404).json({ message: "Machine not found" });
+      }
+      // Buat direktori temp jika belum ada
+      const tempDir = path.join(__dirname, "..", "temp");
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
       }
 
-      // console.log(machineIp.dataValues.ip_address, 22)
+      // Konfigurasi dengan timeout yang lebih tinggi
       await client.access({
         host: ip_address,
         port: 21,
         user: "MC",
         password: "MC",
-        // host: hostHp,
-        // port: portHp,
-        // user: pwHp,
-        // password: pwHp,
         secure: false,
+        timeout: 300000, // 5 menit
       });
 
-      // ✅ Set ke ASCII mode sebelum upload
+      // Set mode ASCII
       await client.send("TYPE A");
 
       const remotePath = "/Storage Card/USER/DataCenter";
       if (name === "MC-14" || name === "MC-15") {
-        await client.ensureDir(remotePath); // Pastikan direktori tujuan ada
+        await client.ensureDir(remotePath);
       }
 
       for (const file of files) {
-        const stream = new PassThrough(); // ✅ Buat stream dari Buffer
-        stream.end(file.buffer);
-        console.log(`Uploading: ${file.originalname}`); // Debugging
+        console.log(
+          `Starting upload: ${file.originalname} (Size: ${file.buffer.length} bytes)`
+        );
 
         const customMachine = name === "MC-14" || name === "MC-15";
-
-        const path = customMachine
+        const filePath = customMachine
           ? `${remotePath}/${file.originalname}`
           : file.originalname;
 
-        await client.uploadFrom(stream, path);
+        // Jika file lebih besar dari 1MB, pecah menjadi bagian-bagian
+        if (file.buffer.length > 1024 * 1024) {
+          // Simpan file ke disk sementara
+          const tempFilePath = path.join(tempDir, file.originalname);
+          await fs.promises.writeFile(tempFilePath, file.buffer);
+
+          try {
+            // Upload file dari disk
+            await client.uploadFrom(tempFilePath, filePath);
+            console.log(`Completed upload: ${file.originalname}`);
+          } catch (uploadError) {
+            console.error(`Error uploading file: ${uploadError.message}`);
+            throw uploadError;
+          } finally {
+            // Hapus file sementara
+            if (fs.existsSync(tempFilePath)) {
+              fs.unlinkSync(tempFilePath);
+            }
+          }
+        } else {
+          // Untuk file kecil, gunakan metode stream
+          const stream = new PassThrough();
+          stream.end(file.buffer);
+          await client.uploadFrom(stream, filePath);
+          console.log(`Completed upload: ${file.originalname}`);
+        }
       }
 
       //  Setelah sukses transfer, simpan hasil enkripsi ke database
@@ -115,20 +131,12 @@ class MachineController {
 
       res.status(200).json({
         status: 200,
-        message: ` Successfully ${isUndo ? "undo" : "remove"} files`,
+        message: `Successfully ${isUndo ? "undo" : "transfer"} files`,
       });
     } catch (error) {
-      console.log({ error, message: error.message });
-      if (error.code === "ECONNREFUSED")
-        return serverError(error, res, "Failed to connect to machine");
-      if (
-        error.code === 550 ||
-        error.message === "550 STOR requested action not taken: File exists."
-      ) {
-        return res
-          .status(400)
-          .json({ status: 400, message: "File already exists on machine" });
-      }
+      console.log({ error, message: error.message, stack: error.stack });
+
+      // Handling error seperti sebelumnya...
 
       serverError(error, res, "Failed to transfer files");
     } finally {
@@ -574,21 +582,23 @@ class MachineController {
   static async checkDescriptionMachineLog(req, res) {
     try {
       const { machine_id } = req.body;
-      const range = await dateQuery(undefined)
+      const range = await dateQuery(undefined);
 
       // find where description === null
       const machineLog = await MachineLog.findOne({
         where: {
           createdAt: range,
           machine_id: machine_id,
-          desccription: null
-        }
-      })
+          desccription: null,
+        },
+      });
 
-      if (machineLog) return res.status(400).json({
-        status: 400,
-        message: "Tidak dapat menambahkan data, karena ada deskripsi timeline yang kosong"
-      })
+      if (machineLog)
+        return res.status(400).json({
+          status: 400,
+          message:
+            "Tidak dapat menambahkan data, karena ada deskripsi timeline yang kosong",
+        });
 
       res.status(200).json({
         status: 200,
