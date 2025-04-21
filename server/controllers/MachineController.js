@@ -616,6 +616,7 @@ class MachineController {
     try {
       const range = await dateQuery();
       const allMachinesWithLastLogAndUser = await Machine.findAll({
+        attributes: ["id", "name", "type"],
         include: [
           {
             model: MachineLog,
@@ -630,10 +631,9 @@ class MachineController {
                 attributes: ["name", 'profile_image'],
               },
             ],
-            attributes: ["current_status", "total_cutting_time", "user_id", "g_code_name", "calculate_total_cutting_time", "createdAt"],
+            attributes: ["id", "current_status", "total_cutting_time", "user_id", "g_code_name", "calculate_total_cutting_time", "createdAt"],
           },
         ],
-        attributes: ["id", "name", "type"],
       });
 
       // Perbaikan: Langsung menggunakan Promise.all dengan array hasil dari map
@@ -649,13 +649,11 @@ class MachineController {
           mc.log = mc.MachineLogs.length ? log : null;
           // total cutting time is second, convert to minutes
           mc.log.total_cutting_time = Math.round(log.total_cutting_time / 60);
+          mc.log.runningOn = 0
           delete mc.MachineLogs;
           delete mc.type
           if (mc.log) {
-            if (!log.g_code_name) {
-              mc.runningOn = 0;
-              return mc
-            }
+            if (!log.g_code_name) return mc
             const allLogMachineWhereGCode = await MachineLog.findAll({
               where: {
                 machine_id: mc.id,

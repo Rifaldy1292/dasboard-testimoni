@@ -21,25 +21,18 @@ const dropdownOptions = [
   }
 ]
 
-function convertSecondsToHours(seconds: number, isMinute?: boolean) {
+function convertSecondsToHours(count: number, isMinute?: boolean) {
   if (isMinute) {
-    const second = seconds * 60
-    const minute = Math.floor(seconds / 60)
-    const hour = Math.floor(seconds / 60)
-    let result = []
-
-    // if (hour > 0) result.push(`${hour}h`)
-    if (minute > 0) result.push(`${seconds}m`)
-    return result.length > 0 ? result.join(' ') : '0m'
+    return `${count}m`
   }
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const secondsRemainder = seconds % 60
+  const hours = Math.floor(count / 3600)
+  const minutes = Math.floor((count % 3600) / 60)
+  const countRemainder = count % 60
 
   let result = []
   if (hours > 0) result.push(`${hours}h`)
   if (minutes > 0) result.push(`${minutes}m`)
-  if (secondsRemainder > 0) result.push(`${secondsRemainder}s`)
+  if (countRemainder > 0) result.push(`${countRemainder}s`)
 
   return result.length > 0 ? result.join(' ') : '0s'
 }
@@ -149,9 +142,9 @@ const remainingText = computed(() => {
 
       <div class="text-right mt-3 text-xs text-gray-500 dark:text-gray-400">
         <Knob
-          v-model:model-value="remainingText.runningOn"
-          :min="0"
-          :max="remainingText?.total_cutting_time || 0"
+          :default-value="remainingText.total_cutting_time"
+          :min="-1"
+          :max="remainingText.total_cutting_time"
           readonly
           :size="100"
           valueTemplate="{value}m"

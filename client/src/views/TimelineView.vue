@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import useWebsocket from '@/composables/useWebsocket'
 import DataNotFound from '@/components/common/DataNotFound.vue'
@@ -45,12 +44,11 @@ watch(
 
 <template>
   <DefaultLayout timeline-page>
-    <BreadcrumbDefault page-title="Timeline" />
     <LoadingAnimation :state="loadingWebsocket" />
     <template v-if="!loadingWebsocket">
       <div class="flex flex-col">
-        <div class="flex justify-end">
-          <DatePickerDay v-model:date-option="dateOption" />
+        <div class="flex justify-end my-0">
+          <DatePickerDay v-model:date-option="dateOption" size="small" />
         </div>
         <DataNotFound :condition="!timelineMachines?.data?.length" />
         <template v-if="timelineMachines?.data?.length">

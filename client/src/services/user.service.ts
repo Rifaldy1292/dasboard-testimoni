@@ -42,7 +42,6 @@ const UserServices = {
     return API({ headers }).patch('/users/edit-profile', body)
   },
   getOperatorMachines(): Promise<AxiosResponse<ApiResponse<OperatorMachine[]>>> {
-    API().get('/users/operator-machines')
     return API().get('/users/operator-machines2')
   }
 }

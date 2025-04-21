@@ -11,6 +11,7 @@ const { machine } = defineProps<{
 
 const visibleDialogForm = shallowRef<boolean>(false)
 const visibleDialogFormDocumentation = shallowRef<boolean>(false)
+const isHover = shallowRef<boolean>(true)
 const selectedLog = shallowRef<ObjMachineTimeline | undefined>()
 const handleClickIcon = (e: ObjMachineTimeline): void => {
   selectedLog.value = e
@@ -87,10 +88,14 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
 </script>
 
 <template>
-  <div class="card border border-gray-950 dark:border-gray-500">
+  <div
+    @mouseenter="isHover = false"
+    @mouseleave="isHover = true"
+    class="border border-gray-950 dark:border-gray-500"
+  >
     <span
       :style="{ color: iconTimeline(machine.status).color }"
-      class="flex justify-center text-md font-bold text-black dark:text-white gap-2"
+      class="flex justify-center text-sm font-bold text-black dark:text-white gap-2"
     >
       {{ machine.name }}
       <span class="cursor-pointer">
@@ -102,7 +107,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
       /></span>
     </span>
 
-    <div class="overflow-x-auto">
+    <div :class="`overflow-x-auto ${isHover ? 'h-10' : ''}`">
       <Timeline
         :value="machine.MachineLogs"
         layout="horizontal"
@@ -111,7 +116,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
       >
         <template #marker="{ item }: { item: ObjMachineTimeline }">
           <span
-            class="flex w-3 h-3 items-center justify-center text-white rounded-full z-10 shadow-sm my-1"
+            class="flex w-3 h-3 items-center justify-center text-white rounded-full z-10 shadow-sm"
             :style="{
               backgroundColor: iconTimeline(item.current_status, item.isNext).color
             }"
@@ -127,32 +132,33 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
                 .color,
               width: customWidthBoxTimeline(item)
             }"
-            :class="` text-xs h-30 text-start flex flex-col`"
+            :class="`text-xs ${isHover ? 'h-2' : 'h-30'} text-start flex flex-col`"
           >
-            <i class="font-bold text-black dark:text-white"
-              >{{ item.createdAt }} - {{ item.description }}
-            </i>
-            <i
-              v-if="item.current_status === 'Stopped'"
-              @click="handleClickIcon(item)"
-              v-tooltip.top="'Edit'"
-              class="pi pi-pencil"
-              style="font-size: 1rem"
-            />
-            <span class="font-medium text-white dark:text-black"
-              >{{ item.isLastLog ? 'next' : item.timeDifference }}
-            </span>
+            <template v-if="!isHover">
+              <i class="font-bold text-black dark:text-white"
+                >{{ item.createdAt }} - {{ item.description }}
+              </i>
+              <i
+                v-if="item.current_status === 'Stopped'"
+                @click="handleClickIcon(item)"
+                v-tooltip.top="'Edit'"
+                class="pi pi-pencil"
+                style="font-size: 1rem"
+              />
+              <span class="font-medium text-white dark:text-black"
+                >{{ item.isLastLog ? 'next' : item.timeDifference }}
+              </span>
 
-            <span class="font-medium text-yellow-300">{{ item.k_num }} </span>
+              <span class="font-medium text-yellow-300">{{ item.k_num }} </span>
 
-            <span class="font-medium text-indigo-700"
-              >{{ item.g_code_name }} - {{ item.output_wp }}</span
-            >
+              <span class="font-medium text-indigo-700"
+                >{{ item.g_code_name }} - {{ item.output_wp }}</span
+              >
 
-            <span class="font-medium text-black dark:text-white">{{ item.operator ?? '-' }} </span>
-            <!-- 
-            <span>{{ convertStringDifferenceToMilisecond(item.timeDifference) }}</span>
-            <span>test{{ customWidthBoxTimeline(item) }}</span> -->
+              <span class="font-medium text-black dark:text-white"
+                >{{ item.operator ?? '-' }}
+              </span>
+            </template>
           </div>
         </template>
 
@@ -178,5 +184,11 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
 <style scoped>
 .p-timeline-event-opposite {
   display: none !important;
+}
+
+/* m-0 for timeline */
+.p-timeline-event-opposite {
+  margin: 0 !important;
+  padding: 0 !important;
 }
 </style>
