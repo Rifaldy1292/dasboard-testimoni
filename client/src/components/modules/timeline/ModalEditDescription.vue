@@ -33,11 +33,10 @@ watch(
 // Daftar opsi untuk dropdown
 const descriptionOptions = [
   { name: 'Manual Operation', value: 'Manual Operation' },
-  { name: 'Dandori', value: 'Dandori' },
-  { name: 'Maintenance', value: 'Maintenance' },
-  { name: 'Setup', value: 'Setup' },
-  { name: 'Breakdown', value: 'Breakdown' },
-  { name: 'Idle', value: 'Idle' }
+  { name: 'Dandori Part', value: 'Dandori Part' },
+  { name: 'Dandori Tool', value: 'Dandori Tool' },
+  { name: 'Cek Dimensi', value: 'Cek Dimensi' },
+  { name: 'Setting Nol Set', value: 'Setting Nol Set' }
 ]
 
 const handleSubmitForm = () => {
