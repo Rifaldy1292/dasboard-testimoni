@@ -2,10 +2,10 @@
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import DataNotFound from '@/components/common/DataNotFound.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
+import RemainingCard from '@/components/modules/remaining/RemainingCard.vue'
 import { useUsers } from '@/composables/useUsers'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import type { User } from '@/types/user.type'
-import { Button, Card } from 'primevue'
 import { computed, onMounted } from 'vue'
 
 onMounted(async () => {
@@ -25,6 +25,7 @@ interface ExtendedUser extends User {
   machine: string
   runningOn: string
 }
+
 const extendendUsers = computed<ExtendedUser[]>(() => {
   const result = operatorMachines.value.map((user) => {
     /**
@@ -86,62 +87,13 @@ function convertSecondsToHours(seconds: number) {
   <DefaultLayout>
     <BreadcrumbDefault pageTitle="Remaining" />
     <LoadingAnimation :state="loadingFetch" />
-    <DataNotFound :condition="extendendUsers.length === 0" />
-    <div v-if="extendendUsers.length > 0" class="grid grid-cols-3 gap-4">
-      <Card
-        v-for="(operator, index) in extendendUsers"
-        :key="index"
-        class="p-2 shadow-lg"
-        style="max-width: 18rem"
-      >
-        <template #header>
-          <div
-            :class="[
-              'text-white dark:text-white text-center py-1 font-bold rounded-t-md',
-              operator.status === 'Running' ? 'bg-green-500' : 'bg-red-500'
-            ]"
-          >
-            <!-- agar ada garis dibawah -->
-            <span class="border-b border-white">{{ operator.machine }}</span>
-            <br />
-            <span>{{ `Operator by ${operator.name}` }}</span>
-          </div>
+    <DataNotFound :condition="!extendendUsers.length" />
+    <template v-if="extendendUsers.length">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-6">
+        <template v-for="(operator, index) in extendendUsers" :key="index">
+          <RemainingCard :operator="operator" />
         </template>
-        <template #content>
-          <div class="flex flex-col items-center mt-2 gap-2">
-            <div class="flex gap-4 mb-2">
-              <div>
-                <h4 class="mt-2 font-medium">Process Now</h4>
-                <p class="text-sm text-gray-500">{{ operator.process }}</p>
-              </div>
-
-              <img
-                class="w-20 h-20 border-2 border-gray-300"
-                :src="operator.photo || 'https://dummyimage.com/600x400/000/fff.png'"
-                alt="Operator"
-              />
-            </div>
-            <div class="flex justify-between text-xs mt-2 gap-2">
-              <span>Remaining: {{ operator.remaining }}</span>
-              <span>Time: {{ operator.time }}</span>
-            </div>
-          </div>
-        </template>
-        <template #footer>
-          <Button
-            :label="operator.status"
-            :severity="operator.status === 'Running' ? 'success' : 'warn'"
-            class="w-full mt-2"
-            outlined
-            size="small"
-          />
-          <div class="text-right mt-2 text-xs text-gray-400">
-            <span>Running On: {{ operator.runningOn }}</span>
-            <br />
-            <span>Last Update: {{ operator.lastUpdate }}</span>
-          </div>
-        </template>
-      </Card>
-    </div>
+      </div>
+    </template>
   </DefaultLayout>
 </template>

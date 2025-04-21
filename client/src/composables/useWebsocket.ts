@@ -1,4 +1,4 @@
-import type { AllMachineTimeline, GetPercentages, ObjMachineTimeline } from '@/types/machine.type'
+import type { AllMachineTimeline, GetPercentages } from '@/types/machine.type'
 import type { PayloadType, payloadWebsocket, WebsocketResponse } from '@/types/websocket.type'
 import useToast from '@/composables/useToast'
 import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
