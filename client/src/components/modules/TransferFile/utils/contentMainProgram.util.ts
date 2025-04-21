@@ -112,7 +112,7 @@ ${M198P}${file.name.slice(1)}
 G0Z0.
 M05
 `
-    const additionalMC4Format = `G91G30ZO.
+    const additionalMC4Format = `G91G30Z0.
 G91G28X0Y0.
 `
 
