@@ -1,10 +1,10 @@
 export type PayloadType = 'timeline' | 'percentage' | 'test' | 'cuttingTime' | 'editLogDescription'
 export type payloadWebsocket = {
   type: PayloadType
-  message?: string
   data?:
     | {
         date?: string
+        id?: number
       }
     | Record<string, any>
 }

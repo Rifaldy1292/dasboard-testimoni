@@ -17,11 +17,18 @@ const handleWebsocket = (wss) => {
          * @param {string} message - The message received from the client.
          */
         ws.on('message', async (msg) => {
+            /**
+             * @typedef {Object} ParsedMessage
+             * @property {'timeline' | 'percentage' | 'editLogDescription'} type - The message type
+             * @property {{id?: number, date?: string}} data - Additional data
+             */
+
+            /** @type {ParsedMessage} */
             const parsedMessage = JSON.parse(msg)
             if (!parsedMessage) return console.log('Invalid format', msg)
 
-            const { type, message: messageString, data } = parsedMessage
-            console.log(type, messageString, data)
+            const { type, data } = parsedMessage
+            console.log(type, data)
             if (!type) return console.log('Unknown format', messageString)
             /**
              * Records the types of messages sent by the client.
@@ -50,7 +57,7 @@ const handleWebsocket = (wss) => {
                      * Retrieves machine timelines.
                      */
                     // console.log({ clientPreferences: clientPreferences.get(ws) }, 88888, 'form ws')
-                    await MachineWebsocket.timelines(ws, clientPreferences.get(ws))
+                    await MachineWebsocket.timelines(ws, clientPreferences.get(ws), data?.id)
                     break
                 case 'percentage':
                     /**

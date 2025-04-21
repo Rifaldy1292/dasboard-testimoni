@@ -19,7 +19,7 @@ const useWebSocket = (payloadType?: PayloadType) => {
 
   const sendMessage = (payload: payloadWebsocket) => {
     if (socket.value?.readyState === WebSocket.OPEN) {
-      console.log('send message')
+      // console.log('send message', payload)
       return socket.value.send(JSON.stringify(payload))
     }
   }

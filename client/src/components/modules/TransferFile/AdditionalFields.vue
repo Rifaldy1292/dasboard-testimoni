@@ -7,14 +7,22 @@ import type { MachineOption } from '@/types/machine.type'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import { AxiosError } from 'axios'
 import { InputNumber, Select, useConfirm } from 'primevue'
-import { watch } from 'vue'
+import { shallowRef, watch, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
+import ModalDocumentation from '../timeline/ModalDocumentation.vue'
+import useWebSocket from '@/composables/useWebsocket'
+import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 
 defineProps<{ isDisableAll: boolean }>()
 
 const toast = useToast()
 const confirm = useConfirm()
 const router = useRouter()
+const visibleDialogForm = shallowRef<boolean>(false)
+
+watchEffect(() => {
+  console.log(visibleDialogForm.value, 'visibleDialogForm')
+})
 
 const {
   selectedOneMachine,
@@ -37,6 +45,8 @@ const {
   loadingUpload
 } = useFTP()
 
+const { sendMessage, timelineMachines, loadingWebsocket } = useWebSocket()
+
 const { workPositionOptions, coordinateOptions, coolantOptions, processTypeOptions } =
   additionalOptions
 
@@ -54,6 +64,18 @@ watch(
   }
 )
 
+const fetchTimelineByMachineId = (id: number) => {
+  try {
+    loadingWebsocket.value = true
+    sendMessage({ type: 'timeline', data: { id } })
+    visibleDialogForm.value = true
+  } catch (error) {
+    handleErrorAPI(error)
+  } finally {
+    loadingWebsocket.value = false
+  }
+}
+
 const handleSelectMachine = async (machineValue: MachineOption | undefined) => {
   if (!machineValue) return
   const { id, name } = machineValue
@@ -68,7 +90,7 @@ const handleSelectMachine = async (machineValue: MachineOption | undefined) => {
         message: `Ada deskripsi timeline di ${name} yang belum diisi nih, isi dulu yuk`,
         icon: 'pi pi-exclamation-triangle',
         accept: () => {
-          router.push({ name: 'timeline' })
+          fetchTimelineByMachineId(id)
         },
         acceptProps: {
           label: 'Edit',
@@ -98,6 +120,11 @@ const handleSelectMachine = async (machineValue: MachineOption | undefined) => {
 </script>
 
 <template>
+  <ModalDocumentation
+    v-model:visible-dialog-form="visibleDialogForm"
+    :timeline="timelineMachines?.data[0] && timelineMachines.data[0]"
+  />
+  <LoadingAnimation :state="loadingWebsocket" />
   <!-- 1/2 -->
   <div
     :style="{
@@ -133,7 +160,7 @@ const handleSelectMachine = async (machineValue: MachineOption | undefined) => {
           <Select
             filter
             :model-value="selectedOneMachine"
-            @update:model-value="handleSelectMachine"
+            @update:model-value="(val: MachineOption) => handleSelectMachine(val)"
             @before-show="getMachineOptions"
             :loading="loadingDropdown"
             :options="machineOptions"

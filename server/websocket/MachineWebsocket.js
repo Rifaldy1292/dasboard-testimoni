@@ -1,26 +1,13 @@
 const { Machine, MachineLog, User } = require("../models");
 const { percentage, totalHour } = require("../utils/countHour");
 const { dateQuery, config } = require("../utils/dateQuery");
-const { getRunningTimeMachineLog } = require("../utils/machineUtils");
+const { getRunningTimeMachineLog, getMachineTimeline } = require("../utils/machineUtils");
 
 /**
  * Perfect time constant.
  * @type {number}
  */
 const DEFAULT_PERFECT_TIME = 24; // hour
-
-/**
- * Converts a date to a formatted time string.
- *
- * @param {Date} date - The date to convert.
- * @returns {string} The formatted time string. ex: 10:00
- */
-function convertDateTime(date) {
-  const dateTime = new Date(date);
-  const hours = dateTime.getHours();
-  const minutes = dateTime.getMinutes();
-  return `${hours}:${minutes.toString().padStart(2, "0")}`;
-}
 
 /**
  * Generates a description of the running time.
@@ -36,154 +23,46 @@ function countDescription(totalRunningHours, perfectTimeTime = 24) {
   return `${hour} hour ${minute} minute / ${perfectTimeTime} hour`;
 }
 
-/**
- * Formats the time difference between two dates.
- *
- * @param {number} ms - The time difference in milliseconds.
- * @returns {string} The formatted time difference ex: 1h 2m 3s
- */
-function formatTimeDifference(ms) {
-  const seconds = Math.floor(ms / 1000) % 60;
-  const minutes = Math.floor(ms / (1000 * 60)) % 60;
-  const hours = Math.floor(ms / (1000 * 60 * 60));
-
-  let result = [];
-  if (hours > 0) result.push(`${hours}h`);
-  if (minutes > 0) result.push(`${minutes}m`);
-  if (seconds > 0) result.push(`${seconds}s`);
-
-  return result.length > 0 ? result.join(" ") : "0s";
-}
-
 module.exports = class MachineWebsocket {
   /**
    * Retrieves machine timelines and sends them to the client.
    *
    * @param {WebSocket} client - The WebSocket client instance.
    * @param {string} date - The date to retrieve the timeline for.
+   * @param {number} reqId - The request ID.
    */
-  static async timelines(client, date) {
+  static async timelines(client, reqDate, reqId) {
     try {
-      // default date is today
-      const currentDate = date || new Date();
-      const dateOption = new Date(currentDate);
-      const isNowDate =
-        dateOption.toLocaleDateString("en-CA") ===
-        new Date().toLocaleDateString("en-CA");
-      const range = await dateQuery(date ? dateOption : undefined);
-
-      const machines = await Machine.findAll({
-        include: [
-          {
-            model: MachineLog,
-            where: {
-              createdAt: range,
-            },
-            attributes: [
-              "id",
-              "current_status",
-              "createdAt",
-              "description",
-              "user_id",
-              "g_code_name",
-              "k_num",
-              "output_wp",
-              "createdAt",
-              "calculate_total_cutting_time",
-            ],
-            include: [
-              {
-                model: User,
-                attributes: ["name"],
-              },
-            ],
-          },
-        ],
-        order: [[{ model: MachineLog }, "createdAt", "ASC"]],
-        attributes: ["name", "status", "type"],
-      });
-
-      const sortedMachines = machines
-        .map((machine) => {
-          const { name, type } = machine.dataValues;
-          return {
-            ...machine.dataValues,
-            name: name + `${type ? ` (${type})` : ""}`,
-          };
-        })
-        .sort((a, b) => {
-          const numberA = parseInt(a.name.slice(3));
-          const numberB = parseInt(b.name.slice(3));
-          return numberA - numberB;
-        });
-
-      if (!sortedMachines.length) {
-        client.send(JSON.stringify({ type: "timeline", data: [] }));
+      const nowDate = reqDate ? new Date(reqDate) : new Date();
+      if (nowDate.toLocaleDateString("en-CA") > new Date().toLocaleDateString("en-CA")) {
+        client.send(
+          JSON.stringify({
+            type: "timeline",
+            data: {
+              data: [],
+              date: nowDate,
+            }
+          })
+        );
         return;
       }
-      client.send(JSON.stringify({ type: "asd", data: sortedMachines }));
+      const machineTimeline = await getMachineTimeline({ date: reqDate, reqId });
+      if (!machineTimeline) {
+        return client.send(
+          JSON.stringify({
+            type: "error",
+            message: "No timeline data found",
+          })
+        );
+      }
 
-      const formattedMachines = sortedMachines.map((machine) => {
-        const logs = machine.MachineLogs.map((log, indexLog) => {
-          const { dataValues, current_status } = log;
-          const operator = dataValues.User?.name || null;
-          // calculate_total_cutting_time is in seconds
-          const currentTime = log.createdAt;
-          const isLastLog = indexLog === machine.MachineLogs.length - 1;
-          const nextLog = machine.MachineLogs[indexLog + 1] || null;
-          const timeDifference =
-            new Date(nextLog?.createdAt || 0) - new Date(currentTime);
-          return {
-            ...log.dataValues,
-            createdAt: convertDateTime(currentTime),
-            timeDifference: formatTimeDifference(timeDifference),
-            k_num: current_status === "Running" ? log.k_num : null,
-            isLastLog,
-            output_wp: current_status === "Running" ? log.output_wp : null,
-            g_code_name: current_status === "Running" ? log.g_code_name : null,
-            operator,
-            // log,
-            // nextLog,
-          };
-        });
+      const { data, date } = machineTimeline;
 
-        const nextLog =
-          machine.MachineLogs[machine.MachineLogs.length - 1] || null;
-        const nextCalculate = nextLog.calculate_total_cutting_time
-          ? Number(nextLog.calculate_total_cutting_time.split(".")[1])
-          : 0;
-        const nextTimeDifference = formatTimeDifference(nextCalculate * 1000);
-
-        const extendLogs = isNowDate
-          ? [
-              ...logs,
-
-              {
-                isNext: true,
-                timeDifference: nextTimeDifference,
-                createdAt: dateOption.toLocaleTimeString("en-CA", {
-                  hour: "numeric",
-                  minute: "numeric",
-                  hour12: false,
-                }),
-                operator: nextLog.User?.name || null,
-                description: "Remaining",
-              },
-            ]
-          : logs;
-        // console.log({ nextLog: extendLogs[extendLogs.length - 1] });
-
-        return {
-          name: machine.name,
-          status: logs[logs.length - 1].current_status,
-          MachineLogs: extendLogs,
-        };
-      });
-      const data = {
-        data: formattedMachines,
-        date: currentDate,
+      const formattedData = {
+        data,
+        date,
       };
-      client.send(JSON.stringify({ type: "timeline", data }));
+      client.send(JSON.stringify({ type: "timeline", data: formattedData }));
     } catch (e) {
       console.log({ e, message: e.message });
       client.send(

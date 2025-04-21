@@ -33,6 +33,7 @@ watch(
 // Daftar opsi untuk dropdown
 const descriptionOptions = [
   { name: 'Manual Operation', value: 'Manual Operation' },
+  { name: 'Dandori', value: 'Dandori' },
   { name: 'Maintenance', value: 'Maintenance' },
   { name: 'Setup', value: 'Setup' },
   { name: 'Breakdown', value: 'Breakdown' },
@@ -40,12 +41,7 @@ const descriptionOptions = [
 ]
 
 const handleSubmitForm = () => {
-  if (
-    !selectedMachine ||
-    inputDescription.value === selectedMachine.description ||
-    !inputDescription.value?.trim()
-  )
-    return undefined
+  if (!selectedMachine || !inputDescription.value?.trim()) return
 
   const payload: EditLogDescription = {
     description: inputDescription.value,
