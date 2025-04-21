@@ -104,7 +104,7 @@ const info = 'per tanggal 21-04-2025 jam 12:00 password diubah menjadi YAMAHA (h
 
 <template>
   <!-- login & register -->
-  <h1 v-if="info" class="text-center text-xl font-bold text-black">info: {{ info ?? '-' }}</h1>
+  <h1 v-if="info" class="text-center text-xl font-bold text-red">info: {{ info ?? '-' }}</h1>
   <Form
     v-slot="$form"
     @submit="submit"

@@ -90,7 +90,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
   <div class="card border border-gray-950 dark:border-gray-500">
     <span
       :style="{ color: iconTimeline(machine.status).color }"
-      class="flex justify-center text-3xl font-bold tetx-black dark:text-white gap-2"
+      class="flex justify-center text-md font-bold text-black dark:text-white gap-2"
     >
       {{ machine.name }}
       <span class="cursor-pointer">
@@ -103,10 +103,15 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
     </span>
 
     <div class="overflow-x-auto">
-      <Timeline :value="machine.MachineLogs" layout="horizontal" align="top">
+      <Timeline
+        :value="machine.MachineLogs"
+        layout="horizontal"
+        align="top"
+        class="[&_.p-timeline-event-opposite]:hidden"
+      >
         <template #marker="{ item }: { item: ObjMachineTimeline }">
           <span
-            class="flex w-8 h-8 items-center justify-center text-white rounded-full z-10 shadow-sm"
+            class="flex w-3 h-3 items-center justify-center text-white rounded-full z-10 shadow-sm my-1"
             :style="{
               backgroundColor: iconTimeline(item.current_status, item.isNext).color
             }"
@@ -114,20 +119,6 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
             <i :class="iconTimeline(item.current_status, item.isNext).icon"></i>
           </span>
         </template>
-        <!-- <template #opposite="slotProps">
-          <div :style="{ backgroundColor: iconTimeline(slotProps.item.current_status).color }">
-            <span class="font-bold text-black dark:text-white">{{ slotProps.item.timestamp }}</span>
-            <br />
-  
-            <span class="font-medium text-black dark:text-white"> 1h 20min 5s </span>
-            <br />
-  
-            <span>dandeling</span>
-            &nbsp;
-  
-            <span>operator: Basri</span>
-          </div>
-        </template> -->
 
         <template #content="{ item }: { item: ObjMachineTimeline; index: number }">
           <div
@@ -136,7 +127,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
                 .color,
               width: customWidthBoxTimeline(item)
             }"
-            :class="`px-2 ml h-100 text-start flex flex-col`"
+            :class="` text-xs h-30 text-start flex flex-col`"
           >
             <i class="font-bold text-black dark:text-white"
               >{{ item.createdAt }} - {{ item.description }}
@@ -183,3 +174,9 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
     <ModalDocumentation v-model:visible-dialog-form="visibleDialogFormDocumentation" />
   </div>
 </template>
+
+<style scoped>
+.p-timeline-event-opposite {
+  display: none !important;
+}
+</style>

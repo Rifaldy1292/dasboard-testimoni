@@ -48,7 +48,7 @@ watch(
     <BreadcrumbDefault page-title="Timeline" />
     <LoadingAnimation :state="loadingWebsocket" />
     <template v-if="!loadingWebsocket">
-      <div class="flex flex-col gap-10 mb-2">
+      <div class="flex flex-col">
         <div class="flex justify-end">
           <DatePickerDay v-model:date-option="dateOption" />
         </div>
@@ -56,7 +56,7 @@ watch(
         <template v-if="timelineMachines?.data?.length">
           <span
             v-if="timelineMachines?.date"
-            class="text-lg font-semibold text-black dark:text-white"
+            class="text-sm font-semibold text-black dark:text-white"
             >{{ new Date(timelineMachines?.date as string).toLocaleDateString() }}</span
           >
 
