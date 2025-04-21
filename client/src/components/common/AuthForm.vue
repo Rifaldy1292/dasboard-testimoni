@@ -98,10 +98,13 @@ const showFormField = computed<ShowFormField>(() => {
     confirmPassword: (page.value === 'Sign up' || isResetPasswordPage) && !isForgotPasswordPage
   }
 })
+
+const info = 'per tanggal 21-04-2025 jam 12:00 password diubah menjadi YAMAHA (huruf besar)'
 </script>
 
 <template>
   <!-- login & register -->
+  <h1 v-if="info" class="text-center text-xl font-bold text-black">info: {{ info ?? '-' }}</h1>
   <Form
     v-slot="$form"
     @submit="submit"

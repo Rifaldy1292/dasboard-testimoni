@@ -46,7 +46,7 @@ const visibleDialogForm = defineModel<boolean>('visibleDialogForm', {
 <template>
   <Dialog
     v-model:visible="visibleDialogForm"
-    :header="timelineDocs.name"
+    :header="timeline ? '' : timelineDocs.name"
     @hide="visibleDialogForm = false"
   >
     <template #default>
