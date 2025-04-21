@@ -20,8 +20,12 @@ const handleClickIcon = (e: ObjMachineTimeline): void => {
 
 const iconTimeline = (
   status: Machine['status'],
-  isNext?: boolean
+  isNext?: boolean,
+  description?: string | null
 ): { icon: string; color: string } => {
+  if (description === null && status === 'Stopped') {
+    return { icon: 'pi pi-minus-circle', color: '#DACA86' }
+  }
   if (isNext) {
     return { color: '#adaaa0', icon: 'pi pi-spin pi-cog' }
   }
@@ -103,7 +107,9 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
         <template #marker="{ item }: { item: ObjMachineTimeline }">
           <span
             class="flex w-8 h-8 items-center justify-center text-white rounded-full z-10 shadow-sm"
-            :style="{ backgroundColor: iconTimeline(item.current_status, item.isNext).color }"
+            :style="{
+              backgroundColor: iconTimeline(item.current_status, item.isNext).color
+            }"
           >
             <i :class="iconTimeline(item.current_status, item.isNext).icon"></i>
           </span>
@@ -126,7 +132,8 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
         <template #content="{ item }: { item: ObjMachineTimeline; index: number }">
           <div
             :style="{
-              backgroundColor: iconTimeline(item.current_status, item.isNext).color,
+              backgroundColor: iconTimeline(item.current_status, item.isNext, item.description)
+                .color,
               width: customWidthBoxTimeline(item)
             }"
             :class="`px-2 ml h-100 text-start flex flex-col`"
