@@ -1,22 +1,11 @@
 <script setup lang="ts">
 import type { UserLocalStorage } from '@/types/localStorage.type'
-import type { User } from '@/types/user.type'
-import { Button, Card, Checkbox, Knob, Message, Select } from 'primevue'
+import type { OperatorMachine } from '@/types/user.type'
+import { Card, Checkbox, Knob, Message, Select } from 'primevue'
 import { inject, shallowRef } from 'vue'
 
-interface ExtendedUser extends User {
-  status: 'Running' | 'Stopped'
-  remaining: string
-  time: string
-  lastUpdate: string
-  photo: string
-  process: string
-  machine: string
-  runningOn: string
-}
-
 defineProps<{
-  operator: ExtendedUser
+  operator: OperatorMachine
 }>()
 
 const userData = inject('userData') as UserLocalStorage
@@ -32,6 +21,29 @@ const dropdownOptions = [
   }
 ]
 
+function convertSecondsToHours(seconds: number, isMinute?: boolean) {
+  if (isMinute) {
+    const second = seconds * 60
+    const minute = Math.floor(seconds / 60)
+    const hour = Math.floor(seconds / 60)
+    let result = []
+
+    // if (hour > 0) result.push(`${hour}h`)
+    if (minute > 0) result.push(`${seconds}m`)
+    return result.length > 0 ? result.join(' ') : '0s'
+  }
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const secondsRemainder = seconds % 60
+
+  let result = []
+  if (hours > 0) result.push(`${hours}h`)
+  if (minutes > 0) result.push(`${minutes}m`)
+  if (secondsRemainder > 0) result.push(`${secondsRemainder}s`)
+
+  return result.length > 0 ? result.join(' ') : '0s'
+}
+
 const selectedOptions = shallowRef<string | undefined>()
 const isChecked = shallowRef<boolean>(false)
 </script>
@@ -42,13 +54,13 @@ const isChecked = shallowRef<boolean>(false)
       <div
         :class="[
           'text-white text-center py-2 font-semibold rounded-t-xl',
-          operator.status === 'Running' ? 'bg-green-600' : 'bg-red-600'
+          operator.log.current_status === 'Running' ? 'bg-green-600' : 'bg-red-600'
         ]"
       >
         <div class="border-b border-white inline-block pb-1">
-          {{ operator.machine }}
+          {{ operator.name }}
         </div>
-        <div class="text-sm mt-1">Operator by {{ operator.name }}</div>
+        <div class="text-sm mt-1">Operator by {{ operator.log.User?.name }}</div>
       </div>
     </template>
 
@@ -58,20 +70,29 @@ const isChecked = shallowRef<boolean>(false)
           <div>
             <h4 class="font-medium text-gray-700 dark:text-gray-200">Process Now</h4>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              {{ operator.process || '-' }}
+              {{ 'O' + operator.log.g_code_name?.slice(-4) || '-' }}
             </p>
           </div>
 
           <img
             class="w-24 h-24 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
-            :src="operator.photo || 'https://dummyimage.com/600x400/000/fff.png'"
+            :src="operator.log.User?.profile_image || 'https://dummyimage.com/600x400/000/fff.png'"
             alt="Operator"
           />
         </div>
 
         <div class="flex justify-between text-sm text-gray-600 dark:text-gray-300 w-full mt-2">
-          <span>Remaining: {{ operator.remaining }}</span>
-          <span>Time: {{ operator.time }}</span>
+          <span>Remaining: {{ operator.log.calculate_total_cutting_time?.split('.')[0] }}</span>
+          <span
+            >Time:
+            {{
+              convertSecondsToHours(
+                operator.log.calculate_total_cutting_time?.split('.')[1]
+                  ? Number(operator.log.calculate_total_cutting_time?.split('.')[1])
+                  : 0
+              )
+            }}</span
+          >
         </div>
       </div>
     </template>
@@ -101,11 +122,23 @@ const isChecked = shallowRef<boolean>(false)
       </div>
 
       <div class="text-right mt-3 text-xs text-gray-500 dark:text-gray-400">
-        <Knob default-value="50" :min="0" :max="100" :step="1" />
+        <Knob
+          :default-value="operator.log.runningOn"
+          :min="0"
+          :max="operator.log.total_cutting_time ?? 0"
+          :step="1"
+        />
 
-        <span>Running On: {{ operator.runningOn }}</span>
+        <span>Running On: {{ convertSecondsToHours(operator.log.runningOn, true) }}</span>
         <br />
-        <span>Last Update: {{ operator.lastUpdate }}</span>
+        <span
+          >Last Update:
+          {{
+            operator.log?.createdAt
+              ? new Date(operator.log.createdAt).toLocaleDateString('en-CA')
+              : '-'
+          }}</span
+        >
       </div>
     </template>
   </Card>

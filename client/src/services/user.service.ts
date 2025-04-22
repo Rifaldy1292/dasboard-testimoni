@@ -33,14 +33,17 @@ const UserServices = {
   checkToken: (token: string): Promise<AxiosResponse> => {
     return API({ token }).get('/users/check-token')
   },
-  editprofile: (body: EditProfile): Promise<AxiosResponse<ApiResponse<{ imageUrl: string | null }>>> => {
+  editprofile: (
+    body: EditProfile
+  ): Promise<AxiosResponse<ApiResponse<{ imageUrl: string | null }>>> => {
     const headers = {
       'Content-Type': 'multipart/form-data'
     }
     return API({ headers }).patch('/users/edit-profile', body)
   },
   getOperatorMachines(): Promise<AxiosResponse<ApiResponse<OperatorMachine[]>>> {
-    return API().get('/users/operator-machines')
+    API().get('/users/operator-machines')
+    return API().get('/users/operator-machines2')
   }
 }
 

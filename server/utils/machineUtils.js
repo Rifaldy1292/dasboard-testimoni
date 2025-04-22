@@ -37,6 +37,34 @@ function convertDateTime(date) {
 }
 
 /**
+ * Calculates the total running time and last running timestamp from machine logs
+ * 
+ * @param {Array<{createdAt: string, current_status: "Running" | "Stopped"}>} logs - Array of machine log objects containing status and createdAt
+ * @returns {{totalRunningTime: number, lastRunningTimestamp: null | string}} Object containing totalRunningTime and lastRunningTimestamp
+ * @property {number} totalRunningTime - Total time the machine was running in milliseconds
+ * @property {Date|null} lastRunningTimestamp - Timestamp of last running status or null
+ */
+const countRunningTime = (logs) => {
+  let totalRunningTime = 0;
+  let lastRunningTimestamp = null;
+
+  logs.forEach((log) => {
+    if (log.current_status === "Running") {
+      lastRunningTimestamp = log.createdAt;
+    } else if (lastRunningTimestamp) {
+      const timeDifference = new Date(log.createdAt) - new Date(lastRunningTimestamp);
+      totalRunningTime += timeDifference;
+      lastRunningTimestamp = null;
+    }
+  });
+
+
+  return {
+    totalRunningTime,
+    lastRunningTimestamp,
+  };
+}
+/**
  * Calculates the total running time of a machine based on today's machine logs
  *
  * @param {number|string} machine_id - ID of the machine to calculate running time for
@@ -65,19 +93,10 @@ const getRunningTimeMachineLog = async (machine_id, reqDate) => {
     const lastLog = logs[logs.length - 1];
 
     // Calculate total running time
-    let totalRunningTime = 0; // In milliseconds
-    let lastRunningTimestamp = null;
+    const count = countRunningTime(logs);
+    let lastRunningTimestamp = count.lastRunningTimestamp;
+    let totalRunningTime = count.totalRunningTime;
 
-    logs.forEach((log) => {
-      const { current_status, createdAt } = log.dataValues;
-      if (current_status === "Running") {
-        lastRunningTimestamp = createdAt;
-      } else if (lastRunningTimestamp) {
-        const calculate = new Date(createdAt) - new Date(lastRunningTimestamp);
-        totalRunningTime += calculate;
-        lastRunningTimestamp = null;
-      }
-    });
 
     if (lastRunningTimestamp) {
       if (!reqDate) {
@@ -300,4 +319,5 @@ module.exports = {
   getRunningTimeMachineLog,
   getAllMachine,
   getMachineTimeline,
+  countRunningTime
 };

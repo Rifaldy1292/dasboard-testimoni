@@ -25,10 +25,27 @@ type Nullable<T extends object, R = null> = {
 }
 
 export interface OperatorMachine {
-  detail: Omit<
-    Nullable<ObjMachineTimeline & { calculate_total_cutting_time: string }>,
-    'timeDifference' | 'description'
-  > & { Machine: { name: string; type?: string } }
+  // detail: Omit<
+  //   Nullable<ObjMachineTimeline & { calculate_total_cutting_time: string }>,
+  //   'timeDifference' | 'description'
+  // > & { Machine: { name: string; type?: string } }
+  id: number
   name: string
-  profile_image: null | string
+  log: Nullable<
+    Pick<
+      ObjMachineTimeline,
+      | 'id'
+      | 'current_status'
+      | 'createdAt'
+      | 'g_code_name'
+      | 'calculate_total_cutting_time'
+      | 'total_cutting_time'
+    >
+  > & {
+    runningOn: number
+    User: null | {
+      name: string | null
+      profile_image: string | null
+    }
+  }
 }

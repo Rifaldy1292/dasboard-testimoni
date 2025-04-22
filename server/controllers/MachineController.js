@@ -4,6 +4,7 @@ const {
   CuttingTime,
   EncryptData,
   DailyConfig,
+  User
 } = require("../models");
 const dateCuttingTime = require("../utils/dateCuttingTime");
 const { serverError } = require("../utils/serverError");
@@ -16,8 +17,7 @@ const { Client } = require("basic-ftp");
 let { config, dateQuery } = require("../utils/dateQuery");
 const { encryptToNumber } = require("../helpers/crypto");
 const { encryptionCache } = require("../cache");
-const { getRunningTimeMachineLog } = require("../utils/machineUtils");
-const { remove } = require("fs-extra");
+const { getRunningTimeMachineLog, countRunningTime } = require("../utils/machineUtils");
 
 const hostHp = "192.168.43.99";
 const pwHp = "android";
@@ -36,7 +36,7 @@ class MachineController {
    * @param {response} res - Response object
    * @param {boolean} isUndo - If true, undo the transfer
    */
-  static async transferFiles(req, res, isUndo) {
+  static async transferFiles(req, res, isUndo = false) {
     const client = new Client();
     try {
       const { machine_id } = req.body;
@@ -609,6 +609,83 @@ class MachineController {
       });
     } catch (error) {
       serverError(error, res, "Failed to check description machine log");
+    }
+  }
+
+  static async getRemaining(req, res) {
+    try {
+      const range = await dateQuery();
+      const allMachinesWithLastLogAndUser = await Machine.findAll({
+        include: [
+          {
+            model: MachineLog,
+            where: {
+              createdAt: range,
+            },
+            order: [["createdAt", "DESC"]],
+            limit: 1,
+            include: [
+              {
+                model: User,
+                attributes: ["name", 'profile_image'],
+              },
+            ],
+            attributes: ["current_status", "total_cutting_time", "user_id", "g_code_name", "calculate_total_cutting_time", "createdAt"],
+          },
+        ],
+        attributes: ["id", "name", "type"],
+      });
+
+      // Perbaikan: Langsung menggunakan Promise.all dengan array hasil dari map
+      const formattedResponse = await Promise.all(
+        allMachinesWithLastLogAndUser.map(async (machine) => {
+          const mc = JSON.parse(JSON.stringify(machine));
+          mc.name = `${mc.name} ${mc.type ? `(${mc.type})` : ''}`
+          const log = mc.MachineLogs[0];
+          mc.log = mc.MachineLogs.length ? log : null;
+          // total cutting time is second, convert to minutes
+          mc.log.total_cutting_time = Math.round(log.total_cutting_time / 60);
+          delete mc.MachineLogs;
+          delete mc.type
+          if (mc.log) {
+            const allLogMachineWhereGCode = await MachineLog.findAll({
+              where: {
+                machine_id: machine.id,
+                createdAt: range,
+                g_code_name: log.g_code_name
+              },
+              order: [["createdAt", "ASC"]],
+              attributes: ['createdAt', 'current_status'],
+              raw: true
+            });
+
+            if (!allLogMachineWhereGCode.length) return mc;
+
+            // count running time
+            const count = countRunningTime(allLogMachineWhereGCode);
+            // console.log({ count }, 999)
+            let totalRunningTime = count.totalRunningTime;
+            let lastRunningTimestamp = count.lastRunningTimestamp;
+            if (lastRunningTimestamp) {
+              totalRunningTime += new Date().getTime() - new Date(lastRunningTimestamp).getTime();
+            }
+
+            // let totalRunningTime = 0
+            // in minutes
+            mc.log.runningOn = Math.round(totalRunningTime / 1000 / 60)
+          }
+
+          return mc;
+        })
+      );
+
+      res.status(200).json({
+        status: 200,
+        message: "success get remaining",
+        data: formattedResponse,
+      });
+    } catch (error) {
+      serverError(error, res, "Failed to get remaining");
     }
   }
 }
