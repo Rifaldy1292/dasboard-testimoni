@@ -2,10 +2,10 @@
 import type { UserLocalStorage } from '@/types/localStorage.type'
 import type { OperatorMachine } from '@/types/user.type'
 import { Card, Checkbox, Knob, Message, Select } from 'primevue'
-import { inject, shallowRef } from 'vue'
+import { computed, inject, shallowRef } from 'vue'
 
-defineProps<{
-  operator: OperatorMachine
+const { machine } = defineProps<{
+  machine: OperatorMachine
 }>()
 
 const userData = inject('userData') as UserLocalStorage
@@ -30,7 +30,7 @@ function convertSecondsToHours(seconds: number, isMinute?: boolean) {
 
     // if (hour > 0) result.push(`${hour}h`)
     if (minute > 0) result.push(`${seconds}m`)
-    return result.length > 0 ? result.join(' ') : '0s'
+    return result.length > 0 ? result.join(' ') : '0m'
   }
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
@@ -46,6 +46,30 @@ function convertSecondsToHours(seconds: number, isMinute?: boolean) {
 
 const selectedOptions = shallowRef<string | undefined>()
 const isChecked = shallowRef<boolean>(false)
+
+const remainingText = computed(() => {
+  const {
+    User,
+    createdAt,
+    runningOn,
+    g_code_name,
+    current_status,
+    calculate_total_cutting_time,
+    total_cutting_time
+  } = machine.log
+  const program = machine.log.g_code_name?.slice(-4)
+  return {
+    name: machine.name,
+    current_status,
+    User,
+    createdAt,
+    runningOn: runningOn ?? 0,
+    program,
+    calculate_total_cutting_time,
+    total_cutting_time: total_cutting_time ?? 0,
+    g_code_name: g_code_name ? `O${g_code_name.slice(-4)}` : '-'
+  }
+})
 </script>
 
 <template>
@@ -54,13 +78,13 @@ const isChecked = shallowRef<boolean>(false)
       <div
         :class="[
           'text-white text-center py-2 font-semibold rounded-t-xl',
-          operator.log.current_status === 'Running' ? 'bg-green-600' : 'bg-red-600'
+          remainingText.current_status === 'Running' ? 'bg-green-600' : 'bg-red-600'
         ]"
       >
         <div class="border-b border-white inline-block pb-1">
-          {{ operator.name }}
+          {{ remainingText.name }}
         </div>
-        <div class="text-sm mt-1">Operator by {{ operator.log.User?.name }}</div>
+        <div class="text-sm mt-1">machine by {{ remainingText.User?.name ?? '-' }}</div>
       </div>
     </template>
 
@@ -70,26 +94,27 @@ const isChecked = shallowRef<boolean>(false)
           <div>
             <h4 class="font-medium text-gray-700 dark:text-gray-200">Process Now</h4>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              {{ 'O' + operator.log.g_code_name?.slice(-4) || '-' }}
+              {{ remainingText.g_code_name }}
             </p>
           </div>
 
           <img
             class="w-24 h-24 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
-            :src="operator.log.User?.profile_image || 'https://dummyimage.com/600x400/000/fff.png'"
-            alt="Operator"
+            :src="remainingText.User?.profile_image || 'https://dummyimage.com/600x400/000/fff.png'"
+            alt="machine"
           />
         </div>
 
         <div class="flex justify-between text-sm text-gray-600 dark:text-gray-300 w-full mt-2">
           <span
-            >Remaining: {{ operator.log.calculate_total_cutting_time?.split('.')[0] }} program</span
+            >Remaining:
+            {{ remainingText.calculate_total_cutting_time?.split('.')[0] }} program</span
           >
           <span>
             {{
               convertSecondsToHours(
-                operator.log.calculate_total_cutting_time?.split('.')[1]
-                  ? Number(operator.log.calculate_total_cutting_time?.split('.')[1])
+                remainingText.calculate_total_cutting_time?.split('.')[1]
+                  ? Number(remainingText.calculate_total_cutting_time?.split('.')[1])
                   : 0
               )
             }}</span
@@ -124,21 +149,29 @@ const isChecked = shallowRef<boolean>(false)
 
       <div class="text-right mt-3 text-xs text-gray-500 dark:text-gray-400">
         <Knob
-          :default-value="operator.log.runningOn"
+          v-model:model-value="remainingText.runningOn"
           :min="0"
-          :max="operator.log.total_cutting_time ?? 0"
+          :max="remainingText?.total_cutting_time || 0"
           readonly
           :size="100"
           valueTemplate="{value}m"
         />
 
-        <span>Running On: {{ convertSecondsToHours(operator.log.runningOn, true) }}</span>
+        <span
+          >Total Cutting Time:
+          {{ convertSecondsToHours(remainingText.total_cutting_time, true) }}</span
+        >
         <br />
         <span
           >Last Update:
           {{
-            operator.log?.createdAt
-              ? new Date(operator.log.createdAt).toLocaleDateString('en-CA')
+            // hide ms
+            remainingText?.createdAt
+              ? new Date(remainingText.createdAt).toLocaleTimeString('en-ID', {
+                  hour12: false,
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })
               : '-'
           }}</span
         >

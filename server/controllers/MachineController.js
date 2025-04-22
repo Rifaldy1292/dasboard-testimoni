@@ -638,7 +638,11 @@ class MachineController {
 
       // Perbaikan: Langsung menggunakan Promise.all dengan array hasil dari map
       const formattedResponse = await Promise.all(
-        allMachinesWithLastLogAndUser.map(async (machine) => {
+        allMachinesWithLastLogAndUser.sort((a, b) => {
+          const numberA = parseInt(a.name.slice(3));
+          const numberB = parseInt(b.name.slice(3));
+          return numberA - numberB;
+        }).map(async (machine) => {
           const mc = JSON.parse(JSON.stringify(machine));
           mc.name = `${mc.name} ${mc.type ? `(${mc.type})` : ''}`
           const log = mc.MachineLogs[0];
@@ -648,9 +652,13 @@ class MachineController {
           delete mc.MachineLogs;
           delete mc.type
           if (mc.log) {
+            if (!log.g_code_name) {
+              mc.runningOn = 0;
+              return mc
+            }
             const allLogMachineWhereGCode = await MachineLog.findAll({
               where: {
-                machine_id: machine.id,
+                machine_id: mc.id,
                 createdAt: range,
                 g_code_name: log.g_code_name
               },
@@ -670,8 +678,7 @@ class MachineController {
               totalRunningTime += new Date().getTime() - new Date(lastRunningTimestamp).getTime();
             }
 
-            // let totalRunningTime = 0
-            // in minutes
+            // totalRunningTime is ms, convert to minutes
             mc.log.runningOn = Math.round(totalRunningTime / 1000 / 60)
           }
 
