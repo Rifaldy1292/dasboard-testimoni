@@ -82,9 +82,10 @@ const isChecked = shallowRef<boolean>(false)
         </div>
 
         <div class="flex justify-between text-sm text-gray-600 dark:text-gray-300 w-full mt-2">
-          <span>Remaining: {{ operator.log.calculate_total_cutting_time?.split('.')[0] }}</span>
           <span
-            >Time:
+            >Remaining: {{ operator.log.calculate_total_cutting_time?.split('.')[0] }} program</span
+          >
+          <span>
             {{
               convertSecondsToHours(
                 operator.log.calculate_total_cutting_time?.split('.')[1]
@@ -126,7 +127,9 @@ const isChecked = shallowRef<boolean>(false)
           :default-value="operator.log.runningOn"
           :min="0"
           :max="operator.log.total_cutting_time ?? 0"
-          :step="1"
+          readonly
+          :size="100"
+          valueTemplate="{value}m"
         />
 
         <span>Running On: {{ convertSecondsToHours(operator.log.runningOn, true) }}</span>
