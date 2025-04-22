@@ -107,7 +107,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
       /></span>
     </span>
 
-    <div :class="`overflow-x-auto ${isHover ? 'h-10' : ''}`">
+    <div :class="`overflow-x-auto ${isHover ? 'h-15' : ''}`">
       <Timeline
         :value="machine.MachineLogs"
         layout="horizontal"
@@ -132,29 +132,27 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
                 .color,
               width: customWidthBoxTimeline(item)
             }"
-            :class="`text-xs ${isHover ? 'h-2' : 'h-30'} text-start flex flex-col`"
+            :class="`text-xs ${isHover ? 'h-10' : 'h-60'} text-start flex flex-col`"
           >
+            <i class="font-bold text-black dark:text-white"
+              >{{ item.createdAt }} - {{ item.description }}
+            </i>
+            <i
+              v-if="item.current_status === 'Stopped'"
+              @click="handleClickIcon(item)"
+              v-tooltip.top="'Edit'"
+              class="pi pi-pencil"
+              style="font-size: 1rem"
+            />
             <template v-if="!isHover">
-              <i class="font-bold text-black dark:text-white"
-                >{{ item.createdAt }} - {{ item.description }}
-              </i>
-              <i
-                v-if="item.current_status === 'Stopped'"
-                @click="handleClickIcon(item)"
-                v-tooltip.top="'Edit'"
-                class="pi pi-pencil"
-                style="font-size: 1rem"
-              />
               <span class="font-medium text-white dark:text-black"
                 >{{ item.isLastLog ? 'next' : item.timeDifference }}
               </span>
-
               <span class="font-medium text-yellow-300">{{ item.k_num }} </span>
 
               <span class="font-medium text-indigo-700"
                 >{{ item.g_code_name }} - {{ item.output_wp }}</span
               >
-
               <span class="font-medium text-black dark:text-white"
                 >{{ item.operator ?? '-' }}
               </span>
