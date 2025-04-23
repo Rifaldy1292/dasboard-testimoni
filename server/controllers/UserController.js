@@ -100,34 +100,20 @@ class UserController {
             model: Role,
             attributes: ["name"],
           },
-          {
-            model: Machine,
-            attributes: ["name"],
-          },
         ],
         attributes: [
           "id",
           "name",
           "NIK",
-          "machine_id",
-          "profile_image",
-          "createdAt",
-          "updatedAt",
         ],
-        order: [["NIK", "ASC"]],
+        order: [["NIK", "ASC"], ['role_id', 'ASC']],
         raw: true,
       });
       // allowDelete = cannot delete yourself
       const formattedResult = users.map((user) => {
         user.allowDelete = user.id !== req.user.id;
         user.roleName = user["Role.name"];
-        user.machineName = user["Machines.name"];
-        user.imageUrl = user.profile_image
-          ? `${req.protocol}://${req.get("host")}/${user.profile_image}`
-          : null;
         delete user["Role.name"];
-        delete user["Machines.name"];
-        delete user["profile_image"];
         return user;
       });
       res.status(200).json({
@@ -196,7 +182,7 @@ class UserController {
         NIK: FoundNIK.NIK,
         role_id,
         role: FoundNIK.Role.name,
-        imageUrl,
+        profile_image: imageUrl,
       });
       res
         .status(200)

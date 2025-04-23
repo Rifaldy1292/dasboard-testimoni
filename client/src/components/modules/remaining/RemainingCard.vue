@@ -1,45 +1,33 @@
 <script setup lang="ts">
 import type { UserLocalStorage } from '@/types/localStorage.type'
-import type { OperatorMachine } from '@/types/user.type'
+import type { OperatorMachine, User } from '@/types/user.type'
 import { Card, Checkbox, Knob, Message, Select } from 'primevue'
 import { computed, inject, shallowRef } from 'vue'
 
 const { machine } = defineProps<{
   machine: OperatorMachine
+  users: User[]
+  loadingFetch: boolean
+}>()
+
+const emit = defineEmits<{
+  showDropdownUser: []
 }>()
 
 const userData = inject('userData') as UserLocalStorage
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 const dropdownOptions = [
-  {
-    label: 'Dandori Tool',
-    value: 'Dandori Tool'
-  },
-  {
-    label: 'Dandori apa',
-    value: 'Dandori apa'
-  }
+  { name: 'Manual Operation' },
+  { name: 'Dandori Part' },
+  { name: 'Dandori Tool' },
+  { name: 'Cek Dimensi' },
+  { name: 'Setting Nol Set' }
 ]
-
-function convertSecondsToHours(count: number, isMinute?: boolean) {
-  if (isMinute) {
-    return `${count}m`
-  }
-  const hours = Math.floor(count / 3600)
-  const minutes = Math.floor((count % 3600) / 60)
-  const countRemainder = count % 60
-
-  let result = []
-  if (hours > 0) result.push(`${hours}h`)
-  if (minutes > 0) result.push(`${minutes}m`)
-  if (countRemainder > 0) result.push(`${countRemainder}s`)
-
-  return result.length > 0 ? result.join(' ') : '0s'
-}
 
 const selectedOptions = shallowRef<string | undefined>()
 const isChecked = shallowRef<boolean>(false)
+const showDropdown = shallowRef<boolean>(false)
 
 const remainingText = computed(() => {
   const {
@@ -65,6 +53,27 @@ const remainingText = computed(() => {
     profile_image: User?.profile_image ? `${BASE_URL}/${User?.profile_image}` : ''
   }
 })
+
+function convertSecondsToHours(count: number, isMinute?: boolean) {
+  if (isMinute) {
+    return `${count}m`
+  }
+  const hours = Math.floor(count / 3600)
+  const minutes = Math.floor((count % 3600) / 60)
+  const countRemainder = count % 60
+
+  let result = []
+  if (hours > 0) result.push(`${hours}h`)
+  if (minutes > 0) result.push(`${minutes}m`)
+  if (countRemainder > 0) result.push(`${countRemainder}s`)
+
+  return result.length > 0 ? result.join(' ') : '0s'
+}
+
+const handleSelectUser = () => {
+  showDropdown.value = false
+  console.log('trigger')
+}
 </script>
 
 <template>
@@ -79,7 +88,29 @@ const remainingText = computed(() => {
         <div class="border-b border-white inline-block pb-1">
           {{ remainingText.name }}
         </div>
-        <div class="text-sm mt-1">machine by {{ remainingText.User?.name ?? '-' }}</div>
+        <!-- icon edit -->
+        <div class="text-sm mt-1 flex flex-col gap-2 items-center justify-center">
+          <span>
+            {{ remainingText.User?.name ?? '-' }}
+            <i
+              @click="showDropdown = !showDropdown"
+              v-tooltip.top="'Change Operator'"
+              class="pi pi-pencil cursor-pointer"
+            ></i>
+          </span>
+
+          <Select
+            @show="emit('showDropdownUser')"
+            filter
+            @update:model-value="handleSelectUser"
+            v-if="showDropdown"
+            :options="users"
+            optionLabel="name"
+            optionValue="id"
+            :loading="loadingFetch"
+            class=""
+          />
+        </div>
       </div>
     </template>
 
@@ -136,16 +167,16 @@ const remainingText = computed(() => {
           :options="dropdownOptions"
           v-model:model-value="selectedOptions"
           outlined
-          option-label="label"
-          option-value="value"
+          option-label="name"
+          option-value="name"
         />
         <Checkbox v-model:modelValue="isChecked" binary />
       </div>
 
       <div class="text-right mt-3 text-xs text-gray-500 dark:text-gray-400">
         <Knob
-          :default-value="remainingText.runningOn"
-          :min="-1"
+          v-model="remainingText.runningOn"
+          :min="0.9"
           :max="remainingText.total_cutting_time"
           readonly
           :size="100"

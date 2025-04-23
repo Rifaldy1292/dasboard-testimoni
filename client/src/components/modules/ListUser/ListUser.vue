@@ -32,7 +32,6 @@ const toast = useToast()
 const columns: Columns[] = [
   { field: 'name', header: 'Name' },
   { field: 'NIK', header: 'NIK' },
-  { field: 'machineName', header: 'Machine Name' },
   { field: 'roleName', header: 'Role' }
 ]
 

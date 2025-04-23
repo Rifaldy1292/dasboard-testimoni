@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, shallowRef, watch } from 'vue'
+import { computed, inject, onMounted, ref, shallowRef, watch } from 'vue'
 import userPhoto from '@/assets/images/user/user-03.png'
 import { InputText, Message } from 'primevue'
 import { Form, FormField, type FormSubmitEvent } from '@primevue/forms'
@@ -11,12 +11,16 @@ import type { EditProfile } from '@/dto/user.dto'
 import { useUsers } from '@/composables/useUsers'
 import LoadingAnimation from './common/LoadingAnimation.vue'
 import useToast from '@/composables/useToast'
+import type { UserLocalStorage } from '@/types/localStorage.type'
+
+type DefaultFormValue = EditProfile & { imageUrl: string | null; password?: string }
 
 onMounted(async () => {
   await getDetailUser()
 })
 
 const { getDetailUser, user, loadingFetch } = useUsers()
+const userData = inject('userData') as UserLocalStorage
 const toast = useToast()
 
 const resolver = zodResolver(
@@ -36,11 +40,10 @@ const resolver = zodResolver(
   })
 )
 
-type DefaultFormValue = EditProfile & { imageUrl: string | null; password?: string }
 const defaultFormValue = computed<DefaultFormValue>(() => {
   return {
     name: user.value?.name || '',
-    imageUrl: user.value?.imageUrl === undefined ? null : user.value?.imageUrl,
+    imageUrl: user.value?.profile_image ? user.value?.profile_image : null,
     profilePicture: null,
     password: ''
   }
@@ -48,13 +51,14 @@ const defaultFormValue = computed<DefaultFormValue>(() => {
 
 const formValues = ref<DefaultFormValue>(defaultFormValue.value)
 const showPassword = shallowRef<boolean>(false)
+// const showConfirmPassword = shallowRef<boolean>(false)
 
 watch(
   () => user.value,
-  () => {
+  (userVal) => {
     formValues.value = {
-      imageUrl: user.value?.imageUrl || null,
-      name: user.value?.name,
+      imageUrl: userVal?.profile_image || null,
+      name: userVal?.name,
       profilePicture: null,
       password: ''
     }

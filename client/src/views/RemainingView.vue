@@ -11,7 +11,7 @@ onMounted(async () => {
   await fetchOperatorMachine()
 })
 
-const { loadingFetch, fetchOperatorMachine, operatorMachines } = useUsers()
+const { loadingFetch, fetchOperatorMachine, operatorMachines, fetchUsers, users } = useUsers()
 </script>
 
 <template>
@@ -22,7 +22,17 @@ const { loadingFetch, fetchOperatorMachine, operatorMachines } = useUsers()
     <template v-if="operatorMachines.length">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-6">
         <template v-for="(operator, index) in operatorMachines" :key="index">
-          <RemainingCard :machine="operator" />
+          <RemainingCard
+            @showDropdownUser="
+              async () => {
+                if (users.length) return
+                await fetchUsers()
+              }
+            "
+            :machine="operator"
+            :users
+            :loadingFetch
+          />
         </template>
       </div>
     </template>

@@ -17,7 +17,7 @@ export interface User {
   role_id: number
   machineName: null | string
   allowDelete?: boolean
-  imageUrl: null | string
+  profile_image: null | string
 }
 
 type Nullable<T extends object, R = null> = {
