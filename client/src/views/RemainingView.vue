@@ -23,6 +23,7 @@ const { loadingFetch, fetchOperatorMachine, operatorMachines, fetchUsers, users 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-6">
         <template v-for="(operator, index) in operatorMachines" :key="index">
           <RemainingCard
+            @refetch-machine="fetchOperatorMachine"
             @showDropdownUser="
               async () => {
                 if (users.length) return
@@ -31,7 +32,7 @@ const { loadingFetch, fetchOperatorMachine, operatorMachines, fetchUsers, users 
             "
             :machine="operator"
             :users
-            :loadingFetch
+            v-model:loadingfetch="loadingFetch"
           />
         </template>
       </div>

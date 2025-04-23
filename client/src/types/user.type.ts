@@ -43,9 +43,10 @@ export interface OperatorMachine {
     >
   > & {
     runningOn: number
-    User: null | {
-      name: string | null
-      profile_image: string | null
-    }
+    User: null | Nullable<{
+      id: number
+      name: string
+      profile_image: string
+    }>
   }
 }

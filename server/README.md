@@ -64,6 +64,7 @@ pnpx sequelize db:migrate --name add-additional-column-to-machine-log
 
 npx sequelize-cli migration:generate --name add_tool_name_to_machinelog
 npx sequelize-cli model:generate --name DailyConfig --attributes date:date,startFirstShift:time,startSecondShift:time,description:string
+npx sequelize-cli model:generate --name MachineOperatorAssignment --attributes machine_id:integer,user_id:integer,is_using_custom:boolean
 
 backup db: "C:\Program Files\PostgreSQL\17\bin\pg_dump.exe" -U postgres -h localhost -p 5432 -F c -b -v -f dashboard_machine_backup.dump yamaha_dashboard_machine
 

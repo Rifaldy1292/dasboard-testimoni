@@ -6,6 +6,7 @@ const multer = require('multer');
 const { MachineLog } = require("../models");
 const { where } = require("sequelize");
 const { Op } = require("sequelize");
+const remainingController = require("../controllers/RemainingController");
 
 machineRouter.get(
     "/cutting-time",
@@ -62,6 +63,7 @@ machineRouter.delete(
 machineRouter.get('/start-time', authMiddleware, MachineController.getStartTime)
 machineRouter.put('/start-time', authMiddleware, MachineController.editStartTime)
 machineRouter.get('/is-ready-transfer-files', authMiddleware, MachineController.checkIsReadyTransferFile)
+machineRouter.put('/remaining', authMiddleware, remainingController.editOperatorInMachine)
 
 module.exports = machineRouter;
 

@@ -11,9 +11,9 @@ const useToast = (): ToastServiceMethods & {
 
   const severitySounds: { [key: string]: string } = {
     success: successSound, // Sesuaikan jalur
-    error: errorSound // Sesuaikan jalur
-    // warn: '/warn.mp3', // Sesuaikan jalur
-    // info: '/info.mp3' // Sesuaikan jalur
+    error: errorSound, // Sesuaikan jalur
+    warn: errorSound, // Sesuaikan jalur
+    info: errorSound // Sesuaikan jalur
   }
 
   const playSound = (severity: string) => {

@@ -1,19 +1,25 @@
 <script setup lang="ts">
+import useToast from '@/composables/useToast'
+import UserServices from '@/services/user.service'
 import type { UserLocalStorage } from '@/types/localStorage.type'
 import type { OperatorMachine, User } from '@/types/user.type'
+import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import { Card, Checkbox, Knob, Message, Select } from 'primevue'
-import { computed, inject, shallowRef } from 'vue'
+import { computed, inject, shallowRef, watch, watchEffect } from 'vue'
 
 const { machine } = defineProps<{
   machine: OperatorMachine
   users: User[]
-  loadingFetch: boolean
 }>()
 
 const emit = defineEmits<{
   showDropdownUser: []
+  refetchMachine: []
 }>()
 
+const toast = useToast()
+
+const loadingfetch = defineModel<boolean>('loadingfetch', { required: true })
 const userData = inject('userData') as UserLocalStorage
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
@@ -25,9 +31,13 @@ const dropdownOptions = [
   { name: 'Setting Nol Set' }
 ]
 
-const selectedOptions = shallowRef<string | undefined>()
+const selectedOptions = shallowRef<string | undefined | null>(undefined)
 const isChecked = shallowRef<boolean>(false)
 const showDropdown = shallowRef<boolean>(false)
+
+watch([() => selectedOptions.value, () => isChecked.value], () => {
+  handleEditOperatorMachine()
+})
 
 const remainingText = computed(() => {
   const {
@@ -54,6 +64,34 @@ const remainingText = computed(() => {
   }
 })
 
+const handleEditOperatorMachine = async (userIdFromSelect?: number) => {
+  try {
+    loadingfetch.value = true
+    showDropdown.value = false
+    const user_id = userIdFromSelect ?? machine.log.User?.id
+    if (!user_id) {
+      return toast.add({
+        severity: 'info',
+        summary: 'Gagal edit operator',
+        detail: 'Pilih operator terlebih dahulu',
+        life: 5000
+      })
+    }
+    const { data } = await UserServices.patchOperatorMachines({
+      machine_id: machine.id,
+      user_id,
+      description: selectedOptions.value,
+      is_work: isChecked.value
+    })
+    emit('refetchMachine')
+    toast.add({ severity: 'success', summary: 'Success', detail: data.message })
+  } catch (error) {
+    handleErrorAPI(error, toast)
+  } finally {
+    loadingfetch.value = false
+  }
+}
+
 function convertSecondsToHours(count: number, isMinute?: boolean) {
   if (isMinute) {
     return `${count}m`
@@ -68,11 +106,6 @@ function convertSecondsToHours(count: number, isMinute?: boolean) {
   if (countRemainder > 0) result.push(`${countRemainder}s`)
 
   return result.length > 0 ? result.join(' ') : '0s'
-}
-
-const handleSelectUser = () => {
-  showDropdown.value = false
-  console.log('trigger')
 }
 </script>
 
@@ -102,12 +135,12 @@ const handleSelectUser = () => {
           <Select
             @show="emit('showDropdownUser')"
             filter
-            @update:model-value="handleSelectUser"
+            @update:model-value="handleEditOperatorMachine"
             v-if="showDropdown"
             :options="users"
             optionLabel="name"
             optionValue="id"
-            :loading="loadingFetch"
+            :loading="loadingfetch"
             class=""
           />
         </div>
