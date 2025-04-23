@@ -99,12 +99,12 @@ const showFormField = computed<ShowFormField>(() => {
   }
 })
 
-const info = `pa Iwan, tolong restart PC nya pa, setelah restart:
-1. buka HumanOS
-2. klik OEE Collecting
-3. run
-selesai`
-// const info = 'per tanggal 21-04-2025 jam 12:00 password diubah menjadi YAMAHA (huruf besar)'
+// const info = `pa Iwan, tolong restart PC nya pa, setelah restart:
+// 1. buka HumanOS
+// 2. klik OEE Collecting
+// 3. run
+// selesai`
+const info = 'per tanggal 21-04-2025 jam 12:00 password diubah menjadi YAMAHA (huruf besar)'
 </script>
 
 <template>
