@@ -9,6 +9,7 @@ const { machine } = defineProps<{
 }>()
 
 const userData = inject('userData') as UserLocalStorage
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 const dropdownOptions = [
   {
@@ -60,7 +61,8 @@ const remainingText = computed(() => {
     program,
     calculate_total_cutting_time,
     total_cutting_time: total_cutting_time ?? 0,
-    g_code_name: g_code_name ? `O${g_code_name.slice(-4)}` : '-'
+    g_code_name: g_code_name ? `O${g_code_name.slice(-4)}` : '-',
+    profile_image: User?.profile_image ? `${BASE_URL}/${User?.profile_image}` : ''
   }
 })
 </script>
@@ -93,7 +95,7 @@ const remainingText = computed(() => {
 
           <img
             class="w-24 h-24 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
-            :src="remainingText.User?.profile_image || 'https://dummyimage.com/600x400/000/fff.png'"
+            :src="remainingText.profile_image || 'https://dummyimage.com/600x400/000/fff.png'"
             alt="machine"
           />
         </div>
@@ -142,7 +144,7 @@ const remainingText = computed(() => {
 
       <div class="text-right mt-3 text-xs text-gray-500 dark:text-gray-400">
         <Knob
-          :default-value="remainingText.total_cutting_time"
+          :default-value="remainingText.runningOn"
           :min="-1"
           :max="remainingText.total_cutting_time"
           readonly

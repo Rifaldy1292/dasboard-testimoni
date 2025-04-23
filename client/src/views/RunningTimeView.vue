@@ -76,17 +76,6 @@ const duplicatedRunningTimeData = computed(() => {
     <LoadingAnimation :state="loadingWebsocket" />
 
     <!-- agar tanpa scroll dan muncul semua -->
-    <!-- <div class="max-h-screen" > -->
-    <!-- <div class="mb-3 justify-end gap-4 sm:flex">
-      <Select
-        :model-value="type"
-        @update:model-value="type = $event"
-        :options="selectOptions"
-        option-label="label"
-        option-value="value"
-        :default-value="type"
-      />
-    </div> -->
     <div class="flex justify-end">
       <DatePickerDay v-model:date-option="dateOption" />
     </div>
@@ -98,7 +87,7 @@ const duplicatedRunningTimeData = computed(() => {
     >
     <div
       v-if="!loadingWebsocket"
-      class="mt-4 grid grid-cols-8 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5"
+      class="mt-4 grid grid-cols-10 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5"
     >
       <!-- <div class="mt-2 grid grid-cols-4 gap-4"> -->
       <ChartThree

@@ -25,7 +25,7 @@ const iconTimeline = (
   description?: string | null
 ): { icon: string; color: string } => {
   if (description === null && status === 'Stopped') {
-    return { icon: 'pi pi-minus-circle', color: '#DACA86' }
+    return { icon: 'pi pi-minus-circle', color: '#6C0B0C' }
   }
   if (isNext) {
     return { color: '#adaaa0', icon: 'pi pi-spin pi-cog' }
@@ -88,11 +88,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
 </script>
 
 <template>
-  <div
-    @mouseenter="isHover = false"
-    @mouseleave="isHover = true"
-    class="border border-gray-950 dark:border-gray-500"
-  >
+  <div @click="isHover = !isHover" class="border border-gray-950 dark:border-gray-500">
     <span
       :style="{ color: iconTimeline(machine.status).color }"
       class="flex justify-center text-sm font-bold text-black dark:text-white gap-2"
