@@ -71,7 +71,7 @@ const handleSubmit = async (e: FormSubmitEvent) => {
       formValues.value.name === defaultFormValue.value.name &&
       formValues.value.imageUrl === defaultFormValue.value.imageUrl &&
       formValues.value.password === defaultFormValue.value.password
-    if (!e.valid || isSameValue) return console.log('invalid')
+    // if (!e.valid || isSameValue) return console.log('invalid')
 
     // console.log({ isSameValue })
     const { data } = await UserServices.editprofile(formValues.value)
