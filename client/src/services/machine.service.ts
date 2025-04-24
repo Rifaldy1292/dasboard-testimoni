@@ -30,20 +30,6 @@ const MachineServices = {
     return API().post('/machines/encrypt-content', body)
   },
 
-  getStartTime: (): Promise<
-    AxiosResponse<ApiResponse<{ startHour: number; startMinute: number; id: number | null }>>
-  > => {
-    return API().get('/machines/start-time')
-  },
-
-  putStartTIme: (body: {
-    reqStartHour: number
-    reqStartMinute: number
-    id: number
-  }): Promise<AxiosResponse> => {
-    return API().put('machines/start-time', body)
-  },
-
   getFileList(
     machine_id: number
   ): Promise<AxiosResponse<ApiResponse<{ fileName: string; isDeleted: boolean }[]>>> {

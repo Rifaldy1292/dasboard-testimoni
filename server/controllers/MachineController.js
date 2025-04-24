@@ -1,65 +1,28 @@
-const {
-  Machine,
-  MachineLog,
-  CuttingTime,
-  DailyConfig } = require("../models");
+const { Machine, CuttingTime, } = require("../models");
 const dateCuttingTime = require("../utils/dateCuttingTime");
 const { serverError } = require("../utils/serverError");
 const countHour = require("../utils/countHour");
 
-let { config, dateQuery } = require("../utils/dateQuery");
 const { getRunningTimeMachineLog } = require("../utils/machineUtils");
+
+const objectTargetCuttingTime = (target, totalDayInMonth) => {
+  const targetPerDay = target / totalDayInMonth; // Calculate target hours per day
+
+  const calculatedTargets = Array.from(
+    { length: totalDayInMonth },
+    (_, i) => (i + 1) * targetPerDay
+  ); // Calculate cumulative target for each day
+
+  const formattedResult = calculatedTargets.map((item) => Math.round(item));
+  // console.log({ test, length: test.length });
+  return {
+    name: "Target",
+    data: formattedResult, // data ubah jadi actual
+  };
+};
 
 
 class MachineController {
-  static getStartTime(req, res) {
-    const { startHour, id, startMinute } = config;
-    res.status(200).json({
-      data: { startHour, id, startMinute },
-      message: "succesfully get start time ",
-    });
-  }
-
-  static async editStartTime(req, res) {
-    try {
-      const { reqStartHour, reqStartMinute, id } = req.body;
-      if (
-        typeof reqStartHour !== "number" ||
-        typeof reqStartMinute !== "number" ||
-        !id
-      ) {
-        return res
-          .status(400)
-          .json({ message: "invalid request!", status: 400 });
-      }
-      let hourStartSecond = reqStartHour + 12;
-      if (hourStartSecond > 24) {
-        hourStartSecond = hourStartSecond - 24;
-      }
-
-      const { startFirstShift, startSecondShift } = {
-        startFirstShift: `${reqStartHour}:${reqStartMinute}`,
-        startSecondShift: `${hourStartSecond}:${reqStartMinute}`,
-      };
-
-      const countUpdate = await DailyConfig.update(
-        { startFirstShift, startSecondShift },
-        { where: { id } }
-      );
-
-      if (countUpdate[0] === 0) {
-        return res.status(400).json({ message: "failed to update start time" });
-      }
-
-      config.startHour = reqStartHour;
-      config.startMinute = reqStartMinute;
-      config.id = id;
-      res.status(201).json({ message: "succesfully Edit start time " });
-    } catch (error) {
-      serverError(error, res, "failed to Edit start time");
-    }
-  }
-
   static async getCuttingTime(req, res) {
     try {
       const { period } = req.query;
@@ -225,54 +188,7 @@ class MachineController {
       serverError(error, res, "Failed to get machine option");
     }
   }
-
-  static async checkIsReadyTransferFile(req, res) {
-    try {
-      const { machine_id } = req.query;
-      if (!machine_id) return res.status(400).json({
-        status: 400,
-        message: "machine_id is required",
-      });
-      const range = await dateQuery(undefined);
-
-      // find where description === null
-      const machineLog = await MachineLog.findOne({
-        where: {
-          createdAt: range,
-          machine_id: machine_id,
-          description: null,
-          current_status: "Stopped"
-        },
-      });
-
-      if (machineLog)
-        return res.status(422).json({
-          status: 422,
-          message: "found machine log with description null",
-        });
-
-      res.status(204).send();
-    } catch (error) {
-      serverError(error, res, "Failed to check description machine log");
-    }
-  }
 }
-
-const objectTargetCuttingTime = (target, totalDayInMonth) => {
-  const targetPerDay = target / totalDayInMonth; // Calculate target hours per day
-
-  const calculatedTargets = Array.from(
-    { length: totalDayInMonth },
-    (_, i) => (i + 1) * targetPerDay
-  ); // Calculate cumulative target for each day
-
-  const formattedResult = calculatedTargets.map((item) => Math.round(item));
-  // console.log({ test, length: test.length });
-  return {
-    name: "Target",
-    data: formattedResult, // data ubah jadi actual
-  };
-};
 
 module.exports = MachineController;
 

@@ -8,6 +8,7 @@ const { where } = require("sequelize");
 const { Op } = require("sequelize");
 const remainingController = require("../controllers/RemainingController");
 const FTPController = require("../controllers/FTPController");
+const SettingsController = require("../controllers/SettingsController");
 
 machineRouter.get(
     "/cutting-time",
@@ -61,9 +62,7 @@ machineRouter.delete(
     FTPController.clearCache
 )
 
-machineRouter.get('/start-time', authMiddleware, MachineController.getStartTime)
-machineRouter.put('/start-time', authMiddleware, MachineController.editStartTime)
-machineRouter.get('/is-ready-transfer-files', authMiddleware, MachineController.checkIsReadyTransferFile)
+machineRouter.get('/is-ready-transfer-files', authMiddleware, FTPController.checkIsReadyTransferFile)
 machineRouter.put('/remaining', authMiddleware, remainingController.editOperatorInMachine)
 
 module.exports = machineRouter;

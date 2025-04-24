@@ -1,4 +1,4 @@
-const { Machine, EncryptData, MachineOperatorAssignment } = require("../models");
+const { Machine, MachineLog, EncryptData, MachineOperatorAssignment } = require("../models");
 const { serverError } = require("../utils/serverError");
 
 const { PassThrough } = require("stream"); // ✅ Tambahkan ini
@@ -365,6 +365,37 @@ class FTPController {
             });
         } catch (error) {
             serverError(error, res, "Failed to encrypt content value");
+        }
+    }
+
+    static async checkIsReadyTransferFile(req, res) {
+        try {
+            const { machine_id } = req.query;
+            if (!machine_id) return res.status(400).json({
+                status: 400,
+                message: "machine_id is required",
+            });
+            const range = await dateQuery(undefined);
+
+            // find where description === null
+            const machineLog = await MachineLog.findOne({
+                where: {
+                    createdAt: range,
+                    machine_id: machine_id,
+                    description: null,
+                    current_status: "Stopped"
+                },
+            });
+
+            if (machineLog)
+                return res.status(422).json({
+                    status: 422,
+                    message: "found machine log with description null",
+                });
+
+            res.status(204).send();
+        } catch (error) {
+            serverError(error, res, "Failed to check description machine log");
         }
     }
 }
