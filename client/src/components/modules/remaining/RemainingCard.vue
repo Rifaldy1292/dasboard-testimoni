@@ -190,11 +190,20 @@ function convertSecondsToHours(count: number, isMinute?: boolean) {
 
     <template #footer>
       <Message
+        v-if="selectedDescription"
         :severity="isChecked ? 'success' : 'error'"
         class="w-full mt-3 text-center font-bold text-2xl"
         size="large"
-        :icon="`${isChecked ? 'pi pi-spin pi-cog' : 'pi pi-times'}`"
-        >{{ selectedDescription ?? '-' }}</Message
+        :closable="selectedDescription !== null"
+        @close="
+          () => {
+            selectedDescription = null
+            isChecked = false
+            handleEditOperatorMachine()
+          }
+        "
+        :icon="`${isChecked ? 'pi pi-spin pi-cog' : 'pi pi-forward'}`"
+        >{{ selectedDescription }}</Message
       >
 
       <div
@@ -217,13 +226,8 @@ function convertSecondsToHours(count: number, isMinute?: boolean) {
           option-value="name"
         />
         <Checkbox
-          :model-value="isChecked"
-          @update:model-value="
-            async () => {
-              isChecked = !isChecked
-              await handleEditOperatorMachine()
-            }
-          "
+          v-model:model-value="isChecked"
+          @value-change="handleEditOperatorMachine"
           binary
         />
       </div>

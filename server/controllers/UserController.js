@@ -1,91 +1,12 @@
 require("dotenv").config();
 const path = require("path");
-const { User, Role, Machine, MachineLog } = require("../models");
+const { User, Role } = require("../models");
 const { tokenGenerator } = require("../helpers/jsonwebtoken");
 const { encryptPassword, decryptPassword } = require("../helpers/bcrypt");
 const { OPERATOR_ROLE_ID } = require("../config/config.env");
 const { serverError } = require("../utils/serverError");
-const { dateQuery } = require("../utils/dateQuery");
 
 class UserController {
-  static async getUserMAchine(req, res) {
-    try {
-      const range = await dateQuery();
-      const machineLogQuery = {
-        model: MachineLog,
-        where: { createdAt: range },
-        order: [["createdAt", "DESC"]],
-        limit: 1,
-        attributes: [
-          "id",
-          "machine_id",
-          "createdAt",
-          "g_code_name",
-          "k_num",
-          "output_wp",
-          "total_cutting_time",
-          "description",
-          "current_status",
-          "calculate_total_cutting_time",
-        ],
-        include: [
-          {
-            model: Machine,
-            attributes: ["name", "type"],
-          },
-        ],
-      };
-
-      const users = await User.findAll({
-        where: {
-          role_id: OPERATOR_ROLE_ID,
-        },
-        attributes: ["name", "profile_image"],
-        include: [machineLogQuery],
-        // order created at log
-        // order: [[{ model: MachineLog }, 'createdAt', 'ASC']],
-      });
-
-      const formattedUsers = await Promise.all(
-        (users || []).map(async (user) => {
-          delete user.dataValues.id;
-          // delete user.dataValues.name
-          const { MachineLogs, ...userData } = user.dataValues;
-          const log = MachineLogs[0];
-          if (!log) return null;
-          const lasLogMachine = await MachineLog.findOne({
-            where: { machine_id: log.machine_id },
-            attributes: ["id"],
-            order: [["createdAt", "DESC"]],
-          });
-          // console.log(log.id === lasLogMachine.id, {
-          //   log: log.machine_id,
-          //   lasLogMachine: lasLogMachine.id,
-          // });
-          const isLastLog = log.id === lasLogMachine.id;
-          userData.detail = isLastLog ? log : null;
-          return userData || null;
-          // sort by created at desc
-        })
-      );
-
-      // .filter(user => user !== null);
-
-      res.status(200).json({
-        status: 200,
-        message: "success get user machine",
-        data: formattedUsers
-          .filter((user) => user !== null && user.detail !== null)
-          .sort(
-            (a, b) =>
-              new Date(b.detail.createdAt) - new Date(a.detail.createdAt)
-          ),
-      });
-    } catch (error) {
-      serverError(error, res, "Failed to get user machine");
-    }
-  }
-
   static async getAll(req, res) {
     try {
       const { role } = req.query;
@@ -153,8 +74,6 @@ class UserController {
   static async login(req, res) {
     try {
       const { NIK, password } = req.body;
-      // Custom validation for length NIK
-
       const FoundNIK = await User.findOne({
         where: { NIK },
         include: [
@@ -295,7 +214,7 @@ class UserController {
     }
   }
 
-  static async checkToken(req, res) {
+  static async checkToken(_, res) {
     try {
       res.status(200).json({ status: 200, message: "success check token" });
     } catch (error) {
