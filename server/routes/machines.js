@@ -7,6 +7,7 @@ const { MachineLog } = require("../models");
 const { where } = require("sequelize");
 const { Op } = require("sequelize");
 const remainingController = require("../controllers/RemainingController");
+const FTPController = require("../controllers/FTPController");
 
 machineRouter.get(
     "/cutting-time",
@@ -29,35 +30,35 @@ machineRouter.post(
     "/transfer",
     middlewareTransferFiles.array('files', 300),
     authMiddleware,
-    MachineController.transferFiles)
+    FTPController.transferFiles)
 
 machineRouter.post(
     "/encrypt-content",
     authMiddleware,
-    MachineController.encyptContentValue
+    FTPController.encyptContentValue
 )
 
 machineRouter.get(
     "/list-files/:machine_id",
     authMiddleware,
-    MachineController.getListFiles
+    FTPController.getListFiles
 )
 
 machineRouter.delete(
     "/remove-files",
     authMiddleware,
-    MachineController.removeFileFromMachine
+    FTPController.removeFileFromMachine
 )
 
 machineRouter.post(
     "/undo-delete-files",
     authMiddleware,
-    MachineController.undoRemove
+    FTPController.undoRemove
 )
 machineRouter.delete(
     "/clear-cache",
     authMiddleware,
-    MachineController.clearCache
+    FTPController.clearCache
 )
 
 machineRouter.get('/start-time', authMiddleware, MachineController.getStartTime)

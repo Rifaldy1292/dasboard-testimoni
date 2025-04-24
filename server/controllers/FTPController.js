@@ -1,0 +1,357 @@
+const { Machine, EncryptData } = require("../models");
+const { serverError } = require("../utils/serverError");
+
+const { PassThrough } = require("stream"); // ✅ Tambahkan ini
+const fs = require("fs");
+const path = require("path");
+const { Client } = require("basic-ftp");
+const { encryptToNumber } = require("../helpers/crypto");
+const { encryptionCache } = require("../cache");
+
+const localDir = (machine_id) =>
+    path.join(__dirname, "..", "public", "cnc_files", machine_id);
+
+
+const FTPHP = {
+    host: '192.168.43.99',
+    port: '2221',
+    user: 'android',
+    password: 'android',
+}
+class FTPController {
+    /**
+ * @description Transfer file to machine using FTP
+ * @param {request} req - Request object
+ * @param {response} res - Response object
+ * @param {boolean} isUndo - If true, undo the transfer
+ */
+    static async transferFiles(req, res, isUndo = false) {
+        const client = new Client();
+        try {
+            const { machine_id } = req.body;
+            const { files } = req;
+
+            if (!files || !files.length || !machine_id) {
+                return res.status(400).json({ message: "Bad request", status: 400 });
+            }
+            const { ip_address, name } = await Machine.findOne({
+                where: { id: machine_id },
+                attributes: ["ip_address", "name"],
+            });
+
+            if (!ip_address || !name) {
+                return res.status(404).json({ message: "Machine not found" });
+            }
+            // Buat direktori temp jika belum ada
+            const tempDir = path.join(__dirname, "..", "temp");
+            if (!fs.existsSync(tempDir)) {
+                fs.mkdirSync(tempDir, { recursive: true });
+            }
+
+            // Konfigurasi dengan timeout yang lebih tinggi
+            await client.access({
+                host: ip_address,
+                port: 21,
+                user: "MC",
+                password: "MC",
+                secure: false,
+                timeout: 300000, // 5 menit
+            });
+
+            // Set mode ASCII
+            await client.send("TYPE A");
+
+            const remotePath = "/Storage Card/USER/DataCenter";
+            if (name === "MC-14" || name === "MC-15") {
+                await client.ensureDir(remotePath);
+            }
+
+            for (const file of files) {
+                console.log(
+                    `Starting upload: ${file.originalname} (Size: ${file.buffer.length} bytes)`
+                );
+
+                const customMachine = name === "MC-14" || name === "MC-15";
+                const filePath = customMachine
+                    ? `${remotePath}/${file.originalname}`
+                    : file.originalname;
+
+                // Jika file lebih besar dari 1MB, pecah menjadi bagian-bagian
+                if (file.buffer.length > 1024 * 1024) {
+                    // Simpan file ke disk sementara
+                    const tempFilePath = path.join(tempDir, file.originalname);
+                    await fs.promises.writeFile(tempFilePath, file.buffer);
+
+                    try {
+                        // Upload file dari disk
+                        await client.uploadFrom(tempFilePath, filePath);
+                        console.log(`Completed upload: ${file.originalname}`);
+                    } catch (uploadError) {
+                        console.error(`Error uploading file: ${uploadError.message}`);
+                        throw uploadError;
+                    } finally {
+                        // Hapus file sementara
+                        if (fs.existsSync(tempFilePath)) {
+                            fs.unlinkSync(tempFilePath);
+                        }
+                    }
+                } else {
+                    // Untuk file kecil, gunakan metode stream
+                    const stream = new PassThrough();
+                    stream.end(file.buffer);
+                    await client.uploadFrom(stream, filePath);
+                    console.log(`Completed upload: ${file.originalname}`);
+                }
+            }
+
+            //  Setelah sukses transfer, simpan hasil enkripsi ke database
+            for (const [encrypt_number, original_text] of encryptionCache.entries()) {
+                const existingData = await EncryptData.findOne({
+                    where: { encrypt_number },
+                    attributes: ["id"],
+                });
+                if (!existingData) {
+                    await EncryptData.create({ encrypt_number, original_text });
+                }
+            }
+
+            //  Hapus dari Map setelah tersimpan ke database
+            encryptionCache.clear();
+
+            res.status(200).json({
+                status: 200,
+                message: `Successfully ${isUndo ? "undo" : "transfer"} files`,
+            });
+        } catch (error) {
+            console.log({ error, message: error.message, stack: error.stack });
+
+            // Handling error seperti sebelumnya...
+
+            serverError(error, res, "Failed to transfer files");
+        } finally {
+            client.close();
+        }
+    }
+
+    static clearCache(_, res) {
+        encryptionCache.clear();
+        res.status(200).json({ message: "cache cleared" });
+    }
+
+    static async undoRemove(req, res) {
+        try {
+            const { machine_id, fileName } = req.query;
+            if (!machine_id || !fileName) {
+                return res.status(400).json({
+                    message: "machine_id and fileName are required",
+                    status: 400,
+                });
+            }
+
+            // check if file exists on pc
+            const localDirectory = localDir(machine_id);
+            const filePath = path.join(localDirectory, fileName);
+            if (!fs.existsSync(filePath)) {
+                return res
+                    .status(400)
+                    .json({ message: "File not found on PC", status: 400 });
+            }
+            //get file
+            const file = fs.readFileSync(filePath);
+            req.files = [{ buffer: file, originalname: fileName }];
+            req.body = { machine_id };
+
+            await FTPController.transferFiles(req, res, true);
+            // remove file from pc
+            fs.unlinkSync(filePath);
+        } catch (error) {
+            serverError(error, res, "Failed to undo file");
+        }
+    }
+
+    /**
+       * Remove file from machine
+       * @param {Request} req - request object
+       * @param {Response} res - response object
+       * @param {string} req.query.machine_id - machine id
+       * @param {string} [req.query.fileName] - file name to remove, if not provided, all files will be removed
+       * @returns {Promise<void>}
+       */
+    static async removeFileFromMachine(req, res) {
+        const client = new Client();
+        try {
+            // type all or single
+            const { fileName, machine_id } = req.query;
+
+            if (!machine_id)
+                return res
+                    .status(400)
+                    .json({ message: "machine_id is required", status: 400 });
+            const { ip_address, name } = await Machine.findOne({
+                where: { id: machine_id },
+                attributes: ["ip_address", "name"],
+            });
+
+            if (!ip_address) {
+                return res
+                    .status(400)
+                    .json({ message: "Machine not found", status: 400 });
+            }
+            await client.access({
+                host: ip_address,
+                port: 21,
+                user: "MC",
+                password: "MC",
+                // ...FTPHP,
+                secure: false,
+            });
+
+            const customMachine = name === "MC-14" || name === "MC-15";
+            const remotePath = "/Storage Card/USER/DataCenter";
+            const localDirectory = localDir(machine_id);
+            // make sure directory public/cnc_files/machine_id exist on pc
+            if (!fs.existsSync(localDirectory)) {
+                fs.mkdirSync(localDirectory, { recursive: true });
+            }
+
+            // remove all files
+            if (!fileName) {
+                if (!customMachine) {
+                    // // push all files in machine to public/cnc_files/machine_id
+                    const allFiles = await client.list();
+                    for (const file of allFiles) {
+                        await client.downloadTo(
+                            path.join(localDirectory, file.name),
+                            file.name
+                        );
+                    }
+                    await client.removeDir("/");
+                    return res
+                        .status(200)
+                        .json({ status: 200, message: `All files removed from ${name}` });
+                }
+
+                await client.ensureDir(remotePath); // Pastikan direktori tujuan ada
+                await client.removeDir(remotePath);
+                return res
+                    .status(200)
+                    .json({ status: 200, message: `All files removed from ${name}` });
+            }
+            // remove single file
+            if (customMachine) {
+                await client.cd(remotePath);
+            }
+
+            const downloadFile = await client.downloadTo(
+                path.join(localDirectory, fileName),
+                fileName
+            );
+
+            const rmoveFile = await client.remove(fileName);
+            console.log({ removeFile: rmoveFile, downloadFile }, 222);
+            return res.status(200).json({
+                status: 200,
+                message: `File ${fileName} removed from ${name}`,
+            });
+        } catch (error) {
+            serverError(error, res, "Failed to remove file from machine");
+        } finally {
+            client.close();
+        }
+    }
+
+    static async getListFiles(req, res) {
+        const client = new Client();
+        try {
+            const { machine_id } = req.params;
+
+            const { ip_address, name } = await Machine.findOne({
+                where: { id: machine_id },
+                attributes: ["ip_address", "name"],
+            });
+            if (!ip_address)
+                return res
+                    .status(400)
+                    .json({ message: "Machine not found", status: 400 });
+
+            // console.log(ip_address, 222);
+
+            await client.access({
+                // ...FTPHP,
+                host: ip_address,
+                port: 21,
+                user: "MC",
+                password: "MC",
+                secure: false,
+            });
+
+            const customDirMachine = name === "MC-14" || name === "MC-15";
+            if (customDirMachine) {
+                const remotePath = "/Storage Card/USER/DataCenter/";
+                await client.cd(remotePath);
+            }
+            // get all files from local directory
+            const files = await client.list();
+            const fileNames = files.map((file) => ({
+                fileName: file.name,
+                isDeleted: false,
+            }));
+            const localDirectory = localDir(machine_id);
+
+            if (!fs.existsSync(localDirectory)) {
+                fs.mkdirSync(localDirectory, { recursive: true });
+            }
+            const localFiles = fs.readdirSync(localDirectory);
+            const localFileNames = localFiles.map((file) => ({
+                fileName: file,
+                isDeleted: true,
+            }));
+            const allFiles = [...fileNames, ...localFileNames];
+            // compare local files with remote
+
+            res.status(200).json({
+                status: 200,
+                message: "success get list files",
+                data: allFiles,
+            });
+        } catch (error) {
+            serverError(error, res, "Failed to get list files");
+        } finally {
+            client.close();
+        }
+    }
+
+    /**
+   * Encrypt content value
+   * @param {Express.Request} req.body - Request body
+   * @param {string | undefined} [req.body.gCodeName] - G code name
+   * @param {string} req.body.kNum - K num
+   * @param {string} req.body.outputWP - Output wp
+   * @param {string} req.body.toolName - Tool name
+   * @param {string} req.body.totalCuttingTime - Total cutting time
+   * @returns {Promise<Object>} - Response with encrypted content value
+   * @throws {Error} - If there is an error when encrypting content value
+   */
+    static async encyptContentValue(req, res) {
+        try {
+            const { gCodeName, kNum, outputWP, toolName } = req.body;
+
+            const encryptValue = {
+                gCodeName: encryptToNumber(gCodeName),
+                kNum: encryptToNumber(kNum),
+                outputWP: encryptToNumber(outputWP),
+                toolName: encryptToNumber(toolName),
+            };
+
+            res.status(201).json({
+                status: 201,
+                message: "success encrypt content value",
+                data: encryptValue,
+            });
+        } catch (error) {
+            serverError(error, res, "Failed to encrypt content value");
+        }
+    }
+}
+
+module.exports = FTPController;
