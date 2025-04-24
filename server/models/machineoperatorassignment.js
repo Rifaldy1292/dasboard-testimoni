@@ -11,6 +11,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      // has one machine
+      MachineOperatorAssignment.hasOne(models.Machine, { foreignKey: 'machine_id' });
     }
   }
   MachineOperatorAssignment.init({

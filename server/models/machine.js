@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Machine.hasMany(models.MachineLog, { foreignKey: 'machine_id' });
       Machine.belongsTo(models.User, { foreignKey: 'user_id' });
+      Machine.hasOne(models.MachineOperatorAssignment, { foreignKey: 'machine_id' });
     }
   }
   Machine.init({

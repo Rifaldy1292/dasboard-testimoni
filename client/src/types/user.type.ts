@@ -31,6 +31,13 @@ export interface OperatorMachine {
   // > & { Machine: { name: string; type?: string } }
   id: number
   name: string
+  is_work: boolean
+  description: string
+  User: null | Nullable<{
+    id: number
+    name: string
+    profile_image: string
+  }>
   log: Nullable<
     Pick<
       ObjMachineTimeline,
@@ -43,10 +50,5 @@ export interface OperatorMachine {
     >
   > & {
     runningOn: number
-    User: null | Nullable<{
-      id: number
-      name: string
-      profile_image: string
-    }>
   }
 }

@@ -5,7 +5,9 @@ import type { UserLocalStorage } from '@/types/localStorage.type'
 import type { OperatorMachine, User } from '@/types/user.type'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import { Card, Checkbox, Knob, Message, Select } from 'primevue'
-import { computed, inject, shallowRef, watch, watchEffect } from 'vue'
+import { computed, inject, shallowRef } from 'vue'
+
+type SelectedUser = OperatorMachine['User'] | null
 
 const { machine } = defineProps<{
   machine: OperatorMachine
@@ -23,7 +25,7 @@ const loadingfetch = defineModel<boolean>('loadingfetch', { required: true })
 const userData = inject('userData') as UserLocalStorage
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
-const dropdownOptions = [
+const descriptionOptions = [
   { name: 'Manual Operation' },
   { name: 'Dandori Part' },
   { name: 'Dandori Tool' },
@@ -31,24 +33,23 @@ const dropdownOptions = [
   { name: 'Setting Nol Set' }
 ]
 
-const selectedOptions = shallowRef<string | undefined | null>(undefined)
-const isChecked = shallowRef<boolean>(false)
+const selectedDescription = shallowRef<string | undefined | null>()
+const isChecked = shallowRef<boolean>(machine.is_work)
 const showDropdown = shallowRef<boolean>(false)
+const selectedUser = shallowRef<SelectedUser>(machine.User)
 
-watch([() => selectedOptions.value, () => isChecked.value], () => {
-  handleEditOperatorMachine()
-})
+// watchEffect(() => {})
 
 const remainingText = computed(() => {
+  const { User, log } = machine
   const {
-    User,
     createdAt,
     runningOn,
     g_code_name,
     current_status,
     calculate_total_cutting_time,
     total_cutting_time
-  } = machine.log
+  } = log
   const program = machine.log.g_code_name?.slice(-4)
   return {
     name: machine.name,
@@ -64,11 +65,11 @@ const remainingText = computed(() => {
   }
 })
 
-const handleEditOperatorMachine = async (userIdFromSelect?: number) => {
+const handleEditOperatorMachine = async () => {
   try {
     loadingfetch.value = true
     showDropdown.value = false
-    const user_id = userIdFromSelect ?? machine.log.User?.id
+    const user_id = selectedUser.value?.id
     if (!user_id) {
       return toast.add({
         severity: 'info',
@@ -80,7 +81,7 @@ const handleEditOperatorMachine = async (userIdFromSelect?: number) => {
     const { data } = await UserServices.patchOperatorMachines({
       machine_id: machine.id,
       user_id,
-      description: selectedOptions.value,
+      description: selectedDescription.value,
       is_work: isChecked.value
     })
     emit('refetchMachine')
@@ -132,14 +133,19 @@ function convertSecondsToHours(count: number, isMinute?: boolean) {
             ></i>
           </span>
 
+          <!-- dropdown user -->
           <Select
             @show="emit('showDropdownUser')"
             filter
-            @update:model-value="handleEditOperatorMachine"
+            @update:model-value="
+              async (e: SelectedUser) => {
+                selectedUser = e
+                await handleEditOperatorMachine()
+              }
+            "
             v-if="showDropdown"
             :options="users"
             optionLabel="name"
-            optionValue="id"
             :loading="loadingfetch"
             class=""
           />
@@ -188,22 +194,36 @@ function convertSecondsToHours(count: number, isMinute?: boolean) {
         class="w-full mt-3 text-center font-bold text-2xl"
         size="large"
         :icon="`${isChecked ? 'pi pi-spin pi-cog' : 'pi pi-times'}`"
-        >{{ selectedOptions ?? '-' }}</Message
+        >{{ selectedDescription ?? '-' }}</Message
       >
 
       <div
         v-if="userData.role === 'Admin'"
         :class="`${isChecked ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border border-green-300 dark:border-green-800' : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border border-red-300 dark:border-red-600'} w-full flex rounded-lg gap-2 justify-center items-center p-2 mt-2`"
       >
+        <!-- dropdown desc -->
         <Select
           class="rounded-md flex-1 bg-transparent"
-          :options="dropdownOptions"
-          v-model:model-value="selectedOptions"
+          :options="descriptionOptions"
+          @update:model-value="
+            async (e: string) => {
+              selectedDescription = e
+              await handleEditOperatorMachine()
+            }
+          "
           outlined
           option-label="name"
           option-value="name"
         />
-        <Checkbox v-model:modelValue="isChecked" binary />
+        <Checkbox
+          @update:model-value="
+            async () => {
+              isChecked = !isChecked
+              await handleEditOperatorMachine()
+            }
+          "
+          binary
+        />
       </div>
 
       <div class="text-right mt-3 text-xs text-gray-500 dark:text-gray-400">

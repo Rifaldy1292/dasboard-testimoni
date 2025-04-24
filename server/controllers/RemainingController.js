@@ -25,10 +25,13 @@ class remainingController {
                         ],
                         attributes: ["id", "current_status", "total_cutting_time", "user_id", "g_code_name", "calculate_total_cutting_time", "createdAt"],
                     },
+                    {
+                        model: MachineOperatorAssignment,
+                        attributes: ["id", "user_id", "is_work", "description", 'is_using_custom'],
+                    }
                 ],
             });
 
-            // Perbaikan: Langsung menggunakan Promise.all dengan array hasil dari map
             const formattedResponse = await Promise.all(
                 allMachinesWithLastLogAndUser.sort((a, b) => {
                     const numberA = parseInt(a.name.slice(3));
@@ -37,11 +40,32 @@ class remainingController {
                 }).map(async (machine) => {
                     const mc = JSON.parse(JSON.stringify(machine));
                     mc.name = `${mc.name} ${mc.type ? `(${mc.type})` : ''}`
+                    mc.is_work = false
+                    mc.description = null
+                    mc.User = mc.MachineLogs[0]?.User ?? {}
+
+                    if (mc.MachineOperatorAssignment) {
+                        const { user_id, is_work, description, is_using_custom } = mc.MachineOperatorAssignment
+
+                        if (is_using_custom) {
+                            const findUser = await User.findByPk(user_id, {
+                                attributes: ["id", "name", 'profile_image']
+                            })
+                            mc.is_work = is_work
+                            mc.description = description
+                            mc.User = findUser
+                        }
+
+
+                        delete mc.MachineOperatorAssignment
+                    }
+
                     const log = mc.MachineLogs[0];
                     mc.log = mc.MachineLogs.length ? log : null;
+                    mc.log.runningOn = 0
                     // total cutting time is second, convert to minutes
                     mc.log.total_cutting_time = Math.round(log.total_cutting_time / 60);
-                    mc.log.runningOn = 0
+                    delete mc.log?.User
                     delete mc.MachineLogs;
                     delete mc.type
                     if (mc.log) {
