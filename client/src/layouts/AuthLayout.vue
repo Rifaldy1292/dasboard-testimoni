@@ -6,25 +6,20 @@ defineProps<{
 </script>
 
 <template>
-  <div class="bg-gray-50 font-[sans-serif]">
-    <div class="min-h-screen flex flex-col items-center justify-center py-6 px-4">
+  <div class="bg-gray-900 text-white font-[sans-serif]">
+    <div class="min-h-screen flex flex-col items-center justify-center py-10 px-4">
       <div class="max-w-md w-full">
         <a href="#">
           <img
             src="@/assets/images/logo/yamaha-motor.svg"
             alt="logo"
-            class="w-40 mb-8 mx-auto block"
+            class="w-40 mb-6 mx-auto block brightness-200 contrast-125"
           />
-          <!-- <img
-            src="@/assets/images/logo/logo.svg"
-            alt="logo"
-            class="w-40 mb-8 mx-auto block"
-          /> -->
         </a>
 
-        <div class="p-8 rounded-2xl bg-white shadow">
-          <h2 class="text-gray-800 text-center text-2xl font-bold">{{ page }}</h2>
-          <h5 v-if="description" class="text-gray-500 text-center mt-2">{{ description }}</h5>
+        <div class="p-8 rounded-2xl bg-gray-800 shadow-lg ring-1 ring-blue-500/30 backdrop-blur-md">
+          <h2 class="text-center text-3xl font-bold text-white tracking-wide">{{ page }}</h2>
+          <h5 v-if="description" class="text-blue-300 text-center mt-2">{{ description }}</h5>
 
           <slot />
         </div>

@@ -2,15 +2,22 @@
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import MachineServices from '@/services/machine.service'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import useToast from '@/composables/useToast'
-import { DatePicker, useConfirm, type DatePickerBlurEvent } from 'primevue'
+import { Column, DataTable, DatePicker, useConfirm, type DatePickerBlurEvent } from 'primevue'
 import { onMounted, ref, shallowRef } from 'vue'
+import SettingServices from '@/services/setting.service'
 
 onMounted(async () => {
+  loading.value = true
   await fetchStartTime()
+  const { data } = await SettingServices.getListConfig()
+  configs.value = data.data
+  console.log(configs.value, 'data')
+  loading.value = false
 })
+
+const configs = shallowRef<{ id: number; date: string; startFirstShift: string }[]>([])
 
 const confirm = useConfirm()
 const toast = useToast()
@@ -66,7 +73,7 @@ const handleEditStartTime = async (target: DatePickerBlurEvent | EventTarget) =>
 const editStartTime = async (): Promise<void> => {
   try {
     loading.value = true
-    const { data } = await MachineServices.putStartTIme({
+    const { data } = await SettingServices.putStartTIme({
       reqStartHour: Number(selectedDate.value?.getHours()),
       reqStartMinute: Number(selectedDate.value?.getMinutes()),
       id: id.value as number
@@ -87,7 +94,7 @@ const editStartTime = async (): Promise<void> => {
 const fetchStartTime = async () => {
   try {
     loading.value = true
-    const { data } = await MachineServices.getStartTime()
+    const { data } = await SettingServices.getStartTime()
     // console.log(data)
     const date = new Date(new Date().setHours(data.data.startHour, data.data.startMinute))
     selectedDate.value = date
@@ -139,6 +146,15 @@ const fetchStartTime = async () => {
             />
           </div>
         </div>
+      </div>
+
+      <!-- DataTable untuk menampilkan konfigurasi -->
+      <div class="p-4">
+        <h4 class="mb-3 font-medium text-black dark:text-white">Konfigurasi Jadwal</h4>
+        <DataTable :value="configs" stripedRows>
+          <Column field="date" header="Date"></Column>
+          <Column field="startFirstShift" header="Start Time"></Column>
+        </DataTable>
       </div>
     </div>
   </DefaultLayout>
