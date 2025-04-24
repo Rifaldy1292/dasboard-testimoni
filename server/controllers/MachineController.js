@@ -251,9 +251,7 @@ class MachineController {
           message: "found machine log with description null",
         });
 
-      res.status(204).json({
-        status: 204,
-      });
+      res.status(204).send();
     } catch (error) {
       serverError(error, res, "Failed to check description machine log");
     }

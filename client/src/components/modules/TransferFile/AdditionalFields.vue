@@ -82,7 +82,6 @@ const handleSelectMachine = async (machineValue: MachineOption | undefined) => {
   try {
     loadingUpload.value = true
     await MachineServices.getIsReadyTransferFiles({ machine_id: id })
-    selectedOneMachine.value = machineValue
   } catch (error) {
     if (error instanceof AxiosError && error.response?.status === 422) {
       return confirm.require({
@@ -159,8 +158,12 @@ const handleSelectMachine = async (machineValue: MachineOption | undefined) => {
         <div class="relative flex items-center">
           <Select
             filter
-            :model-value="selectedOneMachine"
-            @update:model-value="(val: MachineOption) => handleSelectMachine(val)"
+            @update:model-value="
+              async (val: MachineOption) => {
+                selectedOneMachine = val
+                handleSelectMachine(val)
+              }
+            "
             @before-show="getMachineOptions"
             :loading="loadingDropdown"
             :options="machineOptions"

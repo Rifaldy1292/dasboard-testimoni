@@ -1,4 +1,4 @@
-const { Machine, EncryptData } = require("../models");
+const { Machine, EncryptData, MachineOperatorAssignment } = require("../models");
 const { serverError } = require("../utils/serverError");
 
 const { PassThrough } = require("stream"); // ✅ Tambahkan ini
@@ -13,7 +13,7 @@ const localDir = (machine_id) =>
 
 
 const FTPHP = {
-    host: '192.168.43.99',
+    host: '192.168.43.109',
     port: '2221',
     user: 'android',
     password: 'android',
@@ -50,6 +50,7 @@ class FTPController {
 
             // Konfigurasi dengan timeout yang lebih tinggi
             await client.access({
+                // ...FTPHP,
                 host: ip_address,
                 port: 21,
                 user: "MC",
@@ -118,6 +119,20 @@ class FTPController {
             //  Hapus dari Map setelah tersimpan ke database
             encryptionCache.clear();
 
+
+            // find MachineOperatorAssignment.is_using_custom, if true, then update is_using_custom to false
+            const { is_using_custom, id } = await MachineOperatorAssignment.findOne({
+                where: { machine_id },
+                attributes: ["id", "is_using_custom"],
+            });
+
+            if (is_using_custom) {
+                await MachineOperatorAssignment.update(
+                    { is_using_custom: false },
+                    { where: { id } }
+                );
+            }
+
             res.status(200).json({
                 status: 200,
                 message: `Successfully ${isUndo ? "undo" : "transfer"} files`,
@@ -135,7 +150,7 @@ class FTPController {
 
     static clearCache(_, res) {
         encryptionCache.clear();
-        res.status(200).json({ message: "cache cleared" });
+        res.status(204).send();
     }
 
     static async undoRemove(req, res) {
