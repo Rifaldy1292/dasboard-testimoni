@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { useStorage } from '@vueuse/core'
 
 export const useDarkModeStore = defineStore('darkMode', () => {
-  const darkMode = useStorage('darkMode', ref(false))
+  const darkMode = useStorage('darkMode', ref(true))
 
   document.documentElement.classList.toggle('dark', darkMode.value)
 

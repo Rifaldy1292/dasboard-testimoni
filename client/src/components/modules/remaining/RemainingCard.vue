@@ -33,7 +33,7 @@ const descriptionOptions = [
   { name: 'Setting Nol Set' }
 ]
 
-const selectedDescription = shallowRef<string | undefined | null>()
+const selectedDescription = shallowRef<string | null>(machine.description)
 const isChecked = shallowRef<boolean>(machine.is_work)
 const showDropdown = shallowRef<boolean>(false)
 const selectedUser = shallowRef<SelectedUser>(machine.User)
@@ -205,6 +205,7 @@ function convertSecondsToHours(count: number, isMinute?: boolean) {
         <Select
           class="rounded-md flex-1 bg-transparent"
           :options="descriptionOptions"
+          :model-value="selectedDescription"
           @update:model-value="
             async (e: string) => {
               selectedDescription = e
@@ -216,6 +217,7 @@ function convertSecondsToHours(count: number, isMinute?: boolean) {
           option-value="name"
         />
         <Checkbox
+          :model-value="isChecked"
           @update:model-value="
             async () => {
               isChecked = !isChecked

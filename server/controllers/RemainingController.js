@@ -61,10 +61,10 @@ class remainingController {
                     }
 
                     const log = mc.MachineLogs[0];
-                    mc.log = mc.MachineLogs.length ? log : null;
+                    mc.log = mc.MachineLogs.length ? log : {};
                     mc.log.runningOn = 0
                     // total cutting time is second, convert to minutes
-                    mc.log.total_cutting_time = Math.round(log.total_cutting_time / 60);
+                    mc.log.total_cutting_time = Math.round(log?.total_cutting_time ?? 0 / 60);
                     delete mc.log?.User
                     delete mc.MachineLogs;
                     delete mc.type

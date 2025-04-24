@@ -7,6 +7,7 @@ const path = require("path");
 const { Client } = require("basic-ftp");
 const { encryptToNumber } = require("../helpers/crypto");
 const { encryptionCache } = require("../cache");
+const { dateQuery } = require("../utils/dateQuery");
 
 const localDir = (machine_id) =>
     path.join(__dirname, "..", "public", "cnc_files", machine_id);

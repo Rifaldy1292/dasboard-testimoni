@@ -99,11 +99,6 @@ const showFormField = computed<ShowFormField>(() => {
   }
 })
 
-// const info = `pa Iwan, tolong restart PC nya pa, setelah restart:
-// 1. buka HumanOS
-// 2. klik OEE Collecting
-// 3. run
-// selesai`
 const info = 'per tanggal 21-04-2025 jam 12:00 password diubah menjadi YAMAHA (huruf besar)'
 </script>
 
@@ -121,13 +116,13 @@ const info = 'per tanggal 21-04-2025 jam 12:00 password diubah menjadi YAMAHA (h
     <!-- <template v-if="isResetPasswordPage && userData"> </template> -->
     <div class="mt-8 space-y-4">
       <div>
-        <label class="text-gray-800 text-sm mb-2 block">NIK</label>
+        <label class="text-gray-800 dark:text-white text-sm mb-2 block">NIK</label>
         <InputText
           :disabled="isResetPasswordPage"
           name="NIK"
           :default-value="userData?.NIK"
           :useGrouping="false"
-          class="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
+          class="w-full text-gray-800 dark:text-white text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
           placeholder="Enter NIK"
         />
         <Message v-if="$form.NIK?.invalid" severity="error" size="small" variant="simple">{{
@@ -137,14 +132,14 @@ const info = 'per tanggal 21-04-2025 jam 12:00 password diubah menjadi YAMAHA (h
 
       <FormField v-if="showFormField.name" name="name">
         <div>
-          <label class="text-gray-800 text-sm mb-2 block">Name</label>
+          <label class="text-gray-800 dark:text-white text-sm mb-2 block">Name</label>
           <div class="relative flex items-center">
             <InputText
               :disabled="isResetPasswordPage"
               :default-value="userData?.name"
               type="text"
               required
-              class="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
+              class="w-full dark:text-white text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
               placeholder="Enter name"
             />
             <svg
@@ -169,13 +164,13 @@ const info = 'per tanggal 21-04-2025 jam 12:00 password diubah menjadi YAMAHA (h
 
       <FormField v-if="showFormField.password" name="password">
         <div>
-          <label class="text-gray-800 text-sm mb-2 block">Password</label>
+          <label class="text-gray-800 dark:text-white text-sm mb-2 block">Password</label>
           <div class="relative flex items-center">
             <InputText
               @update:model-value="password = $event"
               :type="showPassword ? 'text' : 'password'"
               required
-              class="w-full text-gray-800 text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
+              class="w-full text-gray-800 dark:text-white text-sm border border-gray-300 px-4 py-3 rounded-md outline-blue-600"
               placeholder="Enter password"
             />
             <button
