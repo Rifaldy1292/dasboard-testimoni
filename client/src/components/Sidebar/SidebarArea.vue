@@ -76,7 +76,7 @@ const menuGroups = computed<MenuGroup[]>(() => {
           icon: `<i class="fa-solid fa-users-gear fa-fade"></i>`
         },
         {
-          label: 'Remaining',
+          label: 'Next Process Man Power',
           route: '/remaining',
           visible: true,
           icon: `<i class="fa-solid fa-forward-fast fa-fade"></i>`

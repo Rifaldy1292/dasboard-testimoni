@@ -23,3 +23,5 @@ k_num: 8924119
 tool_name: 8135853
 total_cutting_time: 1133
 calculate_total_cutting_time: "1.1133"
+
+specs monitor: 1244 x 726 x 87,1
