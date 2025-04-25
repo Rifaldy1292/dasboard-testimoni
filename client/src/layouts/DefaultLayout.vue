@@ -25,7 +25,7 @@ provide('userData', userData)
 
       <!-- ===== Main Content Start ===== -->
       <main>
-        <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+        <div class="mx-auto p-4 md:p-6 2xl:p-10 w-full h-full">
           <slot></slot>
         </div>
       </main>
