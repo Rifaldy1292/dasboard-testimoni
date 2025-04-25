@@ -5,13 +5,36 @@ import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import RemainingCard from '@/components/modules/remaining/RemainingCard.vue'
 import { useUsers } from '@/composables/useUsers'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import { onMounted } from 'vue'
+import { animate, stagger } from 'motion'
+import { nextTick, onMounted, watch } from 'vue'
+
+const { loadingFetch, fetchOperatorMachine, operatorMachines, fetchUsers, users } = useUsers()
 
 onMounted(async () => {
   await fetchOperatorMachine()
 })
 
-const { loadingFetch, fetchOperatorMachine, operatorMachines, fetchUsers, users } = useUsers()
+watch(
+  () => operatorMachines.value,
+  async (newData) => {
+    if (newData.length) {
+      await nextTick()
+      animate(
+        '.remaining-card',
+        {
+          opacity: [0, 1],
+          y: [50, 0]
+        },
+        {
+          duration: 1, // Durasi lebih panjang
+          delay: stagger(0.2), // Delay antar card lebih lama
+          ease: 'backInOut' // Easing yang lebih dinamis
+        }
+      )
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
@@ -33,6 +56,7 @@ const { loadingFetch, fetchOperatorMachine, operatorMachines, fetchUsers, users 
             :machine="operator"
             :users
             v-model:loadingfetch="loadingFetch"
+            class="remaining-card"
           />
         </template>
       </div>

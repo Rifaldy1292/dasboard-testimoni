@@ -54,7 +54,7 @@ const apexOptions = {
 
 <template>
   <div
-    class="h-full w-full rounded-sm border border-stroke bg-white px-5 pt-7.5 pb-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5"
+    class="h-full w-full rounded-sm border border-stroke bg-white px-5 pt-7.5 pb-5 shadow-lg hover:shadow-xl dark:shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] transition-all duration-300 ease-in-out dark:border-strokedark dark:bg-boxdark sm:px-7.5"
   >
     <!-- <div class="col-span "> -->
     <div class="mb-3 justify-between gap-4 sm:flex">

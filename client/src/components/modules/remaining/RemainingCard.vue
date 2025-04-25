@@ -111,7 +111,9 @@ function convertSecondsToHours(count: number, isMinute?: boolean) {
 </script>
 
 <template>
-  <Card class="p-4 bg-white dark:bg-zinc-900 shadow-xl rounded-2xl transition-all duration-300">
+  <Card
+    class="p-4 bg-white dark:bg-zinc-900 shadow-lg hover:shadow-xl dark:shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 ease-in-out rounded-2xl"
+  >
     <template #header>
       <div
         :class="[

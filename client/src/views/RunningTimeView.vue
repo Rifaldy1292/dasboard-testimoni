@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
-import ChartThree from '@/components/Charts/ChartThree.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import useWebSocket from '@/composables/useWebsocket'
 import DataNotFound from '@/components/common/DataNotFound.vue'
 import DatePickerDay from '@/components/common/DatePickerDay.vue'
-import { computed, ref, shallowRef, watch } from 'vue'
+import { computed, nextTick, ref, shallowRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import RunningTimeCard from '@/components/Charts/RunningTimeCard.vue'
 // import { watchEffect } from 'vue'
 const { percentageMachines, loadingWebsocket, sendMessage } = useWebSocket('percentage')
+import { animate, stagger } from 'motion'
 
 const nowDate = new Date()
 const dateOption = ref<Date>(nowDate)
@@ -59,14 +60,32 @@ watch(
   { immediate: true }
 )
 
-// watchEffect(() => {
-//   console.log({ percentageMachines: percentageMachines.value })
-// })
-
 const duplicatedRunningTimeData = computed(() => {
   const data = percentageMachines.value?.data || []
   return { data, date: percentageMachines.value?.date }
 })
+
+watch(
+  () => duplicatedRunningTimeData.value.data,
+  async (newData) => {
+    if (newData.length) {
+      await nextTick()
+      animate(
+        '.running-time-card',
+        {
+          opacity: [0, 1],
+          y: [50, 0]
+        },
+        {
+          duration: 1, // Durasi lebih panjang
+          delay: stagger(0.2), // Delay antar card lebih lama
+          ease: 'backInOut' // Easing yang lebih dinamis
+        }
+      )
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
@@ -89,14 +108,16 @@ const duplicatedRunningTimeData = computed(() => {
       v-if="!loadingWebsocket"
       class="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-5 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5"
     >
-      <!-- <div class="mt-2 grid grid-cols-4 gap-4"> -->
-      <ChartThree
+      <!-- <TransitionGroup > -->
+      <RunningTimeCard
         v-for="machine in duplicatedRunningTimeData?.data || []"
         :key="machine.name"
         :machine="machine"
         :percentage="machine.percentage"
-        class="h-[350px]"
+        animationClass="test"
+        class="h-[350px] running-time-card"
       />
+      <!-- </TransitionGroup -->
     </div>
     <!-- </div> -->
   </DefaultLayout>

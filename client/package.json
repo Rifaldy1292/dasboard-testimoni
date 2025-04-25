@@ -32,6 +32,7 @@
     "flatpickr": "^4.6.13",
     "jqwidgets-scripts": "^22.0.2",
     "jwt-decode": "^4.0.0",
+    "motion": "^12.9.2",
     "pinia": "^2.1.7",
     "primeicons": "^7.0.0",
     "primevue": "^4.2.5",
