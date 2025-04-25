@@ -8,7 +8,6 @@ import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import { AxiosError } from 'axios'
 import { InputNumber, Select, useConfirm } from 'primevue'
 import { shallowRef, watch, watchEffect } from 'vue'
-import { useRouter } from 'vue-router'
 import ModalDocumentation from '../timeline/ModalDocumentation.vue'
 import useWebSocket from '@/composables/useWebsocket'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
@@ -17,7 +16,6 @@ defineProps<{ isDisableAll: boolean }>()
 
 const toast = useToast()
 const confirm = useConfirm()
-const router = useRouter()
 const visibleDialogForm = shallowRef<boolean>(false)
 
 watchEffect(() => {
@@ -66,13 +64,10 @@ watch(
 
 const fetchTimelineByMachineId = (id: number) => {
   try {
-    loadingWebsocket.value = true
     sendMessage({ type: 'timeline', data: { id } })
     visibleDialogForm.value = true
   } catch (error) {
     handleErrorAPI(error)
-  } finally {
-    loadingWebsocket.value = false
   }
 }
 

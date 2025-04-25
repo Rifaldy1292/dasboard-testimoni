@@ -20,6 +20,7 @@ const useWebSocket = (payloadType?: PayloadType) => {
   const sendMessage = (payload: payloadWebsocket) => {
     if (socket.value?.readyState === WebSocket.OPEN) {
       // console.log('send message', payload)
+      loadingWebsocket.value = true
       return socket.value.send(JSON.stringify(payload))
     }
   }
@@ -40,6 +41,7 @@ const useWebSocket = (payloadType?: PayloadType) => {
     }
     socket.value.onmessage = (event) => {
       try {
+        loadingWebsocket.value = true
         const parsedData = JSON.parse(event.data) as WebsocketResponse
         // console.log('Received WebSocket message', parsedData)
         const { type, data, message } = parsedData
