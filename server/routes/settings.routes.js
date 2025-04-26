@@ -6,5 +6,6 @@ const settingsRoutes = require("express").Router();
 settingsRoutes.get('/list', authMiddleware, SettingsController.getListDailyConfig)
 settingsRoutes.get('/start-time', authMiddleware, SettingsController.getStartTime)
 settingsRoutes.put('/start-time', authMiddleware, SettingsController.editStartTime)
+settingsRoutes.get('/cutting-times', authMiddleware, SettingsController.getListCuttingTime)
 
 module.exports = settingsRoutes;

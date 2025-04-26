@@ -21,6 +21,17 @@ const SettingServices = {
     AxiosResponse<ApiResponse<{ id: number; date: string; startFirstShift: string }[]>>
   > => {
     return API().get('/settings/list')
+  },
+
+  getListCuttingTime: (): Promise<
+    AxiosResponse<ApiResponse<{ id: number; target: number; period: string }[]>>
+  > => {
+    return API().get('/settings/cutting-times')
+  },
+  getListMachine: (): Promise<
+    AxiosResponse<ApiResponse<{ id: number; target: number; period: string }[]>>
+  > => {
+    return API().get('/settings/machines')
   }
 }
 

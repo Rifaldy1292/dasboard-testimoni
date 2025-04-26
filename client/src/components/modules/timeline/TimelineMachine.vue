@@ -5,14 +5,16 @@ import ModalEditDescription from './ModalEditDescription.vue'
 import { shallowRef } from 'vue'
 import ModalDocumentation from './ModalDocumentation.vue'
 
-const { machine } = defineProps<{
+const { machine, resizeCount } = defineProps<{
   machine: MachineTimeline
+  resizeCount: number
 }>()
 
 const visibleDialogForm = shallowRef<boolean>(false)
 const visibleDialogFormDocumentation = shallowRef<boolean>(false)
 const isHover = shallowRef<boolean>(true)
 const selectedLog = shallowRef<ObjMachineTimeline | undefined>()
+
 const handleClickIcon = (e: ObjMachineTimeline): void => {
   selectedLog.value = e
   visibleDialogForm.value = true
@@ -60,9 +62,9 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
   const minute = Math.round(milisecond / (1000 * 60))
   const width = minute * 10
   const DEFAULT_WIDTH = 50
-  if (minute <= 5) return isHover.value ? `${DEFAULT_WIDTH / 2}px` : `${DEFAULT_WIDTH}px`
+  if (minute <= 5) return isHover.value ? `${DEFAULT_WIDTH / resizeCount}px` : `${DEFAULT_WIDTH}px`
 
-  return isHover.value ? `${width / 2}px` : `${width}px`
+  return isHover.value ? `${width / resizeCount}px` : `${width}px`
   // return `${width}px`
   // if (minute <= 20) {
   //   return DEFAULT_WIDTH

@@ -1,5 +1,5 @@
 const {
-    DailyConfig } = require("../models");
+    DailyConfig, CuttingTime, Machine } = require("../models");
 const { serverError } = require("../utils/serverError");
 
 let { config } = require("../utils/dateQuery");
@@ -70,5 +70,23 @@ class SettingsController {
             serverError(error, res, "failed to get daily config");
         }
     }
+
+    static async getListCuttingTime(req, res) {
+        try {
+            const data = await CuttingTime.findAll({
+                attributes: ["id", "target", 'period'],
+                order: [["period", "DESC"]],
+            });
+
+            res.status(200).json({
+                status: 200,
+                message: "succesfully get cutting time",
+                data,
+            });
+        } catch (error) {
+            serverError(error, res, "failed to get cutting time");
+        }
+    }
+
 }
 module.exports = SettingsController;
