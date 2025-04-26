@@ -154,7 +154,7 @@ class MachineController {
 
   static async getMachineOption(req, res) {
     try {
-      const machines = await Machine.findAll({ attributes: ["id", "name", 'type'] });
+      const machines = await Machine.findAll({ attributes: ["id", "name", 'type', 'ip_address'] });
 
       const sortedMachine = machines.sort((a, b) => {
         const numberA = parseInt(a.name.slice(3));

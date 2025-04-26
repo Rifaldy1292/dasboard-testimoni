@@ -35,6 +35,7 @@ const fetchStartTime = async () => {
     <DataTable :value="configs" stripedRows>
       <Column field="name" header="Name"></Column>
       <Column field="type" header="Type"></Column>
+      <Column field="ip_address" header="IP Address"></Column>
     </DataTable>
   </div>
 </template>
