@@ -166,7 +166,7 @@ function convertSecondsToHours(count: number, isMinute?: boolean) {
           <img
             class="w-24 h-24 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
             :src="remainingText.profile_image || 'https://dummyimage.com/600x400/000/fff.png'"
-            alt="machine"
+            alt="profile"
           />
         </div>
 

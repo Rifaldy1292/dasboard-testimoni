@@ -135,10 +135,10 @@ class remainingController {
 
             // create or update assignment
             if (!existingAssignment) {
-                const postPayload = { machine_id, user_id, description, is_work }
+                const postPayload = { machine_id, user_id, description, is_work, is_using_custom: true }
                 await MachineOperatorAssignment.create(postPayload)
             } else {
-                const editPayload = { user_id, description, is_work }
+                const editPayload = { user_id, description, is_work, is_using_custom: true }
                 await MachineOperatorAssignment.update(editPayload, {
                     where: {
                         machine_id,
