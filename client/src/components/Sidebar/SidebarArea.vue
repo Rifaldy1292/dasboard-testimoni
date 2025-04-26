@@ -80,6 +80,12 @@ const menuGroups = computed<MenuGroup[]>(() => {
           route: '/remaining',
           visible: true,
           icon: `<i class="fa-solid fa-forward-fast fa-fade"></i>`
+        },
+        {
+          label: 'Schedule',
+          route: '/schedule',
+          visible: true,
+          icon: `<i class="fa-solid fa-forward-fast fa-fade"></i>`
         }
       ]
     }

@@ -16,7 +16,7 @@ const { loadingFetch, fetchOperatorMachine, operatorMachines, fetchUsers, users 
 
 <template>
   <DefaultLayout>
-    <BreadcrumbDefault pageTitle="Remaining" />
+    <BreadcrumbDefault pageTitle="Next Process" />
     <LoadingAnimation :state="loadingFetch" />
     <DataNotFound :condition="!operatorMachines.length" />
     <template v-if="operatorMachines.length">

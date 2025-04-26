@@ -6,6 +6,7 @@ import useWebsocket from '@/composables/useWebsocket'
 import DataNotFound from '@/components/common/DataNotFound.vue'
 import TimelineMachine from '@/components/modules/timeline/TimelineMachine.vue'
 import DatePickerDay from '@/components/common/DatePickerDay.vue'
+import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 
 const { loadingWebsocket, timelineMachines, sendMessage, messageWebsocket } =
   useWebsocket('timeline')
@@ -43,7 +44,8 @@ watch(
 </script>
 
 <template>
-  <DefaultLayout timeline-page>
+  <DefaultLayout>
+    <BreadcrumbDefault page-title="Timeline" />
     <LoadingAnimation :state="loadingWebsocket" />
     <template v-if="!loadingWebsocket">
       <div class="flex flex-col">

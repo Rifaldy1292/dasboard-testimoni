@@ -4,8 +4,6 @@ import SidebarArea from '@/components/Sidebar/SidebarArea.vue'
 import type { UserLocalStorage } from '@/types/localStorage.type'
 import { provide } from 'vue'
 
-defineProps<{ timelinePage?: boolean }>()
-
 const userData: UserLocalStorage = JSON.parse(localStorage.getItem('user') || '{}')
 provide('userData', userData)
 </script>

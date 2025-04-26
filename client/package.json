@@ -36,6 +36,7 @@
     "primeicons": "^7.0.0",
     "primevue": "^4.2.5",
     "vue": "^3.5.13",
+    "vue-cal": "^5.0.1-rc.18",
     "vue-google-charts": "^1.1.0",
     "vue-router": "^4.2.5",
     "vue3-apexcharts": "^1.4.4",

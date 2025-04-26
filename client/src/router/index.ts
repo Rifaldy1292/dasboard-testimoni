@@ -12,6 +12,7 @@ import RunningTimeView from '@/views/RunningTimeView.vue'
 import TransferFileView from '@/views/TransferFileView.vue'
 import DashboardSettingView from '@/views/DashboardSettingView.vue'
 import RemainingView from '@/views/RemainingView.vue'
+import ScheduleView from '@/views/ScheduleView.vue'
 
 const routes: Readonly<RouteRecordRaw[]> = [
   {
@@ -65,6 +66,14 @@ const routes: Readonly<RouteRecordRaw[]> = [
         component: RemainingView,
         meta: {
           title: 'Remaining'
+        }
+      },
+      {
+        path: '/schedule',
+        name: 'schedule',
+        component: ScheduleView,
+        meta: {
+          title: 'Schedule'
         }
       },
       {
