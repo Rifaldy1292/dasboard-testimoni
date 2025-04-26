@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 import { useRouter } from 'vue-router'
 import useToast from '@/composables/useToast'
@@ -8,7 +8,7 @@ import happySound from '../../assets/sounds/happy.mp3'
 
 const toast = useToast()
 const router = useRouter()
-const userData = JSON.parse(localStorage.getItem('user') || '{}') as UserLocalStorage
+const userData = inject('userData') as UserLocalStorage
 
 const target = ref(null)
 const dropdownOpen = ref(false)
@@ -45,7 +45,11 @@ const handleLogout = () => {
       </span>
 
       <span class="h-12 w-12 rounded-full">
-        <img :src="userData.profile_image ?? '@/assets/images/user/user-01.png'" alt="User" />
+        <img
+          class="h-full w-full object-cover rounded-full"
+          :src="userData.profile_image ?? '@/assets/images/user/user-01.png'"
+          alt="User"
+        />
       </span>
 
       <svg

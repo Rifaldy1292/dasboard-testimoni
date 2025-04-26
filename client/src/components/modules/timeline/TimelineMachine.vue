@@ -135,7 +135,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
                 .color,
               width: customWidthBoxTimeline(item)
             }"
-            :class="`text-md ${isHover ? 'h-10' : 'h-70'} text-start flex flex-col`"
+            :class="`text-md ${isHover ? 'h-10' : 'h-70'} text-start flex flex-col  break-words`"
           >
             <i :class="`${isHover ? 'text-xs' : ''} font-bold text-black dark:text-white`"
               >{{ item.createdAt }} -
