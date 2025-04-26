@@ -54,18 +54,24 @@ const convertStringDifferenceToMilisecond = (str: string): number => {
   return total
 }
 
+// 20 * 5 = 100
 const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
   const milisecond = convertStringDifferenceToMilisecond(obj.timeDifference)
   const minute = Math.round(milisecond / (1000 * 60))
-  const width = minute * 5
-  const defaultWidth = '100px'
-  if (minute <= 20) {
-    return defaultWidth
-  }
-  if (minute > 20) {
-    return `${width}px`
-  }
-  return defaultWidth
+  const width = minute * 10
+  const DEFAULT_WIDTH = '50px'
+  if (minute <= 5) return DEFAULT_WIDTH
+
+  return `${width}px`
+  // if (minute <= 20) {
+  //   return DEFAULT_WIDTH
+  // }
+  // if (minute > 20) {
+  //   return `${width}px`
+  // }
+  // return DEFAULT_WIDTH
+
+  // return DEFAULT_WIDTH
 }
 
 const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string => {
@@ -91,7 +97,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
   <div @click="isHover = !isHover" class="border border-gray-950 dark:border-gray-500">
     <span
       :style="{ color: iconTimeline(machine.status).color }"
-      class="flex justify-center text-sm font-bold text-black dark:text-white gap-2"
+      class="flex justify-center text-lg font-bold text-black dark:text-white gap-2"
     >
       {{ machine.name }}
       <span class="cursor-pointer">
@@ -103,7 +109,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
       /></span>
     </span>
 
-    <div :class="`overflow-x-auto ${isHover ? 'h-15' : ''}`">
+    <div :class="`overflow-x-auto ${isHover ? 'h-16' : ''}`">
       <Timeline
         :value="machine.MachineLogs"
         layout="horizontal"
@@ -112,7 +118,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
       >
         <template #marker="{ item }: { item: ObjMachineTimeline }">
           <span
-            class="flex w-3 h-3 items-center justify-center text-white rounded-full z-10 shadow-sm"
+            class="flex w-4.5 h-4.5 items-center justify-center text-white rounded-full z-10 shadow-sm"
             :style="{
               backgroundColor: iconTimeline(item.current_status, item.isNext).color
             }"
@@ -122,16 +128,20 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
         </template>
 
         <template #content="{ item }: { item: ObjMachineTimeline; index: number }">
+          <!-- <h1>{{ customWidthBoxTimeline(item) }}</h1> -->
           <div
             :style="{
               backgroundColor: iconTimeline(item.current_status, item.isNext, item.description)
                 .color,
               width: customWidthBoxTimeline(item)
             }"
-            :class="`text-xs ${isHover ? 'h-10' : 'h-60'} text-start flex flex-col`"
+            :class="`text-md ${isHover ? 'h-10' : 'h-70'} text-start flex flex-col`"
           >
-            <i class="font-bold text-black dark:text-white"
-              >{{ item.createdAt }} - {{ item.description }}
+            <i :class="`${isHover ? 'text-xs' : ''} font-bold text-black dark:text-white`"
+              >{{ item.createdAt }} -
+              <span class="font-medium text-white dark:text-black"
+                >{{ item.isLastLog ? 'next' : item.timeDifference }}
+              </span>
             </i>
             <i
               v-if="item.current_status === 'Stopped'"
@@ -141,9 +151,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
               style="font-size: 1rem"
             />
             <template v-if="!isHover">
-              <span class="font-medium text-white dark:text-black"
-                >{{ item.isLastLog ? 'next' : item.timeDifference }}
-              </span>
+              <span class="font-medium text-white dark:text-black">{{ item.description }} </span>
               <span class="font-medium text-yellow-300">{{ item.k_num }} </span>
 
               <span class="font-medium text-indigo-700"

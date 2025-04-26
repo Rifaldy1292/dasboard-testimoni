@@ -48,18 +48,17 @@ watch(
     <BreadcrumbDefault page-title="Timeline" />
     <LoadingAnimation :state="loadingWebsocket" />
     <template v-if="!loadingWebsocket">
-      <div class="flex flex-col">
-        <div class="flex justify-end my-0">
-          <DatePickerDay v-model:date-option="dateOption" size="small" />
-        </div>
+      <div class="flex justify-between mb-2">
+        <span
+          v-if="timelineMachines?.date"
+          class="text-md font-semibold text-black dark:text-white"
+          >{{ new Date(timelineMachines?.date as string).toLocaleDateString() }}</span
+        >
+        <DatePickerDay v-model:date-option="dateOption" />
+      </div>
+      <div class="flex flex-col gap-1.5">
         <DataNotFound :condition="!timelineMachines?.data?.length" />
         <template v-if="timelineMachines?.data?.length">
-          <span
-            v-if="timelineMachines?.date"
-            class="text-sm font-semibold text-black dark:text-white"
-            >{{ new Date(timelineMachines?.date as string).toLocaleDateString() }}</span
-          >
-
           <template v-for="machine in timelineMachines.data" :key="machine.name">
             <TimelineMachine :machine="machine" />
           </template>

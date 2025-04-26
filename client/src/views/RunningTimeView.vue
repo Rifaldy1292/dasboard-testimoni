@@ -87,7 +87,7 @@ const duplicatedRunningTimeData = computed(() => {
     >
     <div
       v-if="!loadingWebsocket"
-      class="mt-4 grid grid-cols-10 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5"
+      class="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 2xl:grid-cols-5 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5"
     >
       <!-- <div class="mt-2 grid grid-cols-4 gap-4"> -->
       <ChartThree
