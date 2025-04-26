@@ -59,10 +59,11 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
   const milisecond = convertStringDifferenceToMilisecond(obj.timeDifference)
   const minute = Math.round(milisecond / (1000 * 60))
   const width = minute * 10
-  const DEFAULT_WIDTH = '50px'
-  if (minute <= 5) return DEFAULT_WIDTH
+  const DEFAULT_WIDTH = 50
+  if (minute <= 5) return isHover.value ? `${DEFAULT_WIDTH / 2}px` : `${DEFAULT_WIDTH}px`
 
-  return `${width}px`
+  return isHover.value ? `${width / 2}px` : `${width}px`
+  // return `${width}px`
   // if (minute <= 20) {
   //   return DEFAULT_WIDTH
   // }
@@ -147,7 +148,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
               v-if="item.current_status === 'Stopped'"
               @click="handleClickIcon(item)"
               v-tooltip.top="'Edit'"
-              class="pi pi-pencil"
+              class="pi pi-pencil cursor-pointer"
               style="font-size: 1rem"
             />
             <template v-if="!isHover">
