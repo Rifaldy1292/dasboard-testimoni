@@ -69,7 +69,7 @@ class remainingController {
                     delete mc.MachineLogs;
                     delete mc.type
                     if (mc.log) {
-                        if (!log.g_code_name) return mc
+                        if (!log?.g_code_name) return mc
                         const allLogMachineWhereGCode = await MachineLog.findAll({
                             where: {
                                 machine_id: mc.id,

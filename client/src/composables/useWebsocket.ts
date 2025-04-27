@@ -95,8 +95,8 @@ const useWebSocket = (payloadType?: PayloadType) => {
     }
 
     socket.value.onclose = () => {
-      // percentageMachines.value = undefined
-      // timelineMachines.value = undefined
+      percentageMachines.value = undefined
+      timelineMachines.value = undefined
       socket.value?.close()
       console.log('Disconnected from WebSocket server')
     }

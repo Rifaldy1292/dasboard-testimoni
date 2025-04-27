@@ -32,11 +32,11 @@ const events: CalendarEvent[] = [
 ]
 
 const schedules = [
-  { id: 1, class: 'mom', label: 'Mom' },
-  { id: 2, class: 'dad', label: 'Dad', hide: false },
-  { id: 3, class: 'kid1', label: 'Kid 1' },
-  { id: 4, class: 'kid2', label: 'Kid 2' },
-  { id: 5, class: 'kid3', label: 'Kid 3' }
+  { id: 1, class: 'MC-1', label: 'MC-1' },
+  { id: 2, class: 'MC-2', label: 'MC-2' },
+  { id: 3, class: 'MC-3', label: 'MC-3' },
+  { id: 4, class: 'MC-4', label: 'MC-4' },
+  { id: 5, class: 'MC-5', label: 'MC-5' }
 ]
 </script>
 
@@ -44,10 +44,9 @@ const schedules = [
   <DefaultLayout>
     <BreadcrumbDefault pageTitle="Next Process" />
     <vue-cal
-      :views="['day', 'week', 'month']"
+      :views="['day', 'week']"
       :time-from="8 * 60"
       :time-to="24 * 60"
-      locale="id"
       editable-events
       :schedules
     />
@@ -58,19 +57,19 @@ const schedules = [
 
 <style>
 /* You can easily set a different style for each schedule of your days. */
-.vuecal__schedule.dad {
+.vuecal__schedule.MC-1 {
   background-color: rgba(221, 238, 255, 0.5);
 }
-.vuecal__schedule.mom {
+.vuecal__schedule.MC-2 {
   background-color: rgba(255, 232, 251, 0.5);
 }
-.vuecal__schedule.kid1 {
+.vuecal__schedule.MC-3 {
   background-color: rgba(221, 255, 239, 0.5);
 }
-.vuecal__schedule.kid2 {
+.vuecal__schedule.MC-4 {
   background-color: rgba(255, 250, 196, 0.5);
 }
-.vuecal__schedule.kid3 {
+.vuecal__schedule.MC-5 {
   background-color: rgba(255, 206, 178, 0.5);
 }
 .vuecal__schedule--heading {
