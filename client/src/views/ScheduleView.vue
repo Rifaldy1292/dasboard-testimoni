@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import { VueCal, addDatePrototypes, stringToDate, countDays } from 'vue-cal'
+import { VueCal } from 'vue-cal'
 import 'vue-cal/style'
+import { ref, watchEffect } from 'vue'
 
 // Definisikan tipe event
 interface CalendarEvent {
@@ -11,25 +12,32 @@ interface CalendarEvent {
   start: string // Format: 'YYYY-MM-DD HH:mm'
   end: string // Format: 'YYYY-MM-DD HH:mm'
   class?: string // Warna custom (opsional)
+  schedule?: number // ID schedule (opsional)
 }
 
-// Data event contoh
-const events: CalendarEvent[] = [
+const date = new Date()
+const formatter = new Intl.DateTimeFormat('en-CA', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false
+})
+const formattedDate = formatter.format(date).replace(',', '')
+
+const events = ref<CalendarEvent[]>([
   {
     id: 1,
-    title: 'Phone Support - Renewals',
-    start: '2025-10-25 09:00',
-    end: '2025-10-25 10:00',
-    class: 'phone-support' // Untuk styling custom
-  },
-  {
-    id: 2,
-    title: 'Server Installation',
-    start: '2025-10-25 11:00',
-    end: '2025-10-25 13:00',
-    class: 'server-install'
+    title: 'Contoh KNUM',
+    start: '2025-04-28 12:00',
+    end: '2025-04-28 17:00',
+    class: 'leisure',
+    schedule: 1
   }
-]
+])
+
+watchEffect(() => console.log(events.value, 'events'))
 
 const schedules = [
   { id: 1, class: 'MC-1', label: 'MC-1' },
@@ -45,8 +53,11 @@ const schedules = [
     <BreadcrumbDefault pageTitle="Next Process" />
     <vue-cal
       :views="['day', 'week']"
+      view="day"
+      @event-created="console.log(events.length)"
       :time-from="8 * 60"
       :time-to="24 * 60"
+      v-model:events="events"
       editable-events
       :schedules
     />
