@@ -1,26 +1,35 @@
-const { Machine, MachineLog, User } = require("../models");
-const { percentage, totalHour } = require("../utils/countHour");
-const { dateQuery, config } = require("../utils/dateQuery");
+const { Machine, MachineLog } = require("../models");
+const { config } = require("../utils/dateQuery");
 const { getRunningTimeMachineLog, getMachineTimeline } = require("../utils/machineUtils");
 
-/**
- * Perfect time constant.
- * @type {number}
- */
-const DEFAULT_PERFECT_TIME = 24; // hour
+const DEFAULT_PERFECT_TIME = 24 * 60 * 60 * 1000 // 24 hour in milisecond
 
 /**
  * Generates a description of the running time.
  *
- * @param {number} totalRunningHours - The total running hours in milliseconds.
- * @param {number} perfectTime - The perfect running time in hours.
- * @returns {string} The running time description.
+ * @param {number} totalRunningMilliseconds - The total running time in milliseconds.
+ * @param {number} perfectTime - The perfect running time in milliseconds (default: 24 hours in ms).
+ * @returns {string} The running time description in format "X hour Y minute / A hour B minute".
  */
-function countDescription(totalRunningHours, perfectTimeTime = 24) {
-  // console.log({ totalHour, perfectTimeTime }, 555);
-  const hour = Math.floor(totalRunningHours / (1000 * 60 * 60));
-  const minute = Math.round((totalRunningHours / (1000 * 60)) % 60);
-  return `${hour} hour ${minute} minute / ${perfectTimeTime} hour`;
+function countDescription(totalRunningMilliseconds, perfectTime = DEFAULT_PERFECT_TIME) {
+  const hours = Math.floor(totalRunningMilliseconds / (1000 * 60 * 60))
+  const minutes = Math.floor((totalRunningMilliseconds % (1000 * 60 * 60)) / (1000 * 60))
+  const perfectTimeHours = Math.floor(perfectTime / (1000 * 60 * 60))
+  const perfectTimeMinutes = Math.floor((perfectTime % (1000 * 60 * 60)) / (1000 * 60))
+
+  return `${hours} hour ${minutes} minute / ${perfectTimeHours} hour ${perfectTimeMinutes} minute`
+}
+
+/**
+ * Calculates the percentage of running time compared to perfect time.
+ * 
+ * @param {number} runningMilliseconds - The running time in milliseconds.
+ * @param {number} perfectTimeMs - The perfect running time in milliseconds (default: 24 hours in ms).
+ * @returns {number} The percentage of running time (0-100).
+ */
+function percentage(runningMilliseconds, perfectTimeMs = DEFAULT_PERFECT_TIME) {
+  const percentage = Math.round((runningMilliseconds / perfectTimeMs) * 100)
+  return percentage
 }
 
 module.exports = class MachineWebsocket {
@@ -100,12 +109,9 @@ module.exports = class MachineWebsocket {
       const isNowDate =
         nowDate.toLocaleDateString("en-CA") ===
         nowTime.toLocaleDateString("en-CA");
-      const calculate = nowTime.getTime() - startTime.getTime();
-      const seconds = Math.floor(calculate / 1000);
-      const minutes = Math.floor(seconds / 60);
-      const hours = Math.round(minutes / 60);
+      const calculateMs = nowTime.getTime() - startTime.getTime();
 
-      const perfectTime = isNowDate ? hours : DEFAULT_PERFECT_TIME;
+      const perfectTime = isNowDate ? calculateMs : DEFAULT_PERFECT_TIME;
 
       const machinesWithLastLog = await Promise.all(
         machines.map(async (machine) => {
@@ -121,7 +127,7 @@ module.exports = class MachineWebsocket {
               name: dataValues.type
                 ? `${machine.name} (${dataValues.type})`
                 : machine.name,
-              description: countDescription(0),
+              description: countDescription(0, perfectTime),
               percentage: [0, 100],
             };
           }

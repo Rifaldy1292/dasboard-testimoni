@@ -1,7 +1,6 @@
 const { Machine, CuttingTime, } = require("../models");
 const dateCuttingTime = require("../utils/dateCuttingTime");
 const { serverError } = require("../utils/serverError");
-const countHour = require("../utils/countHour");
 
 const { getRunningTimeMachineLog } = require("../utils/machineUtils");
 
@@ -20,6 +19,18 @@ const objectTargetCuttingTime = (target, totalDayInMonth) => {
     data: formattedResult, // data ubah jadi actual
   };
 };
+
+/**
+ * Converts milliseconds to hours and returns it as a string with one decimal place.
+ * @param {number} milliseconds - The time in milliseconds.
+ * @returns {string} The time in hours with one decimal place.
+ */
+function convertMilisecondToHour(milliseconds) {
+  const seconds = milliseconds / 1000;
+  const minute = seconds / 60;
+  const hours = minute / 60;
+  return Number(hours.toFixed(1));
+}
 
 
 class MachineController {
@@ -140,10 +151,10 @@ class MachineController {
       }
 
       const convertCountLogToHours = formattedCountLog.map((count) =>
-        countHour.convertMilisecondToHour(count)
+        convertMilisecondToHour(count)
       );
       const runningToday = getLogAllDateInMonth.map((count) =>
-        countHour.convertMilisecondToHour(count)
+        convertMilisecondToHour(count)
       );
 
       return { data: convertCountLogToHours, actual: runningToday };

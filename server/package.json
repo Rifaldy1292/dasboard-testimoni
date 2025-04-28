@@ -13,7 +13,7 @@
     "db:seed-all": "sequelize-cli db:seed:all",
     "db:undo": "sequelize-cli db:migrate:undo --name",
     "db:undo-all": "sequelize-cli db:migrate:undo:all",
-    "db:drop": "cmd /c \"\"C:\\Program Files\\PostgreSQL\\17\\bin\\dropdb.exe\" -U postgres yamaha_dashboard_machine\"",
+    "db:drop": "sequelize-cli db:drop",
     "db:restore": "cmd /c \"\"C:\\Program Files\\PostgreSQL\\17\\bin\\pg_restore.exe\" -U postgres -h localhost -p 5432 -d yamaha_dashboard_machine -v D:\\projects\\dashboard-machine\\server\\backup\\dashboard_machine_backup.dump\""
   },
   "keywords": [],
