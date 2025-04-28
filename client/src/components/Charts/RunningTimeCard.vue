@@ -20,7 +20,7 @@ const chart = ref(null)
 const apexOptions = {
   chart: {
     type: 'donut',
-    width: 380
+    width: 400
   },
   colors: ['#008000', '#FF0000'],
   labels: labels,
@@ -31,7 +31,7 @@ const apexOptions = {
   plotOptions: {
     pie: {
       donut: {
-        size: '65%',
+        size: '70%',
         background: 'transparent'
       }
     }
@@ -57,7 +57,7 @@ const apexOptions = {
     class="h-full w-full rounded-sm border border-stroke bg-white px-5 pt-7.5 pb-5 shadow-lg hover:shadow-xl dark:shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] transition-all duration-300 ease-in-out dark:border-strokedark dark:bg-boxdark sm:px-7.5"
   >
     <!-- <div class="col-span "> -->
-    <div class="mb-3 justify-between gap-4 sm:flex">
+    <div class="mb-3 justify-center gap-4 sm:flex">
       <div>
         <h4 class="text-xl font-bold text-black dark:text-white">
           {{ machine?.name || '-' }}
@@ -73,13 +73,13 @@ const apexOptions = {
         <VueApexCharts
           type="donut"
           :options="apexOptions"
-          :width="200"
+          :width="250"
           :series="machine.percentage"
           ref="chart"
         />
       </div>
     </div>
-    <div class="-mx-8 flex flex-wrap items-center justify-center gap-y-3">
+    <div class="-mx-6 flex flex-wrap items-center justify-center gap-y-3">
       <template v-for="(series, index) in machine.percentage" :key="series">
         <div class="w-full px-8 sm:w-1/2">
           <div class="flex w-full items-center">
@@ -102,42 +102,14 @@ const apexOptions = {
           </div>
         </div>
       </template>
-      <div class="w-full px-8 sm:w-1/2 text-black dark:text-white">
+      <div class="w-full px-8 sm:w-1/2 text-black dark:text-white justify-center ml-2">
         <Button
           :label="machine.status"
           :severity="machine.status === 'Running' ? 'success' : 'warn'"
-          size="small"
+          size="large"
           disabled
         />
       </div>
-
-      <!-- <div class="w-full px-8 sm:w-1/2">
-          <div class="flex w-full items-center">
-            <span class="mr-2 block h-3 w-full max-w-3 rounded-full bg-[#6577F3]"></span>
-            <p class="flex w-full justify-between text-sm font-medium text-black dark:text-white">
-              <span> Tablet </span>
-              <span> 34% </span>
-            </p>
-          </div>
-        </div> -->
-      <!-- <div class="w-full px-8 sm:w-1/2">
-          <div class="flex w-full items-center">
-            <span class="mr-2 block h-3 w-full max-w-3 rounded-full bg-[#8FD0EF]"></span>
-            <p class="flex w-full justify-between text-sm font-medium text-black dark:text-white">
-              <span> Mobile </span>
-              <span> 45% </span>
-            </p>
-          </div>
-        </div>
-        <div class="w-full px-8 sm:w-1/2">
-          <div class="flex w-full items-center">
-            <span class="mr-2 block h-3 w-full max-w-3 rounded-full bg-[#0FADCF]"></span>
-            <p class="flex w-full justify-between text-sm font-medium text-black dark:text-white">
-              <span> Unknown </span>
-              <span> 12% </span>
-            </p>
-          </div>
-        </div> -->
     </div>
     <!-- </div> -->
   </div>

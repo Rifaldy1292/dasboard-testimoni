@@ -115,7 +115,7 @@ watch(
         :machine="machine"
         :percentage="machine.percentage"
         animationClass="test"
-        class="h-[350px] running-time-card"
+        class="h-[450px] running-time-card"
       />
       <!-- </TransitionGroup -->
     </div>

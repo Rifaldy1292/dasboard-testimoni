@@ -406,3 +406,27 @@ class FTPController {
 }
 
 module.exports = FTPController;
+
+// Executing (default): SELECT "ip_address", "name" FROM "Machines" AS "Machine" WHERE "Machine"."id" = '66';
+// {
+//   error: FTPError: 550 RETR requested action not taken: Permission denied.
+//       at FTPContext._onControlSocketData (D:\dashboard-machine\server\node_modules\basic-ftp\dist\FtpContext.js:283:39)
+//       at Socket.<anonymous> (D:\dashboard-machine\server\node_modules\basic-ftp\dist\FtpContext.js:127:44)
+//       at Socket.emit (node:events:518:28)
+//       at addChunk (node:internal/streams/readable:561:12)
+//       at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+//       at Readable.push (node:internal/streams/readable:392:5)
+//       at TCP.onStreamRead (node:internal/stream_base_commons:191:23) {
+//     code: 550
+//   },
+//   stack: 'FTPError: 550 RETR requested action not taken: Permission denied.\n' +
+//     '    at FTPContext._onControlSocketData (D:\\dashboard-machine\\server\\node_modules\\basic-ftp\\dist\\FtpContext.js:283:39)\n' +
+//     '    at Socket.<anonymous> (D:\\dashboard-machine\\server\\node_modules\\basic-ftp\\dist\\FtpContext.js:127:44)\n' +
+//     '    at Socket.emit (node:events:518:28)\n' +
+//     '    at addChunk (node:internal/streams/readable:561:12)\n' +
+//     '    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)\n' +
+//     '    at Readable.push (node:internal/streams/readable:392:5)\n' +
+//     '    at TCP.onStreamRead (node:internal/stream_base_commons:191:23)',
+//   description: 'Failed to remove file from machine',
+//   message: '550 RETR requested action not taken: Permission denied.'
+// }
