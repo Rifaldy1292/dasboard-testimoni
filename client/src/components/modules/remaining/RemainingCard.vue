@@ -30,7 +30,9 @@ const descriptionOptions = [
   { name: 'Dandori Part' },
   { name: 'Dandori Tool' },
   { name: 'Cek Dimensi' },
-  { name: 'Setting Nol Set' }
+  { name: 'Setting Nol Set' },
+  { name: 'Maintenance' },
+  { name: 'Trouble' }
 ]
 
 const selectedDescription = shallowRef<string | null>(machine.description)

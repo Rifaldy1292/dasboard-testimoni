@@ -50,7 +50,7 @@ const schedules = [
 
 <template>
   <DefaultLayout>
-    <BreadcrumbDefault pageTitle="Next Process" />
+    <BreadcrumbDefault pageTitle="Schedule" />
     <vue-cal
       :views="['day', 'week']"
       view="day"

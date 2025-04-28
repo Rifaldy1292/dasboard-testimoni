@@ -36,7 +36,8 @@ const descriptionOptions = [
   { name: 'Dandori Part', value: 'Dandori Part' },
   { name: 'Dandori Tool', value: 'Dandori Tool' },
   { name: 'Cek Dimensi', value: 'Cek Dimensi' },
-  { name: 'Setting Nol Set', value: 'Setting Nol Set' }
+  { name: 'Setting Nol Set', value: 'Setting Nol Set' },
+  { name: 'Break', value: 'Break' }
 ]
 
 const handleSubmitForm = () => {
