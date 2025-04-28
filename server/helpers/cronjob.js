@@ -137,7 +137,7 @@ const deleteCncFiles = async () => {
 const handleCronJob = async () => {
   await createCuttingTime();
   await createDailyConfig();
-  await handleResetMachineStatus();
+  // await handleResetMachineStatus();
 
   const { startHour, startMinute } = config;
   cron.schedule(`${startMinute} ${startHour} * * *`, async () => {
