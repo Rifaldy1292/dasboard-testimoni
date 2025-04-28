@@ -129,6 +129,19 @@ G05P0
 ${selectedOneMachine.name === 'MC-4' ? additionalMC4Format : ''}
 `
 
+    const bodyMC9 = `T${toolNumber}
+M6
+${macroData}
+G${selectedWorkPosition}
+G90G00X0Y0
+G${selectedCoordinate}Z${inputStartPoint}.00H${toolNumber}
+M${selectedCoolant}
+G05.1Q1
+${M198P}${file.name.slice(1)}
+G05.1Q0
+${additionalMC4Format}
+`
+
     const body560 = `T${toolNumber}
 M6
 ${macroData}
@@ -154,7 +167,7 @@ G5. 1 Q0
 G0 Z50.
 `
 
-    return { body500, body540, body560, bodyMC16 }
+    return { body500, body540, body560, bodyMC16, bodyMC9 }
   })
 
   const content500 = `%
@@ -180,6 +193,14 @@ O00${selectedProgramNumber}
 ${bodyContent.map((item) => item.bodyMC16).join('\n')}
 M30
 %`
+
+  const contentMC9 = `%
+O00${selectedProgramNumber}
+${bodyContent.map((item) => item.bodyMC9).join('\n')}
+M30
+%`
+
+  if (selectedOneMachine.name === 'MC-9') return contentMC9
 
   if (selectedOneMachine.name === 'MC-16') return contentMC16
 

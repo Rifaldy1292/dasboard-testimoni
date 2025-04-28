@@ -70,6 +70,7 @@ export type MachineName =
   | 'MC-4'
   | 'MC-5'
   | 'MC-6'
+  | 'MC-9'
   | 'MC-14'
   | 'MC-15'
   | 'MC-16'
