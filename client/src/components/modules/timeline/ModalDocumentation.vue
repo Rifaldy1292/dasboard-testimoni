@@ -51,7 +51,7 @@ const visibleDialogForm = defineModel<boolean>('visibleDialogForm', {
   >
     <template #default>
       <div class="max-w-203">
-        <TimelineMachine :machine="timeline ?? timelineDocs" />
+        <TimelineMachine :machine="timeline ?? timelineDocs" :resize-count="2" />
       </div>
     </template>
   </Dialog>
