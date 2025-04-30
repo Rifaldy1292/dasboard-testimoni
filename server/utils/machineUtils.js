@@ -23,12 +23,12 @@ function formatTimeDifference(ms) {
   return result.length > 0 ? result.join(" ") : "0s";
 }
 
-/** 
-* Converts a date to a formatted time string.
-*
-* @param {Date} date - The date to convert.
-* @returns {string} The formatted time string. ex: 10:00
-*/
+/**
+ * Converts a date to a formatted time string.
+ *
+ * @param {Date} date - The date to convert.
+ * @returns {string} The formatted time string. ex: 10:00
+ */
 function convertDateTime(date) {
   const dateTime = new Date(date);
   const hours = dateTime.getHours();
@@ -38,7 +38,7 @@ function convertDateTime(date) {
 
 /**
  * Calculates the total running time and last running timestamp from machine logs
- * 
+ *
  * @param {Array<{createdAt: string, current_status: "Running" | "Stopped"}>} logs - Array of machine log objects containing status and createdAt
  * @returns {{totalRunningTime: number, lastRunningTimestamp: null | string}} Object containing totalRunningTime and lastRunningTimestamp
  * @property {number} totalRunningTime - Total time the machine was running in milliseconds
@@ -52,18 +52,18 @@ const countRunningTime = (logs) => {
     if (log.current_status === "Running") {
       lastRunningTimestamp = log.createdAt;
     } else if (lastRunningTimestamp) {
-      const timeDifference = new Date(log.createdAt) - new Date(lastRunningTimestamp);
+      const timeDifference =
+        new Date(log.createdAt) - new Date(lastRunningTimestamp);
       totalRunningTime += timeDifference;
       lastRunningTimestamp = null;
     }
   });
 
-
   return {
     totalRunningTime,
     lastRunningTimestamp,
   };
-}
+};
 /**
  * Calculates the total running time of a machine based on today's machine logs
  *
@@ -97,8 +97,9 @@ const getRunningTimeMachineLog = async (machine_id, reqDate) => {
     let lastRunningTimestamp = count.lastRunningTimestamp;
     let totalRunningTime = count.totalRunningTime;
 
-
+    // if last log is "Running"
     if (lastRunningTimestamp) {
+      // if reqDate is undefined, use current date
       if (!reqDate) {
         const calculate = new Date() - new Date(lastRunningTimestamp);
         totalRunningTime += calculate;
@@ -107,6 +108,7 @@ const getRunningTimeMachineLog = async (machine_id, reqDate) => {
           lastLog: logs[logs.length - 1],
         };
       } else {
+        // reqDate is defined
         const formattedReqDate = new Date(reqDate).toLocaleDateString("en-CA");
         const formattedDate = new Date().toLocaleDateString("en-CA");
         // jika tanggal lebih dari hari ini
@@ -141,11 +143,11 @@ const getRunningTimeMachineLog = async (machine_id, reqDate) => {
           };
         }
 
-
-        const [hour, minute] = findDailyConfig.dataValues.startFirstShift.split(":");
+        const [hour, minute] =
+          findDailyConfig.dataValues.startFirstShift.split(":");
         const nextDay = new Date(formattedReqDate);
         nextDay.setDate(nextDay.getDate() + 1);
-        nextDay.setHours(hour, minute, 0, 0);
+        nextDay.setHours(Number(hour), Number(minute), 0, 0);
         const calculate = new Date(nextDay) - new Date(lastRunningTimestamp);
         totalRunningTime += calculate;
       }
@@ -193,13 +195,11 @@ const getMachineTimeline = async ({ date, reqId }) => {
     const whereMachine = {};
     if (reqId) {
       whereMachine.id = {
-        [Op.eq]: reqId
+        [Op.eq]: reqId,
       };
     }
 
     // console.log(whereMachine.id, 22, 'id',);
-
-
 
     const machines = await Machine.findAll({
       include: [
@@ -285,20 +285,20 @@ const getMachineTimeline = async ({ date, reqId }) => {
 
       const extendLogs = isNowDate
         ? [
-          ...logs,
+            ...logs,
 
-          {
-            isNext: true,
-            timeDifference: nextTimeDifference,
-            createdAt: dateOption.toLocaleTimeString("en-CA", {
-              hour: "numeric",
-              minute: "numeric",
-              hour12: false,
-            }),
-            operator: nextLog.User?.name || null,
-            description: "Remaining",
-          },
-        ]
+            {
+              isNext: true,
+              timeDifference: nextTimeDifference,
+              createdAt: dateOption.toLocaleTimeString("en-CA", {
+                hour: "numeric",
+                minute: "numeric",
+                hour12: false,
+              }),
+              operator: nextLog.User?.name || null,
+              description: "Remaining",
+            },
+          ]
         : logs;
       // console.log({ nextLog: extendLogs[extendLogs.length - 1] });
 
@@ -313,11 +313,11 @@ const getMachineTimeline = async ({ date, reqId }) => {
   } catch (error) {
     serverError(error, "getMachineTimeline");
   }
-}
+};
 
 module.exports = {
   getRunningTimeMachineLog,
   getAllMachine,
   getMachineTimeline,
-  countRunningTime
+  countRunningTime,
 };

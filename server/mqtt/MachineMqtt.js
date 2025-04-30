@@ -10,7 +10,6 @@ const { dateQuery } = require("../utils/dateQuery");
 const { decryptFromNumber } = require("../helpers/crypto");
 const { serverError } = require("../utils/serverError");
 const { existMachinesCache } = require("../cache");
-// const { getRunningTimeMachineLog } = require("../utils/machineUtils");
 
 const createCuttingTime = async () => {
   try {
