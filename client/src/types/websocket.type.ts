@@ -1,4 +1,4 @@
-export type PayloadType = 'timeline' | 'percentage' | 'test' | 'cuttingTime' | 'editLogDescription'
+export type PayloadType = 'timeline' | 'percentage' | 'test'
 export type payloadWebsocket = {
   type: PayloadType
   data?:

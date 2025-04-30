@@ -81,13 +81,7 @@ module.exports = class MachineWebsocket {
         );
       }
 
-      const { data, date } = machineTimeline;
-
-      const formattedData = {
-        data,
-        date,
-      };
-      client.send(JSON.stringify({ type: "timeline", data: formattedData }));
+      client.send(JSON.stringify({ type: "timeline", data: machineTimeline }));
     } catch (e) {
       console.log({ e, message: e.message });
       client.send(

@@ -1,7 +1,7 @@
 import type { AxiosResponse } from 'axios'
 import API from './API'
 import type { ApiResponse, EncryptContent, GetCuttingTimeMachine } from '@/types/apiResponse.type'
-import type { MachineOption } from '@/types/machine.type'
+import type { AllMachineTimeline, MachineOption } from '@/types/machine.type'
 import type { ParamsGetCuttingTime, TransferFiles } from '@/dto/machine.dto'
 import type { ValueFromContent } from '@/types/ftp.type'
 
@@ -54,6 +54,19 @@ const MachineServices = {
     machine_id: number
   }): Promise<AxiosResponse<ApiResponse<unknown>>> {
     return API({ params }).get('/machines/is-ready-transfer-files')
+  },
+
+  patchMachineLogDescription(body: {
+    id: number
+    description: string
+  }): Promise<AxiosResponse<ApiResponse<unknown>>> {
+    return API().patch('/machines/machine-log', body)
+  },
+
+  getTimelineByMachineId(
+    machine_id: number
+  ): Promise<AxiosResponse<ApiResponse<AllMachineTimeline>>> {
+    return API().get(`/machines/machine-log/${machine_id}`)
   }
 }
 

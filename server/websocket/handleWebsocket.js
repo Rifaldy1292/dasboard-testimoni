@@ -69,10 +69,7 @@ const handleWebsocket = (wss) => {
                 //     console.log('test')
                 //     break
                 // }
-                case 'editLogDescription': {
-                    await MachineWebsocket.editLogDescription(ws, data)
-                    break
-                }
+
                 default:
                     console.log('Unknown type', type)
                     break

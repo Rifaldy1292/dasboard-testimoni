@@ -1,8 +1,8 @@
-const { Machine, CuttingTime, } = require("../models");
+const { Machine, CuttingTime, MachineLog } = require("../models");
 const dateCuttingTime = require("../utils/dateCuttingTime");
 const { serverError } = require("../utils/serverError");
 
-const { getRunningTimeMachineLog } = require("../utils/machineUtils");
+const { getRunningTimeMachineLog, getMachineTimeline } = require("../utils/machineUtils");
 
 const objectTargetCuttingTime = (target, totalDayInMonth) => {
   const targetPerDay = target / totalDayInMonth; // Calculate target hours per day
@@ -163,7 +163,7 @@ class MachineController {
     }
   }
 
-  static async getMachineOption(req, res) {
+  static async getMachineOption(_, res) {
     try {
       const machines = await Machine.findAll({ attributes: ["id", "name", 'type', 'ip_address'] });
 
@@ -197,6 +197,53 @@ class MachineController {
       });
     } catch (error) {
       serverError(error, res, "Failed to get machine option");
+    }
+  }
+
+  static async editLogDescription(req, res) {
+    try {
+      const { id, description } = req.body;
+      const updateCount = await MachineLog.update({ description }, { where: { id } });
+      if (updateCount === 0) {
+        return res.status(404).json({
+          status: 404,
+          message: "Machine log not found",
+        });
+      }
+
+      res.status(200).json({
+        status: 200,
+        message: "Description updated successfully",
+      });
+    } catch (error) {
+      serverError(error, res, "Failed to edit log description");
+    }
+  }
+
+  static async getMachineLogByMachineId(req, res) {
+    try {
+      const { machine_id } = req.params;
+      if (!machine_id) {
+        return res.status(400).json({
+          status: 400,
+          message: "machine_id is required",
+        });
+      }
+      const data = await getMachineTimeline({ reqId: machine_id });
+      if (!data) {
+        return res.status(404).json({
+          status: 404,
+          message: "Machine log not found",
+        });
+      }
+
+      res.status(200).json({
+        status: 200,
+        message: "success get machine log by machine id",
+        data,
+      });
+    } catch (error) {
+      serverError(error, res, "Failed to get machine log by machine id");
     }
   }
 }

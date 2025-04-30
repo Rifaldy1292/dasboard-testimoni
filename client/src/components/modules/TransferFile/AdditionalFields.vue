@@ -7,7 +7,7 @@ import type { MachineOption } from '@/types/machine.type'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import { AxiosError } from 'axios'
 import { InputNumber, Select, useConfirm } from 'primevue'
-import { shallowRef, watch, watchEffect } from 'vue'
+import { shallowRef, watch } from 'vue'
 import ModalDocumentation from '../timeline/ModalDocumentation.vue'
 import useWebSocket from '@/composables/useWebsocket'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
@@ -17,10 +17,6 @@ defineProps<{ isDisableAll: boolean }>()
 const toast = useToast()
 const confirm = useConfirm()
 const visibleDialogForm = shallowRef<boolean>(false)
-
-watchEffect(() => {
-  console.log(visibleDialogForm.value, 'visibleDialogForm')
-})
 
 const {
   selectedOneMachine,
@@ -43,7 +39,7 @@ const {
   loadingUpload
 } = useFTP()
 
-const { sendMessage, timelineMachines, loadingWebsocket } = useWebSocket()
+const { timelineMachines, loadingWebsocket } = useWebSocket()
 
 const { workPositionOptions, coordinateOptions, coolantOptions, processTypeOptions } =
   additionalOptions
@@ -62,12 +58,16 @@ watch(
   }
 )
 
-const fetchTimelineByMachineId = (id: number) => {
+const fetchTimelineByMachineId = async (machine_id: number) => {
   try {
-    sendMessage({ type: 'timeline', data: { id } })
+    loadingWebsocket.value = true
+    const { data } = await MachineServices.getTimelineByMachineId(machine_id)
+    timelineMachines.value = data.data
     visibleDialogForm.value = true
   } catch (error) {
-    handleErrorAPI(error)
+    handleErrorAPI(error, toast)
+  } finally {
+    loadingWebsocket.value = false
   }
 }
 
@@ -102,15 +102,6 @@ const handleSelectMachine = async (machineValue: MachineOption | undefined) => {
     loadingUpload.value = false
   }
 }
-
-// watch(
-//   [() => selectedOneMachine.value?.name, () => selectedWorkPosition.value],
-//   ([machineName, workPosition]) => {
-//     if (machineName === 'MC-16') {
-//       selectedProgramNumber.value = workPosition - 24
-//     }
-//   }
-// )
 </script>
 
 <template>

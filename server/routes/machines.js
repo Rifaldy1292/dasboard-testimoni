@@ -3,9 +3,6 @@ const machineRouter = require("express").Router();
 const MachineController = require("../controllers/MachineController");
 const authMiddleware = require("../middlewares/auth");
 const multer = require('multer');
-const { MachineLog } = require("../models");
-const { where } = require("sequelize");
-const { Op } = require("sequelize");
 const remainingController = require("../controllers/RemainingController");
 const FTPController = require("../controllers/FTPController");
 const SettingsController = require("../controllers/SettingsController");
@@ -60,6 +57,18 @@ machineRouter.delete(
     "/clear-cache",
     authMiddleware,
     FTPController.clearCache
+)
+
+machineRouter.get(
+    "/machine-log/:machine_id",
+    authMiddleware,
+    MachineController.getMachineLogByMachineId
+)
+
+machineRouter.patch(
+    "/machine-log",
+    authMiddleware,
+    MachineController.editLogDescription
 )
 
 machineRouter.get('/is-ready-transfer-files', authMiddleware, FTPController.checkIsReadyTransferFile)

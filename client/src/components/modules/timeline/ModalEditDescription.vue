@@ -5,7 +5,12 @@ import DialogForm from '@/components/DialogForm/DialogForm.vue'
 import { Button, Select } from 'primevue'
 import type { ObjMachineTimeline } from '@/types/machine.type'
 import type { EditLogDescription } from '@/dto/machine.dto'
+import { handleErrorAPI } from '@/utils/handleErrorAPI'
+import useToast from '@/composables/useToast'
+import MachineServices from '@/services/machine.service'
 import useWebSocket from '@/composables/useWebsocket'
+import { useRoute } from 'vue-router'
+import { useMachine } from '@/composables/useMachine'
 
 const { selectedMachine, machineName } = defineProps<{
   selectedMachine?: ObjMachineTimeline
@@ -16,7 +21,11 @@ const visibleDialogForm = defineModel<boolean>('visibleDialogForm', {
   required: true
 })
 
-const { sendMessage } = useWebSocket()
+const { sendMessage, loadingWebsocket, timelineMachines } = useWebSocket()
+const { selectedOneMachine } = useMachine()
+
+const toast = useToast()
+const route = useRoute()
 
 const dataDialogConfirm = computed<DialogFormProps>(() => ({
   header: `Edit Description ${machineName || ''} ${selectedMachine?.createdAt || ''}`
@@ -40,19 +49,50 @@ const descriptionOptions = [
   { name: 'Break', value: 'Break' }
 ]
 
-const handleSubmitForm = () => {
-  if (!selectedMachine || !inputDescription.value?.trim()) return
-
-  const payload: EditLogDescription = {
-    description: inputDescription.value,
-    id: selectedMachine?.id as number
+const fetchTimelineByMachineId = async (machine_id: number) => {
+  try {
+    loadingWebsocket.value = true
+    const { data } = await MachineServices.getTimelineByMachineId(machine_id)
+    timelineMachines.value = data.data
+  } catch (error) {
+    handleErrorAPI(error, toast)
+  } finally {
+    loadingWebsocket.value = false
   }
-  sendMessage({
-    type: 'editLogDescription',
-    data: payload
-  })
+}
 
-  visibleDialogForm.value = false
+const handleEditDescription = async () => {
+  try {
+    if (!selectedMachine || !inputDescription.value?.trim()) return
+    const payload: EditLogDescription = {
+      description: inputDescription.value,
+      id: selectedMachine?.id as number
+    }
+    const { data } = await MachineServices.patchMachineLogDescription(payload)
+    toast.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: data.message
+    })
+
+    // refetch
+    switch (route.name) {
+      case 'timeline':
+        console.log('refetch all')
+        return sendMessage({
+          type: 'timeline'
+        })
+      case 'transferFile':
+        console.log('refecth 1')
+        return fetchTimelineByMachineId(selectedOneMachine.value?.id as number)
+    }
+
+    // refetch by id(in transfer file)
+  } catch (error) {
+    handleErrorAPI(error, toast)
+  } finally {
+    visibleDialogForm.value = false
+  }
 }
 </script>
 
@@ -68,9 +108,9 @@ const handleSubmitForm = () => {
           placeholder="Pilih atau masukkan deskripsi"
           :editable="true"
           class="w-full"
-          @keydown.enter="handleSubmitForm"
+          @keydown.enter="handleEditDescription"
         />
-        <Button label="Submit" @click="handleSubmitForm" />
+        <Button label="Submit" @click="handleEditDescription" />
       </div>
     </template>
   </DialogForm>
