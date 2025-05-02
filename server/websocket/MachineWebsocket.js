@@ -189,7 +189,13 @@ module.exports = class MachineWebsocket {
     console.timeEnd("before");
   }
 
-  // fix N+1 query
+  /**
+   * Optimized version of percentages method that fixes N+1 query issue.
+   * Retrieves machine percentages with improved database querying and sends them to the client.
+   *
+   * @param {WebSocket} client - The WebSocket client instance.
+   * @param {string | undefined} date - The date to retrieve percentages for.
+   */
   static async refactorPercentages(client, date) {
     console.time("after");
     try {
@@ -227,6 +233,7 @@ module.exports = class MachineWebsocket {
       /** @type {undefined | string}  */
       let startFirstShift;
 
+      // check if date is before today
       if (date && formattedReqDate < formattedDate) {
         const findDailyConfig = await DailyConfig.findOne({
           where: {
@@ -246,13 +253,14 @@ module.exports = class MachineWebsocket {
         const lastLog = MachineLogs[MachineLogs.length - 1]
         let { totalRunningTime, lastRunningTimestamp } = countRunningTime(MachineLogs)
 
+        // check if date is today
         if (lastRunningTimestamp && IS_NOW_DATE) {
           const now = new Date().getTime()
           const diff = now - new Date(lastRunningTimestamp).getTime()
           totalRunningTime += diff
         }
 
-
+        // check if date is before today
         if (lastRunningTimestamp && startFirstShift) {
           const [hour, minute] = startFirstShift.split(":").map(Number)
           const nextDay = new Date(formattedReqDate)
