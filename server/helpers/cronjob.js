@@ -19,19 +19,13 @@ const createCuttingTime = async () => {
   try {
     console.log("trigger create cutting time");
     const { date } = dateCuttingTime();
-    const existCuttingTime = await CuttingTime.findOne({
-      where: {
-        period: date,
-      },
-      attributes: ["period"],
-    });
-    if (existCuttingTime) return;
 
     await CuttingTime.create({
       period: date,
     });
   } catch (error) {
-    serverError(error);
+    if (error.message === "Cutting time for this month already exists") return;
+    serverError(error, "from createCuttingTime cronjob");
   }
 };
 

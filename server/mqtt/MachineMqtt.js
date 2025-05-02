@@ -1,5 +1,4 @@
-const { MachineLog, Machine, CuttingTime } = require("../models");
-const dateCuttingTime = require("../utils/dateCuttingTime");
+const { MachineLog, Machine } = require("../models");
 const WebSocket = require("ws");
 const {
   clientPreferences,
@@ -10,23 +9,6 @@ const { dateQuery } = require("../utils/dateQuery");
 const { decryptFromNumber } = require("../helpers/crypto");
 const { serverError } = require("../utils/serverError");
 const { existMachinesCache } = require("../cache");
-
-const createCuttingTime = async () => {
-  try {
-    const { date } = dateCuttingTime();
-    const existCuttingTime = await CuttingTime.findOne({
-      where: { period: date },
-      attributes: ["period"],
-    });
-    if (existCuttingTime === null) {
-      return await CuttingTime.create({
-        period: date,
-      });
-    }
-  } catch (error) {
-    serverError(error, "createCuttingTime");
-  }
-};
 
 /**
  *
@@ -266,7 +248,6 @@ const updateRunningTodayLastMachineLog = async (
 };
 
 module.exports = {
-  createCuttingTime,
   handleChangeMachineStatus,
   createMachineAndLogFirstTime,
   updateRunningTodayLastMachineLog,
