@@ -22,7 +22,9 @@ const dateQuery = async (dateOption) => {
   let startMinute = config.startMinute;
   let startHour = config.startHour;
   // example: 2025-04-09
-  let nowDate = new Date().toLocaleDateString('en-CA');
+  let nowDate = dateOption
+    ? new Date(dateOption).toLocaleDateString('en-CA')
+    : new Date().toLocaleDateString('en-CA');
 
   if (dateOption) {
     const findDailyConfig = await DailyConfig.findOne({
@@ -33,10 +35,10 @@ const dateQuery = async (dateOption) => {
     });
     if (findDailyConfig) {
       const { startFirstShift, date } = findDailyConfig.dataValues;
-      const [stringStartHour, stringStartMinute] = startFirstShift.split(':').map(Number);
+      const [hour, minute] = startFirstShift.split(':').map(Number);
       nowDate = new Date(date).toLocaleDateString('en-CA');
-      startHour = Number(stringStartHour);
-      startMinute = Number(stringStartMinute);
+      startHour = hour;
+      startMinute = minute;
     }
   }
 

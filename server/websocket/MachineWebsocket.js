@@ -104,6 +104,7 @@ module.exports = class MachineWebsocket {
 
       const machines = await Machine.findAll({
         attributes: ["id", "name", "type"],
+        where: { id: 60 }
       });
       // check if machines is empty or nowDate is greater than current date
       if (!machines.length || nowDate.getTime() > new Date().getTime()) {

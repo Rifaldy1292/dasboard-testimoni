@@ -24,19 +24,6 @@ function formatTimeDifference(ms) {
 }
 
 /**
- * Converts a date to a formatted time string.
- *
- * @param {Date} date - The date to convert.
- * @returns {string} The formatted time string. ex: 10:00
- */
-function convertDateTime(date) {
-  const dateTime = new Date(date);
-  const hours = dateTime.getHours();
-  const minutes = dateTime.getMinutes();
-  return `${hours}:${minutes.toString().padStart(2, "0")}`;
-}
-
-/**
  * Calculates the total running time and last running timestamp from machine logs
  *
  * @param {Array<{createdAt: string, current_status: "Running" | "Stopped"}>} logs - Array of machine log objects containing status and createdAt
@@ -199,6 +186,8 @@ const getMachineTimeline = async ({ date, reqId }) => {
       };
     }
 
+    console.log(reqId, 'reqId')
+
     // console.log(whereMachine.id, 22, 'id',);
 
     const machines = await Machine.findAll({
@@ -264,8 +253,8 @@ const getMachineTimeline = async ({ date, reqId }) => {
           new Date(nextLog?.createdAt || 0) - new Date(currentTime);
         return {
           ...log.dataValues,
-          created_at: currentTime,
-          createdAt: convertDateTime(currentTime),
+          created_at: new Date(currentTime).toLocaleString(),
+          createdAt: new Date(currentTime).toLocaleTimeString('id-ID', { hour: 'numeric', minute: '2-digit' }),
           timeDifference: formatTimeDifference(timeDifference),
           k_num: current_status === "Running" ? log.k_num : null,
           isLastLog,
@@ -286,20 +275,20 @@ const getMachineTimeline = async ({ date, reqId }) => {
 
       const extendLogs = isNowDate
         ? [
-            ...logs,
+          ...logs,
 
-            {
-              isNext: true,
-              timeDifference: nextTimeDifference,
-              createdAt: dateOption.toLocaleTimeString("en-CA", {
-                hour: "numeric",
-                minute: "numeric",
-                hour12: false,
-              }),
-              operator: nextLog.User?.name || null,
-              description: "Remaining",
-            },
-          ]
+          {
+            isNext: true,
+            timeDifference: nextTimeDifference,
+            createdAt: dateOption.toLocaleTimeString("en-CA", {
+              hour: "numeric",
+              minute: "numeric",
+              hour12: false,
+            }),
+            operator: nextLog.User?.name || null,
+            description: "Remaining",
+          },
+        ]
         : logs;
       // console.log({ nextLog: extendLogs[extendLogs.length - 1] });
 
