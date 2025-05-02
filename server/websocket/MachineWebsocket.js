@@ -1,9 +1,12 @@
-const { Machine, MachineLog } = require("../models");
-const { config } = require("../utils/dateQuery");
+const { Machine, MachineLog, DailyConfig } = require("../models");
+const { config, dateQuery } = require("../utils/dateQuery");
+const { literal } = require('sequelize');
 const {
   getRunningTimeMachineLog,
   getMachineTimeline,
+  countRunningTime,
 } = require("../utils/machineUtils");
+const { serverError } = require("../utils/serverError");
 
 const DEFAULT_PERFECT_TIME = 24 * 60 * 60 * 1000; // 24 hour in milisecond
 
@@ -99,6 +102,7 @@ module.exports = class MachineWebsocket {
    * @param {WebSocket} client - The WebSocket client instance.
    */
   static async percentages(client, date) {
+    console.time("before");
     try {
       const nowDate = date ? new Date(date) : new Date();
 
@@ -182,29 +186,115 @@ module.exports = class MachineWebsocket {
         JSON.stringify({ type: "error", message: "Failed to get percentage" })
       );
     }
+    console.timeEnd("before");
   }
 
-  static async editLogDescription(client, data) {
+  // fix N+1 query
+  static async refactorPercentages(client, date) {
+    console.time("after");
     try {
-      const { id, description } = data;
-      await MachineLog.update({ description }, { where: { id } });
+      const nowDate = date ? new Date(date) : new Date();
+      if (nowDate.getTime() > new Date().getTime()) {
+        return client.send(JSON.stringify({ type: "percentage", data: [] }));
+      }
+      const IS_NOW_DATE = nowDate.toLocaleDateString("en-CA") === new Date().toLocaleDateString("en-CA");
+      const range = await dateQuery(nowDate);
 
-      client.send(
-        JSON.stringify({
-          type: "success",
-          message: "Description updated successfully",
+
+      const machinesWithLogs = await Machine.findAll({
+        attributes: [
+          [
+            literal(`CASE WHEN "type" IS NOT NULL THEN "name" || ' (' || "type" || ')' ELSE "name" END`),
+            "name"
+          ]
+        ],
+        include: [
+          {
+            model: MachineLog,
+            attributes: ["current_status", "createdAt"],
+            where: { createdAt: range },
+          },
+        ],
+        order: [[{ model: MachineLog }, "createdAt", "ASC"]],
+      })
+
+      const formattedReqDate = new Date(date).toLocaleDateString("en-CA");
+      const formattedDate = new Date().toLocaleDateString("en-CA");
+      const perfectTime = IS_NOW_DATE
+        ? DEFAULT_PERFECT_TIME / 2
+        : DEFAULT_PERFECT_TIME;
+
+      /** @type {undefined | string}  */
+      let startFirstShift;
+
+      if (date && formattedReqDate < formattedDate) {
+        const findDailyConfig = await DailyConfig.findOne({
+          where: {
+            date: formattedReqDate,
+          },
+          attributes: ["startFirstShift"],
+        });
+
+        if (findDailyConfig) {
+          startFirstShift = findDailyConfig.startFirstShift
+        }
+      }
+
+
+      const runningTimeMachines = machinesWithLogs.map((machine) => {
+        const { name, MachineLogs } = machine.get({ plain: true })
+        const lastLog = MachineLogs[MachineLogs.length - 1]
+        let { totalRunningTime, lastRunningTimestamp } = countRunningTime(MachineLogs)
+
+        if (lastRunningTimestamp && IS_NOW_DATE) {
+          const now = new Date().getTime()
+          const diff = now - new Date(lastRunningTimestamp).getTime()
+          totalRunningTime += diff
+        }
+
+
+        if (lastRunningTimestamp && startFirstShift) {
+          const [hour, minute] = startFirstShift.split(":").map(Number)
+          const nextDay = new Date(formattedReqDate)
+          nextDay.setDate(nextDay.getDate() + 1)
+          nextDay.setHours(hour, minute, 0, 0)
+
+          const calculate = new Date(nextDay) - new Date(lastRunningTimestamp);
+          totalRunningTime += calculate;
+        }
+
+        const runningTime = percentage(
+          totalRunningTime ?? 0,
+          perfectTime
+        );
+
+        const description = countDescription(
+          totalRunningTime || 0,
+          perfectTime
+        );
+
+
+        delete machine.MachineLogs
+        return { name, status: lastLog.current_status, description, percentage: [runningTime, 100 - runningTime] }
+      })
+
+      const formattedResult = {
+        date: nowDate,
+        data: runningTimeMachines.sort((a, b) => {
+          const numberA = parseInt(a.name.slice(3));
+          const numberB = parseInt(b.name.slice(3));
+          return numberA - numberB;
         })
-      );
-      // refetch timeline data
-      // await MachineWebsocket.timelines(client);
+      }
+
+      client.send(JSON.stringify({ type: "percentage", data: formattedResult }));
+
     } catch (e) {
-      console.log({ e, message: e.message });
+      serverError(e, 'from refactor percentages');
       client.send(
-        JSON.stringify({
-          type: "error",
-          message: "Failed to update description",
-        })
+        JSON.stringify({ type: "error", message: "Failed to get percentage" })
       );
     }
+    console.timeEnd("after");
   }
 };

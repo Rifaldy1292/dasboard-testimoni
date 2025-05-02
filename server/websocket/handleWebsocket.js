@@ -19,7 +19,7 @@ const handleWebsocket = (wss) => {
         ws.on('message', async (msg) => {
             /**
              * @typedef {Object} ParsedMessage
-             * @property {'timeline' | 'percentage' | 'editLogDescription'} type - The message type
+             * @property {'timeline' | 'percentage'} type - The message type
              * @property {{id?: number, date?: string}} data - Additional data
              */
 
@@ -63,7 +63,8 @@ const handleWebsocket = (wss) => {
                     /**
                      * Retrieves machine percentages.
                      */
-                    await MachineWebsocket.percentages(ws, clientPreferences.get(ws))
+                    // await MachineWebsocket.percentages(ws, clientPreferences.get(ws))
+                    await MachineWebsocket.refactorPercentages(ws, clientPreferences.get(ws))
                     break
                 // case 'test': {
                 //     console.log('test')

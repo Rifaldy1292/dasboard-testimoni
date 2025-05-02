@@ -131,7 +131,7 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
         console.log("Sending live timeline update from MQTT");
         await MachineWebsocket.timelines(client);
       } else if (percentageMessage) {
-        await MachineWebsocket.percentages(client);
+        await MachineWebsocket.refactorPercentages(client);
       }
     });
   } catch (error) {
