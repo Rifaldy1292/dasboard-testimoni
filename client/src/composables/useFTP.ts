@@ -2,7 +2,7 @@ import { getValueFromContent } from '@/components/modules/TransferFile/utils/con
 import MachineServices from '@/services/machine.service'
 import type { ContentFile, ValueFromContent } from '@/types/ftp.type'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
-import { ref, shallowRef, nextTick } from 'vue'
+import { ref, shallowRef } from 'vue'
 
 const inputFiles = ref<ContentFile[]>([])
 const uploadType = shallowRef<'folder' | 'file'>('file')
@@ -15,6 +15,15 @@ export const useFTP = () => {
   const loadingUpload = shallowRef(false)
   const isCreatedMainProgram = shallowRef<boolean>(false)
 
+  const handleZeroCount = (count: number) => {
+    const stringCount = count.toString()
+    // return -1
+    if (stringCount[stringCount.length - 1] === '0' && count > 0) {
+      return count - 1
+    }
+    return count
+  }
+
   /**
    *
    * @param totalCuttingTime example 0 : 30 : 34
@@ -25,8 +34,8 @@ export const useFTP = () => {
     const minute = totalCuttingTime.split(':')[1]
     const second = totalCuttingTime.split(':')[2]
     const calculate = parseInt(hour) * 3600 + parseInt(minute) * 60 + parseInt(second)
-
-    return Math.round(calculate)
+    const result = handleZeroCount(Math.round(calculate))
+    return result
   }
 
   const handleUploadFolder = async (event: Event): Promise<void> => {
@@ -61,7 +70,7 @@ export const useFTP = () => {
             kNum: data.data.kNum,
             outputWP: data.data.outputWP,
             toolName: data.data.toolName,
-            totalCuttingTime: getCuttingTimeInSecond(totalCuttingTime as string)
+            totalCuttingTime: getCuttingTimeInSecond(totalCuttingTime)
             // calculateTotalCuttingTime,
             // test: getCuttingTimeInSecond(totalCuttingTime)
           }
@@ -72,11 +81,11 @@ export const useFTP = () => {
         a.name.localeCompare(b.name)
       )
 
-      const calculateTotalCuttingTime = extendedFiles.map((item, index) => {
+      const calculateTotalCuttingTimes = extendedFiles.map((item, index) => {
         const sliceFiles = extendedFiles.slice(index)
         const totalProgram = extendedFiles.length - index
         const calculateTotalCuttingTime = sliceFiles.reduce(
-          (acc, curr) => acc + (curr.totalCuttingTime as number),
+          (acc, curr) => handleZeroCount(acc + (curr.totalCuttingTime as number)),
           0
         )
         return {
@@ -86,20 +95,11 @@ export const useFTP = () => {
         }
       })
 
-      inputFiles.value = calculateTotalCuttingTime
+      inputFiles.value = calculateTotalCuttingTimes
 
       // console.log({ calculateTotalCuttingTime })
 
       console.log(inputFiles.value, 'inputFiles')
-      await nextTick()
-      // Catat posisi scroll saat ini
-      const currentScrollPosition = window.scrollY || document.documentElement.scrollTop
-
-      // Scroll ke posisi yang lebih bawah
-      window.scrollTo({
-        top: document.body.scrollHeight,
-        behavior: 'smooth'
-      })
     } catch (error: unknown) {
       console.log({ error, message: (error as Error)?.message })
     } finally {
