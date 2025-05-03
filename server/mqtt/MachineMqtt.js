@@ -72,13 +72,7 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     //   333
     // );
     // not update if status is same
-    if (newStatus === existMachine.status) {
-      // if (newStatus === "Running") {
-      //   return updateRunningTodayLastMachineLog(existMachine.id);
-      // }
-      return;
-    }
-
+    if (newStatus === existMachine.status) return;
     // update machine status
     await Machine.update(
       { status: newStatus },
@@ -231,11 +225,13 @@ const updateRunningTodayLastMachineLog = async (
       return;
     }
 
-    const isManual = isManualLog(lastLog.createdAt);
+    const isManual =
+      isManualLog(lastLog.createdAt) && lastLog.current_status !== "Running";
+    if (!isManual) return;
 
     await MachineLog.update(
       {
-        description: isManual ? "Manual Operation" : null,
+        description: "Manual Operation",
         // current_status: isManual ? "Running" : lastLog.current_status,
       },
       {
@@ -250,5 +246,4 @@ const updateRunningTodayLastMachineLog = async (
 module.exports = {
   handleChangeMachineStatus,
   createMachineAndLogFirstTime,
-  updateRunningTodayLastMachineLog,
 };
