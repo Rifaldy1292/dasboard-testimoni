@@ -66,7 +66,6 @@ const getRunningTimeMachineLog = async (machine_id, reqDate) => {
     const logs = await MachineLog.findAll({
       where: {
         machine_id,
-        current_status: "Running",
         createdAt: range,
       },
       order: [["createdAt", "ASC"]],

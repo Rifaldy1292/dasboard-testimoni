@@ -43,7 +43,7 @@ const fetchFileList = async (machine_id: number): Promise<void> => {
     loading.value = true
     const { data } = await MachineServices.getFileList(machine_id)
     fileList.value = data.data
-    console.log(fileList.value)
+    // console.log(fileList.value)
   } catch (error) {
     handleErrorAPI(error, toast)
   } finally {
@@ -66,7 +66,10 @@ const handleClickIcon = async (
 ): Promise<void> => {
   try {
     loading.value = true
-    await handleNullDescriptionTimeline(selectedOneMachine.value, confirm, toast)
+    await handleNullDescriptionTimeline(selectedOneMachine.value, confirm, toast, () => {
+      fileList.value = []
+      console.log('fileList.value', fileList.value)
+    })
     const machine_id = selectedOneMachine.value?.id as number
     switch (button) {
       case 'removeAll': {

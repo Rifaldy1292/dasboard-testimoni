@@ -1,6 +1,6 @@
 const { Machine, MachineLog, DailyConfig } = require("../models");
 const { config, dateQuery } = require("../utils/dateQuery");
-const { literal } = require('sequelize');
+const { literal } = require("sequelize");
 const {
   getRunningTimeMachineLog,
   getMachineTimeline,
@@ -125,10 +125,10 @@ module.exports = class MachineWebsocket {
         nowTime.toLocaleDateString("en-CA");
       const calculateMs = nowTime.getTime() - startTime.getTime();
 
-      // const perfectTime = isNowDate ? calculateMs : DEFAULT_PERFECT_TIME;
-      const perfectTime = isNowDate
-        ? DEFAULT_PERFECT_TIME / 2
-        : DEFAULT_PERFECT_TIME;
+      const perfectTime = isNowDate ? calculateMs : DEFAULT_PERFECT_TIME;
+      // const perfectTime = isNowDate
+      //   ? DEFAULT_PERFECT_TIME / 2
+      //   : DEFAULT_PERFECT_TIME;
 
       const machinesWithLastLog = await Promise.all(
         machines.map(async (machine) => {
@@ -203,32 +203,42 @@ module.exports = class MachineWebsocket {
       if (nowDate.getTime() > new Date().getTime()) {
         return client.send(JSON.stringify({ type: "percentage", data: [] }));
       }
-      const IS_NOW_DATE = nowDate.toLocaleDateString("en-CA") === new Date().toLocaleDateString("en-CA");
+      const IS_NOW_DATE =
+        nowDate.toLocaleDateString("en-CA") ===
+        new Date().toLocaleDateString("en-CA");
       const range = await dateQuery(nowDate);
-
 
       const machinesWithLogs = await Machine.findAll({
         attributes: [
           [
-            literal(`CASE WHEN "type" IS NOT NULL THEN "name" || ' (' || "type" || ')' ELSE "name" END`),
-            "name"
-          ]
+            literal(
+              `CASE WHEN "type" IS NOT NULL THEN "name" || ' (' || "type" || ')' ELSE "name" END`
+            ),
+            "name",
+          ],
         ],
         include: [
           {
             model: MachineLog,
             attributes: ["current_status", "createdAt"],
-            where: { createdAt: range, current_status: "Running" },
+            where: { createdAt: range },
           },
         ],
         order: [[{ model: MachineLog }, "createdAt", "ASC"]],
-      })
+      });
+
+      const { startHour, startMinute } = config;
+      const nowTime = new Date();
+      const startTime = new Date();
+      startTime.setHours(startHour, startMinute, 0, 0);
 
       const formattedReqDate = new Date(date).toLocaleDateString("en-CA");
       const formattedDate = new Date().toLocaleDateString("en-CA");
-      const perfectTime = IS_NOW_DATE
-        ? DEFAULT_PERFECT_TIME / 2
-        : DEFAULT_PERFECT_TIME;
+      // const perfectTime = IS_NOW_DATE
+      //   ? DEFAULT_PERFECT_TIME / 2
+      //   : DEFAULT_PERFECT_TIME;
+      const calculateMs = nowTime.getTime() - startTime.getTime();
+      const perfectTime = IS_NOW_DATE ? calculateMs : DEFAULT_PERFECT_TIME;
 
       /** @type {undefined | string}  */
       let startFirstShift;
@@ -243,48 +253,49 @@ module.exports = class MachineWebsocket {
         });
 
         if (findDailyConfig) {
-          startFirstShift = findDailyConfig.startFirstShift
+          startFirstShift = findDailyConfig.startFirstShift;
         }
       }
 
-
       const runningTimeMachines = machinesWithLogs.map((machine) => {
-        const { name, MachineLogs } = machine.get({ plain: true })
-        const lastLog = MachineLogs[MachineLogs.length - 1]
-        let { totalRunningTime, lastRunningTimestamp } = countRunningTime(MachineLogs)
+        const { name, MachineLogs } = machine.get({ plain: true });
+        const lastLog = MachineLogs[MachineLogs.length - 1];
+        let { totalRunningTime, lastRunningTimestamp } =
+          countRunningTime(MachineLogs);
 
         // check if date is today
         if (lastRunningTimestamp && IS_NOW_DATE) {
-          const now = new Date().getTime()
-          const diff = now - new Date(lastRunningTimestamp).getTime()
-          totalRunningTime += diff
+          const now = new Date().getTime();
+          const diff = now - new Date(lastRunningTimestamp).getTime();
+          totalRunningTime += diff;
         }
 
         // check if date is before today
         if (lastRunningTimestamp && startFirstShift) {
-          const [hour, minute] = startFirstShift.split(":").map(Number)
-          const nextDay = new Date(formattedReqDate)
-          nextDay.setDate(nextDay.getDate() + 1)
-          nextDay.setHours(hour, minute, 0, 0)
+          const [hour, minute] = startFirstShift.split(":").map(Number);
+          const nextDay = new Date(formattedReqDate);
+          nextDay.setDate(nextDay.getDate() + 1);
+          nextDay.setHours(hour, minute, 0, 0);
 
           const calculate = new Date(nextDay) - new Date(lastRunningTimestamp);
           totalRunningTime += calculate;
         }
 
-        const runningTime = percentage(
-          totalRunningTime ?? 0,
-          perfectTime
-        );
+        const runningTime = percentage(totalRunningTime ?? 0, perfectTime);
 
         const description = countDescription(
           totalRunningTime || 0,
           perfectTime
         );
 
-
-        delete machine.MachineLogs
-        return { name, status: lastLog.current_status, description, percentage: [runningTime, 100 - runningTime] }
-      })
+        delete machine.MachineLogs;
+        return {
+          name,
+          status: lastLog.current_status,
+          description,
+          percentage: [runningTime, 100 - runningTime],
+        };
+      });
 
       const formattedResult = {
         date: nowDate,
@@ -292,13 +303,14 @@ module.exports = class MachineWebsocket {
           const numberA = parseInt(a.name.slice(3));
           const numberB = parseInt(b.name.slice(3));
           return numberA - numberB;
-        })
-      }
+        }),
+      };
 
-      client.send(JSON.stringify({ type: "percentage", data: formattedResult }));
-
+      client.send(
+        JSON.stringify({ type: "percentage", data: formattedResult })
+      );
     } catch (e) {
-      serverError(e, 'from refactor percentages');
+      serverError(e, "from refactor percentages");
       client.send(
         JSON.stringify({ type: "error", message: "Failed to get percentage" })
       );
