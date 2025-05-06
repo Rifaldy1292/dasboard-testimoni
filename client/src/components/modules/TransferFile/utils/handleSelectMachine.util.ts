@@ -4,12 +4,12 @@ import type { MachineOption } from '@/types/machine.type'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import { AxiosError } from 'axios'
 
+const { loadingUpload, handleClearFile } = useFTP()
 export const handleNullDescriptionTimeline = async (
   machineValue: MachineOption | undefined,
   confirm: any,
   toast: any
 ) => {
-  const { loadingUpload } = useFTP()
   if (!machineValue) return
   const { id, name } = machineValue
   try {
@@ -24,6 +24,7 @@ export const handleNullDescriptionTimeline = async (
         accept: async () => {
           await MachineServices.getTimelineByMachineId(id)
         },
+        reject: handleClearFile,
         acceptProps: {
           label: 'Edit',
           severity: 'success'

@@ -223,9 +223,13 @@ const handleExecute = (): void => {
                 :disabled="disabled.disableUpload"
                 @change="
                   async (event) => {
-                    await handleNullDescriptionTimeline(selectedOneMachine, confirm, toast).then(
-                      () => handleUploadFolder(event)
-                    )
+                    try {
+                      await handleNullDescriptionTimeline(selectedOneMachine, confirm, toast)
+                      await handleUploadFolder(event)
+                    } catch (error) {
+                      console.log(1)
+                      await handleClearFile()
+                    }
                   }
                 "
                 :webkitdirectory="uploadType === 'folder'"
