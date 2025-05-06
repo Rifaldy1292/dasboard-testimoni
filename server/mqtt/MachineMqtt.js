@@ -9,6 +9,7 @@ const { dateQuery } = require("../utils/dateQuery");
 const { decryptFromNumber } = require("../helpers/crypto");
 const { serverError } = require("../utils/serverError");
 const { existMachinesCache } = require("../cache");
+const RemainingController = require("../controllers/RemainingController");
 
 /**
  *
@@ -137,7 +138,7 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
           await MachineWebsocket.refactorPercentages(client);
           break;
         case remainingMessage:
-          await MachineWebsocket.remainingTime(client);
+          await RemainingController.getRemaining(client);
           break;
       }
     });
