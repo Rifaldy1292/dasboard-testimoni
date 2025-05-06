@@ -28,7 +28,7 @@ app.use("/api", router);
   await handleCronJob();
 })();
 handleWebsocket(wss);
-// handleMqtt(wss);
+handleMqtt(wss);
 
 server.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);

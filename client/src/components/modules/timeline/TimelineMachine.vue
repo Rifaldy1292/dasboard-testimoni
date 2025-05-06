@@ -97,12 +97,12 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
 </script>
 
 <template>
-  <div @click="isHover = !isHover" class="border border-gray-950 dark:border-gray-500">
+  <div class="border border-gray-950 dark:border-gray-500">
     <span
       :style="{ color: iconTimeline(machine.status).color }"
       class="flex justify-center text-lg font-bold text-black dark:text-white gap-2"
     >
-      {{ machine.name }}
+      <span @click="isHover = !isHover">{{ machine.name }}</span>
       <span class="cursor-pointer">
         <i
           @click="visibleDialogFormDocumentation = true"
@@ -112,7 +112,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
       /></span>
     </span>
 
-    <div :class="`overflow-x-auto ${isHover ? 'h-16' : ''}`">
+    <div :class="`overflow-x-auto ${isHover ? 'h-25' : ''}`">
       <Timeline
         :value="machine.MachineLogs"
         layout="horizontal"
@@ -138,7 +138,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
                 .color,
               width: customWidthBoxTimeline(item)
             }"
-            :class="`text-md ${isHover ? 'h-10' : 'h-70'} text-start flex flex-col  break-words`"
+            :class="`text-md ${isHover ? 'h-20' : 'h-70'} text-start flex flex-col  break-words`"
           >
             <i :class="`${isHover ? 'text-xs' : ''} font-bold text-black dark:text-white`"
               >{{ item.createdAt }} -

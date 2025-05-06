@@ -66,6 +66,7 @@ const getRunningTimeMachineLog = async (machine_id, reqDate) => {
     const logs = await MachineLog.findAll({
       where: {
         machine_id,
+        current_status: "Running",
         createdAt: range,
       },
       order: [["createdAt", "ASC"]],
@@ -185,15 +186,20 @@ const getMachineTimeline = async ({ date, reqId }) => {
       whereMachine.id = {
         [Op.eq]: reqId,
       };
-      whereMachineLog.current_status = "Stopped"
+      whereMachineLog.current_status = "Stopped";
       whereMachineLog.description = null;
     }
 
     const machines = await Machine.findAll({
-      attributes: [[
-        literal(`CASE WHEN "Machine"."type" IS NOT NULL THEN "Machine"."name" || ' (' || "Machine"."type" || ')' ELSE "Machine"."name" END`),
-        "name"
-      ], "status"],
+      attributes: [
+        [
+          literal(
+            `CASE WHEN "Machine"."type" IS NOT NULL THEN "Machine"."name" || ' (' || "Machine"."type" || ')' ELSE "Machine"."name" END`
+          ),
+          "name",
+        ],
+        "status",
+      ],
       where: whereMachine,
       include: [
         {
@@ -244,7 +250,10 @@ const getMachineTimeline = async ({ date, reqId }) => {
           new Date(nextLog?.createdAt || 0) - new Date(currentTime);
         return {
           ...log.dataValues,
-          createdAt: new Date(currentTime).toLocaleTimeString('id-ID', { hour: 'numeric', minute: '2-digit' }),
+          createdAt: new Date(currentTime).toLocaleTimeString("id-ID", {
+            hour: "numeric",
+            minute: "2-digit",
+          }),
           timeDifference: formatTimeDifference(timeDifference),
           k_num: current_status === "Running" ? log.k_num : null,
           isLastLog,
@@ -265,20 +274,20 @@ const getMachineTimeline = async ({ date, reqId }) => {
 
       const extendLogs = isNowDate
         ? [
-          ...logs,
+            ...logs,
 
-          {
-            isNext: true,
-            timeDifference: nextTimeDifference,
-            createdAt: dateOption.toLocaleTimeString("en-CA", {
-              hour: "numeric",
-              minute: "numeric",
-              hour12: false,
-            }),
-            operator: nextLog.User?.name || null,
-            description: "Remaining",
-          },
-        ]
+            {
+              isNext: true,
+              timeDifference: nextTimeDifference,
+              createdAt: dateOption.toLocaleTimeString("en-CA", {
+                hour: "numeric",
+                minute: "numeric",
+                hour12: false,
+              }),
+              operator: nextLog.User?.name || null,
+              description: "Remaining",
+            },
+          ]
         : logs;
       // console.log({ nextLog: extendLogs[extendLogs.length - 1] });
 
