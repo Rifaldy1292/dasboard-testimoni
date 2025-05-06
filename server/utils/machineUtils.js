@@ -180,10 +180,13 @@ const getMachineTimeline = async ({ date, reqId }) => {
       new Date().toLocaleDateString("en-CA");
     const range = await dateQuery(date ? dateOption : undefined);
     const whereMachine = {};
+    const whereMachineLog = { createdAt: range };
     if (reqId) {
       whereMachine.id = {
         [Op.eq]: reqId,
       };
+      whereMachineLog.current_status = "Stopped"
+      whereMachineLog.description = null;
     }
 
     const machines = await Machine.findAll({
@@ -195,9 +198,7 @@ const getMachineTimeline = async ({ date, reqId }) => {
       include: [
         {
           model: MachineLog,
-          where: {
-            createdAt: range,
-          },
+          where: whereMachineLog,
           attributes: [
             "id",
             "current_status",
