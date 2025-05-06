@@ -59,7 +59,7 @@ const submitForm = ({ valid }: { valid: boolean }) => {
         v-model:visible="visibleDialogForm"
         modal
         @hide="handleCloseModal"
-        :header="`Edit Machine ${selectedMachine?.machineName}`"
+        :header="`Edit Machine ${selectedMachine?.name}`"
         :style="{ width: '25rem' }"
       >
         <span class="text-surface-500 dark:text-surface-400 block mb-8"

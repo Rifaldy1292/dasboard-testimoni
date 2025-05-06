@@ -27,7 +27,7 @@ const { coordinateOptions, coolantOptions, processTypeOptions } = additionalOpti
 
 const loadingFetch = shallowRef<boolean>(false)
 const cuttingTimeMachines = ref<CuttingTimeMachine | undefined>(undefined)
-const selectedMachine = ref<MachineOption[]>([])
+const selectedMachines = ref<MachineOption[]>([])
 const selectedOneMachine = ref<MachineOption | undefined>(undefined)
 const loadingDropdown = shallowRef<boolean>(false)
 const machineOptions = ref<MachineOption[]>([])
@@ -70,15 +70,6 @@ export const useMachine = () => {
     }
   }
 
-  const handleSelectMachine = () => {
-    if (!selectedMachine.value.length) return
-    try {
-      console.log('first', selectedMachine.value)
-    } catch (error) {
-      handleErrorAPI(error, toast)
-    }
-  }
-
   return {
     loadingFetch,
     getCuttingTime,
@@ -86,8 +77,7 @@ export const useMachine = () => {
     loadingDropdown,
     getMachineOptions,
     machineOptions,
-    selectedMachine,
-    handleSelectMachine,
+    selectedMachines,
     selectedOneMachine,
     additionalOptions,
     selectedCoolant,

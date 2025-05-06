@@ -1,4 +1,4 @@
-const { Op } = require("sequelize");
+const { Op, literal } = require("sequelize");
 const { existMachinesCache } = require("../cache");
 const { MachineLog, Machine, DailyConfig, User } = require("../models");
 const { dateQuery, config } = require("./dateQuery");
@@ -186,11 +186,12 @@ const getMachineTimeline = async ({ date, reqId }) => {
       };
     }
 
-    console.log(reqId, 'reqId')
-
-    // console.log(whereMachine.id, 22, 'id',);
-
     const machines = await Machine.findAll({
+      attributes: [[
+        literal(`CASE WHEN "Machine"."type" IS NOT NULL THEN "Machine"."name" || ' (' || "Machine"."type" || ')' ELSE "Machine"."name" END`),
+        "name"
+      ], "status"],
+      where: whereMachine,
       include: [
         {
           model: MachineLog,
@@ -217,25 +218,14 @@ const getMachineTimeline = async ({ date, reqId }) => {
           ],
         },
       ],
-      where: whereMachine,
       order: [[{ model: MachineLog }, "createdAt", "ASC"]],
-      attributes: ["name", "status", "type"],
     });
-    // console.log(machines, 22)
 
-    const sortedMachines = machines
-      .map((machine) => {
-        const { name, type } = machine.dataValues;
-        return {
-          ...machine.dataValues,
-          name: name + `${type ? ` (${type})` : ""}`,
-        };
-      })
-      .sort((a, b) => {
-        const numberA = parseInt(a.name.slice(3));
-        const numberB = parseInt(b.name.slice(3));
-        return numberA - numberB;
-      });
+    const sortedMachines = machines.sort((a, b) => {
+      const numberA = parseInt(a.name.slice(3));
+      const numberB = parseInt(b.name.slice(3));
+      return numberA - numberB;
+    });
 
     if (!sortedMachines.length) {
       return;
@@ -253,7 +243,6 @@ const getMachineTimeline = async ({ date, reqId }) => {
           new Date(nextLog?.createdAt || 0) - new Date(currentTime);
         return {
           ...log.dataValues,
-          created_at: new Date(currentTime).toLocaleString(),
           createdAt: new Date(currentTime).toLocaleTimeString('id-ID', { hour: 'numeric', minute: '2-digit' }),
           timeDifference: formatTimeDifference(timeDifference),
           k_num: current_status === "Running" ? log.k_num : null,

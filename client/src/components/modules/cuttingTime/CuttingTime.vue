@@ -5,25 +5,19 @@ import VueApexCharts from 'vue3-apexcharts'
 import { useMachine } from '@/composables/useMachine'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DataNotFound from '@/components/common/DataNotFound.vue'
-import type { ParamsGetCuttingTime } from '@/dto/machine.dto'
 import CuttingTimeHeader from './CuttingTimeHeader.vue'
 import CuttingTimeTable from './CuttingTimeTable.vue'
 
-const { cuttingTimeMachines, getCuttingTime, loadingFetch, selectedMachine } = useMachine()
+const { cuttingTimeMachines, getCuttingTime, loadingFetch, selectedMachines } = useMachine()
 
 const monthValue = ref<Date>(new Date())
 const showLabel = shallowRef<boolean>(true)
 
-const paramsGetCuttingTime = computed<ParamsGetCuttingTime>(() => {
-  const machineIds = selectedMachine.value.length ? selectedMachine.value : undefined
-  return {
-    period: monthValue.value,
-    machineIds
-  }
-})
-
 watchEffect(() => {
-  getCuttingTime(paramsGetCuttingTime.value)
+  getCuttingTime({
+    machineIds: selectedMachines.value.length ? selectedMachines.value : undefined,
+    period: monthValue.value
+  })
 })
 
 const apexOptions = computed<ApexOptions>(() => {

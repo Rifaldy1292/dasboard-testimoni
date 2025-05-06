@@ -1,8 +1,9 @@
-const { Machine, CuttingTime, MachineLog } = require("../models");
+const { Machine, CuttingTime, MachineLog, DailyConfig } = require("../models");
 const dateCuttingTime = require("../utils/dateCuttingTime");
 const { serverError } = require("../utils/serverError");
 
 const { getRunningTimeMachineLog, getMachineTimeline } = require("../utils/machineUtils");
+const { Op } = require("sequelize");
 
 const objectTargetCuttingTime = (target, totalDayInMonth) => {
   const targetPerDay = target / totalDayInMonth; // Calculate target hours per day
@@ -36,7 +37,13 @@ function convertMilisecondToHour(milliseconds) {
 class MachineController {
   static async getCuttingTime(req, res) {
     try {
-      const { period } = req.query;
+      const { period, machineIds } = req.query;
+      if (!period) {
+        return res.status(400).json({
+          status: 400,
+          message: "period is required",
+        });
+      }
       const { date } = dateCuttingTime(period);
 
       const cuttingTime = await CuttingTime.findOne({
@@ -49,15 +56,9 @@ class MachineController {
       }
 
       // machineIds from query, default all
-      const machineIds =
-        req.query.machineIds ??
-        (await Machine.findAll({ attributes: ["id", "name"] }));
+      const machines = machineIds?.length ? machineIds : await Machine.findAll({ attributes: ["id", "name"] });
 
-      if (!cuttingTime || !machineIds.length) {
-        return res.status(204).send();
-      }
-
-      const sortedMachineIds = machineIds.sort((a, b) => {
+      const sortedMachineIds = machines.sort((a, b) => {
         const numberA = parseInt(a.name.slice(3));
         const numberB = parseInt(b.name.slice(3));
         return numberA - numberB;
@@ -106,6 +107,7 @@ class MachineController {
       res
         .status(200)
         .json({ status: 200, message: "success get cutting time", data });
+      MachineController.refactorGetCuttingTime(req, res);
     } catch (error) {
       serverError(error, res, "Failed to get cutting time");
     }
@@ -160,6 +162,71 @@ class MachineController {
       return { data: convertCountLogToHours, actual: runningToday };
     } catch (error) {
       serverError(error, "Failed to get cutting time by machine id");
+    }
+  }
+
+  static async refactorGetCuttingTime(req, res) {
+    try {
+      const { period } = req.query;
+      const { date } = dateCuttingTime(period);
+
+      const cuttingTime = await CuttingTime.findOne({
+        where: { period: date },
+        attributes: ["period", "target"],
+      });
+
+      if (!cuttingTime) {
+        throw new Error("cutting time not found");
+      }
+      // 28
+      const totalDayInMonth = date.getDate();
+
+      const objTargetCuttingTime = objectTargetCuttingTime(
+        cuttingTime.target,
+        totalDayInMonth
+      );
+
+      // [1,2,3...31]
+      const allDayInMonth = Array.from(
+        { length: totalDayInMonth },
+        (_, i) => i + 1
+      );
+      // const allDayInMonth = [9]
+
+      const allDateInMonth = Array.from({ length: totalDayInMonth }, (_, i) => {
+        const day = new Date(date.getUTCFullYear(), date.getUTCMonth(), i + 1);
+        return day;
+      });
+
+      const dailyConfigInMonth = await DailyConfig.findAll({
+        raw: true,
+        attributes: ["date", "startFirstShift"],
+        where: {
+          date: {
+            [Op.in]: allDateInMonth,
+          }
+        }
+      })
+
+      const dateInDailyConfig = dailyConfigInMonth.map((dailyConfig) => {
+        const { date, startFirstShift } = dailyConfig;
+        const [hour, minute] = startFirstShift.split(':').map(Number);
+        const dateFrom = new Date(date)
+        dateFrom.setHours(hour, minute, 0, 0);
+        const dateTo = new Date(date)
+        dateTo.setDate(dateTo.getDate() + 1);
+        const endMinute = minute === 0 ? 59 : minute - 1;
+        dateTo.setHours(hour + 8, endMinute, 59, 999);
+        const result = {
+          [Op.between]: [dateFrom, dateTo]
+        }
+        return result;
+      });
+
+      console.log(dateInDailyConfig)
+
+    } catch (error) {
+      serverError(error, res, "Failed to refactor get cutting time");
     }
   }
 
@@ -246,6 +313,7 @@ class MachineController {
       serverError(error, res, "Failed to get machine log by machine id");
     }
   }
+
 }
 
 module.exports = MachineController;

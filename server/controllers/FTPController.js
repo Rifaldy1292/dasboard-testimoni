@@ -28,14 +28,12 @@ class FTPController {
    * @description Transfer file to machine using FTP
    * @param {request} req - Request object
    * @param {response} res - Response object
-   * @param {boolean} isUndo - If true, undo the transfer
    */
-  static async transferFiles(req, res, isUndo = false) {
+  static async transferFiles(req, res) {
     const client = new Client();
+    const { machine_id, isUndo } = req.body;
     try {
-      const { machine_id } = req.body;
       const { files } = req;
-
       if (!files || !files.length || !machine_id) {
         return res.status(400).json({ message: "Bad request", status: 400 });
       }
@@ -142,11 +140,7 @@ class FTPController {
         message: `Successfully ${isUndo ? "undo" : "transfer"} files`,
       });
     } catch (error) {
-      console.log({ error, message: error.message, stack: error.stack });
-
-      // Handling error seperti sebelumnya...
-
-      serverError(error, res, "Failed to transfer files");
+      serverError(error, res, `Failed to ${isUndo ? "undo" : "transfer"} files`);
     } finally {
       client.close();
     }
@@ -178,9 +172,9 @@ class FTPController {
       //get file
       const file = fs.readFileSync(filePath);
       req.files = [{ buffer: file, originalname: fileName }];
-      req.body = { machine_id };
+      req.body = { machine_id, isUndo: true };
 
-      await FTPController.transferFiles(req, res, true);
+      await FTPController.transferFiles(req, res);
       // remove file from pc
       fs.unlinkSync(filePath);
     } catch (error) {

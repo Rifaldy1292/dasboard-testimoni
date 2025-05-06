@@ -7,24 +7,20 @@ const {
   machineOptions,
   loadingDropdown,
   getMachineOptions,
-  handleSelectMachine,
-  selectedMachine,
+  selectedMachines,
   cuttingTimeMachines
 } = useMachine()
 
 const showLabel = defineModel<boolean>('showLabel', { required: true })
-const monthValue = defineModel<Date>('monthValue', {
-  required: true
-})
+const monthValue = defineModel<Date>('monthValue', { required: true })
 </script>
 
 <template>
   <div class="flex justify-between gap-2">
     <div :class="`flex gap-5 ${!cuttingTimeMachines && 'opacity-0'}`">
       <MultiSelect
-        v-model:model-value="selectedMachine"
+        v-model:model-value="selectedMachines"
         @before-show="getMachineOptions"
-        @before-hide="handleSelectMachine"
         display="chip"
         :options="machineOptions"
         :loading="loadingDropdown"

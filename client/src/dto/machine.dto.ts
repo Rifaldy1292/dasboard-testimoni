@@ -1,8 +1,8 @@
 import type { MachineOption } from '@/types/machine.type'
 
 export interface ParamsGetCuttingTime {
-  period?: Date
-  machineIds?: MachineOption[]
+  period: Date
+  machineIds?: Omit<MachineOption, 'startMacro'>[]
 }
 
 export interface EditLogDescription {

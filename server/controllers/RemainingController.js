@@ -1,14 +1,18 @@
+const { literal } = require("sequelize");
 const { Machine, MachineLog, User, MachineOperatorAssignment } = require("../models");
 const { dateQuery } = require("../utils/dateQuery");
 const { countRunningTime } = require("../utils/machineUtils");
 const { serverError } = require("../utils/serverError");
 
 class remainingController {
-    static async getRemaining(req, res) {
+    static async getRemaining(_, res) {
         try {
             const range = await dateQuery();
             const allMachinesWithLastLogAndUser = await Machine.findAll({
-                attributes: ["id", "name", "type"],
+                attributes: ["id", [
+                    literal(`CASE WHEN "Machine"."type" IS NOT NULL THEN "Machine"."name" || ' (' || "Machine"."type" || ')' ELSE "Machine"."name" END`),
+                    "name"
+                ], "type"],
                 include: [
                     {
                         model: MachineLog,
@@ -39,14 +43,12 @@ class remainingController {
                     return numberA - numberB;
                 }).map(async (machine) => {
                     const mc = JSON.parse(JSON.stringify(machine));
-                    mc.name = `${mc.name} ${mc.type ? `(${mc.type})` : ''}`
                     mc.is_work = false
                     mc.description = null
                     mc.User = mc.MachineLogs[0]?.User ?? {}
 
                     if (mc.MachineOperatorAssignment) {
                         const { user_id, is_work, description, is_using_custom } = mc.MachineOperatorAssignment
-
                         if (is_using_custom) {
                             const findUser = await User.findByPk(user_id, {
                                 attributes: ["id", "name", 'profile_image']
@@ -67,7 +69,6 @@ class remainingController {
                     mc.log.total_cutting_time = Math.round(log?.total_cutting_time ?? 0 / 60);
                     delete mc.log?.User
                     delete mc.MachineLogs;
-                    delete mc.type
                     if (mc.log) {
                         if (!log?.g_code_name) return mc
                         const allLogMachineWhereGCode = await MachineLog.findAll({
