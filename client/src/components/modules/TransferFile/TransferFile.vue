@@ -17,6 +17,7 @@ import { useConfirm } from 'primevue'
 import { useRouter } from 'vue-router'
 import happpySound from '@/assets/sounds/happy.mp3'
 import RemoveFile from './RemoveFile.vue'
+import { handleNullDescriptionTimeline } from './utils/handleSelectMachine.util'
 
 onUnmounted(() => {
   handleClearFile()
@@ -220,7 +221,13 @@ const handleExecute = (): void => {
               <input
                 type="file"
                 :disabled="disabled.disableUpload"
-                @change="handleUploadFolder($event)"
+                @change="
+                  async (event) => {
+                    await handleNullDescriptionTimeline(selectedOneMachine, confirm, toast).then(
+                      () => handleUploadFolder(event)
+                    )
+                  }
+                "
                 :webkitdirectory="uploadType === 'folder'"
                 multiple
                 :style="{

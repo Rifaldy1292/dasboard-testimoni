@@ -8,6 +8,7 @@ import type { MachineName } from '@/types/machine.type'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import { Button, Column, DataTable, useConfirm } from 'primevue'
 import { computed, ref, shallowRef, watch } from 'vue'
+import { handleNullDescriptionTimeline } from './utils/handleSelectMachine.util'
 
 const toast = useToast()
 const confirm = useConfirm()
@@ -65,6 +66,7 @@ const handleClickIcon = async (
 ): Promise<void> => {
   try {
     loading.value = true
+    await handleNullDescriptionTimeline(selectedOneMachine.value, confirm, toast)
     const machine_id = selectedOneMachine.value?.id as number
     switch (button) {
       case 'removeAll': {
