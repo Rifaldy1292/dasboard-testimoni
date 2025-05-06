@@ -5,7 +5,11 @@ const { countRunningTime } = require("../utils/machineUtils");
 const { serverError } = require("../utils/serverError");
 
 class RemainingController {
-    static async getRemaining(_, res) {
+    /**
+     * 
+     * @param {WebSocket} WebSocket 
+     */
+    static async getRemaining(ws) {
         try {
             const range = await dateQuery();
             const allMachinesWithLastLogAndUser = await Machine.findAll({
@@ -101,13 +105,20 @@ class RemainingController {
                 })
             );
 
-            res.status(200).json({
-                status: 200,
-                message: "success get remaining",
-                data: formattedResponse,
-            });
+            ws.send(
+                JSON.stringify({
+                    type: "remaining",
+                    data: formattedResponse,
+                })
+            )
         } catch (error) {
-            serverError(error, res, "Failed to get remaining");
+            serverError(error, "Failed to get remaining");
+            ws.send(
+                JSON.stringify({
+                    type: "error",
+                    message: "No timeline data found",
+                })
+            )
         }
     }
 

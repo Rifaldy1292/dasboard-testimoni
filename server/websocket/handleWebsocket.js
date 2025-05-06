@@ -1,3 +1,4 @@
+const RemainingController = require('../controllers/RemainingController')
 const MachineWebsocket = require('./MachineWebsocket')
 const clientPreferences = new Map()
 const messageTypeWebsocketClient = new Map()
@@ -66,6 +67,8 @@ const handleWebsocket = (wss) => {
                     // await MachineWebsocket.percentages(ws, clientPreferences.get(ws))
                     await MachineWebsocket.refactorPercentages(ws, clientPreferences.get(ws))
                     break
+                case 'remaining':
+                    await RemainingController.getRemaining(ws)
                 // case 'test': {
                 //     console.log('test')
                 //     break

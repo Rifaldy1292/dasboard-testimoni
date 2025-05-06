@@ -2,11 +2,13 @@ import type { AllMachineTimeline, GetPercentages } from '@/types/machine.type'
 import type { PayloadType, payloadWebsocket, WebsocketResponse } from '@/types/websocket.type'
 import useToast from '@/composables/useToast'
 import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
+import type { OperatorMachine } from '@/types/user.type'
 const PORT = +import.meta.env.VITE_PORT || 3000
 const SOCKET_URL = `ws://localhost:${PORT}`
 
 const timelineMachines = ref<AllMachineTimeline | undefined>()
 const messageWebsocket = shallowRef<string | undefined>()
+const operatorMachines = ref<OperatorMachine[]>([])
 
 const useWebSocket = (payloadType?: PayloadType) => {
   const toast = useToast()
@@ -70,6 +72,9 @@ const useWebSocket = (payloadType?: PayloadType) => {
             timelineMachines.value = data as AllMachineTimeline
             console.log('from server timeline', data)
             break
+          case 'remaining':
+            operatorMachines.value = data as OperatorMachine[]
+            break
           case 'percentage': {
             console.log('from server percentage', data)
             percentageMachines.value = data as GetPercentages
@@ -111,7 +116,14 @@ const useWebSocket = (payloadType?: PayloadType) => {
     socket.value = null
   })
 
-  return { sendMessage, messageWebsocket, loadingWebsocket, percentageMachines, timelineMachines }
+  return {
+    sendMessage,
+    operatorMachines,
+    messageWebsocket,
+    loadingWebsocket,
+    percentageMachines,
+    timelineMachines
+  }
 }
 
 export default useWebSocket

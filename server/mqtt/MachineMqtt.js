@@ -115,6 +115,7 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
       const percentageMessage = messageTypeWebsocketClient
         .get(client)
         ?.has("percentage");
+      const remainingMessage = messageTypeWebsocketClient.get(client)?.has("remaining");
 
       // Check if the client has a custom date
       const lastRequestedDate = clientPreferences.get(client);
@@ -127,11 +128,17 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
       }
 
       // Send the update to the client
-      if (timelineMessage) {
-        console.log("Sending live timeline update from MQTT");
-        await MachineWebsocket.timelines(client);
-      } else if (percentageMessage) {
-        await MachineWebsocket.refactorPercentages(client);
+      switch (true) {
+        case timelineMessage:
+          console.log("Sending live timeline update from MQTT");
+          await MachineWebsocket.timelines(client);
+          break;
+        case percentageMessage:
+          await MachineWebsocket.refactorPercentages(client);
+          break;
+        case remainingMessage:
+          await MachineWebsocket.remainingTime(client);
+          break;
       }
     });
   } catch (error) {

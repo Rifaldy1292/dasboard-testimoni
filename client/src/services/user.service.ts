@@ -2,7 +2,7 @@ import type { AxiosResponse } from 'axios'
 import API from './API'
 import type { EditProfile, LoginPayload, ParamsGetUsers, RegisterPayload } from '@/dto/user.dto'
 import type { ApiResponse, FindByNIk, GetUsers } from '@/types/apiResponse.type'
-import type { OperatorMachine, User } from '@/types/user.type'
+import type { User } from '@/types/user.type'
 import type { EditRemaining } from '@/dto/remaining.dto'
 
 const UserServices = {
@@ -41,9 +41,6 @@ const UserServices = {
       'Content-Type': 'multipart/form-data'
     }
     return API({ headers }).patch('/users/edit-profile', body)
-  },
-  getOperatorMachines(): Promise<AxiosResponse<ApiResponse<OperatorMachine[]>>> {
-    return API().get('/users/remaining')
   },
 
   patchOperatorMachines(body: EditRemaining): Promise<AxiosResponse<ApiResponse<undefined>>> {
