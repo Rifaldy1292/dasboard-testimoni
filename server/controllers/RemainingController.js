@@ -4,7 +4,7 @@ const { dateQuery } = require("../utils/dateQuery");
 const { countRunningTime } = require("../utils/machineUtils");
 const { serverError } = require("../utils/serverError");
 
-class remainingController {
+class RemainingController {
     static async getRemaining(_, res) {
         try {
             const range = await dateQuery();
@@ -157,4 +157,4 @@ class remainingController {
     }
 }
 
-module.exports = remainingController;
+module.exports = RemainingController;

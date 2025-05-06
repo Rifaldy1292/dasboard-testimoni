@@ -3,7 +3,7 @@ const machineRouter = require("express").Router();
 const MachineController = require("../controllers/MachineController");
 const authMiddleware = require("../middlewares/auth");
 const multer = require('multer');
-const remainingController = require("../controllers/RemainingController");
+const RemainingController = require("../controllers/RemainingController");
 const FTPController = require("../controllers/FTPController");
 const SettingsController = require("../controllers/SettingsController");
 
@@ -72,7 +72,7 @@ machineRouter.patch(
 )
 
 machineRouter.get('/is-ready-transfer-files', authMiddleware, FTPController.checkIsReadyTransferFile)
-machineRouter.put('/remaining', authMiddleware, remainingController.editOperatorInMachine)
+machineRouter.put('/remaining', authMiddleware, RemainingController.editOperatorInMachine)
 
 module.exports = machineRouter;
 

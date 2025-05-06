@@ -218,7 +218,7 @@ module.exports = class MachineWebsocket {
           {
             model: MachineLog,
             attributes: ["current_status", "createdAt"],
-            where: { createdAt: range },
+            where: { createdAt: range, current_status: "Running" },
           },
         ],
         order: [[{ model: MachineLog }, "createdAt", "ASC"]],

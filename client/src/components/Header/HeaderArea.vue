@@ -13,16 +13,11 @@ const sidebarStore = useSidebarStore()
     class="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none"
   >
     <div class="flex flex-grow items-center justify-between py-4 px-4 shadow-2 md:px-6 2xl:px-11">
-      <div class="flex items-center gap-2 sm:gap-4 lg:hidden">
+      <div class="flex items-center gap-2 sm:gap-4">
         <!-- Hamburger Toggle BTN -->
         <button
-          class="z-99999 block rounded-sm border border-stroke bg-white p-1.5 shadow-sm dark:border-strokedark dark:bg-boxdark lg:hidden"
-          @click="
-            () => {
-              console.log('Toggling Sidebar')
-              toggleSidebar()
-            }
-          "
+          class="z-99999 block rounded-sm border border-stroke bg-white p-1.5 shadow-sm dark:border-strokedark dark:bg-boxdark"
+          @click="toggleSidebar"
         >
           <span class="relative block h-5.5 w-5.5 cursor-pointer">
             <span class="block absolute right-0 h-full w-full">
@@ -52,12 +47,10 @@ const sidebarStore = useSidebarStore()
           </span>
         </button>
         <!-- Hamburger Toggle BTN -->
-        <router-link class="block flex-shrink-0 lg:hidden" to="/">
+        <router-link class="block flex-shrink-0" to="/">
           <img src="@/assets/images/logo/logo-icon.svg" alt="Logo" />
-          <!-- <img src="@/assets/images/logo/yamaha-gakki.svg" alt="Logo" /> -->
         </router-link>
       </div>
-      <div class="hidden lg:block" />
       <div class="flex items-center gap-3 2xsm:gap-7">
         <ul class="flex items-center gap-2 2xsm:gap-4">
           <li>

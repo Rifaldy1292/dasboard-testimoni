@@ -9,8 +9,7 @@ import DatePickerDay from '@/components/common/DatePickerDay.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import { Button } from 'primevue'
 
-const { loadingWebsocket, timelineMachines, sendMessage, messageWebsocket } =
-  useWebsocket('timeline')
+const { loadingWebsocket, timelineMachines, sendMessage } = useWebsocket('timeline')
 
 const dateOption = ref<Date>(new Date())
 const resizeCount = shallowRef<number>(2)
@@ -23,21 +22,6 @@ const updateResizeCount = (type: 'increase' | 'decrease') => {
 }
 
 watch(
-  () => messageWebsocket.value,
-  (newValue) => {
-    if (newValue === 'Description updated successfully') {
-      // refetch
-      console.log('refetch')
-      sendMessage({
-        type: 'timeline',
-        data: {
-          date: dateOption.value?.toISOString()
-        }
-      })
-    }
-  }
-)
-watch(
   () => dateOption.value,
   () => {
     sendMessage({
@@ -46,8 +30,6 @@ watch(
         date: dateOption.value?.toISOString()
       }
     })
-    // const test = new Date(dateOption.value).getDate()
-    // console.log({ test, typeof: typeof test })
   }
 )
 </script>

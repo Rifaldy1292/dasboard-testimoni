@@ -1,6 +1,6 @@
 const userRouter = require("express").Router();
 const { ADMIN_ROLE_ID } = require("../config/config.env");
-const remainingController = require("../controllers/RemainingController");
+const RemainingController = require("../controllers/RemainingController");
 const { changePassword, checkToken, deleteById, editProfile, getAll, getByNIK, login, register, resetPassword, getById } = require("../controllers/UserController")
 const authMiddleware = require("../middlewares/auth");
 const upload = require("../middlewares/multer");
@@ -34,7 +34,7 @@ userRouter.patch('/edit-profile',
     upload.single('profilePicture'),
     editProfile);
 
-userRouter.get('/remaining', authMiddleware, remainingController.getRemaining);
-userRouter.patch('/remaining', authMiddleware, remainingController.editOperatorInMachine);
+userRouter.get('/remaining', authMiddleware, RemainingController.getRemaining);
+userRouter.patch('/remaining', authMiddleware, RemainingController.editOperatorInMachine);
 
 module.exports = userRouter;

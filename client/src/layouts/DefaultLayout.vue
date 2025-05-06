@@ -2,10 +2,19 @@
 import HeaderArea from '@/components/Header/HeaderArea.vue'
 import SidebarArea from '@/components/Sidebar/SidebarArea.vue'
 import type { UserLocalStorage } from '@/types/localStorage.type'
-import { provide } from 'vue'
+import { provide, computed } from 'vue'
+import { useSidebarStore } from '@/stores/sidebar'
 
 const userData: UserLocalStorage = JSON.parse(localStorage.getItem('user') || '{}')
 provide('userData', userData)
+
+const sidebarStore = useSidebarStore()
+const contentClass = computed(() => {
+  return {
+    'ml-0': !sidebarStore.isSidebarOpen,
+    'ml-72.5': sidebarStore.isSidebarOpen
+  }
+})
 </script>
 
 <template>
@@ -16,7 +25,10 @@ provide('userData', userData)
     <!-- ===== Sidebar End ===== -->
 
     <!-- ===== Content Area Start ===== -->
-    <div class="w-full flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
+    <div
+      class="w-full flex flex-1 flex-col overflow-x-hidden overflow-y-auto transition-all duration-300 ease-linear"
+      :class="contentClass"
+    >
       <!-- ===== Header Start ===== -->
       <HeaderArea />
       <!-- ===== Header End ===== -->

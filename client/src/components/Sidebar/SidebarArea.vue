@@ -95,10 +95,10 @@ const menuGroups = computed<MenuGroup[]>(() => {
 
 <template>
   <aside
-    class="absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0"
+    class="absolute left-0 top-0 z-9999 flex h-screen flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark"
     :class="{
-      'translate-x-0': sidebarStore.isSidebarOpen,
-      '-translate-x-full': !sidebarStore.isSidebarOpen
+      'w-72.5 translate-x-0': sidebarStore.isSidebarOpen,
+      'w-0 -translate-x-full': !sidebarStore.isSidebarOpen
     }"
     ref="target"
   >
@@ -109,7 +109,7 @@ const menuGroups = computed<MenuGroup[]>(() => {
         <!-- <img src="@/assets/images/logo/logo.svg" test-id="jon" alt="Logo" /> -->
       </router-link>
 
-      <button class="block lg:hidden" @click="sidebarStore.isSidebarOpen = false">
+      <button class="block" @click="sidebarStore.isSidebarOpen = false">
         <svg
           class="fill-current"
           width="20"

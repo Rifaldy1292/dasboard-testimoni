@@ -3,13 +3,12 @@ import { useFTP } from '@/composables/useFTP'
 import { useMachine } from '@/composables/useMachine'
 import useToast from '@/composables/useToast'
 import MachineServices from '@/services/machine.service'
-import type { MachineOption } from '@/types/machine.type'
+import { type AllMachineTimeline, type MachineOption } from '@/types/machine.type'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import { AxiosError } from 'axios'
 import { InputNumber, Select, useConfirm } from 'primevue'
-import { shallowRef, watch } from 'vue'
+import { ref, shallowRef, watch } from 'vue'
 import ModalDocumentation from '../timeline/ModalDocumentation.vue'
-import useWebSocket from '@/composables/useWebsocket'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 
 defineProps<{ isDisableAll: boolean }>()
@@ -39,7 +38,8 @@ const {
   loadingUpload
 } = useFTP()
 
-const { timelineMachines, loadingWebsocket } = useWebSocket()
+// const { timelineMachines } = useWebSocket()
+const timelineMachines = ref<AllMachineTimeline | undefined>(undefined)
 
 const { workPositionOptions, coordinateOptions, coolantOptions, processTypeOptions } =
   additionalOptions
@@ -60,14 +60,14 @@ watch(
 
 const fetchTimelineByMachineId = async (machine_id: number) => {
   try {
-    loadingWebsocket.value = true
+    loadingUpload.value = true
     const { data } = await MachineServices.getTimelineByMachineId(machine_id)
     timelineMachines.value = data.data
     visibleDialogForm.value = true
   } catch (error) {
     handleErrorAPI(error, toast)
   } finally {
-    loadingWebsocket.value = false
+    loadingUpload.value = false
   }
 }
 
@@ -109,7 +109,7 @@ const handleSelectMachine = async (machineValue: MachineOption | undefined) => {
     v-model:visible-dialog-form="visibleDialogForm"
     :timeline="timelineMachines?.data[0] && timelineMachines.data[0]"
   />
-  <LoadingAnimation :state="loadingWebsocket" />
+  <LoadingAnimation :state="loadingUpload" />
   <!-- 1/2 -->
   <div
     :style="{
