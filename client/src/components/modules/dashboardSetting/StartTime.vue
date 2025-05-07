@@ -2,23 +2,17 @@
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import useToast from '@/composables/useToast'
 import { Column, DataTable, DatePicker, useConfirm, type DatePickerBlurEvent } from 'primevue'
-import { onMounted, ref, shallowRef } from 'vue'
+import { onMounted, ref, shallowRef, watchEffect } from 'vue'
 import SettingServices from '@/services/setting.service'
+import type { DailyConfig } from '@/types/dailyConfig.type'
+import DatePickerMonth from '@/components/common/DatePickerMonth.vue'
 
-onMounted(async () => {
-  loading.value = true
-  await fetchStartTime()
-  const { data } = await SettingServices.getListConfig()
-  configs.value = data.data
-  console.log(configs.value, 'data')
-  loading.value = false
-})
-
-const configs = shallowRef<{ id: number; date: string; startFirstShift: string }[]>([])
+const configs = ref<DailyConfig[]>([])
 
 const confirm = useConfirm()
 const toast = useToast()
 const selectedDate = ref<Date>()
+const selectedMonth = shallowRef<Date>(new Date())
 const id = shallowRef<number | null>(null)
 const dateFromServer = ref<Date>()
 const loading = shallowRef<boolean>(false)
@@ -103,10 +97,28 @@ const fetchStartTime = async () => {
     loading.value = false
   }
 }
+
+watchEffect(async () => {
+  console.log(selectedMonth.value)
+  loading.value = true
+  await fetchStartTime()
+  // format 2022-01-01
+  try {
+    const { data } = await SettingServices.getListConfig({
+      period: selectedMonth.value.toISOString()
+    })
+    configs.value = data.data
+    console.log(configs.value, 'data')
+  } catch (error) {
+    handleErrorAPI(error, toast)
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <template>
-  <div class="mb-0.5 p-5">
+  <div class="mb-0.5 p-5 flex justify-between">
     <!-- <FormField name="name"> -->
     <div>
       <label class="mb-3 block text-sm font-medium text-black dark:text-white">Start Time</label>
@@ -129,13 +141,18 @@ const fetchStartTime = async () => {
         />
       </div>
     </div>
+
+    <DatePickerMonth v-model:month-value="selectedMonth" />
   </div>
 
   <!-- DataTable untuk menampilkan konfigurasi -->
   <div class="p-4">
     <DataTable :value="configs" stripedRows>
       <Column field="date" header="Date"></Column>
-      <Column field="startFirstShift" header="Start Time"></Column>
+      <Column field="startFirstShift" header="Start 1"></Column>
+      <Column field="endFirstShift" header="End 1"></Column>
+      <Column field="startSecondShift" header="Start 2"></Column>
+      <Column field="endSecondShift" header="End 2"></Column>
     </DataTable>
   </div>
 </template>

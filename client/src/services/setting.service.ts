@@ -1,6 +1,7 @@
 import type { AxiosResponse } from 'axios'
 import API from './API'
 import type { ApiResponse } from '@/types/apiResponse.type'
+import type { DailyConfig } from '@/types/dailyConfig.type'
 
 const SettingServices = {
   getStartTime: (): Promise<
@@ -17,10 +18,10 @@ const SettingServices = {
     return API().put('settings/start-time', body)
   },
 
-  getListConfig: (): Promise<
-    AxiosResponse<ApiResponse<{ id: number; date: string; startFirstShift: string }[]>>
-  > => {
-    return API().get('/settings/list')
+  getListConfig: (params: {
+    period: string
+  }): Promise<AxiosResponse<ApiResponse<DailyConfig[]>>> => {
+    return API({ params }).get('/settings/list')
   },
 
   getListCuttingTime: (): Promise<

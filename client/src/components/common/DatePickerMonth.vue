@@ -18,6 +18,6 @@ const monthValue = defineModel<Date>('monthValue', {
       iconDisplay="input"
       date-format="mm/yy"
     />
-    <label v-if="!monthValue" for="over_label">Select Month</label>
+    <label for="over_label">Select Month</label>
   </FloatLabel>
 </template>

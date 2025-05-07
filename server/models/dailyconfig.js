@@ -27,7 +27,15 @@ module.exports = (sequelize, DataTypes) => {
     startSecondShift: {
       type: DataTypes.TIME,
       allowNull: false,
-    }
+    },
+    endFirstShift: {
+      type: DataTypes.TIME,
+      allowNull: false,
+    },
+    endSecondShift: {
+      type: DataTypes.TIME,
+      allowNull: false,
+    },
   }, {
     sequelize,
     modelName: 'DailyConfig',
