@@ -21,7 +21,7 @@ const useWebSocket = (payloadType?: PayloadType) => {
 
   const sendMessage = (payload: payloadWebsocket) => {
     if (socket.value?.readyState === WebSocket.OPEN) {
-      console.log('send message', payload)
+      console.log('send message', { payload })
       loadingWebsocket.value = true
       return socket.value.send(JSON.stringify(payload))
     }
@@ -48,7 +48,6 @@ const useWebSocket = (payloadType?: PayloadType) => {
         // console.log('Received WebSocket message', parsedData)
         const { type, data, message } = parsedData
         if (!type) return console.log('Unknown format', parsedData)
-        console.log({ type })
         if (message) {
           messageWebsocket.value = message
           // console.log(messageWebsocket.value, 'from usews')

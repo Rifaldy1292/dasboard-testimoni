@@ -194,12 +194,13 @@ module.exports = class MachineWebsocket {
    * Retrieves machine percentages with improved database querying and sends them to the client.
    *
    * @param {WebSocket} client - The WebSocket client instance.
-   * @param {string | undefined} date - The date to retrieve percentages for.
+   * @param {{id?: number; date?: string; shift?: 0|1|2}} data} data - The request data.
    */
-  static async refactorPercentages(client, date) {
+  static async refactorPercentages(client, data) {
     console.time("after");
     try {
-      const nowDate = date ? new Date(date) : new Date();
+      const reqDate = data?.date
+      const nowDate = reqDate ? new Date(reqDate) : new Date();
       if (nowDate.getTime() > new Date().getTime()) {
         return client.send(JSON.stringify({ type: "percentage", data: [] }));
       }
@@ -232,19 +233,20 @@ module.exports = class MachineWebsocket {
       const startTime = new Date();
       startTime.setHours(startHour, startMinute, 0, 0);
 
-      const formattedReqDate = new Date(date).toLocaleDateString("en-CA");
+      const formattedReqDate = new Date(reqDate).toLocaleDateString("en-CA");
       const formattedDate = new Date().toLocaleDateString("en-CA");
       // const perfectTime = IS_NOW_DATE
       //   ? DEFAULT_PERFECT_TIME / 2
       //   : DEFAULT_PERFECT_TIME;
       const calculateMs = nowTime.getTime() - startTime.getTime();
-      const perfectTime = IS_NOW_DATE ? calculateMs : DEFAULT_PERFECT_TIME;
+      const perfectTime2 = IS_NOW_DATE ? calculateMs : DEFAULT_PERFECT_TIME;
+      const perfectTime = data?.shift ? getCalculatePerfectTimeMs(reqDate, data.shift) : perfectTime2;
 
       /** @type {undefined | string}  */
       let startFirstShift;
 
       // check if date is before today
-      if (date && formattedReqDate < formattedDate) {
+      if (reqDate && formattedReqDate < formattedDate) {
         const findDailyConfig = await DailyConfig.findOne({
           where: {
             date: formattedReqDate,
@@ -318,3 +320,51 @@ module.exports = class MachineWebsocket {
     console.timeEnd("after");
   }
 };
+
+/**
+ * 
+ * @param {string} date
+ * @param {1|2} shift
+ */
+async function getCalculatePerfectTimeMs(date, shift) {
+  try {
+    if (shift > 2) {
+      throw new Error("Invalid shift")
+    }
+    const attributes = []
+    if (shift === 1) {
+      attributes.push("startFirstShift", "endFirstShift")
+    } else if (shift === 2) {
+      attributes.push("startSecondShift", 'endSecondShift')
+    }
+    const findDailyConfig = await DailyConfig.findOne({
+      where: {
+        date: new Date(date).toLocaleDateString("en-CA"),
+      },
+      attributes
+    });
+
+    if (!findDailyConfig) {
+      throw new Error("Daily config not found");
+    }
+
+    if (shift === 1) {
+      const { startFirstShift, endFirstShift } = findDailyConfig
+      const start = new Date(startFirstShift).getTime()
+      const end = new Date(endFirstShift).getTime()
+      const diff = end - start
+      return diff
+    }
+
+    if (shift === 2) {
+      const { startSecondShift, endSecondShift } = findDailyConfig
+      const start = new Date(startSecondShift).getTime()
+      const end = new Date(endSecondShift).getTime()
+      const diff = end - start
+      return diff
+    }
+
+  } catch (error) {
+    serverError(error, "from getCalculatePerfectTime");
+  }
+}

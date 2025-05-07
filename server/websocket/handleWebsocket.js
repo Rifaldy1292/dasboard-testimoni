@@ -21,7 +21,7 @@ const handleWebsocket = (wss) => {
       /**
        * @typedef {Object} ParsedMessage
        * @property {'timeline' | 'percentage'} type - The message type
-       * @property {{id?: number, date?: string}} data - Additional data
+       * @property {{id?: number; date?: string; shift?: 0|1|2}} data - Additional data
        */
 
       /** @type {ParsedMessage} */
@@ -71,7 +71,7 @@ const handleWebsocket = (wss) => {
           // await MachineWebsocket.percentages(ws, clientPreferences.get(ws));
           await MachineWebsocket.refactorPercentages(
             ws,
-            clientPreferences.get(ws)
+            data
           );
           break;
         case "remaining":
