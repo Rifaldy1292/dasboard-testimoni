@@ -2,54 +2,30 @@ const {
     DailyConfig, CuttingTime, Machine } = require("../models");
 const { serverError } = require("../utils/serverError");
 
-let { config } = require("../utils/dateQuery");
 const { Op } = require("sequelize");
 
 
 class SettingsController {
-    static getStartTime(req, res) {
-        const { startHour, id, startMinute } = config;
-        res.status(200).json({
-            data: { startHour, id, startMinute },
-            message: "succesfully get start time ",
-        });
-    }
-
-    static async editStartTime(req, res) {
+    static async editDailyConfig(req, res) {
         try {
-            const { reqStartHour, reqStartMinute, id } = req.body;
-            if (
-                typeof reqStartHour !== "number" ||
-                typeof reqStartMinute !== "number" ||
-                !id
-            ) {
-                return res
-                    .status(400)
-                    .json({ message: "invalid request!", status: 400 });
-            }
-            let hourStartSecond = reqStartHour + 12;
-            if (hourStartSecond > 24) {
-                hourStartSecond = hourStartSecond - 24;
-            }
+            const { id, field, value } = req.body
+            if (!id || !field || !value) return res.status(400).json({
+                status: 400,
+                message: "Bad Request"
+            });
+            const updateCount = await DailyConfig.update({
+                [field]: value
+            }, {
+                where: {
+                    id
+                }
+            })
 
-            const { startFirstShift, startSecondShift } = {
-                startFirstShift: `${reqStartHour}:${reqStartMinute}`,
-                startSecondShift: `${hourStartSecond}:${reqStartMinute}`,
-            };
-
-            const countUpdate = await DailyConfig.update(
-                { startFirstShift, startSecondShift },
-                { where: { id } }
-            );
-
-            if (countUpdate[0] === 0) {
-                return res.status(400).json({ message: "failed to update start time" });
-            }
-
-            config.startHour = reqStartHour;
-            config.startMinute = reqStartMinute;
-            config.id = id;
-            res.status(201).json({ message: "succesfully Edit start time " });
+            if (!updateCount[0]) return res.status(404).json({
+                status: 404,
+                message: "Daily Config not found"
+            })
+            res.status(201).send({ status: 201, message: "Edit Success" })
         } catch (error) {
             serverError(error, res, "failed to Edit start time");
         }

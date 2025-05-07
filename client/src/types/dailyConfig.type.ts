@@ -2,7 +2,7 @@ export type DailyConfig = {
   id: number
   date: string
   startFirstShift: string
-  endFisrtShift: string
+  endFirstShift: string
   startSecondShift: string
   endSecondShift: string
 }

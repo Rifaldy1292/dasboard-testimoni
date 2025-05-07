@@ -1,6 +1,4 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-
-import ManualView from '@/views/ManualView.vue'
 import AuthView from '@/views/Authentication/AuthView.vue'
 import ForgotPasswordView from '@/views/Authentication/ForgotPasswordView.vue'
 import UsersView from '@/views/UsersView.vue'
@@ -44,14 +42,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
           title: 'Cutting Time'
         }
       },
-      {
-        path: 'manual',
-        name: 'manual',
-        component: ManualView,
-        meta: {
-          title: 'Manual'
-        }
-      },
+
       {
         path: '/users',
         name: 'Users',

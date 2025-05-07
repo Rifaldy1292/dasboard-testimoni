@@ -4,24 +4,15 @@ import type { ApiResponse } from '@/types/apiResponse.type'
 import type { DailyConfig } from '@/types/dailyConfig.type'
 
 const SettingServices = {
-  getStartTime: (): Promise<
-    AxiosResponse<ApiResponse<{ startHour: number; startMinute: number; id: number | null }>>
-  > => {
-    return API().get('/settings/start-time')
+  patchDailyConfig: (
+    body: Pick<DailyConfig, 'id'> & { field: keyof Omit<DailyConfig, 'id'>; value: string }
+  ): Promise<AxiosResponse> => {
+    return API().patch('settings/daily-config', body)
   },
-
-  putStartTIme: (body: {
-    reqStartHour: number
-    reqStartMinute: number
-    id: number
-  }): Promise<AxiosResponse> => {
-    return API().put('settings/start-time', body)
-  },
-
   getListConfig: (params: {
     period: string
   }): Promise<AxiosResponse<ApiResponse<DailyConfig[]>>> => {
-    return API({ params }).get('/settings/list')
+    return API({ params }).get('/settings/daily-config')
   },
 
   getListCuttingTime: (): Promise<
