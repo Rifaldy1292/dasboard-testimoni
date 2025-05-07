@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import useToast from '@/composables/useToast'
 import { Column, DataTable } from 'primevue'
-import { onMounted, shallowRef } from 'vue'
+import { shallowRef, inject, watchEffect } from 'vue'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import MachineServices from '@/services/machine.service'
 import type { MachineOption } from '@/types/machine.type'
 
-onMounted(async () => {
-  await fetchStartTime()
-})
-
+const activeTab = inject('activeTab', shallowRef(0))
 const configs = shallowRef<MachineOption[]>([])
+
+watchEffect(async () => {
+  if (activeTab.value === 2) {
+    return await fetchStartTime()
+  }
+  configs.value = []
+})
 
 const toast = useToast()
 const loading = shallowRef<boolean>(false)
@@ -32,7 +36,7 @@ const fetchStartTime = async () => {
 <template>
   <!-- DataTable untuk menampilkan konfigurasi -->
   <div class="p-4">
-    <DataTable :value="configs" stripedRows>
+    <DataTable :value="configs" stripedRows :loading>
       <Column field="name" header="Name"></Column>
       <Column field="type" header="Type"></Column>
       <Column field="ip_address" header="IP Address"></Column>

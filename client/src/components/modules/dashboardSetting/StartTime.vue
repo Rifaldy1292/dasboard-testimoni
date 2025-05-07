@@ -2,7 +2,7 @@
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import useToast from '@/composables/useToast'
 import { Column, DataTable, InputText, type DataTableCellEditCompleteEvent } from 'primevue'
-import { ref, shallowRef, watchEffect } from 'vue'
+import { inject, ref, shallowRef, watchEffect } from 'vue'
 import SettingServices from '@/services/setting.service'
 import type { DailyConfig } from '@/types/dailyConfig.type'
 import DatePickerMonth from '@/components/common/DatePickerMonth.vue'
@@ -22,9 +22,9 @@ const columns: TableCollumn[] = [
   { field: 'endSecondShift', header: 'End 2' }
 ]
 
-const configs = ref<DailyConfig[]>([])
-
 const toast = useToast()
+const configs = ref<DailyConfig[]>([])
+const activeTab = inject('activeTab', shallowRef(0))
 const selectedMonth = shallowRef<Date>(new Date())
 const loading = shallowRef<boolean>(false)
 
@@ -64,10 +64,11 @@ const handleEditTable = async (event: DataTableCellEditCompleteEvent) => {
   }
 }
 
-watchEffect(async () => {
-  const { value } = selectedMonth
-  // format 2022-01-01
-  await fetchDailyConfig(value)
+watchEffect(() => {
+  if (activeTab.value === 0) {
+    return fetchDailyConfig(selectedMonth.value)
+  }
+  configs.value = []
 })
 </script>
 

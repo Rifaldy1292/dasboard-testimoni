@@ -3,11 +3,12 @@ import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import StartTime from '@/components/modules/dashboardSetting/StartTime.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import { TabList, TabPanel, TabPanels, Tabs } from 'primevue'
-import { h, shallowRef } from 'vue'
+import { h, provide, shallowRef } from 'vue'
 import CuttingTime from '@/components/modules/dashboardSetting/CuttingTime.vue'
 import MachineTable from '@/components/modules/dashboardSetting/MachineTable.vue'
 
 const activeTab = shallowRef<number>(0)
+provide('activeTab', activeTab)
 
 const tabbItems = [
   {
