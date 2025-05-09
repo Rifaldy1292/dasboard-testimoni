@@ -23,18 +23,21 @@ module.exports = (sequelize, DataTypes) => {
     startFirstShift: {
       type: DataTypes.TIME,
       allowNull: false,
+      defaultValue: '07:00:00'
     },
     startSecondShift: {
       type: DataTypes.TIME,
       allowNull: false,
+      defaultValue: '19:00:00'
     },
     endFirstShift: {
       type: DataTypes.TIME,
       allowNull: false,
+      defaultValue: '16:00:00',
     },
     endSecondShift: {
       type: DataTypes.TIME,
-      allowNull: false,
+      defaultValue: '05:59:00',
     },
   }, {
     sequelize,
@@ -59,7 +62,7 @@ module.exports = (sequelize, DataTypes) => {
     const existingDailyConfig = await DailyConfig.findOne({
       where: {
         date,
-      }, attributes: ['date']
+      }, attributes: ['id']
     });
     if (existingDailyConfig) {
       throw new Error('Daily config already exists for this date');

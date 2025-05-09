@@ -60,8 +60,7 @@ const handleWebsocket = (wss) => {
           // console.log({ clientPreferences: clientPreferences.get(ws) }, 88888, 'form ws')
           await MachineWebsocket.timelines(
             ws,
-            clientPreferences.get(ws),
-            data?.id
+            data?.date,
           );
           break;
         case "percentage":
@@ -69,7 +68,7 @@ const handleWebsocket = (wss) => {
            * Retrieves machine percentages.
            */
           // await MachineWebsocket.percentages(ws, clientPreferences.get(ws));
-          await MachineWebsocket.refactorPercentages(
+          await MachineWebsocket.refactorPercentages2(
             ws,
             data
           );

@@ -11,8 +11,9 @@ import { nextTick, watch } from 'vue'
 
 const { fetchUsers, users } = useUsers()
 
-const { sendMessage, operatorMachines, loadingWebsocket } = useWebSocket('remaining')
+const { sendMessage, operatorMachines, loadingWebsocket } = useWebSocket({ type: 'remaining' })
 
+// animation
 watch(
   () => operatorMachines.value,
   async (newData) => {

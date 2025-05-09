@@ -1,6 +1,6 @@
 export type PayloadType = 'timeline' | 'percentage' | 'remaining' | 'test'
 export type ShiftValue = 0 | 1 | 2
-export type payloadWebsocket = {
+export type PayloadWebsocket = {
   type: PayloadType
   data?:
     | {

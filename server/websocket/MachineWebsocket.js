@@ -1,6 +1,6 @@
 const { Machine, MachineLog, DailyConfig } = require("../models");
 const { config, dateQuery } = require("../utils/dateQuery");
-const { literal } = require("sequelize");
+const { literal, Op } = require("sequelize");
 const {
   getRunningTimeMachineLog,
   getMachineTimeline,
@@ -53,7 +53,7 @@ module.exports = class MachineWebsocket {
    * @param {string} date - The date to retrieve the timeline for.
    * @param {number} reqId - The request ID.
    */
-  static async timelines(client, reqDate, reqId) {
+  static async timelines(client, reqDate) {
     try {
       const nowDate = reqDate ? new Date(reqDate) : new Date();
       if (
@@ -73,7 +73,6 @@ module.exports = class MachineWebsocket {
       }
       const machineTimeline = await getMachineTimeline({
         date: reqDate,
-        reqId,
       });
       if (!machineTimeline) {
         return client.send(
@@ -200,16 +199,12 @@ module.exports = class MachineWebsocket {
     console.time("after");
     try {
       const { date, shift } = data;
-      const reqDate = data.date
       if (!date) return client.send(JSON.stringify({ type: "error", message: "No date provided" }));
 
       const nowDate = new Date(data.date)
       if (nowDate.getTime() > new Date().getTime()) {
         return client.send(JSON.stringify({ type: "percentage", data: [] }));
       }
-      const IS_NOW_DATE =
-        nowDate.toLocaleDateString("en-CA") ===
-        new Date().toLocaleDateString("en-CA");
       const range = await dateQuery(nowDate);
 
       const machinesWithLogs = await Machine.findAll({
@@ -231,33 +226,15 @@ module.exports = class MachineWebsocket {
         order: [[{ model: MachineLog }, "createdAt", "ASC"]],
       });
 
-      const { startHour, startMinute } = config;
-      const nowTime = new Date();
-      const startTime = new Date();
-      startTime.setHours(startHour, startMinute, 0, 0);
-
       const formattedReqDate = new Date(date).toLocaleDateString("en-CA");
       const formattedDate = new Date().toLocaleDateString("en-CA");
-      const calculateMs = nowTime.getTime() - startTime.getTime();
-      const perfectTime2 = IS_NOW_DATE ? calculateMs : DEFAULT_PERFECT_TIME;
-      const perfectTime = shift ? await getCalculatePerfectTimeMs(date, data.shift) : perfectTime2;
 
-      /** @type {undefined | string}  */
-      let startFirstShift;
+      const IS_NOW_DATE =
+        nowDate.toLocaleDateString("en-CA") ===
+        new Date().toLocaleDateString("en-CA");
 
-      // check if date is before today
-      if (date && formattedReqDate < formattedDate) {
-        const findDailyConfig = await DailyConfig.findOne({
-          where: {
-            date: formattedReqDate,
-          },
-          attributes: ["startFirstShift", "startSecondShift", 'endFirstShift', 'endSecondShift'],
-        });
+      const perfectTime = await getCalculatePerfectTimeMs(data, IS_NOW_DATE)
 
-        if (findDailyConfig) {
-          startFirstShift = findDailyConfig.startFirstShift;
-        }
-      }
 
       const runningTimeMachines = machinesWithLogs.map((machine) => {
         const { name, MachineLogs } = machine.get({ plain: true });
@@ -272,16 +249,7 @@ module.exports = class MachineWebsocket {
           totalRunningTime += diff;
         }
 
-        // check if date is before today
-        if (lastRunningTimestamp && startFirstShift) {
-          const [hour, minute] = startFirstShift.split(":").map(Number);
-          const nextDay = new Date(formattedReqDate);
-          nextDay.setDate(nextDay.getDate() + 1);
-          nextDay.setHours(hour, minute, 0, 0);
 
-          const calculate = new Date(nextDay) - new Date(lastRunningTimestamp);
-          totalRunningTime += calculate;
-        }
 
         const runningTime = percentage(totalRunningTime ?? 0, perfectTime);
 
@@ -319,22 +287,166 @@ module.exports = class MachineWebsocket {
     }
     console.timeEnd("after");
   }
+
+  static async refactorPercentages2(client, data) {
+    console.time("after");
+    try {
+      const { date, shift } = data;
+      if (!date || shift < 0 || shift > 2) return client.send(JSON.stringify({ type: "error", message: "Bad request!" }));
+
+      const nowDate = new Date(date)
+      if (nowDate.getTime() > new Date().getTime()) {
+        return client.send(JSON.stringify({ type: "percentage", data: [] }));
+      }
+
+
+      const formattedDate = new Date(date).toLocaleDateString("en-CA");
+      const dailyConfig = await DailyConfig.findOne({
+        where: { date: formattedDate },
+        attributes: ["startFirstShift", "endFirstShift", "startSecondShift", "endSecondShift"],
+        raw: true,
+      });
+
+      if (!dailyConfig) { return client.send(JSON.stringify({ type: "error", message: `No daily config for ${formattedDate}` })) }
+
+      const dateFrom = new Date(date)
+      const dateTo = new Date(date)
+      const { startFirstShift, endFirstShift, startSecondShift, endSecondShift } = dailyConfig
+      switch (shift) {
+        case 0: {
+          const [hour, minute, second] = startFirstShift.split(':').map(Number)
+          const [hour2, minute2, second2] = endSecondShift.split(':').map(Number)
+          dateFrom.setHours(hour, minute, second)
+          dateTo.setDate(dateTo.getDate() + 1)
+          dateTo.setHours(hour2, minute2, second2)
+          break
+        }
+        case 1: {
+          const [hour, minute, second] = startFirstShift.split(':').map(Number)
+          const [hour2, minute2, second2] = endFirstShift.split(':').map(Number)
+          dateFrom.setHours(hour, minute, second)
+          dateTo.setHours(hour2, minute2, second2)
+          break
+        }
+        case 2:
+          const [hour, minute, second] = startSecondShift.split(':').map(Number)
+          const [hour2, minute2, second2] = endSecondShift.split(':').map(Number)
+          dateFrom.setHours(hour, minute, second)
+          dateTo.setHours(hour2, minute2, second2)
+          dateTo.setDate(dateFrom.getDate() + 1)
+          break
+      }
+
+      const machinesWithLogs = await Machine.findAll({
+        attributes: [
+          [
+            literal(
+              `CASE WHEN "type" IS NOT NULL THEN "name" || ' (' || "type" || ')' ELSE "name" END`
+            ),
+            "name",
+          ],
+        ],
+        include: [
+          {
+            model: MachineLog,
+            attributes: ["current_status", "createdAt"],
+            where: {
+              createdAt: {
+                [Op.between]: [dateFrom, dateTo]
+              }
+            },
+          },
+        ],
+        order: [[{ model: MachineLog }, "createdAt", "ASC"]],
+      });
+
+      const IS_NOW_DATE =
+        nowDate.toLocaleDateString("en-CA") ===
+        new Date().toLocaleDateString("en-CA");
+
+      // const perfectTime = await getCalculatePerfectTimeMs(data, IS_NOW_DATE)
+      const perfectTime = dateTo.getTime() - dateFrom.getTime()
+
+
+      const runningTimeMachines = machinesWithLogs.map((machine) => {
+        const { name, MachineLogs } = machine.get({ plain: true });
+        const lastLog = MachineLogs[MachineLogs.length - 1];
+        let { totalRunningTime, lastRunningTimestamp } =
+          countRunningTime(MachineLogs);
+
+        // check if date is today
+        if (lastRunningTimestamp && IS_NOW_DATE) {
+          const now = new Date().getTime();
+          const diff = now - new Date(lastRunningTimestamp).getTime();
+          totalRunningTime += diff;
+        }
+
+
+
+        const runningTime = percentage(totalRunningTime ?? 0, perfectTime);
+
+        const description = countDescription(
+          totalRunningTime || 0,
+          perfectTime
+        );
+
+        delete machine.MachineLogs;
+        return {
+          name,
+          status: lastLog.current_status,
+          description,
+          percentage: [runningTime, 100 - runningTime],
+        };
+      });
+
+      const formattedResult = {
+        date: nowDate,
+        dateFrom,
+        dateTo,
+        data: runningTimeMachines.sort((a, b) => {
+          const numberA = parseInt(a.name.slice(3));
+          const numberB = parseInt(b.name.slice(3));
+          return numberA - numberB;
+        }),
+      };
+
+      client.send(
+        JSON.stringify({ type: "percentage", data: formattedResult })
+      );
+    } catch (error) {
+      serverError(error, "from refactor percentages");
+      client.send(
+        JSON.stringify({ type: "error", message: "Failed to get percentage" })
+      );
+    }
+    console.timeEnd("after");
+  }
 };
 
 /**
  * 
- * @param {string} date
- * @param {1|2} shift
+ * @param {{date: string; shift: 0|1|2}} data
+ * @param {boolean} isNowDate
+ * @returns {Promise<number>}
  */
-async function getCalculatePerfectTimeMs(date, shift) {
+async function getCalculatePerfectTimeMs(data, isNowDate = false) {
   try {
-    if (!shift || shift > 2) {
-      throw new Error("Invalid shift")
-    }
+    const { date, shift } = data
+    if (shift === undefined || shift > 2) throw new Error("Invalid shift")
+    if (shift === 0 && !isNowDate) return DEFAULT_PERFECT_TIME
+
     const [startShift, endShift, isSecondShift] = await getShiftTime(date, shift)
 
     const [firstHour, firstMinute, fisrtSecond] = startShift.split(":").map(Number);
     const [lastHour, lastMinute, lastSecond] = endShift.split(":").map(Number);
+
+    if (shift === 0 && isNowDate) {
+      const nowTime = new Date();
+      const startTime = new Date();
+      startTime.setHours(firstHour, firstMinute, 0, 0);
+      const calculateMs = nowTime.getTime() - startTime.getTime();
+      return calculateMs
+    }
     const start = new Date(date)
     const end = new Date(date)
     start.setHours(firstHour, firstMinute, fisrtSecond, 0)
@@ -351,15 +463,15 @@ async function getCalculatePerfectTimeMs(date, shift) {
 
 /**
  * 
- * @param {string} date 
- * @param {1|2} shift 
+ * @param {{date: string; shift: 0|1|2}} data
  * @returns {Promise<[string, string, boolean]>} [start, end, isSecondShift]
   * @description get shift time from database
  */
-async function getShiftTime(date, shift) {
+async function getShiftTime(data) {
   try {
+    const { date, shift } = data
     const attributes = []
-    if (shift === 1) {
+    if (shift <= 1) {
       attributes.push("startFirstShift", "endFirstShift")
     } else {
       attributes.push("startSecondShift", "endSecondShift")
@@ -373,7 +485,7 @@ async function getShiftTime(date, shift) {
     if (!findDailyConfig) {
       throw new Error("Daily config not found");
     }
-    if (shift === 1) {
+    if (shift <= 1) {
       const { startFirstShift, endFirstShift } = findDailyConfig
       return [startFirstShift, endFirstShift, false]
     }
@@ -384,3 +496,5 @@ async function getShiftTime(date, shift) {
     serverError(error, "from getTimeStartAndEnd")
   }
 }
+
+

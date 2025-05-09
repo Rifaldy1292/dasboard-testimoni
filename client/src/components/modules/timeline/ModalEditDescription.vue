@@ -8,9 +8,9 @@ import type { EditLogDescription } from '@/dto/machine.dto'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import useToast from '@/composables/useToast'
 import MachineServices from '@/services/machine.service'
-import useWebSocket from '@/composables/useWebsocket'
 import { useRoute } from 'vue-router'
 import { useMachine } from '@/composables/useMachine'
+import { loadingWebsocket, sendMessage, timelineMachines } from '@/composables/useWebsocket'
 
 const { selectedMachine, machineName } = defineProps<{
   selectedMachine?: ObjMachineTimeline
@@ -21,7 +21,7 @@ const visibleDialogForm = defineModel<boolean>('visibleDialogForm', {
   required: true
 })
 
-const { sendMessage, loadingWebsocket, timelineMachines } = useWebSocket()
+// const { sendMessage, loadingWebsocket, timelineMachines } = useWebSocket({ type: 'timeline' })
 const { selectedOneMachine } = useMachine()
 
 const toast = useToast()

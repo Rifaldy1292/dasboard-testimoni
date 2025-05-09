@@ -25,7 +25,7 @@ class SettingsController {
                 status: 404,
                 message: "Daily Config not found"
             })
-            res.status(201).send({ status: 201, message: "Edit Success" })
+            res.status(204).send()
         } catch (error) {
             serverError(error, res, "failed to Edit start time");
         }

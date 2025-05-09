@@ -273,20 +273,20 @@ const getMachineTimeline = async ({ date, reqId }) => {
 
       const extendLogs = isNowDate
         ? [
-            ...logs,
+          ...logs,
 
-            {
-              isNext: true,
-              timeDifference: nextTimeDifference,
-              createdAt: dateOption.toLocaleTimeString("en-CA", {
-                hour: "numeric",
-                minute: "numeric",
-                hour12: false,
-              }),
-              operator: nextLog.User?.name || null,
-              description: "Remaining",
-            },
-          ]
+          {
+            isNext: true,
+            timeDifference: nextTimeDifference,
+            createdAt: dateOption.toLocaleTimeString("en-CA", {
+              hour: "numeric",
+              minute: "numeric",
+              hour12: false,
+            }),
+            operator: nextLog.User?.name || null,
+            description: "Remaining",
+          },
+        ]
         : logs;
       // console.log({ nextLog: extendLogs[extendLogs.length - 1] });
 

@@ -3,8 +3,8 @@ const { DailyConfig } = require('../models')
 
 
 const config = {
-  startHour: 7,
-  startMinute: 30,
+  startHour: 6,
+  startMinute: 0,
   id: null,
 };
 

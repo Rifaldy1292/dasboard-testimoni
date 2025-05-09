@@ -8,18 +8,29 @@ import DatePickerDay from '@/components/common/DatePickerDay.vue'
 import { computed, nextTick, ref, shallowRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import RunningTimeCard from '@/components/Charts/RunningTimeCard.vue'
-// import { watchEffect } from 'vue'
-const { percentageMachines, loadingWebsocket, sendMessage } = useWebSocket('percentage')
 import { animate, stagger } from 'motion'
 import { Select } from 'primevue'
-import type { ShiftValue } from '@/types/websocket.type'
+import { type PayloadWebsocket, type ShiftValue } from '@/types/websocket.type'
+
+type Shift = 'Combine' | 'Shift 1' | 'Shift2'
 
 const route = useRoute()
 
-const nowDate = new Date()
-const dateOption = ref<Date>(nowDate)
+const dateOption = ref<Date>(new Date())
+const selectedShift = shallowRef<ShiftValue>(0)
+const payloadWs = computed<PayloadWebsocket>(() => {
+  return {
+    type: 'percentage',
+    data: {
+      date: dateOption.value.toISOString(),
+      shift: selectedShift.value
+    }
+  }
+})
+
+const { sendMessage, loadingWebsocket, percentageMachines } = useWebSocket(payloadWs.value)
+
 const intervalId = shallowRef<number | null>(null)
-type Shift = 'Combine' | 'Shift 1' | 'Shift2'
 const shiftOptions: { name: Shift; value: ShiftValue }[] = [
   {
     name: 'Combine',
@@ -34,19 +45,13 @@ const shiftOptions: { name: Shift; value: ShiftValue }[] = [
     value: 2
   }
 ]
-const selectedShift = shallowRef<ShiftValue>(0)
 
-watch([() => dateOption.value, () => selectedShift.value], () => {
-  sendMessage({
-    type: 'percentage',
-    data: {
-      date: dateOption.value.toISOString(),
-      shift: selectedShift.value
-    }
-  })
-  // const test = new Date(dateOption.value).getDate()
-  // console.log({ test, typeof: typeof test })
-})
+watch(
+  () => payloadWs.value,
+  (newPayload) => {
+    sendMessage(newPayload)
+  }
+)
 
 // refetch per 5 minute if date not change
 watch(
@@ -54,7 +59,7 @@ watch(
   ([valueDateOPtion, percentageData]) => {
     if (intervalId.value) clearInterval(intervalId.value)
     if (route.path !== '/running-time') return
-    if (valueDateOPtion === nowDate && percentageData?.length) {
+    if (valueDateOPtion === new Date() && percentageData?.length) {
       intervalId.value = setInterval(
         () => {
           console.log('refetch')
@@ -71,15 +76,10 @@ watch(
   { immediate: true }
 )
 
-const duplicatedRunningTimeData = computed(() => {
-  const data = percentageMachines.value?.data || []
-  return { data, date: percentageMachines.value?.date }
-})
-
 watch(
-  () => duplicatedRunningTimeData.value.data,
+  () => percentageMachines.value?.data,
   async (newData) => {
-    if (newData.length) {
+    if (newData?.length) {
       await nextTick()
       animate(
         '.running-time-card',
@@ -126,11 +126,18 @@ watch(
         </div>
       </div>
     </div>
-    <DataNotFound :condition="duplicatedRunningTimeData?.data.length === 0 && !loadingWebsocket" />
-    <span
-      v-if="duplicatedRunningTimeData?.date"
-      class="text-lg font-semibold text-black dark:text-white"
-      >{{ new Date(duplicatedRunningTimeData?.date as string).toLocaleDateString() }}</span
+    <DataNotFound :condition="percentageMachines?.data.length === 0 && !loadingWebsocket" />
+
+    <span class="text-lg font-semibold text-black dark:text-white"
+      >{{
+        percentageMachines?.dateFrom &&
+        new Date(percentageMachines?.dateFrom as string).toLocaleString('id-ID')
+      }}
+      -
+      {{
+        percentageMachines?.dateTo &&
+        new Date(percentageMachines?.dateTo as string).toLocaleString('id-ID')
+      }}</span
     >
     <div
       v-if="!loadingWebsocket"
@@ -138,7 +145,7 @@ watch(
     >
       <!-- <TransitionGroup > -->
       <RunningTimeCard
-        v-for="machine in duplicatedRunningTimeData?.data || []"
+        v-for="machine in percentageMachines?.data || []"
         :key="machine.name"
         :machine="machine"
         :percentage="machine.percentage"

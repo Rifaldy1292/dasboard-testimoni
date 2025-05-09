@@ -296,14 +296,6 @@ class MachineController {
           message: "machine_id is required",
         });
       }
-      const data = await getMachineTimeline({ reqId: machine_id });
-      if (!data) {
-        return res.status(404).json({
-          status: 404,
-          message: "Machine log not found",
-        });
-      }
-
       res.status(200).json({
         status: 200,
         message: "success get machine log by machine id",
@@ -317,36 +309,3 @@ class MachineController {
 }
 
 module.exports = MachineController;
-
-/**
- * {
-  error: FTPError: 550 STOR requested action not taken: File exists.
-      at FTPContext._onControlSocketData (D:\dashboard-machine\server\node_modules\basic-ftp\dist\FtpContext.js:283:39)
-      at Socket.<anonymous> (D:\dashboard-machine\server\node_modules\basic-ftp\dist\FtpContext.js:127:44)
-      at Socket.emit (node:events:518:28)
-      at addChunk (node:internal/streams/readable:561:12)
-      at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
-      at Readable.push (node:internal/streams/readable:392:5)
-      at TCP.onStreamRead (node:internal/stream_base_commons:191:23) {
-    code: 550
-  },
-  message: '550 STOR requested action not taken: File exists.'
-}
-Executing (default): SELECT "id", "name", "password", "role_id", "NIK", "machine_id", "profile_image", "createdAt", "updatedAt" FROM "Users" AS "User" WHERE "User"."id" = 8;
-Executing (default): SELECT "id", "name" FROM "Machines" AS "Machine";
-Executing (default): SELECT "id", "name", "password", "role_id", "NIK", "machine_id", "profile_image", "createdAt", "updatedAt" FROM "Users" AS "User" WHERE "User"."id" = 8;
-Executing (default): SELECT "User"."id", "User"."name", "User"."NIK", "User"."machine_id", "User"."profile_image", "User"."createdAt", "User"."updatedAt", "Role"."name" AS "Role.name", "Machines"."name" AS "Machines.name" FROM "Users" AS "User" LEFT OUTER JOIN "Roles" AS "Role" ON "User"."role_id" = "Role"."id" LEFT OUTER JOIN "Machines" AS "Machines" ON "User"."id" = "Machines"."user_id" WHERE "User"."role_id" = 2;
-Executing (default): SELECT "id", "name", "password", "role_id", "NIK", "machine_id", "profile_image", "createdAt", "updatedAt" FROM "Users" AS "User" WHERE "User"."id" = 8;
-Executing (default): SELECT "ip_address" FROM "Machines" AS "Machine" WHERE "Machine"."id" = '68';
-{
-  error: Error: Timeout (control socket)
-      at Socket.<anonymous> (D:\dashboard-machine\server\node_modules\basic-ftp\dist\FtpContext.js:319:33)
-      at Object.onceWrapper (node:events:632:28)
-      at Socket.emit (node:events:518:28)
-      at Socket._onTimeout (node:net:595:8)
-      at listOnTimeout (node:internal/timers:581:17)
-      at process.processTimers (node:internal/timers:519:7),
-  message: 'Timeout (control socket)'
-}
-
- */

@@ -45,17 +45,19 @@ const fetchDailyConfig = async (date: Date) => {
 const handleEditTable = async (event: DataTableCellEditCompleteEvent) => {
   try {
     loading.value = true
-    const { newData, field, newValue } = event as {
+    const { newData, field, newValue, data } = event as DataTableCellEditCompleteEvent & {
       newData: DailyConfig
       field: TableField
       newValue: string
+      data: DailyConfig
     }
-    const { data } = await SettingServices.patchDailyConfig({
+    if (data[field] === newValue) return
+    await SettingServices.patchDailyConfig({
       id: newData.id,
       field,
       value: newValue
     })
-    toast.add({ severity: 'success', summary: 'Success', detail: data.message })
+    toast.add({ severity: 'success', summary: 'Success', detail: 'Update success' })
     await fetchDailyConfig(selectedMonth.value)
   } catch (error) {
     handleErrorAPI(error, toast)

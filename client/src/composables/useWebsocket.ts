@@ -1,31 +1,29 @@
 import type { AllMachineTimeline, GetPercentages } from '@/types/machine.type'
-import type { PayloadType, payloadWebsocket, WebsocketResponse } from '@/types/websocket.type'
+import type { PayloadWebsocket, WebsocketResponse } from '@/types/websocket.type'
 import useToast from '@/composables/useToast'
 import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
 import type { OperatorMachine } from '@/types/user.type'
 const PORT = +import.meta.env.VITE_PORT || 3000
 const SOCKET_URL = `ws://localhost:${PORT}`
 
-const timelineMachines = ref<AllMachineTimeline | undefined>()
+export const timelineMachines = ref<AllMachineTimeline | undefined>()
 const messageWebsocket = shallowRef<string | undefined>()
 const operatorMachines = ref<OperatorMachine[]>([])
+export const loadingWebsocket = shallowRef<boolean>(false)
 
-const useWebSocket = (payloadType?: PayloadType) => {
+const socket = ref<WebSocket | null>(null)
+export const sendMessage = (payload: PayloadWebsocket) => {
+  if (socket.value?.readyState === WebSocket.OPEN) {
+    console.log('send message', { payload })
+    loadingWebsocket.value = true
+    return socket.value.send(JSON.stringify(payload))
+  }
+}
+
+const useWebSocket = (payload: PayloadWebsocket) => {
   const toast = useToast()
 
-  const socket = ref<WebSocket | null>(null)
   const percentageMachines = ref<GetPercentages | undefined>(undefined)
-  // const errorMessage = shallowRef<string | undefined>()
-  const loadingWebsocket = shallowRef<boolean>(false)
-  // const successMessage = shallowRef<string | undefined>()
-
-  const sendMessage = (payload: payloadWebsocket) => {
-    if (socket.value?.readyState === WebSocket.OPEN) {
-      console.log('send message', { payload })
-      loadingWebsocket.value = true
-      return socket.value.send(JSON.stringify(payload))
-    }
-  }
 
   onMounted(() => {
     loadingWebsocket.value = true
@@ -33,13 +31,7 @@ const useWebSocket = (payloadType?: PayloadType) => {
 
     socket.value.onopen = () => {
       console.log('Connected to WebSocket server')
-      if (payloadType)
-        sendMessage({
-          type: payloadType
-          // data: {
-          //   date: new Date().toISOString()
-          // }
-        })
+      if (payload) sendMessage(payload)
     }
     socket.value.onmessage = (event) => {
       try {
@@ -54,6 +46,10 @@ const useWebSocket = (payloadType?: PayloadType) => {
         }
         switch (type) {
           case 'error':
+            // reset state
+            timelineMachines.value = undefined
+            operatorMachines.value = []
+            percentageMachines.value = undefined
             toast.add({
               severity: 'error',
               summary: 'Error',

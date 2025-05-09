@@ -13,6 +13,8 @@ export type Machine = {
 export type GetPercentages = {
   data: Machine[]
   date: string
+  dateFrom: string
+  dateTo: string
 }
 
 export type ObjMachineTimeline = {

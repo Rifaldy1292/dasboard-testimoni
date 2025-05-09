@@ -47,32 +47,14 @@ const createDailyConfig = async () => {
      * @example 02:04:00
      * @type {string | null} startSecondShift
      */
-    const findDailyConfig = await DailyConfig.findOne({
-      where: {
-        date,
-      },
-      attributes: ["startFirstShift", "id"],
+
+    const findLastDailyConfig = await DailyConfig.findOne({
+      attributes: ["date", "startFirstShift", "startSecondShift", "endFirstShift", "endSecondShift"],
+      order: [['createdAt', "DESC"]]
     });
-
-    if (findDailyConfig) {
-      const { startFirstShift, id } = findDailyConfig.dataValues;
-      config.startHour = startFirstShift.split(":")[0];
-      config.startMinute = startFirstShift.toString().split(":")[1];
-      config.id = id;
-      return;
-    }
-
-    let secondShiftHour = config.startHour + 12;
-    if (secondShiftHour >= 24) secondShiftHour -= 24;
-
-    const defaultValueDailyConfig = {
-      startFirstShift: `${config.startHour}:${config.startMinute}`,
-      startSecondShift: `${secondShiftHour}:${config.startMinute}`,
-    };
-    await DailyConfig.create({
-      date,
-      ...defaultValueDailyConfig,
-    });
+    if (findLastDailyConfig.date === date) return;
+    const defaultDailyConfig = { ...findLastDailyConfig.get({ plain: true }), date };
+    await DailyConfig.create(defaultDailyConfig);
   } catch (error) {
     serverError(error);
   }
@@ -129,9 +111,9 @@ const deleteCncFiles = async () => {
  * @see handleResetMachineStatus
  */
 const handleCronJob = async () => {
-  await createCuttingTime();
   await createDailyConfig();
-  await handleResetMachineStatus();
+  createCuttingTime();
+  // handleResetMachineStatus();
 
   const { startHour, startMinute } = config;
   cron.schedule(`${startMinute} ${startHour} * * *`, async () => {

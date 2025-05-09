@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, shallowRef, watch } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import useWebsocket from '@/composables/useWebsocket'
@@ -8,10 +8,19 @@ import TimelineMachine from '@/components/modules/timeline/TimelineMachine.vue'
 import DatePickerDay from '@/components/common/DatePickerDay.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import { Button } from 'primevue'
-
-const { loadingWebsocket, timelineMachines, sendMessage } = useWebsocket('timeline')
+import { type PayloadWebsocket } from '@/types/websocket.type'
 
 const dateOption = ref<Date>(new Date())
+const payloadWs = computed<PayloadWebsocket>(() => {
+  return {
+    type: 'timeline',
+    data: {
+      date: dateOption.value.toISOString()
+    }
+  }
+})
+const { loadingWebsocket, timelineMachines, sendMessage } = useWebsocket(payloadWs.value)
+
 const resizeCount = shallowRef<number>(2)
 const updateResizeCount = (type: 'increase' | 'decrease') => {
   if (type === 'increase' && resizeCount.value < 10) {
@@ -22,14 +31,9 @@ const updateResizeCount = (type: 'increase' | 'decrease') => {
 }
 
 watch(
-  () => dateOption.value,
-  () => {
-    sendMessage({
-      type: 'timeline',
-      data: {
-        date: dateOption.value?.toISOString()
-      }
-    })
+  () => payloadWs.value,
+  (newPayoad) => {
+    sendMessage(newPayoad)
   }
 )
 </script>
