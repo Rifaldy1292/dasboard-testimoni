@@ -194,13 +194,16 @@ module.exports = class MachineWebsocket {
    * Retrieves machine percentages with improved database querying and sends them to the client.
    *
    * @param {WebSocket} client - The WebSocket client instance.
-   * @param {{id?: number; date?: string; shift?: 0|1|2}} data} data - The request data.
+   * @param {{ date: string; shift: 0|1|2}} data}
    */
   static async refactorPercentages(client, data) {
     console.time("after");
     try {
-      const reqDate = data?.date
-      const nowDate = reqDate ? new Date(reqDate) : new Date();
+      const { date, shift } = data;
+      const reqDate = data.date
+      if (!date) return client.send(JSON.stringify({ type: "error", message: "No date provided" }));
+
+      const nowDate = new Date(data.date)
       if (nowDate.getTime() > new Date().getTime()) {
         return client.send(JSON.stringify({ type: "percentage", data: [] }));
       }
@@ -233,25 +236,22 @@ module.exports = class MachineWebsocket {
       const startTime = new Date();
       startTime.setHours(startHour, startMinute, 0, 0);
 
-      const formattedReqDate = new Date(reqDate).toLocaleDateString("en-CA");
+      const formattedReqDate = new Date(date).toLocaleDateString("en-CA");
       const formattedDate = new Date().toLocaleDateString("en-CA");
-      // const perfectTime = IS_NOW_DATE
-      //   ? DEFAULT_PERFECT_TIME / 2
-      //   : DEFAULT_PERFECT_TIME;
       const calculateMs = nowTime.getTime() - startTime.getTime();
       const perfectTime2 = IS_NOW_DATE ? calculateMs : DEFAULT_PERFECT_TIME;
-      const perfectTime = data?.shift ? getCalculatePerfectTimeMs(reqDate, data.shift) : perfectTime2;
+      const perfectTime = shift ? await getCalculatePerfectTimeMs(date, data.shift) : perfectTime2;
 
       /** @type {undefined | string}  */
       let startFirstShift;
 
       // check if date is before today
-      if (reqDate && formattedReqDate < formattedDate) {
+      if (date && formattedReqDate < formattedDate) {
         const findDailyConfig = await DailyConfig.findOne({
           where: {
             date: formattedReqDate,
           },
-          attributes: ["startFirstShift"],
+          attributes: ["startFirstShift", "startSecondShift", 'endFirstShift', 'endSecondShift'],
         });
 
         if (findDailyConfig) {
@@ -311,8 +311,8 @@ module.exports = class MachineWebsocket {
       client.send(
         JSON.stringify({ type: "percentage", data: formattedResult })
       );
-    } catch (e) {
-      serverError(e, "from refactor percentages");
+    } catch (error) {
+      serverError(error, "from refactor percentages");
       client.send(
         JSON.stringify({ type: "error", message: "Failed to get percentage" })
       );
@@ -328,43 +328,59 @@ module.exports = class MachineWebsocket {
  */
 async function getCalculatePerfectTimeMs(date, shift) {
   try {
-    if (shift > 2) {
+    if (!shift || shift > 2) {
       throw new Error("Invalid shift")
     }
-    const attributes = []
-    if (shift === 1) {
-      attributes.push("startFirstShift", "endFirstShift")
-    } else if (shift === 2) {
-      attributes.push("startSecondShift", 'endSecondShift')
-    }
-    const findDailyConfig = await DailyConfig.findOne({
-      where: {
-        date: new Date(date).toLocaleDateString("en-CA"),
-      },
-      attributes
-    });
+    const [startShift, endShift, isSecondShift] = await getShiftTime(date, shift)
 
-    if (!findDailyConfig) {
-      throw new Error("Daily config not found");
-    }
+    const [firstHour, firstMinute, fisrtSecond] = startShift.split(":").map(Number);
+    const [lastHour, lastMinute, lastSecond] = endShift.split(":").map(Number);
+    const start = new Date(date)
+    const end = new Date(date)
+    start.setHours(firstHour, firstMinute, fisrtSecond, 0)
+    isSecondShift && end.setDate(end.getDate() + 1)
+    end.setHours(lastHour, lastMinute, lastSecond, 0)
+    const diff = end.getTime() - start.getTime()
+    return diff
 
-    if (shift === 1) {
-      const { startFirstShift, endFirstShift } = findDailyConfig
-      const start = new Date(startFirstShift).getTime()
-      const end = new Date(endFirstShift).getTime()
-      const diff = end - start
-      return diff
-    }
-
-    if (shift === 2) {
-      const { startSecondShift, endSecondShift } = findDailyConfig
-      const start = new Date(startSecondShift).getTime()
-      const end = new Date(endSecondShift).getTime()
-      const diff = end - start
-      return diff
-    }
 
   } catch (error) {
     serverError(error, "from getCalculatePerfectTime");
+  }
+}
+
+/**
+ * 
+ * @param {string} date 
+ * @param {1|2} shift 
+ * @returns {Promise<[string, string, boolean]>} [start, end, isSecondShift]
+  * @description get shift time from database
+ */
+async function getShiftTime(date, shift) {
+  try {
+    const attributes = []
+    if (shift === 1) {
+      attributes.push("startFirstShift", "endFirstShift")
+    } else {
+      attributes.push("startSecondShift", "endSecondShift")
+    }
+    const findDailyConfig = await DailyConfig.findOne({
+      where: {
+        date: new Date(date).toLocaleDateString('en-CA'),
+      },
+      attributes
+    });
+    if (!findDailyConfig) {
+      throw new Error("Daily config not found");
+    }
+    if (shift === 1) {
+      const { startFirstShift, endFirstShift } = findDailyConfig
+      return [startFirstShift, endFirstShift, false]
+    }
+    // shift 2
+    const { startSecondShift, endSecondShift } = findDailyConfig
+    return [startSecondShift, endSecondShift, true]
+  } catch (error) {
+    serverError(error, "from getTimeStartAndEnd")
   }
 }

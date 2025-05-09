@@ -9,7 +9,7 @@ const { serverError } = require("../utils/serverError");
 const { PassThrough } = require("stream"); // ✅ Tambahkan ini
 const fs = require("fs");
 const path = require("path");
-const { Client } = require("basic-ftp");
+const { Client, FTPError } = require("basic-ftp");
 const { encryptToNumber } = require("../helpers/crypto");
 const { encryptionCache } = require("../cache");
 const { dateQuery } = require("../utils/dateQuery");
@@ -267,6 +267,26 @@ class FTPController {
         message: `File ${fileName} removed from ${name}`,
       });
     } catch (error) {
+      //   * {
+      //   error: FTPError: 550 STOR requested action not taken: File exists.
+      //       at FTPContext._onControlSocketData (D:\dashboard-machine\server\node_modules\basic-ftp\dist\FtpContext.js:283:39)
+      //       at Socket.<anonymous> (D:\dashboard-machine\server\node_modules\basic-ftp\dist\FtpContext.js:127:44)
+      //       at Socket.emit (node:events:518:28)
+      //       at addChunk (node:internal/streams/readable:561:12)
+      //       at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+      //       at Readable.push (node:internal/streams/readable:392:5)
+      //       at TCP.onStreamRead (node:internal/stream_base_commons:191:23) {
+      //     code: 550
+      //   },
+      //   message: '550 STOR requested action not taken: File exists.'
+      // }
+      // handle file exist
+      if (error instanceof FTPError && error.message.includes("File exists")) {
+        return res.status(500).json({
+          status: 500,
+          message: "File already exist",
+        });
+      }
       serverError(error, res, "Failed to remove file from machine");
     } finally {
       client.close();
@@ -424,3 +444,37 @@ module.exports = FTPController;
 //   description: 'Failed to remove file from machine',
 //   message: '550 RETR requested action not taken: Permission denied.'
 // }
+
+
+/**
+ * {
+  error: FTPError: 550 STOR requested action not taken: File exists.
+      at FTPContext._onControlSocketData (D:\dashboard-machine\server\node_modules\basic-ftp\dist\FtpContext.js:283:39)
+      at Socket.<anonymous> (D:\dashboard-machine\server\node_modules\basic-ftp\dist\FtpContext.js:127:44)
+      at Socket.emit (node:events:518:28)
+      at addChunk (node:internal/streams/readable:561:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+      at Readable.push (node:internal/streams/readable:392:5)
+      at TCP.onStreamRead (node:internal/stream_base_commons:191:23) {
+    code: 550
+  },
+  message: '550 STOR requested action not taken: File exists.'
+}
+Executing (default): SELECT "id", "name", "password", "role_id", "NIK", "machine_id", "profile_image", "createdAt", "updatedAt" FROM "Users" AS "User" WHERE "User"."id" = 8;
+Executing (default): SELECT "id", "name" FROM "Machines" AS "Machine";
+Executing (default): SELECT "id", "name", "password", "role_id", "NIK", "machine_id", "profile_image", "createdAt", "updatedAt" FROM "Users" AS "User" WHERE "User"."id" = 8;
+Executing (default): SELECT "User"."id", "User"."name", "User"."NIK", "User"."machine_id", "User"."profile_image", "User"."createdAt", "User"."updatedAt", "Role"."name" AS "Role.name", "Machines"."name" AS "Machines.name" FROM "Users" AS "User" LEFT OUTER JOIN "Roles" AS "Role" ON "User"."role_id" = "Role"."id" LEFT OUTER JOIN "Machines" AS "Machines" ON "User"."id" = "Machines"."user_id" WHERE "User"."role_id" = 2;
+Executing (default): SELECT "id", "name", "password", "role_id", "NIK", "machine_id", "profile_image", "createdAt", "updatedAt" FROM "Users" AS "User" WHERE "User"."id" = 8;
+Executing (default): SELECT "ip_address" FROM "Machines" AS "Machine" WHERE "Machine"."id" = '68';
+{
+  error: Error: Timeout (control socket)
+      at Socket.<anonymous> (D:\dashboard-machine\server\node_modules\basic-ftp\dist\FtpContext.js:319:33)
+      at Object.onceWrapper (node:events:632:28)
+      at Socket.emit (node:events:518:28)
+      at Socket._onTimeout (node:net:595:8)
+      at listOnTimeout (node:internal/timers:581:17)
+      at process.processTimers (node:internal/timers:519:7),
+  message: 'Timeout (control socket)'
+}
+
+ */
