@@ -31,6 +31,32 @@ class SettingsController {
         }
     }
 
+    static async deleteDailyConfig(req, res) {
+        try {
+            const { id } = req.params;
+
+            if (!id) return res.status(400).json({
+                status: 400,
+                message: "Bad Request: ID is required"
+            });
+
+            const deleteCount = await DailyConfig.destroy({
+                where: {
+                    id
+                }
+            });
+
+            if (!deleteCount) return res.status(404).json({
+                status: 404,
+                message: "Daily Config not found"
+            });
+
+            res.status(204).send()
+        } catch (error) {
+            serverError(error, res, "Failed to delete daily config");
+        }
+    }
+
     static async getListDailyConfig(req, res) {
         try {
             const { period } = req.query

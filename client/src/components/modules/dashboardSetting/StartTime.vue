@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import useToast from '@/composables/useToast'
-import { Column, DataTable, InputText, type DataTableCellEditCompleteEvent } from 'primevue'
+import {
+  Button,
+  Column,
+  DataTable,
+  InputText,
+  useConfirm,
+  type DataTableCellEditCompleteEvent
+} from 'primevue'
 import { inject, ref, shallowRef, watchEffect } from 'vue'
 import SettingServices from '@/services/setting.service'
 import type { DailyConfig } from '@/types/dailyConfig.type'
@@ -14,6 +21,9 @@ type TableCollumn = {
   sortable?: boolean
 }
 
+const toast = useToast()
+const confirm = useConfirm()
+
 const columns: TableCollumn[] = [
   { field: 'date', header: 'Date', sortable: true },
   { field: 'startFirstShift', header: 'Start 1' },
@@ -22,7 +32,6 @@ const columns: TableCollumn[] = [
   { field: 'endSecondShift', header: 'End 2' }
 ]
 
-const toast = useToast()
 const configs = ref<DailyConfig[]>([])
 const activeTab = inject('activeTab', shallowRef(0))
 const selectedMonth = shallowRef<Date>(new Date())
@@ -66,6 +75,38 @@ const handleEditTable = async (event: DataTableCellEditCompleteEvent) => {
   }
 }
 
+const openDeleteConfirmation = (config: DailyConfig) => {
+  confirm.require({
+    header: `Delete ${config.date} ?`,
+    message: 'Are you sure ?',
+    icon: 'pi pi-exclamation-triangle',
+    accept: async () => {
+      try {
+        loading.value = true // Pindahkan ke sini
+        await SettingServices.deleteDailyConfig(config.id)
+        toast.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Configuration deleted successfully'
+        })
+        await fetchDailyConfig(selectedMonth.value)
+      } catch (error) {
+        handleErrorAPI(error, toast)
+      } finally {
+        loading.value = false
+      }
+    },
+    acceptProps: {
+      label: 'Yes',
+      severity: 'danger'
+    },
+    rejectProps: {
+      label: 'No',
+      severity: 'secondary',
+      outlined: true
+    }
+  })
+}
 watchEffect(() => {
   if (activeTab.value === 0) {
     return fetchDailyConfig(selectedMonth.value)
@@ -89,9 +130,22 @@ watchEffect(() => {
       :loading="loading"
       @cell-edit-complete="handleEditTable"
     >
+      <template #empty> No configurations found </template>
       <Column v-for="col in columns" v-bind="col" :key="col.field">
         <template v-if="col.field !== 'date'" #editor="{ data, field }">
           <InputText v-model="data[field]" />
+        </template>
+      </Column>
+      <Column header="Actions" :exportable="false" style="min-width: 8rem">
+        <template #body="{ data }">
+          <Button
+            v-tooltip="`Delete ${data.date}`"
+            icon="pi pi-trash"
+            severity="danger"
+            rounded
+            aria-label="Delete"
+            @click="openDeleteConfirmation(data)"
+          />
         </template>
       </Column>
     </DataTable>

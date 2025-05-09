@@ -15,6 +15,10 @@ const SettingServices = {
     return API({ params }).get('/settings/daily-config')
   },
 
+  deleteDailyConfig: (id: number): Promise<AxiosResponse> => {
+    return API().delete(`/settings/daily-config/${id}`)
+  },
+
   getListCuttingTime: (): Promise<
     AxiosResponse<ApiResponse<{ id: number; target: number; period: string }[]>>
   > => {
