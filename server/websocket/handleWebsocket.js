@@ -67,11 +67,11 @@ const handleWebsocket = (wss) => {
           /**
            * Retrieves machine percentages.
            */
-          // await MachineWebsocket.percentages(ws, clientPreferences.get(ws));
-          await MachineWebsocket.refactorPercentages2(
-            ws,
-            data
-          );
+          await MachineWebsocket.percentages(ws, clientPreferences.get(ws));
+          // await MachineWebsocket.refactorPercentages2(
+          //   ws,
+          //   data
+          // );
           break;
         case "remaining":
           await RemainingController.getRemaining(ws);

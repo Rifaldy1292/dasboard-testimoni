@@ -228,13 +228,14 @@ module.exports = class MachineWebsocket {
           dateTo.setHours(hour2, minute2, second2)
           break
         }
-        case 2:
+        case 2: {
           const [hour, minute, second] = startSecondShift.split(':').map(Number)
           const [hour2, minute2, second2] = endSecondShift.split(':').map(Number)
           dateFrom.setHours(hour, minute, second)
           dateTo.setHours(hour2, minute2, second2)
           dateTo.setDate(dateFrom.getDate() + 1)
           break
+        }
       }
 
       const machinesWithLogs = await Machine.findAll({
@@ -260,11 +261,14 @@ module.exports = class MachineWebsocket {
         order: [[{ model: MachineLog }, "createdAt", "ASC"]],
       });
 
+      if (!machinesWithLogs.length) {
+        return client.send(JSON.stringify({ type: 'percentage', data: { dateFrom, dateTo, data: [] } }))
+      }
+
       const IS_NOW_DATE =
         nowDate.toLocaleDateString("en-CA") ===
         new Date().toLocaleDateString("en-CA");
 
-      // const perfectTime = await getCalculatePerfectTimeMs(data, IS_NOW_DATE)
       const perfectTime = dateTo.getTime() - dateFrom.getTime()
 
 

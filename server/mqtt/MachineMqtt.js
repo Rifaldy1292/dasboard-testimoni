@@ -118,28 +118,34 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
         ?.has("percentage");
       const remainingMessage = messageTypeWebsocketClient.get(client)?.has("remaining");
 
-      // Check if the client has a custom date
+      // Check if the client has a custom date && custom date is now date
       const lastRequestedDate = clientPreferences.get(client);
       if (lastRequestedDate) {
         // If the client has a custom date, skip the update
-        console.log(
-          `Skipping update for client with custom date: ${lastRequestedDate}`
-        );
-        return;
-      }
+        if (new Date(lastRequestedDate).toLocaleDateString('en-CA') !== new Date().toLocaleDateString("en-CA")) {
 
-      // Send the update to the client
-      switch (true) {
-        case timelineMessage:
-          console.log("Sending live timeline update from MQTT");
-          await MachineWebsocket.timelines(client);
-          break;
-        case percentageMessage:
-          await MachineWebsocket.refactorPercentages(client);
-          break;
-        case remainingMessage:
-          await RemainingController.getRemaining(client);
-          break;
+          switch (true) {
+            case percentageMessage:
+              await MachineWebsocket.percentages(client, lastRequestedDate);
+              break
+          }
+        }
+
+
+        // Send the update to the client
+        switch (true) {
+          case timelineMessage:
+            console.log("Sending live timeline update from MQTT");
+            await MachineWebsocket.timelines(client);
+            break;
+          case percentageMessage:
+            await MachineWebsocket.percentages(client);
+            // await MachineWebsocket.refactorPercentages2(client, new Date().toISOString());
+            break;
+          case remainingMessage:
+            await RemainingController.getRemaining(client);
+            break;
+        }
       }
     });
   } catch (error) {
