@@ -30,9 +30,9 @@ interface Columns {
 
 const toast = useToast()
 const columns: Columns[] = [
-  { field: 'name', header: 'Name' },
-  { field: 'NIK', header: 'NIK' },
-  { field: 'roleName', header: 'Role' }
+  { field: 'name', header: 'Name', sortable: true },
+  { field: 'NIK', header: 'NIK', sortable: true },
+  { field: 'roleName', header: 'Role', sortable: true }
 ]
 
 const visibleDialogForm = shallowRef(false)
@@ -73,19 +73,12 @@ const handleClickIcon = async (
     :value="users"
     :loading="loadingFetch"
     size="large"
-    lazy
     showGridlines
     tableStyle="min-width: 50rem "
     selection-mode="single"
     :row-style="(data: User) => ({ background: !data.allowDelete && 'gray' })"
   >
-    <Column
-      v-for="col of columns"
-      :key="col.field"
-      :field="col.field"
-      :header="col.header"
-      :sortable="col.sortable"
-    >
+    <Column v-for="col of columns" v-bind="col" :key="col.field">
       <template #body="{ data }">
         <!-- <h1>{{ JSON.stringify(data) }}</h1> -->
         <template v-if="col.field === 'roleName'">

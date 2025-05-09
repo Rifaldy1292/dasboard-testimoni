@@ -27,7 +27,7 @@ class UserController {
           "name",
           "NIK",
         ],
-        order: [["NIK", "ASC"], ['role_id', 'ASC']],
+        order: [["name", "ASC"]],
         raw: true,
       });
       // allowDelete = cannot delete yourself

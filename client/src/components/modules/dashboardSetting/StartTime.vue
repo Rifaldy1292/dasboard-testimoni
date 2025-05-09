@@ -15,7 +15,7 @@ type TableCollumn = {
 }
 
 const columns: TableCollumn[] = [
-  { field: 'date', header: 'Date' },
+  { field: 'date', header: 'Date', sortable: true },
   { field: 'startFirstShift', header: 'Start 1' },
   { field: 'endFirstShift', header: 'End 1' },
   { field: 'startSecondShift', header: 'Start 2' },
@@ -87,10 +87,9 @@ watchEffect(() => {
       editable
       editMode="cell"
       :loading="loading"
-      lazy
       @cell-edit-complete="handleEditTable"
     >
-      <Column v-for="col in columns" :field="col.field" :header="col.header" :key="col.field">
+      <Column v-for="col in columns" v-bind="col" :key="col.field">
         <template v-if="col.field !== 'date'" #editor="{ data, field }">
           <InputText v-model="data[field]" />
         </template>

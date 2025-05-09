@@ -1,9 +1,7 @@
 const { Machine, CuttingTime, DailyConfig } = require("../models");
 const cron = require("node-cron");
-const { config } = require("../utils/dateQuery");
 const { serverError } = require("../utils/serverError");
 const dateCuttingTime = require("../utils/dateCuttingTime");
-const { existMachinesCache } = require("../cache");
 const { getAllMachine } = require("../utils/machineUtils");
 
 /**
@@ -48,13 +46,17 @@ const createDailyConfig = async () => {
      * @type {string | null} startSecondShift
      */
 
+    const existDailyConfig = await DailyConfig.findOne({
+      where: { date },
+      attributes: ['id']
+    });
+    if (existDailyConfig) return;
     const findLastDailyConfig = await DailyConfig.findOne({
       attributes: ["date", "startFirstShift", "startSecondShift", "endFirstShift", "endSecondShift"],
-      order: [['createdAt', "DESC"]]
+      order: [['createdAt', "DESC"]],
+      raw: true,
     });
-    if (findLastDailyConfig.date === date) return;
-    const defaultDailyConfig = { ...findLastDailyConfig.get({ plain: true }), date };
-    await DailyConfig.create(defaultDailyConfig);
+    await DailyConfig.create({ ...findLastDailyConfig, date });
   } catch (error) {
     serverError(error);
   }
@@ -115,12 +117,17 @@ const handleCronJob = async () => {
   createCuttingTime();
   // handleResetMachineStatus();
 
-  const { startHour, startMinute } = config;
+  // find last daily config
+  const { startFirstShift } = await DailyConfig.findOne({
+    attributes: ["startFirstShift"],
+    order: [['createdAt', "DESC"]]
+  });
+  const [startHour, startMinute] = startFirstShift.split(":").map(Number);
   cron.schedule(`${startMinute} ${startHour} * * *`, async () => {
-    await createCuttingTime();
     await createDailyConfig();
     await handleResetMachineStatus();
-    await deleteCncFiles();
+    createCuttingTime();
+    deleteCncFiles();
   });
 
   console.log("cronjob finished");

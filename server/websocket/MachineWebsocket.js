@@ -188,106 +188,6 @@ module.exports = class MachineWebsocket {
     console.timeEnd("before");
   }
 
-  /**
-   * Optimized version of percentages method that fixes N+1 query issue.
-   * Retrieves machine percentages with improved database querying and sends them to the client.
-   *
-   * @param {WebSocket} client - The WebSocket client instance.
-   * @param {{ date: string; shift: 0|1|2}} data}
-   */
-  static async refactorPercentages(client, data) {
-    console.time("after");
-    try {
-      const { date, shift } = data;
-      if (!date) return client.send(JSON.stringify({ type: "error", message: "No date provided" }));
-
-      const nowDate = new Date(data.date)
-      if (nowDate.getTime() > new Date().getTime()) {
-        return client.send(JSON.stringify({ type: "percentage", data: [] }));
-      }
-      const range = await dateQuery(nowDate);
-
-      const machinesWithLogs = await Machine.findAll({
-        attributes: [
-          [
-            literal(
-              `CASE WHEN "type" IS NOT NULL THEN "name" || ' (' || "type" || ')' ELSE "name" END`
-            ),
-            "name",
-          ],
-        ],
-        include: [
-          {
-            model: MachineLog,
-            attributes: ["current_status", "createdAt"],
-            where: { createdAt: range },
-          },
-        ],
-        order: [[{ model: MachineLog }, "createdAt", "ASC"]],
-      });
-
-      const formattedReqDate = new Date(date).toLocaleDateString("en-CA");
-      const formattedDate = new Date().toLocaleDateString("en-CA");
-
-      const IS_NOW_DATE =
-        nowDate.toLocaleDateString("en-CA") ===
-        new Date().toLocaleDateString("en-CA");
-
-      const perfectTime = await getCalculatePerfectTimeMs(data, IS_NOW_DATE)
-
-
-      const runningTimeMachines = machinesWithLogs.map((machine) => {
-        const { name, MachineLogs } = machine.get({ plain: true });
-        const lastLog = MachineLogs[MachineLogs.length - 1];
-        let { totalRunningTime, lastRunningTimestamp } =
-          countRunningTime(MachineLogs);
-
-        // check if date is today
-        if (lastRunningTimestamp && IS_NOW_DATE) {
-          const now = new Date().getTime();
-          const diff = now - new Date(lastRunningTimestamp).getTime();
-          totalRunningTime += diff;
-        }
-
-
-
-        const runningTime = percentage(totalRunningTime ?? 0, perfectTime);
-
-        const description = countDescription(
-          totalRunningTime || 0,
-          perfectTime
-        );
-
-        delete machine.MachineLogs;
-        return {
-          name,
-          status: lastLog.current_status,
-          description,
-          percentage: [runningTime, 100 - runningTime],
-        };
-      });
-
-      const formattedResult = {
-        date: nowDate,
-        data: runningTimeMachines.sort((a, b) => {
-          const numberA = parseInt(a.name.slice(3));
-          const numberB = parseInt(b.name.slice(3));
-          return numberA - numberB;
-        }),
-      };
-
-      client.send(
-        JSON.stringify({ type: "percentage", data: formattedResult })
-      );
-    } catch (error) {
-      serverError(error, "from refactor percentages");
-      client.send(
-        JSON.stringify({ type: "error", message: "Failed to get percentage" })
-      );
-    }
-    console.timeEnd("after");
-  }
-
   static async refactorPercentages2(client, data) {
     console.time("after");
     try {
@@ -380,6 +280,11 @@ module.exports = class MachineWebsocket {
           const diff = now - new Date(lastRunningTimestamp).getTime();
           totalRunningTime += diff;
         }
+        // before today
+        if (lastRunningTimestamp && !IS_NOW_DATE) {
+          const diff = dateTo.getTime() - new Date(lastRunningTimestamp).getTime();
+          totalRunningTime += diff;
+        }
 
 
 
@@ -423,43 +328,43 @@ module.exports = class MachineWebsocket {
   }
 };
 
-/**
- * 
- * @param {{date: string; shift: 0|1|2}} data
- * @param {boolean} isNowDate
- * @returns {Promise<number>}
- */
-async function getCalculatePerfectTimeMs(data, isNowDate = false) {
-  try {
-    const { date, shift } = data
-    if (shift === undefined || shift > 2) throw new Error("Invalid shift")
-    if (shift === 0 && !isNowDate) return DEFAULT_PERFECT_TIME
+// /**
+//  * 
+//  * @param {{date: string; shift: 0|1|2}} data
+//  * @param {boolean} isNowDate
+//  * @returns {Promise<number>}
+//  */
+// async function getCalculatePerfectTimeMs(data, isNowDate = false) {
+//   try {
+//     const { date, shift } = data
+//     if (shift === undefined || shift > 2) throw new Error("Invalid shift")
+//     if (shift === 0 && !isNowDate) return DEFAULT_PERFECT_TIME
 
-    const [startShift, endShift, isSecondShift] = await getShiftTime(date, shift)
+//     const [startShift, endShift, isSecondShift] = await getShiftTime(date, shift)
 
-    const [firstHour, firstMinute, fisrtSecond] = startShift.split(":").map(Number);
-    const [lastHour, lastMinute, lastSecond] = endShift.split(":").map(Number);
+//     const [firstHour, firstMinute, fisrtSecond] = startShift.split(":").map(Number);
+//     const [lastHour, lastMinute, lastSecond] = endShift.split(":").map(Number);
 
-    if (shift === 0 && isNowDate) {
-      const nowTime = new Date();
-      const startTime = new Date();
-      startTime.setHours(firstHour, firstMinute, 0, 0);
-      const calculateMs = nowTime.getTime() - startTime.getTime();
-      return calculateMs
-    }
-    const start = new Date(date)
-    const end = new Date(date)
-    start.setHours(firstHour, firstMinute, fisrtSecond, 0)
-    isSecondShift && end.setDate(end.getDate() + 1)
-    end.setHours(lastHour, lastMinute, lastSecond, 0)
-    const diff = end.getTime() - start.getTime()
-    return diff
+//     if (shift === 0 && isNowDate) {
+//       const nowTime = new Date();
+//       const startTime = new Date();
+//       startTime.setHours(firstHour, firstMinute, 0, 0);
+//       const calculateMs = nowTime.getTime() - startTime.getTime();
+//       return calculateMs
+//     }
+//     const start = new Date(date)
+//     const end = new Date(date)
+//     start.setHours(firstHour, firstMinute, fisrtSecond, 0)
+//     isSecondShift && end.setDate(end.getDate() + 1)
+//     end.setHours(lastHour, lastMinute, lastSecond, 0)
+//     const diff = end.getTime() - start.getTime()
+//     return diff
 
 
-  } catch (error) {
-    serverError(error, "from getCalculatePerfectTime");
-  }
-}
+//   } catch (error) {
+//     serverError(error, "from getCalculatePerfectTime");
+//   }
+// }
 
 /**
  * 
