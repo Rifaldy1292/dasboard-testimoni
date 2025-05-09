@@ -114,5 +114,42 @@ class SettingsController {
         }
     }
 
+    static async createDailyConfig(req, res) {
+        try {
+            const { date, startFirstShift, endFirstShift, startSecondShift, endSecondShift } = req.body;
+
+            // Validasi input
+            if (!date || !startFirstShift || !endFirstShift || !startSecondShift || !endSecondShift) {
+                return res.status(400).json({
+                    status: 400,
+                    message: "All fields are required"
+                });
+            }
+
+            // Cek apakah konfigurasi untuk tanggal tersebut sudah ada
+            const existingConfig = await DailyConfig.findOne({
+                where: { date }
+            });
+
+            if (existingConfig) {
+                return res.status(400).json({
+                    status: 400,
+                    message: "Configuration for this date already exists"
+                });
+            }
+
+            await DailyConfig.create({
+                date,
+                startFirstShift,
+                endFirstShift,
+                startSecondShift,
+                endSecondShift
+            });
+
+            res.status(204).json()
+        } catch (error) {
+            serverError(error, res, "Failed to create daily config");
+        }
+    }
 }
 module.exports = SettingsController;

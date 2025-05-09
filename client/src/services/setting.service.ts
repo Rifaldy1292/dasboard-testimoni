@@ -28,6 +28,10 @@ const SettingServices = {
     AxiosResponse<ApiResponse<{ id: number; target: number; period: string }[]>>
   > => {
     return API().get('/settings/machines')
+  },
+
+  createDailyConfig: (data: Omit<DailyConfig, 'id'>): Promise<AxiosResponse> => {
+    return API().post('/settings/daily-config', data)
   }
 }
 

@@ -13,6 +13,7 @@ import { inject, ref, shallowRef, watchEffect } from 'vue'
 import SettingServices from '@/services/setting.service'
 import type { DailyConfig } from '@/types/dailyConfig.type'
 import DatePickerMonth from '@/components/common/DatePickerMonth.vue'
+import CreateDailyConfigModal from './CreateDailyConfigModal.vue'
 
 type TableField = keyof Omit<DailyConfig, 'id'>
 type TableCollumn = {
@@ -36,6 +37,7 @@ const configs = ref<DailyConfig[]>([])
 const activeTab = inject('activeTab', shallowRef(0))
 const selectedMonth = shallowRef<Date>(new Date())
 const loading = shallowRef<boolean>(false)
+const showCreateModal = ref<boolean>(false)
 
 const fetchDailyConfig = async (date: Date) => {
   try {
@@ -82,7 +84,7 @@ const openDeleteConfirmation = (config: DailyConfig) => {
     icon: 'pi pi-exclamation-triangle',
     accept: async () => {
       try {
-        loading.value = true // Pindahkan ke sini
+        loading.value = true
         await SettingServices.deleteDailyConfig(config.id)
         toast.add({
           severity: 'success',
@@ -107,6 +109,12 @@ const openDeleteConfirmation = (config: DailyConfig) => {
     }
   })
 }
+
+const handleCreateSuccess = () => {
+  fetchDailyConfig(selectedMonth.value)
+  showCreateModal.value = false
+}
+
 watchEffect(() => {
   if (activeTab.value === 0) {
     return fetchDailyConfig(selectedMonth.value)
@@ -116,8 +124,19 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div class="mb-0.5 p-5 flex justify-between">
+  <CreateDailyConfigModal
+    v-model:visible="showCreateModal"
+    :selected-month="selectedMonth"
+    @create-success="handleCreateSuccess"
+  />
+  <div class="mb-0.5 p-5 flex justify-between items-center">
     <DatePickerMonth v-model:month-value="selectedMonth" />
+    <Button
+      icon="pi pi-plus"
+      label="Add Config"
+      severity="success"
+      @click="showCreateModal = true"
+    />
   </div>
 
   <!-- DataTable untuk menampilkan konfigurasi -->
