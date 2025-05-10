@@ -50,6 +50,12 @@ const menuGroups = computed<MenuGroup[]>(() => {
               icon: `<i class="fa-solid fa-timeline fa-bounce"></i>`
             },
             {
+              label: 'Timeline2',
+              route: '/schedule',
+              visible: true,
+              icon: `<i class="fa-solid fa-timeline fa-bounce"></i>`
+            },
+            {
               label: 'Transfer File',
               route: '/transfer-file',
               visible: true,

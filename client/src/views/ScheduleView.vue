@@ -1,107 +1,318 @@
 <script setup lang="ts">
-import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
+import { computed, ref, watch } from 'vue'
+import FullCalendar from '@fullcalendar/vue3'
+import resourceTimelinePlugin from '@fullcalendar/resource-timeline'
+import interactionPlugin from '@fullcalendar/interaction'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import { type CalendarOptions } from '@fullcalendar/core'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import { VueCal } from 'vue-cal'
-import 'vue-cal/style'
-import { ref, watchEffect } from 'vue'
+import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
+import useWebsocket from '@/composables/useWebsocket'
+import type { PayloadWebsocket } from '@/types/websocket.type'
+import type { MachineTimeline, ObjMachineTimeline } from '@/types/machine.type'
+import DatePickerDay from '@/components/common/DatePickerDay.vue'
+import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 
-// Definisikan tipe event
-interface CalendarEvent {
-  id: number
+// Definisi type untuk resource
+interface Resource {
+  id: string
   title: string
-  start: string // Format: 'YYYY-MM-DD HH:mm'
-  end: string // Format: 'YYYY-MM-DD HH:mm'
-  class?: string // Warna custom (opsional)
-  schedule?: number // ID schedule (opsional)
 }
 
-const date = new Date()
-const formatter = new Intl.DateTimeFormat('en-CA', {
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-  hour12: false
-})
-const formattedDate = formatter.format(date).replace(',', '')
-
-const events = ref<CalendarEvent[]>([
-  {
-    id: 1,
-    title: 'Contoh KNUM',
-    start: '2025-04-28 12:00',
-    end: '2025-04-28 17:00',
-    class: 'leisure',
-    schedule: 1
+// Definisi type untuk event
+interface CalendarEvent {
+  id: string
+  resourceId: string
+  title: string
+  start: string
+  end: string
+  color: string
+  extendedProps?: {
+    description: string | null
+    status: 'Running' | 'Stopped'
+    operator: string | null
+    output_wp: string | null
+    g_code_name: string | null
+    k_num: string | null
   }
-])
+}
 
-watchEffect(() => console.log(events.value, 'events'))
+const dateOption = ref<Date>(new Date())
 
-const schedules = [
-  { id: 1, class: 'MC-1', label: 'MC-1' },
-  { id: 2, class: 'MC-2', label: 'MC-2' },
-  { id: 3, class: 'MC-3', label: 'MC-3' },
-  { id: 4, class: 'MC-4', label: 'MC-4' },
-  { id: 5, class: 'MC-5', label: 'MC-5' }
-]
+// Payload untuk websocket
+const payloadWs = computed<PayloadWebsocket>(() => {
+  return {
+    type: 'timeline',
+    data: {
+      date: dateOption.value.toISOString()
+    }
+  }
+})
+
+// Menggunakan composable useWebsocket untuk mendapatkan data
+const { loadingWebsocket, timelineMachines, sendMessage } = useWebsocket(payloadWs.value)
+
+// Konversi data mesin menjadi resources untuk FullCalendar
+const resources = computed<Resource[]>(() => {
+  if (!timelineMachines.value?.data) return []
+
+  return timelineMachines.value.data.map((machine: MachineTimeline) => ({
+    id: machine.name.toLowerCase().replace('-', ''),
+    title: machine.name
+  }))
+})
+
+// Fungsi untuk menentukan warna berdasarkan status
+const getColorByStatus = (status: string): string => {
+  if (status === 'Running') return '#25c205'
+  if (status === 'Stopped') return '#de2902'
+  return '#adaaa0' // default untuk status lainnya
+}
+
+// Fungsi untuk memvalidasi tanggal
+const isValidDate = (date: Date): boolean => {
+  return !isNaN(date.getTime())
+}
+
+// Fungsi untuk parsing timeDifference dengan penanganan error
+const parseTimeDifference = (timeDiff: string, startDate: Date): Date => {
+  try {
+    const endDate = new Date(startDate.getTime())
+
+    // Jika format timeDifference tidak valid, kembalikan tanggal 1 jam setelah startDate
+    if (!timeDiff || typeof timeDiff !== 'string') {
+      endDate.setHours(endDate.getHours() + 1)
+      return endDate
+    }
+
+    const timeParts = timeDiff.split(' ')
+    for (const part of timeParts) {
+      if (part.includes('h')) {
+        const hours = parseInt(part.replace('h', ''))
+        if (!isNaN(hours)) endDate.setHours(endDate.getHours() + hours)
+      } else if (part.includes('m')) {
+        const minutes = parseInt(part.replace('m', ''))
+        if (!isNaN(minutes)) endDate.setMinutes(endDate.getMinutes() + minutes)
+      } else if (part.includes('s')) {
+        const seconds = parseInt(part.replace('s', ''))
+        if (!isNaN(seconds)) endDate.setSeconds(endDate.getSeconds() + seconds)
+      }
+    }
+
+    // Jika tidak ada perubahan waktu, tambahkan 1 jam sebagai default
+    if (endDate.getTime() === startDate.getTime()) {
+      endDate.setHours(endDate.getHours() + 1)
+    }
+
+    return endDate
+  } catch (error) {
+    console.error('Error parsing timeDifference:', error)
+    // Fallback: kembalikan tanggal 1 jam setelah startDate
+    const fallbackDate = new Date(startDate.getTime())
+    fallbackDate.setHours(fallbackDate.getHours() + 1)
+    return fallbackDate
+  }
+}
+
+// Konversi data log mesin menjadi events untuk FullCalendar
+const events = computed<CalendarEvent[]>(() => {
+  if (!timelineMachines.value?.data) {
+    console.log('No timeline data available')
+    return []
+  }
+
+  console.log('Timeline data:', timelineMachines.value.data)
+
+  const allEvents: CalendarEvent[] = []
+
+  timelineMachines.value.data.forEach((machine: MachineTimeline) => {
+    const resourceId = machine.name.toLowerCase().replace('-', '')
+
+    console.log(`Processing machine ${machine.name} with ${machine.MachineLogs.length} logs`)
+
+    machine.MachineLogs.forEach((log: ObjMachineTimeline) => {
+      // Periksa apakah log valid dan memiliki properti yang diperlukan
+      if (!log || typeof log !== 'object') {
+        console.warn(`Invalid log object in machine ${machine.name}:`, log)
+        return
+      }
+
+      // Periksa properti isNext dengan lebih hati-hati
+      if (log.isNext === true) {
+        console.log(`Skipping log ${log.id || 'unknown'} because it's a future log`)
+        return
+      }
+
+      try {
+        // Periksa apakah createdAt ada dan valid
+        if (!log.createdAt) {
+          console.warn(`Log ${log.id || 'unknown'} has no createdAt property`)
+          return
+        }
+
+        // Mendapatkan tanggal dari createdAt dengan validasi
+        const startDate = new Date(log.createdAt)
+        if (!isValidDate(startDate)) {
+          console.warn(`Invalid start date for log ${log.id || 'unknown'}:`, log.createdAt)
+          return // Skip this log
+        }
+
+        // Periksa apakah timeDifference ada
+        if (!log.timeDifference) {
+          console.warn(`Log ${log.id || 'unknown'} has no timeDifference property`)
+          // Gunakan waktu default (1 jam)
+          const endDate = new Date(startDate.getTime())
+          endDate.setHours(endDate.getHours() + 1)
+
+          const event = {
+            id: `${machine.name}-${log.id || Math.random().toString(36).substring(2, 9)}`,
+            resourceId,
+            title: log.description || (log.current_status === 'Running' ? 'Running' : 'Stopped'),
+            start: startDate.toISOString(),
+            end: endDate.toISOString(),
+            color: getColorByStatus(log.current_status),
+            extendedProps: {
+              description: log.description,
+              operator: log.operator,
+              output_wp: log.output_wp,
+              g_code_name: log.g_code_name,
+              k_num: log.k_num,
+              status: log.current_status
+            }
+          }
+
+          console.log(`Created event with default duration for log ${log.id || 'unknown'}:`, event)
+          allEvents.push(event)
+          return
+        }
+
+        // Menghitung tanggal akhir dengan penanganan error
+        const endDate = parseTimeDifference(log.timeDifference, startDate)
+
+        // Validasi tanggal akhir
+        if (!isValidDate(endDate)) {
+          console.warn(`Invalid end date calculated for log ${log.id || 'unknown'}`)
+          return // Skip this log
+        }
+
+        // Pastikan tanggal akhir lebih besar dari tanggal mulai
+        if (endDate <= startDate) {
+          console.warn(
+            `End date is not after start date for log ${log.id || 'unknown'}, adjusting...`
+          )
+          endDate.setHours(startDate.getHours() + 1) // Tambahkan 1 jam sebagai default
+        }
+
+        const event = {
+          id: `${machine.name}-${log.id || Math.random().toString(36).substring(2, 9)}`,
+          resourceId,
+          title: log.description || (log.current_status === 'Running' ? 'Running' : 'Stopped'),
+          start: startDate.toISOString(),
+          end: endDate.toISOString(),
+          color: getColorByStatus(log.current_status),
+          extendedProps: {
+            description: log.description,
+            operator: log.operator,
+            output_wp: log.output_wp,
+            g_code_name: log.g_code_name,
+            k_num: log.k_num,
+            status: log.current_status
+          }
+        }
+
+        console.log(`Created event for log ${log.id || 'unknown'}:`, event)
+        allEvents.push(event)
+      } catch (error) {
+        console.error(`Error processing log ${log.id || 'unknown'}:`, error)
+        // Skip this log on error
+      }
+    })
+  })
+
+  console.log(`Total events created: ${allEvents.length}`)
+  return allEvents
+})
+
+// Opsi untuk FullCalendar
+const calendarOptions = computed<CalendarOptions>(() => {
+  const today = new Date(dateOption.value)
+  today.setHours(0, 0, 0, 0)
+
+  return {
+    schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
+    plugins: [resourceTimelinePlugin, interactionPlugin, timeGridPlugin, dayGridPlugin],
+    initialView: 'resourceTimelineDay',
+    resources: resources.value,
+    events: events.value,
+    slotMinTime: '00:00:00',
+    slotMaxTime: '24:00:00',
+    height: 'auto',
+    initialDate: today,
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'resourceTimelineDay,resourceTimelineWeek,resourceTimelineMonth'
+    },
+    eventDidMount: (info) => {
+      // Menambahkan tooltip untuk event
+      if (info.event.extendedProps) {
+        const tooltip = document.createElement('div')
+        tooltip.className = 'event-tooltip'
+        tooltip.innerHTML = `
+          <strong>Status:</strong> ${info.event.extendedProps.status || '-'}<br>
+          <strong>Description:</strong> ${info.event.extendedProps.description || '-'}<br>
+          <strong>K-Number:</strong> ${info.event.extendedProps.k_num || '-'}<br>
+          <strong>G-Code:</strong> ${info.event.extendedProps.g_code_name || '-'}<br>
+          <strong>Output:</strong> ${info.event.extendedProps.output_wp || '-'}<br>
+          <strong>Operator:</strong> ${info.event.extendedProps.operator || '-'}<br>
+        `
+
+        // Menggunakan PrimeVue Tooltip atau tooltip sederhana
+        info.el.title = tooltip.textContent || ''
+      }
+    }
+  }
+})
+
+// Watch perubahan pada payload untuk mengirim ulang request
+watch(
+  () => payloadWs.value,
+  (newPayload) => {
+    sendMessage(newPayload)
+  }
+)
+
+// Debug: log data saat berubah
+watch(
+  () => timelineMachines.value,
+  (newData) => {
+    console.log('Timeline data updated:', newData)
+  }
+)
 </script>
 
 <template>
   <DefaultLayout>
-    <BreadcrumbDefault pageTitle="Schedule" />
-    <vue-cal
-      :views="['day', 'week']"
-      view="day"
-      @event-created="console.log(events.length)"
-      :time-from="8 * 60"
-      :time-to="24 * 60"
-      v-model:events="events"
-      editable-events
-      :schedules
-    />
-    <!-- <LoadingAnimation :state="loadingFetch" />
-    <DataNotFound :condition="!operatorMachines.length" /> -->
+    <BreadcrumbDefault pageTitle="Timeline2" />
+    <LoadingAnimation :state="loadingWebsocket" />
+    <template v-if="!loadingWebsocket">
+      <div class="p-4">
+        <div class="flex justify-between mb-4">
+          <DatePickerDay v-model:date-option="dateOption" />
+        </div>
+        <FullCalendar :options="calendarOptions" />
+      </div>
+    </template>
   </DefaultLayout>
 </template>
 
 <style>
-/* You can easily set a different style for each schedule of your days. */
-.vuecal__schedule.MC-1 {
-  background-color: rgba(221, 238, 255, 0.5);
-}
-.vuecal__schedule.MC-2 {
-  background-color: rgba(255, 232, 251, 0.5);
-}
-.vuecal__schedule.MC-3 {
-  background-color: rgba(221, 255, 239, 0.5);
-}
-.vuecal__schedule.MC-4 {
-  background-color: rgba(255, 250, 196, 0.5);
-}
-.vuecal__schedule.MC-5 {
-  background-color: rgba(255, 206, 178, 0.5);
-}
-.vuecal__schedule--heading {
-  color: rgba(0, 0, 0, 0.5);
-  font-size: 26px;
-}
-
-.vuecal__event {
-  color: #fff;
-  border: 1px solid;
-}
-.vuecal__event.leisure {
-  background-color: #fd9c42d9;
-  border-color: #e9882e;
-}
-.vuecal__event.health {
-  background-color: #57cea9cc;
-  border-color: #90d2be;
-}
-.vuecal__event.sport {
-  background-color: #ff6666d9;
-  border-color: #eb5252;
+.event-tooltip {
+  background-color: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 8px;
+  border-radius: 4px;
+  z-index: 10000;
 }
 </style>

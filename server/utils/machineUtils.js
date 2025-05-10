@@ -249,10 +249,6 @@ const getMachineTimeline = async ({ date, reqId }) => {
           new Date(nextLog?.createdAt || 0) - new Date(currentTime);
         return {
           ...log.dataValues,
-          createdAt: new Date(currentTime).toLocaleTimeString("id-ID", {
-            hour: "numeric",
-            minute: "2-digit",
-          }),
           timeDifference: formatTimeDifference(timeDifference),
           k_num: current_status === "Running" ? log.k_num : null,
           isLastLog,
