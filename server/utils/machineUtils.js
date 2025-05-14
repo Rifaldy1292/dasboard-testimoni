@@ -250,6 +250,7 @@ const getMachineTimeline = async ({ date, reqId }) => {
         return {
           ...log.dataValues,
           timeDifference: formatTimeDifference(timeDifference),
+          timeDifferenceMs: timeDifference,
           k_num: current_status === "Running" ? log.k_num : null,
           isLastLog,
           output_wp: current_status === "Running" ? log.output_wp : null,
@@ -273,12 +274,8 @@ const getMachineTimeline = async ({ date, reqId }) => {
 
           {
             isNext: true,
+            createdAt: nextLog.createdAt,
             timeDifference: nextTimeDifference,
-            createdAt: dateOption.toLocaleTimeString("en-CA", {
-              hour: "numeric",
-              minute: "numeric",
-              hour12: false,
-            }),
             operator: nextLog.User?.name || null,
             description: "Remaining",
           },

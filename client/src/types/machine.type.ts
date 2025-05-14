@@ -6,7 +6,7 @@ export type Machine = {
   percentage: [RunningCount, StoppedCount]
   description: string
   runningTime: string
-  status: 'Running' | 'Stopped'
+  status: 'Running' | 'Stopped' | 'DISCONNECT'
   quantity: number
 }
 
@@ -22,6 +22,7 @@ export type ObjMachineTimeline = {
   current_status: Machine['status']
   createdAt: string
   timeDifference: string
+  timeDifferenceMs: number
   description: string | null
   operator: string | null
   output_wp: string

@@ -10,9 +10,10 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import useWebsocket from '@/composables/useWebsocket'
 import type { PayloadWebsocket } from '@/types/websocket.type'
-import type { MachineTimeline, ObjMachineTimeline } from '@/types/machine.type'
+import type { Machine, MachineTimeline, ObjMachineTimeline } from '@/types/machine.type'
 import DatePickerDay from '@/components/common/DatePickerDay.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
+import InputSwitch from 'primevue/inputswitch'
 
 // Definisi type untuk resource
 interface Resource {
@@ -30,7 +31,7 @@ interface CalendarEvent {
   color: string
   extendedProps?: {
     description: string | null
-    status: 'Running' | 'Stopped'
+    status: Machine['status']
     operator: string | null
     output_wp: string | null
     g_code_name: string | null
@@ -39,6 +40,8 @@ interface CalendarEvent {
 }
 
 const dateOption = ref<Date>(new Date())
+// Toggle untuk menampilkan extendedProps dalam title
+const showDetailsInTitle = ref<boolean>(false)
 
 // Payload untuk websocket
 const payloadWs = computed<PayloadWebsocket>(() => {
@@ -64,9 +67,10 @@ const resources = computed<Resource[]>(() => {
 })
 
 // Fungsi untuk menentukan warna berdasarkan status
-const getColorByStatus = (status: string): string => {
+const getColorByStatus = (status: Machine['status']): string => {
   if (status === 'Running') return '#25c205'
   if (status === 'Stopped') return '#de2902'
+  if (status === 'DISCONNECT') return '#ffffff' // Ubah menjadi putih
   return '#adaaa0' // default untuk status lainnya
 }
 
@@ -75,30 +79,20 @@ const isValidDate = (date: Date): boolean => {
   return !isNaN(date.getTime())
 }
 
+// 21212
 // Fungsi untuk parsing timeDifference dengan penanganan error
-const parseTimeDifference = (timeDiff: string, startDate: Date): Date => {
+const parseTimeDifference = (timeDiffMS: number, startDate: Date): Date => {
   try {
     const endDate = new Date(startDate.getTime())
 
     // Jika format timeDifference tidak valid, kembalikan tanggal 1 jam setelah startDate
-    if (!timeDiff || typeof timeDiff !== 'string') {
+    if (!timeDiffMS || isNaN(timeDiffMS)) {
       endDate.setHours(endDate.getHours() + 1)
       return endDate
     }
 
-    const timeParts = timeDiff.split(' ')
-    for (const part of timeParts) {
-      if (part.includes('h')) {
-        const hours = parseInt(part.replace('h', ''))
-        if (!isNaN(hours)) endDate.setHours(endDate.getHours() + hours)
-      } else if (part.includes('m')) {
-        const minutes = parseInt(part.replace('m', ''))
-        if (!isNaN(minutes)) endDate.setMinutes(endDate.getMinutes() + minutes)
-      } else if (part.includes('s')) {
-        const seconds = parseInt(part.replace('s', ''))
-        if (!isNaN(seconds)) endDate.setSeconds(endDate.getSeconds() + seconds)
-      }
-    }
+    // Tambahkan milidetik ke tanggal awal
+    endDate.setTime(endDate.getTime() + timeDiffMS)
 
     // Jika tidak ada perubahan waktu, tambahkan 1 jam sebagai default
     if (endDate.getTime() === startDate.getTime()) {
@@ -188,7 +182,7 @@ const events = computed<CalendarEvent[]>(() => {
         }
 
         // Menghitung tanggal akhir dengan penanganan error
-        const endDate = parseTimeDifference(log.timeDifference, startDate)
+        const endDate = parseTimeDifference(log.timeDifferenceMs, startDate)
 
         // Validasi tanggal akhir
         if (!isValidDate(endDate)) {
@@ -207,7 +201,7 @@ const events = computed<CalendarEvent[]>(() => {
         const event = {
           id: `${machine.name}-${log.id || Math.random().toString(36).substring(2, 9)}`,
           resourceId,
-          title: log.description || (log.current_status === 'Running' ? 'Running' : 'Stopped'),
+          title: log.timeDifference,
           start: startDate.toISOString(),
           end: endDate.toISOString(),
           color: getColorByStatus(log.current_status),
@@ -254,22 +248,89 @@ const calendarOptions = computed<CalendarOptions>(() => {
       center: 'title',
       right: 'resourceTimelineDay,resourceTimelineWeek,resourceTimelineMonth'
     },
-    eventDidMount: (info) => {
-      // Menambahkan tooltip untuk event
-      if (info.event.extendedProps) {
-        const tooltip = document.createElement('div')
-        tooltip.className = 'event-tooltip'
-        tooltip.innerHTML = `
-          <strong>Status:</strong> ${info.event.extendedProps.status || '-'}<br>
-          <strong>Description:</strong> ${info.event.extendedProps.description || '-'}<br>
-          <strong>K-Number:</strong> ${info.event.extendedProps.k_num || '-'}<br>
-          <strong>G-Code:</strong> ${info.event.extendedProps.g_code_name || '-'}<br>
-          <strong>Output:</strong> ${info.event.extendedProps.output_wp || '-'}<br>
-          <strong>Operator:</strong> ${info.event.extendedProps.operator || '-'}<br>
-        `
+    eventContent: (arg) => {
+      // Membuat konten kustom untuk event
+      const eventEl = document.createElement('div')
+      eventEl.className = 'custom-event-content'
 
-        // Menggunakan PrimeVue Tooltip atau tooltip sederhana
-        info.el.title = tooltip.textContent || ''
+      // Menambahkan judul event
+      const titleEl = document.createElement('div')
+      titleEl.className = 'event-title'
+      titleEl.textContent = arg.event.title
+      eventEl.appendChild(titleEl)
+
+      // Jika toggle aktif, tambahkan detail dari extendedProps
+      if (showDetailsInTitle.value && arg.event.extendedProps) {
+        const detailsEl = document.createElement('div')
+        detailsEl.className = 'event-details'
+
+        // Status
+        if (arg.event.extendedProps.status) {
+          const statusEl = document.createElement('div')
+          statusEl.innerHTML = `<strong>Status:</strong> ${arg.event.extendedProps.status}`
+          detailsEl.appendChild(statusEl)
+        }
+
+        // K-Number
+        if (arg.event.extendedProps.k_num) {
+          const knumEl = document.createElement('div')
+          knumEl.innerHTML = `<strong>K-Num:</strong> ${arg.event.extendedProps.k_num}`
+          detailsEl.appendChild(knumEl)
+        }
+
+        // G-Code
+        if (arg.event.extendedProps.g_code_name) {
+          const gcodeEl = document.createElement('div')
+          gcodeEl.innerHTML = `<strong>G-Code:</strong> ${arg.event.extendedProps.g_code_name}`
+          detailsEl.appendChild(gcodeEl)
+        }
+
+        // Output
+        if (arg.event.extendedProps.output_wp) {
+          const outputEl = document.createElement('div')
+          outputEl.innerHTML = `<strong>Output:</strong> ${arg.event.extendedProps.output_wp}`
+          detailsEl.appendChild(outputEl)
+        }
+
+        // Operator
+        if (arg.event.extendedProps.operator) {
+          const operatorEl = document.createElement('div')
+          operatorEl.innerHTML = `<strong>Operator:</strong> ${arg.event.extendedProps.operator}`
+          detailsEl.appendChild(operatorEl)
+        }
+
+        // Description (jika berbeda dari title)
+        if (arg.event.extendedProps.description) {
+          const descEl = document.createElement('div')
+          descEl.innerHTML = `<strong>Desc:</strong> ${arg.event.extendedProps.description}`
+          detailsEl.appendChild(descEl)
+        }
+
+        eventEl.appendChild(detailsEl)
+      }
+
+      return { domNodes: [eventEl] }
+    },
+    eventDidMount: (info) => {
+      // Add status as a data attribute
+      if (info.event.extendedProps?.status) {
+        info.el.setAttribute('data-status', info.event.extendedProps.status)
+      }
+
+      // Existing tooltip code
+      if (info.event.extendedProps) {
+        const tooltipText = [
+          `Status: ${info.event.extendedProps.status || '-'}`,
+          `Description: ${info.event.extendedProps.description || '-'}`,
+          `K-NUMBER: ${info.event.extendedProps.k_num || '-'}`,
+          `G-CODE: ${info.event.extendedProps.g_code_name || '-'}`,
+          `Output WP: ${info.event.extendedProps.output_wp || '-'}`,
+          `Operator: ${info.event.extendedProps.operator || '-'}`
+        ].join('\n')
+
+        info.el.title = tooltipText
+      } else {
+        info.el.removeAttribute('title')
       }
     }
   }
@@ -290,6 +351,16 @@ watch(
     console.log('Timeline data updated:', newData)
   }
 )
+
+const calendarKey = ref(0)
+
+// Watch perubahan pada toggle untuk memperbarui tampilan
+watch(
+  () => showDetailsInTitle.value,
+  () => {
+    calendarKey.value += 1 // Ubah key untuk memicu re-render
+  }
+)
 </script>
 
 <template>
@@ -300,19 +371,55 @@ watch(
       <div class="p-4">
         <div class="flex justify-between mb-4">
           <DatePickerDay v-model:date-option="dateOption" />
+          <div class="flex items-center">
+            <div class="flex items-center mr-4">
+              <label for="toggleDetails" class="mr-2">Show Details:</label>
+              <InputSwitch id="toggleDetails" v-model="showDetailsInTitle" />
+            </div>
+          </div>
         </div>
-        <FullCalendar :options="calendarOptions" />
+        <FullCalendar :options="calendarOptions" :key="calendarKey" />
       </div>
     </template>
   </DefaultLayout>
 </template>
 
 <style>
-.event-tooltip {
-  background-color: rgba(0, 0, 0, 0.85);
-  color: white;
-  padding: 8px;
-  border-radius: 4px;
-  z-index: 10000;
+/* Styling untuk event kustom */
+.custom-event-content {
+  padding: 4px;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Styling untuk event dengan status DISCONNECT */
+.fc-timeline-event[data-status='DISCONNECT'] .custom-event-content {
+  color: #000000;
+  background-color: #ffffff;
+}
+
+/* Memperbaiki tampilan event di FullCalendar */
+.fc-timeline-event {
+  overflow: visible !important;
+  height: auto !important;
+  min-height: 30px;
+}
+
+.fc-timeline-event .fc-event-main {
+  overflow: visible !important;
+  height: auto !important;
+  padding: 0 !important;
+}
+
+.fc-timeline-event-harness {
+  height: auto !important;
+}
+
+/* Memastikan teks dapat wrap */
+.fc .fc-timeline-event .fc-event-title {
+  white-space: normal !important;
 }
 </style>
