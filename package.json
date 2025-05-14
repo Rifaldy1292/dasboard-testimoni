@@ -1,1 +1,22 @@
-{}
+{
+  "name": "dashboard-machine",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pull": "cd client && git pull origin main && npm run build-only",
+    "backup-db": "cd server/backup && \"C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump.exe\" -U postgres -h localhost -p 5432 -F c -b -v -f dashboard_machine_backup.dump yamaha_dashboard_machine"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonfry1175/dashboard-machine.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jonfry1175/dashboard-machine/issues"
+  },
+  "homepage": "https://github.com/jonfry1175/dashboard-machine#readme",
+  "description": ""
+}
