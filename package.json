@@ -4,6 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "client": "cd client && npm run dev",
+    "server": "cd server && npm run start",
     "pull": "cd client && git pull origin main && npm run build-only",
     "backup-db": "cd server/backup && \"C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump.exe\" -U postgres -h localhost -p 5432 -F c -b -v -f dashboard_machine_backup.dump yamaha_dashboard_machine"
   },

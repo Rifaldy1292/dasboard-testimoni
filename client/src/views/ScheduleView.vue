@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 import FullCalendar from '@fullcalendar/vue3'
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline'
 import interactionPlugin from '@fullcalendar/interaction'
@@ -9,19 +9,18 @@ import { type CalendarOptions } from '@fullcalendar/core'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import useWebsocket from '@/composables/useWebsocket'
-import type { PayloadWebsocket } from '@/types/websocket.type'
+import type { PayloadWebsocket, ShiftValue } from '@/types/websocket.type'
 import type { Machine, MachineTimeline, ObjMachineTimeline } from '@/types/machine.type'
 import DatePickerDay from '@/components/common/DatePickerDay.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import InputSwitch from 'primevue/inputswitch'
+import ShiftSelector from '@/components/common/ShiftSelector.vue'
 
-// Definisi type untuk resource
 interface Resource {
   id: string
   title: string
 }
 
-// Definisi type untuk event
 interface CalendarEvent {
   id: string
   resourceId: string
@@ -40,15 +39,15 @@ interface CalendarEvent {
 }
 
 const dateOption = ref<Date>(new Date())
-// Toggle untuk menampilkan extendedProps dalam title
+const selectedShift = ref<ShiftValue>(0)
 const showDetailsInTitle = ref<boolean>(false)
 
-// Payload untuk websocket
 const payloadWs = computed<PayloadWebsocket>(() => {
   return {
     type: 'timeline',
     data: {
-      date: dateOption.value.toISOString()
+      date: dateOption.value.toISOString(),
+      shift: selectedShift.value
     }
   }
 })
@@ -56,6 +55,7 @@ const payloadWs = computed<PayloadWebsocket>(() => {
 // Menggunakan composable useWebsocket untuk mendapatkan data
 const { loadingWebsocket, timelineMachines, sendMessage } = useWebsocket(payloadWs.value)
 
+const calendarKey = shallowRef<number>(0)
 // Konversi data mesin menjadi resources untuk FullCalendar
 const resources = computed<Resource[]>(() => {
   if (!timelineMachines.value?.data) return []
@@ -112,49 +112,42 @@ const parseTimeDifference = (timeDiffMS: number, startDate: Date): Date => {
 // Konversi data log mesin menjadi events untuk FullCalendar
 const events = computed<CalendarEvent[]>(() => {
   if (!timelineMachines.value?.data) {
-    console.log('No timeline data available')
+    // console.log('No timeline data available')
     return []
   }
 
-  console.log('Timeline data:', timelineMachines.value.data)
+  // console.log('Timeline data:', timelineMachines.value.data)
 
   const allEvents: CalendarEvent[] = []
 
   timelineMachines.value.data.forEach((machine: MachineTimeline) => {
     const resourceId = machine.name.toLowerCase().replace('-', '')
 
-    console.log(`Processing machine ${machine.name} with ${machine.MachineLogs.length} logs`)
-
     machine.MachineLogs.forEach((log: ObjMachineTimeline) => {
       // Periksa apakah log valid dan memiliki properti yang diperlukan
       if (!log || typeof log !== 'object') {
-        console.warn(`Invalid log object in machine ${machine.name}:`, log)
         return
       }
 
       // Periksa properti isNext dengan lebih hati-hati
       if (log.isNext === true) {
-        console.log(`Skipping log ${log.id || 'unknown'} because it's a future log`)
         return
       }
 
       try {
         // Periksa apakah createdAt ada dan valid
         if (!log.createdAt) {
-          console.warn(`Log ${log.id || 'unknown'} has no createdAt property`)
           return
         }
 
         // Mendapatkan tanggal dari createdAt dengan validasi
         const startDate = new Date(log.createdAt)
         if (!isValidDate(startDate)) {
-          console.warn(`Invalid start date for log ${log.id || 'unknown'}:`, log.createdAt)
           return // Skip this log
         }
 
         // Periksa apakah timeDifference ada
         if (!log.timeDifference) {
-          console.warn(`Log ${log.id || 'unknown'} has no timeDifference property`)
           // Gunakan waktu default (1 jam)
           const endDate = new Date(startDate.getTime())
           endDate.setHours(endDate.getHours() + 1)
@@ -175,8 +168,7 @@ const events = computed<CalendarEvent[]>(() => {
               status: log.current_status
             }
           }
-
-          console.log(`Created event with default duration for log ${log.id || 'unknown'}:`, event)
+          // console.log(`Created event with default duration for log ${log.id || 'unknown'}:`, event)
           allEvents.push(event)
           return
         }
@@ -186,15 +178,15 @@ const events = computed<CalendarEvent[]>(() => {
 
         // Validasi tanggal akhir
         if (!isValidDate(endDate)) {
-          console.warn(`Invalid end date calculated for log ${log.id || 'unknown'}`)
+          // console.warn(`Invalid end date calculated for log ${log.id || 'unknown'}`)
           return // Skip this log
         }
 
         // Pastikan tanggal akhir lebih besar dari tanggal mulai
         if (endDate <= startDate) {
-          console.warn(
-            `End date is not after start date for log ${log.id || 'unknown'}, adjusting...`
-          )
+          // console.warn(
+          //   `End date is not after start date for log ${log.id || 'unknown'}, adjusting...`
+          // )
           endDate.setHours(startDate.getHours() + 1) // Tambahkan 1 jam sebagai default
         }
 
@@ -214,8 +206,7 @@ const events = computed<CalendarEvent[]>(() => {
             status: log.current_status
           }
         }
-
-        console.log(`Created event for log ${log.id || 'unknown'}:`, event)
+        // console.log(`Created event for log ${log.id || 'unknown'}:`, event)
         allEvents.push(event)
       } catch (error) {
         console.error(`Error processing log ${log.id || 'unknown'}:`, error)
@@ -224,14 +215,24 @@ const events = computed<CalendarEvent[]>(() => {
     })
   })
 
-  console.log(`Total events created: ${allEvents.length}`)
+  // console.log(`Total events created: ${allEvents.length}`)
   return allEvents
 })
 
 // Opsi untuk FullCalendar
 const calendarOptions = computed<CalendarOptions>(() => {
-  const today = new Date(dateOption.value)
-  today.setHours(0, 0, 0, 0)
+  const dateFrom = timelineMachines.value?.dateFrom || new Date()
+  const dateTo = timelineMachines.value?.dateTo || new Date()
+  const stringDateTo = new Date(dateTo).toLocaleTimeString('en-US', {
+    hour12: false
+  })
+
+  let slotMaxTime: string = stringDateTo
+  // if day dateTo > dateFrom, set slotMaxTime to +1 day
+  if (new Date(dateTo).getDate() > new Date(dateFrom).getDate()) {
+    const newHour = new Date(dateTo).getHours() + 24
+    slotMaxTime = `${newHour}:${stringDateTo.split(':')[1]}:${stringDateTo.split(':')[2]}`
+  }
 
   return {
     schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
@@ -239,10 +240,14 @@ const calendarOptions = computed<CalendarOptions>(() => {
     initialView: 'resourceTimelineDay',
     resources: resources.value,
     events: events.value,
-    slotMinTime: '00:00:00',
-    slotMaxTime: '24:00:00',
+    slotMinTime: timelineMachines.value
+      ? new Date(timelineMachines.value?.dateFrom).toLocaleTimeString('en-US', {
+          hour12: false
+        })
+      : '00:00:00',
+    slotMaxTime,
     height: 'auto',
-    initialDate: today,
+    initialDate: timelineMachines.value?.date,
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
@@ -344,16 +349,6 @@ watch(
   }
 )
 
-// Debug: log data saat berubah
-watch(
-  () => timelineMachines.value,
-  (newData) => {
-    console.log('Timeline data updated:', newData)
-  }
-)
-
-const calendarKey = ref(0)
-
 // Watch perubahan pada toggle untuk memperbarui tampilan
 watch(
   () => showDetailsInTitle.value,
@@ -362,7 +357,6 @@ watch(
   }
 )
 </script>
-
 <template>
   <DefaultLayout>
     <BreadcrumbDefault pageTitle="Timeline2" />
@@ -370,11 +364,17 @@ watch(
     <template v-if="!loadingWebsocket">
       <div class="p-4">
         <div class="flex justify-between mb-4">
-          <DatePickerDay v-model:date-option="dateOption" />
           <div class="flex items-center">
             <div class="flex items-center mr-4">
               <label for="toggleDetails" class="mr-2">Show Details:</label>
               <InputSwitch id="toggleDetails" v-model="showDetailsInTitle" />
+            </div>
+          </div>
+          <div class="flex justify-between gap-3">
+            <ShiftSelector v-model="selectedShift" />
+            <div class="flex flex-col justify-center">
+              <label class="text-sm font-medium text-black dark:text-white">Date</label>
+              <DatePickerDay v-model:date-option="dateOption" />
             </div>
           </div>
         </div>

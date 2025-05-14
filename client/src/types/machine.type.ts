@@ -43,6 +43,8 @@ export type MachineTimeline = {
 export type AllMachineTimeline = {
   date: string
   data: MachineTimeline[]
+  dateFrom: string
+  dateTo: string
 }
 
 export type cuttingTimeInMonth = {

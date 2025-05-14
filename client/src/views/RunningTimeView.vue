@@ -1,18 +1,16 @@
 <script setup lang="ts">
+import { computed, nextTick, ref, shallowRef, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import useWebSocket from '@/composables/useWebsocket'
 import DataNotFound from '@/components/common/DataNotFound.vue'
 import DatePickerDay from '@/components/common/DatePickerDay.vue'
-import { computed, nextTick, ref, shallowRef, watch } from 'vue'
-import { useRoute } from 'vue-router'
 import RunningTimeCard from '@/components/Charts/RunningTimeCard.vue'
+import ShiftSelector from '@/components/common/ShiftSelector.vue'
 import { animate, stagger } from 'motion'
-import { Select } from 'primevue'
 import { type PayloadWebsocket, type ShiftValue } from '@/types/websocket.type'
-
-type Shift = 'Combine' | 'Shift 1' | 'Shift2'
 
 const route = useRoute()
 
@@ -31,20 +29,6 @@ const payloadWs = computed<PayloadWebsocket>(() => {
 const { sendMessage, loadingWebsocket, percentageMachines } = useWebSocket(payloadWs.value)
 
 const intervalId = shallowRef<number | null>(null)
-const shiftOptions: { name: Shift; value: ShiftValue }[] = [
-  {
-    name: 'Combine',
-    value: 0
-  },
-  {
-    name: 'Shift 1',
-    value: 1
-  },
-  {
-    name: 'Shift2',
-    value: 2
-  }
-]
 
 watch(
   () => payloadWs.value,
@@ -102,24 +86,11 @@ watch(
 <template>
   <DefaultLayout>
     <BreadcrumbDefault page-title="Running Time" />
-    <!-- <TestWebsocket/> -->
     <LoadingAnimation :state="loadingWebsocket" />
 
-    <!-- agar tanpa scroll dan muncul semua -->
     <div class="flex justify-end">
       <div class="flex justify-between gap-3">
-        <div class="flex flex-col justify-center">
-          <label class="text-sm font-medium text-black dark:text-white">Shift</label>
-          <Select
-            option-label="name"
-            option-value="value"
-            v-model:model-value="selectedShift"
-            :default-value="selectedShift"
-            :options="shiftOptions"
-            placeholder="Select Shift"
-            class="relative flex items-center"
-          />
-        </div>
+        <ShiftSelector v-model="selectedShift" />
         <div class="flex flex-col justify-center">
           <label class="text-sm font-medium text-black dark:text-white">Date</label>
           <DatePickerDay v-model:date-option="dateOption" />

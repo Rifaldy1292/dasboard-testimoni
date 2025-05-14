@@ -151,6 +151,52 @@ const getRunningTimeMachineLog = async (machine_id, reqDate) => {
   }
 };
 
+const getShiftDateRange = async (date, shift) => {
+  const formattedDate = new Date(date).toLocaleDateString("en-CA");
+  const dailyConfig = await DailyConfig.findOne({
+    where: { date: formattedDate },
+    attributes: ["startFirstShift", "endFirstShift", "startSecondShift", "endSecondShift"],
+    raw: true,
+  });
+
+  if (!dailyConfig) {
+    throw new Error(`No daily config for ${formattedDate}`);
+  }
+
+  const dateFrom = new Date(date);
+  const dateTo = new Date(date);
+  const { startFirstShift, endFirstShift, startSecondShift, endSecondShift } = dailyConfig;
+
+  switch (shift) {
+    case 0: {
+      const [hour, minute, second] = startFirstShift.split(':').map(Number);
+      const [hour2, minute2, second2] = endSecondShift.split(':').map(Number);
+      dateFrom.setHours(hour, minute, second);
+      dateTo.setDate(dateTo.getDate() + 1);
+      dateTo.setHours(hour2, minute2, second2);
+      break;
+    }
+    case 1: {
+      const [hour, minute, second] = startFirstShift.split(':').map(Number);
+      const [hour2, minute2, second2] = endFirstShift.split(':').map(Number);
+      dateFrom.setHours(hour, minute, second);
+      dateTo.setHours(hour2, minute2, second2);
+      break;
+    }
+    case 2: {
+      const [hour, minute, second] = startSecondShift.split(':').map(Number);
+      const [hour2, minute2, second2] = endSecondShift.split(':').map(Number);
+      dateFrom.setHours(hour, minute, second);
+      dateTo.setHours(hour2, minute2, second2);
+      dateTo.setDate(dateFrom.getDate() + 1);
+      break;
+    }
+  }
+
+  return { dateFrom, dateTo };
+}
+
+
 const getAllMachine = async () => {
   try {
     existMachinesCache.clear();
@@ -172,15 +218,19 @@ const getAllMachine = async () => {
 
 const getMachineTimeline = async ({ date, reqId }) => {
   try {
-    // default date is today
     const currentDate = date || new Date();
     const dateOption = new Date(currentDate);
     const isNowDate =
       dateOption.toLocaleDateString("en-CA") ===
       new Date().toLocaleDateString("en-CA");
-    const range = await dateQuery(date ? dateOption : undefined);
+    const { dateFrom, dateTo } = await getShiftDateRange(dateOption, 0);
     const whereMachine = {};
-    const whereMachineLog = { createdAt: range };
+    const whereMachineLog = {
+      createdAt: {
+        [Op.between]: [dateFrom, dateTo],
+      }
+    };
+    // req id passed from machineController
     if (reqId) {
       whereMachine.id = {
         [Op.eq]: reqId,
@@ -290,15 +340,18 @@ const getMachineTimeline = async ({ date, reqId }) => {
       };
     });
 
-    return { data: formattedMachines, date: currentDate };
+    return { data: formattedMachines, date: currentDate, dateFrom, dateTo };
   } catch (error) {
     serverError(error, "getMachineTimeline");
   }
 };
+
+
 
 module.exports = {
   getRunningTimeMachineLog,
   getAllMachine,
   getMachineTimeline,
   countRunningTime,
+  getShiftDateRange,
 };
