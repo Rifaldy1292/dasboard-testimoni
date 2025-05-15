@@ -165,13 +165,13 @@ module.exports = class MachineWebsocket {
           countRunningTime(MachineLogs);
 
         // check if date is today
-        if (lastRunningTimestamp && IS_NOW_DATE) {
+        if (lastRunningTimestamp && isNowDate) {
           const now = new Date().getTime();
           const diff = now - new Date(lastRunningTimestamp).getTime();
           totalRunningTime += diff;
         }
         // before today
-        if (lastRunningTimestamp && !IS_NOW_DATE) {
+        if (lastRunningTimestamp && !isNowDate) {
           const diff = dateTo.getTime() - new Date(lastRunningTimestamp).getTime();
           totalRunningTime += diff;
         }
