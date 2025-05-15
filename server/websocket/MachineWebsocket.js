@@ -52,12 +52,11 @@ module.exports = class MachineWebsocket {
    * Retrieves machine timelines and sends them to the client.
    *
    * @param {WebSocket} client - The WebSocket client instance.
-   * @param {string} date - The date to retrieve the timeline for.
-   * @param {number} reqId - The request ID.
+   * @param {string} reqDate - The date to retrieve the timeline for.
    */
   static async timelines(client, reqDate) {
     try {
-      const nowDate = reqDate ? new Date(reqDate) : new Date();
+      const nowDate = new Date(reqDate);
       if (
         nowDate.toLocaleDateString("en-CA") >
         new Date().toLocaleDateString("en-CA")
@@ -96,100 +95,14 @@ module.exports = class MachineWebsocket {
     }
   }
 
+
   /**
    * Retrieves machine percentages and sends them to the client.
-   *
+   * 
    * @param {WebSocket} client - The WebSocket client instance.
+   * @param {{ date: string, shift: 0| 1 | 2 }} data - The data object containing date and shift.
    */
-  static async percentages(client, date) {
-    console.time("before");
-    try {
-      const nowDate = date ? new Date(date) : new Date();
-
-      const machines = await Machine.findAll({
-        attributes: ["id", "name", "type"],
-      });
-      // check if machines is empty or nowDate is greater than current date
-      if (!machines.length || nowDate.getTime() > new Date().getTime()) {
-        client.send(JSON.stringify({ type: "percentage", data: [] }));
-        return;
-      }
-
-      const { startHour, startMinute } = config;
-      const nowTime = new Date();
-      const startTime = new Date();
-      startTime.setHours(startHour, startMinute, 0, 0);
-
-      const isNowDate =
-        nowDate.toLocaleDateString("en-CA") ===
-        nowTime.toLocaleDateString("en-CA");
-      const calculateMs = nowTime.getTime() - startTime.getTime();
-
-      const perfectTime = isNowDate ? calculateMs : DEFAULT_PERFECT_TIME;
-      // const perfectTime = isNowDate
-      //   ? DEFAULT_PERFECT_TIME / 2
-      //   : DEFAULT_PERFECT_TIME;
-
-      const machinesWithLastLog = await Promise.all(
-        machines.map(async (machine) => {
-          const { dataValues } = machine;
-          const getRunningTime = await getRunningTimeMachineLog(
-            dataValues.id,
-            date ? nowDate : undefined
-          );
-          // console.log({ totalRunningTime, lastLog });
-          if (!getRunningTime) {
-            return {
-              status: "Stopped",
-              name: dataValues.type
-                ? `${machine.name} (${dataValues.type})`
-                : machine.name,
-              description: countDescription(0, perfectTime),
-              percentage: [0, 100],
-            };
-          }
-
-          const runningTime = percentage(
-            getRunningTime.totalRunningTime ?? 0,
-            perfectTime
-          );
-          const name = dataValues.type
-            ? `${machine.name} (${dataValues.type})`
-            : machine.name;
-
-          const result = {
-            status: getRunningTime.lastLog.dataValues.current_status,
-            name,
-            description: countDescription(
-              getRunningTime.totalRunningTime || 0,
-              perfectTime
-            ),
-            percentage: [runningTime, 100 - runningTime],
-          };
-          return result;
-        })
-      );
-
-      const data = {
-        data: machinesWithLastLog.sort((a, b) => {
-          const numberA = parseInt(a.name.slice(3));
-          const numberB = parseInt(b.name.slice(3));
-          return numberA - numberB;
-        }),
-        date: nowDate,
-      };
-      // console.log(data.data.map((a) => a.percentage), 3)
-      client.send(JSON.stringify({ type: "percentage", data }));
-    } catch (e) {
-      console.log({ e, message: e.message });
-      client.send(
-        JSON.stringify({ type: "error", message: "Failed to get percentage" })
-      );
-    }
-    console.timeEnd("before");
-  }
-
-  static async refactorPercentages2(client, data) {
+  static async percentages(client, data) {
     console.time("after");
     try {
       const { date, shift } = data;
@@ -200,7 +113,7 @@ module.exports = class MachineWebsocket {
         return client.send(JSON.stringify({ type: "percentage", data: [] }));
       }
 
-      const { dateFrom, dateTo } = await getShiftDateRange(date, shift);
+      const { dateFrom, dateTo } = await getShiftDateRange(date, 0);
       const machinesWithLogs = await Machine.findAll({
         attributes: [
           [
@@ -286,6 +199,10 @@ module.exports = class MachineWebsocket {
         JSON.stringify({ type: "percentage", data: formattedResult })
       );
     } catch (error) {
+      // message: 'No daily config for 2025-05-04'
+      if (error.message.includes("No daily config")) {
+        return client.send(JSON.stringify({ type: 'error', message: error.message }))
+      }
       serverError(error, "from refactor percentages");
       client.send(
         JSON.stringify({ type: "error", message: "Failed to get percentage" })

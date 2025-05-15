@@ -10,6 +10,8 @@ const { decryptFromNumber } = require("../helpers/crypto");
 const { serverError } = require("../utils/serverError");
 const { existMachinesCache } = require("../cache");
 const RemainingController = require("../controllers/RemainingController");
+const { getShiftDateRange } = require("../utils/machineUtils");
+const { Op } = require("sequelize");
 
 /**
  *
@@ -26,9 +28,9 @@ const isManualLog = (createdAt) => {
 // trigger when create log
 const checkIsManualLog = async (machine_id) => {
   try {
-    const range = await dateQuery();
+    const { dateFrom, dateTo } = await getShiftDateRange(new Date(), 0);
     const lastMachineLog = await MachineLog.findOne({
-      where: { machine_id, createdAt: range },
+      where: { machine_id, createdAt: { [Op.between]: [dateFrom, dateTo] } },
       attributes: ["createdAt"],
       order: [["createdAt", "DESC"]],
     });
@@ -120,32 +122,20 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
 
       // Check if the client has a custom date && custom date is now date
       const lastRequestedDate = clientPreferences.get(client);
-      if (lastRequestedDate) {
-        // If the client has a custom date, skip the update
-        if (new Date(lastRequestedDate).toLocaleDateString('en-CA') !== new Date().toLocaleDateString("en-CA")) {
-
-          switch (true) {
-            case percentageMessage:
-              await MachineWebsocket.percentages(client, lastRequestedDate);
-              break
-          }
-        }
-
-
-        // Send the update to the client
-        switch (true) {
-          case timelineMessage:
-            console.log("Sending live timeline update from MQTT");
-            await MachineWebsocket.timelines(client);
-            break;
-          case percentageMessage:
-            await MachineWebsocket.percentages(client);
-            // await MachineWebsocket.refactorPercentages2(client, new Date().toISOString());
-            break;
-          case remainingMessage:
-            await RemainingController.getRemaining(client);
-            break;
-        }
+      // If the client has a custom date, skip the update
+      if (new Date(lastRequestedDate).toLocaleDateString('en-CA') !== new Date().toLocaleDateString("en-CA")) return;
+      // Send the update to the client
+      switch (true) {
+        case timelineMessage:
+          console.log("Sending live timeline update from MQTT");
+          await MachineWebsocket.timelines(client, lastRequestedDate);
+          break;
+        case percentageMessage:
+          await MachineWebsocket.percentages(client, { date: lastRequestedDate, shift: 0 });
+          break;
+        case remainingMessage:
+          await RemainingController.getRemaining(client);
+          break;
       }
     });
   } catch (error) {
@@ -228,10 +218,9 @@ const updateRunningTodayLastMachineLog = async (
   withDescription = false
 ) => {
   try {
-    // const { lastLog, totalRunningTime } = getRunningTime;
-    const range = await dateQuery();
+    const { dateFrom, dateTo } = await getShiftDateRange(new Date(), 0);
     const lastLog = await MachineLog.findOne({
-      where: { machine_id, createdAt: range },
+      where: { machine_id, createdAt: { [Op.between]: [dateFrom, dateTo] } },
       attributes: ["id", "createdAt", "current_status"],
       order: [["createdAt", "DESC"]],
     });

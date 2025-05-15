@@ -51,9 +51,10 @@ class MachineController {
         attributes: ["period", "target"],
       });
 
-      if (!cuttingTime) {
-        throw new Error("cutting time not found");
-      }
+      if (!cuttingTime) return res.status(404).json({
+        status: 404,
+        message: "cutting time not found",
+      });
 
       // machineIds from query, default all
       const machines = machineIds?.length ? machineIds : await Machine.findAll({ attributes: ["id", "name"] });
@@ -83,6 +84,9 @@ class MachineController {
         const day = new Date(date.getUTCFullYear(), date.getUTCMonth(), i + 1);
         return day;
       });
+
+      // test: only 2025-05-04
+      // const allDateInMonth = [new Date("2025-05-04")];
 
       const cuttingTimeInMonth = await Promise.all(
         sortedMachineIds.map(async (machine) => {

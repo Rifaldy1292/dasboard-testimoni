@@ -1,7 +1,6 @@
-const { literal } = require("sequelize");
+const { literal, Op } = require("sequelize");
 const { Machine, MachineLog, User, MachineOperatorAssignment } = require("../models");
-const { dateQuery } = require("../utils/dateQuery");
-const { countRunningTime } = require("../utils/machineUtils");
+const { countRunningTime, getShiftDateRange } = require("../utils/machineUtils");
 const { serverError } = require("../utils/serverError");
 
 class RemainingController {
@@ -11,7 +10,18 @@ class RemainingController {
      */
     static async getRemaining(ws) {
         try {
-            const range = await dateQuery();
+            let dateFrom;
+            let dateTo;
+
+            try {
+                const range = await getShiftDateRange(new Date(), 0);
+                dateFrom = range.dateFrom;
+                dateTo = range.dateTo;
+            } catch (error) {
+                return ws.send(
+                    JSON.stringify({ type: 'error', message: error.message })
+                );
+            }
             const allMachinesWithLastLogAndUser = await Machine.findAll({
                 attributes: ["id", [
                     literal(`CASE WHEN "Machine"."type" IS NOT NULL THEN "Machine"."name" || ' (' || "Machine"."type" || ')' ELSE "Machine"."name" END`),
@@ -21,7 +31,7 @@ class RemainingController {
                     {
                         model: MachineLog,
                         where: {
-                            createdAt: range,
+                            createdAt: { [Op.between]: [dateFrom, dateTo] },
                         },
                         order: [["createdAt", "DESC"]],
                         limit: 1,
@@ -116,7 +126,7 @@ class RemainingController {
             ws.send(
                 JSON.stringify({
                     type: "error",
-                    message: "No timeline data found",
+                    message: "Failed to get remaining",
                 })
             )
         }

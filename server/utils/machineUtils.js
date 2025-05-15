@@ -151,52 +151,60 @@ const getRunningTimeMachineLog = async (machine_id, reqDate) => {
   }
 };
 
+/**
+ * Get shift date range based on date and shift
+ * @param {Date | string} date - The date to get shift range from
+ * @param {number} shift - Shift number (0 = all day, 1 = first shift, 2 = second shift)
+ * @returns {Promise<{dateFrom: Date, dateTo: Date}>} Date range for the specified shift
+ */
 const getShiftDateRange = async (date, shift) => {
-  const formattedDate = new Date(date).toLocaleDateString("en-CA");
-  const dailyConfig = await DailyConfig.findOne({
-    where: { date: formattedDate },
-    attributes: ["startFirstShift", "endFirstShift", "startSecondShift", "endSecondShift"],
-    raw: true,
-  });
+  try {
+    const formattedDate = new Date(date).toLocaleDateString("en-CA");
+    const dailyConfig = await DailyConfig.findOne({
+      where: { date: formattedDate },
+      attributes: ["startFirstShift", "endFirstShift", "startSecondShift", "endSecondShift"],
+      raw: true,
+    });
 
-  if (!dailyConfig) {
-    throw new Error(`No daily config for ${formattedDate}`);
+    if (!dailyConfig) {
+      throw new Error(`No daily config for ${formattedDate}`);
+    }
+
+    const dateFrom = new Date(date);
+    const dateTo = new Date(date);
+    const { startFirstShift, endFirstShift, startSecondShift, endSecondShift } = dailyConfig;
+
+    switch (shift) {
+      case 0: {
+        const [hour, minute, second] = startFirstShift.split(':').map(Number);
+        const [hour2, minute2, second2] = endSecondShift.split(':').map(Number);
+        dateFrom.setHours(hour, minute, second);
+        dateTo.setDate(dateTo.getDate() + 1);
+        dateTo.setHours(hour2, minute2, second2);
+        break;
+      }
+      case 1: {
+        const [hour, minute, second] = startFirstShift.split(':').map(Number);
+        const [hour2, minute2, second2] = endFirstShift.split(':').map(Number);
+        dateFrom.setHours(hour, minute, second);
+        dateTo.setHours(hour2, minute2, second2);
+        break;
+      }
+      case 2: {
+        const [hour, minute, second] = startSecondShift.split(':').map(Number);
+        const [hour2, minute2, second2] = endSecondShift.split(':').map(Number);
+        dateFrom.setHours(hour, minute, second);
+        dateTo.setHours(hour2, minute2, second2);
+        dateTo.setDate(dateFrom.getDate() + 1);
+        break;
+      }
+    }
+
+    return { dateFrom, dateTo };
+  } catch (error) {
+    throw error;
   }
-
-  const dateFrom = new Date(date);
-  const dateTo = new Date(date);
-  const { startFirstShift, endFirstShift, startSecondShift, endSecondShift } = dailyConfig;
-
-  switch (shift) {
-    case 0: {
-      const [hour, minute, second] = startFirstShift.split(':').map(Number);
-      const [hour2, minute2, second2] = endSecondShift.split(':').map(Number);
-      dateFrom.setHours(hour, minute, second);
-      dateTo.setDate(dateTo.getDate() + 1);
-      dateTo.setHours(hour2, minute2, second2);
-      break;
-    }
-    case 1: {
-      const [hour, minute, second] = startFirstShift.split(':').map(Number);
-      const [hour2, minute2, second2] = endFirstShift.split(':').map(Number);
-      dateFrom.setHours(hour, minute, second);
-      dateTo.setHours(hour2, minute2, second2);
-      break;
-    }
-    case 2: {
-      const [hour, minute, second] = startSecondShift.split(':').map(Number);
-      const [hour2, minute2, second2] = endSecondShift.split(':').map(Number);
-      dateFrom.setHours(hour, minute, second);
-      dateTo.setHours(hour2, minute2, second2);
-      dateTo.setDate(dateFrom.getDate() + 1);
-      break;
-    }
-  }
-
-  return { dateFrom, dateTo };
 }
-
-
 const getAllMachine = async () => {
   try {
     existMachinesCache.clear();
@@ -218,8 +226,7 @@ const getAllMachine = async () => {
 
 const getMachineTimeline = async ({ date, reqId }) => {
   try {
-    const currentDate = date || new Date();
-    const dateOption = new Date(currentDate);
+    const dateOption = new Date(date);
     const isNowDate =
       dateOption.toLocaleDateString("en-CA") ===
       new Date().toLocaleDateString("en-CA");
@@ -340,7 +347,7 @@ const getMachineTimeline = async ({ date, reqId }) => {
       };
     });
 
-    return { data: formattedMachines, date: currentDate, dateFrom, dateTo };
+    return { data: formattedMachines, date: dateOption, dateFrom, dateTo };
   } catch (error) {
     serverError(error, "getMachineTimeline");
   }

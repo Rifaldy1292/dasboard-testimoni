@@ -113,7 +113,7 @@ const deleteCncFiles = async () => {
  * @see handleResetMachineStatus
  */
 const handleCronJob = async () => {
-  await createDailyConfig();
+  // await createDailyConfig();
   createCuttingTime();
   // handleResetMachineStatus();
 

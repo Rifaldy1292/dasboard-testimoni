@@ -17,7 +17,7 @@ const handleWebsocket = (wss) => {
      *
      * @param {string} message - The message received from the client.
      */
-    ws.on("message", async (msg) => {
+    ws.on("message", (msg) => {
       /**
        * @typedef {Object} ParsedMessage
        * @property {'timeline' | 'percentage'} type - The message type
@@ -51,30 +51,25 @@ const handleWebsocket = (wss) => {
       // console.log(messageTypeWebsocketClient.get(ws).has('percentage'), 'bool')
       // console.log(messageTypeWebsocketClient.get(ws), 'getws')
 
-      // await handleMessageType(type)
       switch (type) {
         case "timeline":
           /**
            * Retrieves machine timelines.
            */
           // console.log({ clientPreferences: clientPreferences.get(ws) }, 88888, 'form ws')
-          await MachineWebsocket.timelines(
+          MachineWebsocket.timelines(
             ws,
             data?.date,
           );
           break;
         case "percentage":
-          /**
-           * Retrieves machine percentages.
-           */
-          await MachineWebsocket.percentages(ws, clientPreferences.get(ws));
-          // await MachineWebsocket.refactorPercentages2(
-          //   ws,
-          //   data
-          // );
+          MachineWebsocket.percentages(
+            ws,
+            data
+          );
           break;
         case "remaining":
-          await RemainingController.getRemaining(ws);
+          RemainingController.getRemaining(ws);
         // case 'test': {
         //     console.log('test')
         //     break

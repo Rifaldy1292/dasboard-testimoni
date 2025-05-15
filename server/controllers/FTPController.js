@@ -13,6 +13,8 @@ const { Client, FTPError } = require("basic-ftp");
 const { encryptToNumber } = require("../helpers/crypto");
 const { encryptionCache } = require("../cache");
 const { dateQuery } = require("../utils/dateQuery");
+const { getShiftDateRange } = require("../utils/machineUtils");
+const { Op } = require("sequelize");
 
 const localDir = (machine_id) =>
   path.join(__dirname, "..", "public", "cnc_files", machine_id);
@@ -394,13 +396,28 @@ class FTPController {
           status: 400,
           message: "machine_id is required",
         });
-      const range = await dateQuery(undefined);
+
+      let dateFrom;
+      let dateTo;
+
+      try {
+        const range = await getShiftDateRange(new Date());
+        dateFrom = range.dateFrom;
+        dateTo = range.dateTo;
+      } catch (error) {
+        return res.status(404).json({
+          status: 404,
+          message: error.message,
+        });
+      }
 
       // find where description === null
       const machineLog = await MachineLog.findOne({
         where: {
-          createdAt: range,
-          machine_id: machine_id,
+          createdAt: {
+            [Op.between]: [dateFrom, dateTo],
+          },
+          machine_id,
           description: null,
           current_status: "Stopped",
         },
