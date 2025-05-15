@@ -349,6 +349,8 @@ const getMachineTimeline = async ({ date, reqId }) => {
 
     return { data: formattedMachines, date: dateOption, dateFrom, dateTo };
   } catch (error) {
+    // 'No daily config for 2025-05-15'
+    if (error.message.includes("No daily config")) throw error
     serverError(error, "getMachineTimeline");
   }
 };

@@ -397,19 +397,7 @@ class FTPController {
           message: "machine_id is required",
         });
 
-      let dateFrom;
-      let dateTo;
-
-      try {
-        const range = await getShiftDateRange(new Date());
-        dateFrom = range.dateFrom;
-        dateTo = range.dateTo;
-      } catch (error) {
-        return res.status(404).json({
-          status: 404,
-          message: error.message,
-        });
-      }
+      const { dateFrom, dateTo } = await getShiftDateRange(new Date());
 
       // find where description === null
       const machineLog = await MachineLog.findOne({
@@ -431,6 +419,12 @@ class FTPController {
 
       res.status(204).send();
     } catch (error) {
+      if (error.message.includes("No daily config")) {
+        return res.status(404).json({
+          status: 404,
+          message: error.message,
+        });
+      }
       serverError(error, res, "Failed to check description machine log");
     }
   }

@@ -47,19 +47,7 @@ module.exports = (sequelize, DataTypes) => {
     if (existingMachine) {
       throw new Error('Machine name already exists');
     }
-  })
-  Machine.beforeBulkCreate(async (machines, options) => {
-    const existingMachines = await Machine.findAll({
-      where: {
-        name: {
-          [Op.in]: machines.map(machine => machine.name)
-        }
-      }
-    });
-    if (existingMachines.length > 0) {
-      throw new Error('Machine name already exists');
-    }
-  })
+  });
 
   return Machine;
 };

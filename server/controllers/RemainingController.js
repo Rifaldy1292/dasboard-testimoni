@@ -10,18 +10,7 @@ class RemainingController {
      */
     static async getRemaining(ws) {
         try {
-            let dateFrom;
-            let dateTo;
-
-            try {
-                const range = await getShiftDateRange(new Date(), 0);
-                dateFrom = range.dateFrom;
-                dateTo = range.dateTo;
-            } catch (error) {
-                return ws.send(
-                    JSON.stringify({ type: 'error', message: error.message })
-                );
-            }
+            const { dateFrom, dateTo } = await getShiftDateRange(new Date(), 0);
             const allMachinesWithLastLogAndUser = await Machine.findAll({
                 attributes: ["id", [
                     literal(`CASE WHEN "Machine"."type" IS NOT NULL THEN "Machine"."name" || ' (' || "Machine"."type" || ')' ELSE "Machine"."name" END`),
@@ -85,10 +74,13 @@ class RemainingController {
                     delete mc.MachineLogs;
                     if (mc.log) {
                         if (!log?.g_code_name) return mc
+                        // count running time by g_code_name
                         const allLogMachineWhereGCode = await MachineLog.findAll({
                             where: {
                                 machine_id: mc.id,
-                                createdAt: range,
+                                createdAt: {
+                                    [Op.between]: [dateFrom, dateTo]
+                                },
                                 g_code_name: log.g_code_name
                             },
                             order: [["createdAt", "ASC"]],
@@ -122,6 +114,9 @@ class RemainingController {
                 })
             )
         } catch (error) {
+            if (error.message.includes("No daily config")) {
+                return ws.send(JSON.stringify({ type: 'error', message: error.message }))
+            }
             serverError(error, "Failed to get remaining");
             ws.send(
                 JSON.stringify({

@@ -40,6 +40,7 @@ const checkIsManualLog = async (machine_id) => {
 
     return isManualLog(lastMachineLog.createdAt);
   } catch (error) {
+    if (error.message.includes("No daily config")) return;
     serverError(error, "checkIsManualLog");
     return false;
   }
@@ -171,6 +172,8 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
       calculate_total_cutting_time,
     } = parseMessage;
 
+    console.log(parseMessage, 888)
+
     const createMachine = await Machine.create({
       name,
       status,
@@ -242,6 +245,7 @@ const updateRunningTodayLastMachineLog = async (
       }
     );
   } catch (error) {
+    if (error.message.includes("No daily config")) return console.log(error.message);
     serverError(error, "updateRunningTodayLastMachineLog");
   }
 };

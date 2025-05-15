@@ -85,7 +85,16 @@ module.exports = class MachineWebsocket {
 
       client.send(JSON.stringify({ type: "timeline", data: machineTimeline }));
     } catch (e) {
-      console.log({ e, message: e.message });
+      //  'No daily config for 2025-05-15'
+      if (e.message.includes("No daily config")) {
+        return client.send(
+          JSON.stringify({
+            type: "error",
+            message: e.message,
+          })
+        );
+      }
+      serverError(e, "from refactor timelines");
       client.send(
         JSON.stringify({
           type: "error",
