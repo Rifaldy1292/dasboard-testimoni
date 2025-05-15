@@ -151,11 +151,11 @@ module.exports = class MachineWebsocket {
         return client.send(JSON.stringify({ type: 'percentage', data: { dateFrom, dateTo, data: [] } }))
       }
 
-      const IS_NOW_DATE =
+      const isNowDate =
         nowDate.toLocaleDateString("en-CA") ===
         new Date().toLocaleDateString("en-CA");
       const calculateMs = new Date().getTime() - dateFrom.getTime();
-      const perfectTime = IS_NOW_DATE && shift === 0 ? calculateMs : dateTo.getTime() - dateFrom.getTime();
+      const perfectTime = isNowDate && shift === 0 ? calculateMs : dateTo.getTime() - dateFrom.getTime();
 
 
       const runningTimeMachines = machinesWithLogs.map((machine) => {

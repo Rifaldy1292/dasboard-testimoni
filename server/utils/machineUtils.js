@@ -224,6 +224,7 @@ const getAllMachine = async () => {
   }
 };
 
+// req id from machineController
 const getMachineTimeline = async ({ date, reqId }) => {
   try {
     const dateOption = new Date(date);
@@ -302,8 +303,20 @@ const getMachineTimeline = async ({ date, reqId }) => {
         const currentTime = log.createdAt;
         const isLastLog = indexLog === machine.MachineLogs.length - 1;
         const nextLog = machine.MachineLogs[indexLog + 1] || null;
-        const timeDifference =
-          new Date(nextLog?.createdAt || 0) - new Date(currentTime);
+        const lastLogAndIsnowDate = isLastLog && isNowDate;
+        // const timeDifference = lastLogAndIsnowDate ? new Date() - new Date(currentTime) :
+        //   new Date(nextLog?.createdAt || 0) - new Date(currentTime);
+        let timeDifference = 0
+        switch (true) {
+          case lastLogAndIsnowDate:
+            timeDifference = new Date() - new Date(currentTime);
+            break;
+          case isLastLog && !isNowDate:
+            timeDifference = dateTo - new Date(currentTime);
+            break;
+          default:
+            timeDifference = new Date(nextLog?.createdAt || 0) - new Date(currentTime);
+        }
         return {
           ...log.dataValues,
           timeDifference: formatTimeDifference(timeDifference),

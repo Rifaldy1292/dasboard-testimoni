@@ -149,9 +149,7 @@ const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string =>
                 })
               }}
               -
-              <span class="font-medium text-white dark:text-black"
-                >{{ item.isLastLog ? 'next' : item.timeDifference }}
-              </span>
+              <span class="font-medium text-white dark:text-black">{{ item.timeDifference }} </span>
             </i>
             <i
               v-if="item.current_status === 'Stopped'"

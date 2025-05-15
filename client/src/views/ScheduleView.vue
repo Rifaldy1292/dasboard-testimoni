@@ -15,6 +15,7 @@ import DatePickerDay from '@/components/common/DatePickerDay.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import InputSwitch from 'primevue/inputswitch'
 import ShiftSelector from '@/components/common/ShiftSelector.vue'
+import type { Dictionary } from '@fullcalendar/core/internal'
 
 interface Resource {
   id: string
@@ -317,23 +318,29 @@ const calendarOptions = computed<CalendarOptions>(() => {
       return { domNodes: [eventEl] }
     },
     eventDidMount: (info) => {
-      // Add status as a data attribute
-      if (info.event.extendedProps?.status) {
-        info.el.setAttribute('data-status', info.event.extendedProps.status)
+      if (!info.event) return
+
+      // Type assertion for extendedProps
+      const extendedProps = info.event.extendedProps as CalendarEvent['extendedProps']
+      if (!extendedProps) return
+      const { status, description, g_code_name, k_num, operator, output_wp } = extendedProps
+
+      if (status) {
+        info.el.setAttribute('data-status', status)
       }
 
-      // Existing tooltip code
-      if (info.event.extendedProps) {
-        const tooltipText = [
-          `Status: ${info.event.extendedProps.status || '-'}`,
-          `Description: ${info.event.extendedProps.description || '-'}`,
-          `K-NUMBER: ${info.event.extendedProps.k_num || '-'}`,
-          `G-CODE: ${info.event.extendedProps.g_code_name || '-'}`,
-          `Output WP: ${info.event.extendedProps.output_wp || '-'}`,
-          `Operator: ${info.event.extendedProps.operator || '-'}`
-        ].join('\n')
+      if (extendedProps) {
+        const tooltipText = []
+        tooltipText.push(`Status: ${status || '-'}`)
+        status !== 'Running' && tooltipText.push(`Description: ${description || '-'}`)
+        if (status === 'Running') {
+          tooltipText.push(`K-NUMBER: ${k_num || '-'}`)
+          tooltipText.push(`G-CODE: ${g_code_name || '-'}`)
+          tooltipText.push(`Output WP: ${output_wp || '-'}`)
+        }
+        tooltipText.push(`Operator: ${operator || '-'}`)
 
-        info.el.title = tooltipText
+        info.el.title = tooltipText.join('\n')
       } else {
         info.el.removeAttribute('title')
       }
