@@ -144,8 +144,8 @@ module.exports = class MachineWebsocket {
       const IS_NOW_DATE =
         nowDate.toLocaleDateString("en-CA") ===
         new Date().toLocaleDateString("en-CA");
-
-      const perfectTime = dateTo.getTime() - dateFrom.getTime()
+      const calculateMs = new Date().getTime() - dateFrom.getTime();
+      const perfectTime = IS_NOW_DATE ? calculateMs : dateTo.getTime() - dateFrom.getTime();
 
 
       const runningTimeMachines = machinesWithLogs.map((machine) => {
