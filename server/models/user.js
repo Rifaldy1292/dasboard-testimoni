@@ -11,8 +11,8 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       // User has one role
       User.belongsTo(models.Role, { foreignKey: "role_id" });
-      User.hasMany(models.Machine, { foreignKey: "user_id" });
       User.hasMany(models.MachineLog, { foreignKey: "user_id" });
+      User.hasOne(models.MachineOperatorAssignment, { foreignKey: "user_id" });
     }
   }
   User.init(
@@ -53,10 +53,6 @@ module.exports = (sequelize, DataTypes) => {
           },
           len: [7, 7], // memastikan panjang NIK tetap 9 karakter
         },
-      },
-      machine_id: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
       },
       profile_image: {
         type: DataTypes.STRING,

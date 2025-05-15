@@ -13,7 +13,6 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Machine.hasMany(models.MachineLog, { foreignKey: 'machine_id' });
-      Machine.belongsTo(models.User, { foreignKey: 'user_id' });
       Machine.hasOne(models.MachineOperatorAssignment, { foreignKey: 'machine_id' });
     }
   }
@@ -30,7 +29,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INET,
       allowNull: false
     },
-    user_id: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Machine',

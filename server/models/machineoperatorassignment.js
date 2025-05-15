@@ -10,9 +10,9 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
       // has one machine
-      MachineOperatorAssignment.hasOne(models.Machine, { foreignKey: 'machine_id' });
+      MachineOperatorAssignment.belongsTo(models.Machine, { foreignKey: 'machine_id' });
+      MachineOperatorAssignment.belongsTo(models.User, { foreignKey: 'user_id' });
     }
   }
   MachineOperatorAssignment.init({

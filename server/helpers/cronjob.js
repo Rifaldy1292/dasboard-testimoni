@@ -118,10 +118,12 @@ const handleCronJob = async () => {
   // handleResetMachineStatus();
 
   // find last daily config
-  const { startFirstShift } = await DailyConfig.findOne({
+  const findDailyConfig = await DailyConfig.findOne({
     attributes: ["startFirstShift"],
     order: [['createdAt', "DESC"]]
   });
+  if (!findDailyConfig) return;
+  const { startFirstShift } = findDailyConfig;
   const [startHour, startMinute] = startFirstShift.split(":").map(Number);
   cron.schedule(`${startMinute} ${startHour} * * *`, async () => {
     await createDailyConfig();
