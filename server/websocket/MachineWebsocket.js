@@ -113,6 +113,7 @@ module.exports = class MachineWebsocket {
         return client.send(JSON.stringify({ type: "percentage", data: [] }));
       }
 
+      // const { dateFrom, dateTo } = await getShiftDateRange(date, shift);
       const { dateFrom, dateTo } = await getShiftDateRange(date, 0);
       const machinesWithLogs = await Machine.findAll({
         attributes: [
@@ -145,7 +146,7 @@ module.exports = class MachineWebsocket {
         nowDate.toLocaleDateString("en-CA") ===
         new Date().toLocaleDateString("en-CA");
       const calculateMs = new Date().getTime() - dateFrom.getTime();
-      const perfectTime = IS_NOW_DATE ? calculateMs : dateTo.getTime() - dateFrom.getTime();
+      const perfectTime = IS_NOW_DATE && shift === 0 ? calculateMs : dateTo.getTime() - dateFrom.getTime();
 
 
       const runningTimeMachines = machinesWithLogs.map((machine) => {
