@@ -59,7 +59,7 @@ const handleWebsocket = (wss) => {
           // console.log({ clientPreferences: clientPreferences.get(ws) }, 88888, 'form ws')
           MachineWebsocket.timelines(
             ws,
-            data?.date,
+            data,
           );
           break;
         case "percentage":

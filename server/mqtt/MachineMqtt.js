@@ -129,7 +129,7 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
       switch (true) {
         case timelineMessage:
           console.log("Sending live timeline update from MQTT");
-          await MachineWebsocket.timelines(client, lastRequestedDate);
+          await MachineWebsocket.timelines(client, { date: lastRequestedDate, shift: 0 });
           break;
         case percentageMessage:
           await MachineWebsocket.percentages(client, { date: lastRequestedDate, shift: 0 });

@@ -225,13 +225,13 @@ const getAllMachine = async () => {
 };
 
 // req id from machineController
-const getMachineTimeline = async ({ date, reqId }) => {
+const getMachineTimeline = async ({ date, reqId, shift }) => {
   try {
     const dateOption = new Date(date);
     const isNowDate =
       dateOption.toLocaleDateString("en-CA") ===
       new Date().toLocaleDateString("en-CA");
-    const { dateFrom, dateTo } = await getShiftDateRange(dateOption, 0);
+    const { dateFrom, dateTo } = await getShiftDateRange(dateOption, shift);
     const whereMachine = {};
     const whereMachineLog = {
       createdAt: {

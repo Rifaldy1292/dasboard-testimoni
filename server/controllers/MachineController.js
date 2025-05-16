@@ -300,7 +300,7 @@ class MachineController {
           message: "machine_id is required",
         });
       }
-      const data = await getMachineTimeline({ reqId: machine_id });
+      const data = await getMachineTimeline({ reqId: machine_id, date: new Date(), shift: 0 });
       res.status(200).json({
         status: 200,
         message: "success get machine log by machine id",

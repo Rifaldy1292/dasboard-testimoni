@@ -52,11 +52,12 @@ module.exports = class MachineWebsocket {
    * Retrieves machine timelines and sends them to the client.
    *
    * @param {WebSocket} client - The WebSocket client instance.
-   * @param {string} reqDate - The date to retrieve the timeline for.
+   * @param {{shift: 0|1|2; date: string | Date}} data
    */
-  static async timelines(client, reqDate) {
+  static async timelines(client, data) {
     try {
-      const nowDate = new Date(reqDate);
+      const { shift, date } = data;
+      const nowDate = new Date(date);
       if (
         nowDate.toLocaleDateString("en-CA") >
         new Date().toLocaleDateString("en-CA")
@@ -66,13 +67,14 @@ module.exports = class MachineWebsocket {
             type: "timeline",
             data: {
               data: [],
-              date: nowDate,
+              date
             },
           })
         );
       }
       const machineTimeline = await getMachineTimeline({
-        date: reqDate,
+        date,
+        shift,
       });
       if (!machineTimeline) {
         return client.send(
@@ -122,8 +124,8 @@ module.exports = class MachineWebsocket {
         return client.send(JSON.stringify({ type: "percentage", data: [] }));
       }
 
-      // const { dateFrom, dateTo } = await getShiftDateRange(date, shift);
-      const { dateFrom, dateTo } = await getShiftDateRange(date, 0);
+      const { dateFrom, dateTo } = await getShiftDateRange(date, shift);
+      // const { dateFrom, dateTo } = await getShiftDateRange(date, 0);
       const machinesWithLogs = await Machine.findAll({
         attributes: [
           [

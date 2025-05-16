@@ -397,7 +397,7 @@ class FTPController {
           message: "machine_id is required",
         });
 
-      const { dateFrom, dateTo } = await getShiftDateRange(new Date());
+      const { dateFrom, dateTo } = await getShiftDateRange(new Date(), 0);
 
       // find where description === null
       const machineLog = await MachineLog.findOne({
