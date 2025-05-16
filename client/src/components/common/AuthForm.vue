@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, ref, shallowRef } from 'vue'
+import { computed, onMounted, ref, shallowRef } from 'vue'
 import { Form, FormField, type FormProps, type FormSubmitEvent } from '@primevue/forms'
 import { InputText, Message } from 'primevue'
 import { useRoute } from 'vue-router'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
 import { z } from 'zod'
+import API from '@/services/API'
 
 interface AuthFormProps extends FormProps {
   submit: (event: FormSubmitEvent) => void
@@ -99,12 +100,28 @@ const showFormField = computed<ShowFormField>(() => {
   }
 })
 
-const info = 'per tanggal 21-04-2025 jam 12:00 password diubah menjadi YAMAHA (huruf besar)'
+// const info = 'per tanggal 21-04-2025 jam 12:00 password diubah menjadi YAMAHA (huruf besar)'
+const info = shallowRef<string | null>(null)
+
+// Tambahkan fungsi untuk fetch data
+const fetchTotalCommit = async () => {
+  try {
+    const { data } = await API().get('/total-commit')
+    info.value = data.data
+  } catch (error) {
+    console.error('Error fetching total commit:', error)
+    info.value = null
+  }
+}
+
+onMounted(() => {
+  fetchTotalCommit()
+})
 </script>
 
 <template>
   <!-- login & register -->
-  <h1 v-if="info" class="text-center text-xl font-bold text-red">info: {{ info ?? '-' }}</h1>
+  <h1 class="text-center text-xl font-bold text-red">{{ info ?? '' }}</h1>
   <Form
     v-slot="$form"
     @submit="submit"
