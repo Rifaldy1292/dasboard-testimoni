@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { shallowRef, watch } from 'vue'
+import { shallowRef, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { RegisterPayload } from '@/dto/user.dto'
 import AuthLayout from '@/layouts/AuthLayout.vue'
@@ -10,11 +10,13 @@ import { jwtDecode } from 'jwt-decode'
 import AuthForm from '@/components/common/AuthForm.vue'
 import happySound from '../../assets/sounds/happy.mp3'
 import useToast from '@/composables/useToast'
+import API from '@/services/API'
 
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 const page = shallowRef(route.name === 'login' ? 'Sign in' : 'Sign up')
+const info = shallowRef<string | null>(null)
 
 watch(
   () => route.name,
@@ -95,10 +97,27 @@ const submitForm = async (e: FormSubmitEvent): Promise<void> => {
     }
   }
 }
+
+// Add fetchTotalCommit function
+const fetchTotalCommit = async () => {
+  try {
+    const { data } = await API().get('/total-commit')
+    info.value = data.data
+  } catch (error) {
+    console.error('Error fetching total commit:', error)
+    info.value = null
+  }
+}
+
+// Add onMounted
+onMounted(() => {
+  fetchTotalCommit()
+})
 </script>
 
 <template>
-  <AuthLayout :page="page">
+  <AuthLayout :page="page" :description="info">
+    <!-- Pass info as prop -->
     <AuthForm :submit="submitForm" />
   </AuthLayout>
 </template>
