@@ -12,6 +12,7 @@ const { existMachinesCache } = require("../cache");
 const RemainingController = require("../controllers/RemainingController");
 const { getShiftDateRange } = require("../utils/machineUtils");
 const { Op } = require("sequelize");
+const userMessageCache = require("../cache/userMessageCache");
 
 /**
  *
@@ -112,31 +113,28 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     wss.clients.forEach(async (client) => {
       if (client.readyState !== WebSocket.OPEN) return;
 
-      // Check if the client has requested a timeline or percentage update
-      const timelineMessage = messageTypeWebsocketClient
-        .get(client)
-        ?.has("timeline");
-      const percentageMessage = messageTypeWebsocketClient
-        .get(client)
-        ?.has("percentage");
-      const remainingMessage = messageTypeWebsocketClient.get(client)?.has("remaining");
+      // Check message types using new cache
+      const hasTimelineType = userMessageCache.hasMessageType(client, 'timeline');
+      const hasPercentageType = userMessageCache.hasMessageType(client, 'percentage');
+      const hasRemainingType = userMessageCache.hasMessageType(client, 'remaining');
 
-      // Check if the client has a custom date && custom date is now date
-      const lastRequestedDate = clientPreferences.get(client);
-      // If the client has a custom date, skip the update
-      if (new Date(lastRequestedDate).toLocaleDateString('en-CA') !== new Date().toLocaleDateString("en-CA")) return;
-      // Send the update to the client
-      switch (true) {
-        case timelineMessage:
-          console.log("Sending live timeline update from MQTT");
-          await MachineWebsocket.timelines(client, { date: lastRequestedDate, shift: 0 });
-          break;
-        case percentageMessage:
-          await MachineWebsocket.percentages(client, { date: lastRequestedDate, shift: 0 });
-          break;
-        case remainingMessage:
-          await RemainingController.getRemaining(client);
-          break;
+      // Only send updates if client requested current date
+      if (!userMessageCache.isCurrentDate(client)) return;
+
+      const lastDate = userMessageCache.getLastDate(client);
+      const shift = userMessageCache.getShift(client);
+
+      if (hasTimelineType) {
+        console.log("Sending live timeline update from MQTT");
+        await MachineWebsocket.timelines(client, { date: lastDate, shift: shift ?? 0 });
+      }
+
+      if (hasPercentageType) {
+        await MachineWebsocket.percentages(client, { date: lastDate, shift: shift ?? 0 });
+      }
+
+      if (hasRemainingType) {
+        await RemainingController.getRemaining(client);
       }
     });
   } catch (error) {

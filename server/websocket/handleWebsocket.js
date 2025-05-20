@@ -1,7 +1,7 @@
 const RemainingController = require("../controllers/RemainingController");
 const MachineWebsocket = require("./MachineWebsocket");
-const clientPreferences = new Map();
-const messageTypeWebsocketClient = new Map();
+const userMessageCache = require("../cache/userMessageCache");
+
 /**
  * Handles WebSocket connections and messages, providing endpoints for retrieving
  * machine timelines and percentages.
@@ -10,7 +10,7 @@ const messageTypeWebsocketClient = new Map();
  */
 const handleWebsocket = (wss) => {
   wss.on("connection", (ws) => {
-    console.log("Client connected");
+    console.log("Client connected", Math.random().toFixed(3));
 
     /**
      * Handles incoming messages from clients.
@@ -28,35 +28,26 @@ const handleWebsocket = (wss) => {
       const parsedMessage = JSON.parse(msg);
       if (!parsedMessage) return console.log("Invalid format", msg);
 
-      const { type, data } = parsedMessage;
-      console.log(type, data);
+      const { type, data, close } = parsedMessage;
+      // console.log(`Received message type: ${type}`, data);
+
       if (!type) return console.log("Unknown format", messageString);
-      /**
-       * Records the types of messages sent by the client.
-       * @type {Set<string>}
-       */
-      if (!messageTypeWebsocketClient.has(ws)) {
-        messageTypeWebsocketClient.set(ws, new Set());
+
+      // Handle close flag
+      if (close) {
+        userMessageCache.removeMessageType(ws, type)
+        return
       }
-      /**
-       * Adds the type of the message to the record.
-       * @param {string} type - The type of message.
-       */
-      messageTypeWebsocketClient.get(ws).add(type);
-      if (data?.date) {
-        clientPreferences.set(ws, data.date);
-      }
-      // console.log(messageTypeWebsocketClient.get('percentage'), 111)
-      // console.log(messageTypeWebsocketClient.get('timeline'), 111, 'timeline')
-      // console.log(messageTypeWebsocketClient.get(ws).has('percentage'), 'bool')
-      // console.log(messageTypeWebsocketClient.get(ws), 'getws')
+
+      // Add message type and data to cache for other types
+      userMessageCache.addMessageType(ws, type, data);
+      // console.log("Client data", userMessageCache.clientData.get(ws));
 
       switch (type) {
         case "timeline":
           /**
            * Retrieves machine timelines.
            */
-          // console.log({ clientPreferences: clientPreferences.get(ws) }, 88888, 'form ws')
           MachineWebsocket.timelines(
             ws,
             data,
@@ -70,11 +61,7 @@ const handleWebsocket = (wss) => {
           break;
         case "remaining":
           RemainingController.getRemaining(ws);
-        // case 'test': {
-        //     console.log('test')
-        //     break
-        // }
-
+          break;
         default:
           console.log("Unknown type", type);
           break;
@@ -86,18 +73,11 @@ const handleWebsocket = (wss) => {
      */
     ws.on("close", () => {
       console.log("Client disconnected");
-      clientPreferences.delete(ws);
-      messageTypeWebsocketClient.delete(ws);
+      userMessageCache.removeClient(ws);
     });
   });
 };
 
-// const handleMessageType = async (type) => {
-
-// }
-
 module.exports = {
-  handleWebsocket,
-  clientPreferences,
-  messageTypeWebsocketClient,
+  handleWebsocket
 };

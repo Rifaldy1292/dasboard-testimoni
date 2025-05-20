@@ -2,6 +2,7 @@ export type PayloadType = 'timeline' | 'percentage' | 'remaining' | 'test'
 export type ShiftValue = 0 | 1 | 2
 export type PayloadWebsocket = {
   type: PayloadType
+  close?: boolean
   data?:
     | {
         date?: string
@@ -15,9 +16,9 @@ type ResponseType = 'success' | 'error'
 export interface WebsocketResponse {
   type: PayloadType | ResponseType
   data:
-    | Array<unknown>
+    | Array<Record<string, unknown>>
     | {
-        data: Array<unknown>
+        data: Array<Record<string, unknown>>
         date: string
       }
   message?: string

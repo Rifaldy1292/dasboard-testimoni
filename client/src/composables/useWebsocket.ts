@@ -1,8 +1,9 @@
 import type { AllMachineTimeline, GetPercentages } from '@/types/machine.type'
 import type { PayloadWebsocket, WebsocketResponse } from '@/types/websocket.type'
 import useToast from '@/composables/useToast'
-import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
+import { ref, onMounted, onUnmounted, shallowRef, computed } from 'vue'
 import type { OperatorMachine } from '@/types/user.type'
+
 const PORT = +import.meta.env.VITE_PORT || 3000
 const SOCKET_URL = `ws://localhost:${PORT}`
 
@@ -11,104 +12,111 @@ const messageWebsocket = shallowRef<string | undefined>()
 const operatorMachines = ref<OperatorMachine[]>([])
 export const loadingWebsocket = shallowRef<boolean>(false)
 
-const socket = ref<WebSocket | null>(null)
-export const sendMessage = (payload: PayloadWebsocket) => {
-  if (socket.value?.readyState === WebSocket.OPEN) {
-    console.log('send message', { payload })
-    loadingWebsocket.value = true
-    return socket.value.send(JSON.stringify(payload))
+// Global WebSocket instance and state
+const websocket = shallowRef<WebSocket | null>(null)
+const isConnectedWebsocket = computed(
+  () => !!websocket.value && websocket.value.readyState === WebSocket.OPEN
+)
+
+// Create WebSocket connection
+const createSocket = (): Promise<WebSocket> => {
+  if (isConnectedWebsocket.value) {
+    return Promise.resolve(websocket.value as WebSocket)
   }
+
+  return new Promise((resolve) => {
+    const ws = new WebSocket(SOCKET_URL, 'echo-protocol')
+
+    ws.onopen = () => {
+      console.log('Connected to WebSocket server')
+      resolve(ws)
+    }
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error', error)
+    }
+
+    ws.onclose = () => {
+      console.log('WebSocket closed')
+      websocket.value = null
+      resetState()
+    }
+
+    websocket.value = ws
+  })
+}
+
+// Reset all state
+const resetState = () => {
+  timelineMachines.value = undefined
+  operatorMachines.value = []
+  messageWebsocket.value = undefined
+  loadingWebsocket.value = false
 }
 
 const useWebSocket = (payload: PayloadWebsocket) => {
   const toast = useToast()
-
   const percentageMachines = ref<GetPercentages | undefined>(undefined)
 
-  onMounted(() => {
-    loadingWebsocket.value = true
-    socket.value = new WebSocket(SOCKET_URL, 'echo-protocol')
+  // Message handler with toast access
+  const handleMessage = (parsedData: WebsocketResponse) => {
+    const { type, data, message } = parsedData
+    console.log(`from server ${type}`, data)
 
-    socket.value.onopen = () => {
-      console.log('Connected to WebSocket server')
-      if (payload) sendMessage(payload)
+    switch (type) {
+      case 'error':
+        timelineMachines.value = undefined
+        operatorMachines.value = []
+        toast.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: message || 'An error occurred'
+        })
+        break
+      case 'success':
+        toast.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: message
+        })
+        break
+      case 'timeline':
+        timelineMachines.value = data as AllMachineTimeline
+        break
+      case 'remaining':
+        operatorMachines.value = data as Array<unknown> as OperatorMachine[]
+        break
+      case 'percentage':
+        percentageMachines.value = data as GetPercentages
+        break
+      default:
+        console.log('Unknown type', type, data)
     }
-    socket.value.onmessage = (event) => {
-      try {
-        loadingWebsocket.value = true
-        const parsedData = JSON.parse(event.data) as WebsocketResponse
-        // console.log('Received WebSocket message', parsedData)
-        const { type, data, message } = parsedData
-        if (!type) return console.log('Unknown format', parsedData)
-        if (message) {
-          messageWebsocket.value = message
-          // console.log(messageWebsocket.value, 'from usews')
+  }
+
+  onMounted(async () => {
+    try {
+      loadingWebsocket.value = true
+
+      // Create or get WebSocket connection
+      if (!isConnectedWebsocket.value) {
+        const ws = await createSocket()
+        ws.onmessage = (event) => {
+          const parsedData = JSON.parse(event.data) as WebsocketResponse
+          handleMessage(parsedData)
         }
-        switch (type) {
-          case 'error':
-            // reset state
-            timelineMachines.value = undefined
-            operatorMachines.value = []
-            percentageMachines.value = undefined
-            toast.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: message
-            })
-            break
-          case 'success':
-            toast.add({
-              severity: 'success',
-              summary: 'Success',
-              detail: message
-            })
-            break
-          case 'timeline':
-            timelineMachines.value = data as AllMachineTimeline
-            console.log('from server timeline', data)
-            break
-          case 'remaining':
-            operatorMachines.value = data as OperatorMachine[]
-            break
-          case 'percentage': {
-            console.log('from server percentage', data)
-            percentageMachines.value = data as GetPercentages
-            break
-          }
-          default:
-            console.log('Unknown type', type, data)
-            break
-        }
-      } catch (error) {
-        console.error('Invalid WebSocket message', error)
-      } finally {
-        loadingWebsocket.value = false
       }
-    }
 
-    socket.value.onerror = (error) => {
-      console.error('WebSocket error', error)
-      // Attempt to reconnect after a delay
-      setTimeout(() => {
-        socket.value = new WebSocket(SOCKET_URL, 'echo-protocol')
-      }, 1000) // Reconnect after 1 seconds
+      await sendMessage(payload)
+    } catch (error) {
+      console.error('WebSocket connection failed:', error)
+    } finally {
+      loadingWebsocket.value = false
     }
-
-    socket.value.onclose = () => {
-      percentageMachines.value = undefined
-      timelineMachines.value = undefined
-      socket.value?.close()
-      console.log('Disconnected from WebSocket server')
-    }
-    loadingWebsocket.value = false
   })
 
   onUnmounted(() => {
-    if (socket.value) {
-      socket.value.close()
-    }
-
-    socket.value = null
+    sendMessage({ ...payload, close: true })
   })
 
   return {
@@ -118,6 +126,40 @@ const useWebSocket = (payload: PayloadWebsocket) => {
     loadingWebsocket,
     percentageMachines,
     timelineMachines
+  }
+}
+
+// Close WebSocket connection (logout)
+export const closeConnection = () => {
+  if (websocket.value) {
+    websocket.value.close()
+    websocket.value = null
+  }
+
+  // Reset all state
+  timelineMachines.value = undefined
+  operatorMachines.value = []
+  messageWebsocket.value = undefined
+  loadingWebsocket.value = false
+}
+
+// Update sendMessage to be async
+export const sendMessage = async (payload: PayloadWebsocket) => {
+  try {
+    loadingWebsocket.value = true
+
+    if (!websocket.value || !isConnectedWebsocket.value) {
+      websocket.value = await createSocket()
+    }
+
+    const newPayload = { close: payload.close || false, ...payload }
+    console.log('send message, payload:', newPayload)
+    websocket.value.send(JSON.stringify(newPayload))
+  } catch (error) {
+    console.error('Failed to send message:', error)
+    throw error
+  } finally {
+    loadingWebsocket.value = false
   }
 }
 
