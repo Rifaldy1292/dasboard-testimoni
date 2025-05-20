@@ -106,7 +106,9 @@ const handleEditDescription = async () => {
           optionLabel="name"
           optionValue="value"
           placeholder="Pilih atau masukkan deskripsi"
-          :editable="true"
+          autofocus
+          editable
+          auto-option-focus
           class="w-full"
           @keydown.enter="handleEditDescription"
         />

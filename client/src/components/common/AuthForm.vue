@@ -24,6 +24,10 @@ interface ShowFormField {
   confirmPassword: boolean
 }
 
+onMounted(() => {
+  fetchTotalCommit()
+})
+
 const route = useRoute()
 
 const resolver = computed(() => {
@@ -113,10 +117,6 @@ const fetchTotalCommit = async () => {
     info.value = null
   }
 }
-
-onMounted(() => {
-  fetchTotalCommit()
-})
 </script>
 
 <template>
@@ -135,6 +135,7 @@ onMounted(() => {
       <div>
         <label class="text-gray-800 dark:text-white text-sm mb-2 block">NIK</label>
         <InputText
+          autofocus
           :disabled="isResetPasswordPage"
           name="NIK"
           :default-value="userData?.NIK"
