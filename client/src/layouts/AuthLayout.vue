@@ -6,7 +6,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="bg-gray-900 text-white font-[sans-serif]">
+  <div class="bg-gray-900 dark text-white font-[sans-serif]">
     <div class="min-h-screen flex flex-col items-center justify-center py-10 px-4">
       <div class="max-w-md w-full">
         <a href="#">
