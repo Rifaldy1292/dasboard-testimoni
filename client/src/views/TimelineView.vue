@@ -5,17 +5,22 @@ import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import useWebsocket from '@/composables/useWebsocket'
 import DataNotFound from '@/components/common/DataNotFound.vue'
 import TimelineMachine from '@/components/modules/timeline/TimelineMachine.vue'
-import DatePickerDay from '@/components/common/DatePickerDay.vue'
+import DateTimeShiftSelector from '@/components/common/DateTimeShiftSelector.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import { Button } from 'primevue'
-import { type PayloadWebsocket } from '@/types/websocket.type'
+import { type PayloadWebsocket, type ShiftValue } from '@/types/websocket.type'
 
-const dateOption = ref<Date>(new Date())
+const dateTimeModel = ref({
+  date: new Date(),
+  shift: 0 as ShiftValue
+})
+
 const payloadWs = computed<PayloadWebsocket>(() => {
   return {
     type: 'timeline',
     data: {
-      date: dateOption.value.toISOString()
+      date: dateTimeModel.value.date.toISOString(),
+      shift: dateTimeModel.value.shift
     }
   }
 })
@@ -44,28 +49,21 @@ watch(
     <LoadingAnimation :state="loadingWebsocket" />
     <template v-if="!loadingWebsocket">
       <div class="flex justify-between mb-2">
-        <div class="flex justify-between gap-2">
-          <span
-            v-if="timelineMachines?.date"
-            class="text-md font-semibold text-black dark:text-white"
-            >{{ new Date(timelineMachines?.date as string).toLocaleDateString() }}</span
-          >
-          <div class="flex items-center gap-2">
-            <Button
-              :disabled="resizeCount === 10"
-              @click="updateResizeCount('increase')"
-              :class="`p-button-rounded p-button-text ${resizeCount === 10 && 'opacity-50 cursor-not-allowed'}`"
-              icon="pi pi-arrow-down"
-            />
-            <Button
-              :disabled="resizeCount === 1"
-              @click="updateResizeCount('decrease')"
-              :class="`p-button-rounded p-button-text ${resizeCount === 1 && ' opacity-50 cursor-not-allowed'}`"
-              icon="pi pi-arrow-up"
-            />
-          </div>
+        <div class="flex items-center gap-2">
+          <Button
+            :disabled="resizeCount === 10"
+            @click="updateResizeCount('increase')"
+            :class="`p-button-rounded p-button-text ${resizeCount === 10 && 'opacity-50 cursor-not-allowed'}`"
+            icon="pi pi-arrow-down"
+          />
+          <Button
+            :disabled="resizeCount === 1"
+            @click="updateResizeCount('decrease')"
+            :class="`p-button-rounded p-button-text ${resizeCount === 1 && ' opacity-50 cursor-not-allowed'}`"
+            icon="pi pi-arrow-up"
+          />
         </div>
-        <DatePickerDay v-model:date-option="dateOption" />
+        <DateTimeShiftSelector v-model="dateTimeModel" />
       </div>
       <div class="flex flex-col gap-1.5">
         <DataNotFound :condition="!timelineMachines?.data?.length" />

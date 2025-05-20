@@ -6,22 +6,24 @@ import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import useWebSocket from '@/composables/useWebsocket'
 import DataNotFound from '@/components/common/DataNotFound.vue'
-import DatePickerDay from '@/components/common/DatePickerDay.vue'
+import DateTimeShiftSelector from '@/components/common/DateTimeShiftSelector.vue'
 import RunningTimeCard from '@/components/Charts/RunningTimeCard.vue'
-import ShiftSelector from '@/components/common/ShiftSelector.vue'
 import { animate, stagger } from 'motion'
 import { type PayloadWebsocket, type ShiftValue } from '@/types/websocket.type'
 
 const route = useRoute()
 
-const dateOption = ref<Date>(new Date())
-const selectedShift = shallowRef<ShiftValue>(0)
+const dateTimeModel = ref({
+  date: new Date(),
+  shift: 0 as ShiftValue
+})
+
 const payloadWs = computed<PayloadWebsocket>(() => {
   return {
     type: 'percentage',
     data: {
-      date: dateOption.value.toISOString(),
-      shift: selectedShift.value
+      date: dateTimeModel.value.date.toISOString(),
+      shift: dateTimeModel.value.shift
     }
   }
 })
@@ -39,11 +41,11 @@ watch(
 
 // refetch per 5 minute if date not change
 watch(
-  [() => dateOption.value, () => percentageMachines.value?.data],
-  ([valueDateOPtion, percentageData]) => {
+  [() => dateTimeModel.value.date, () => percentageMachines.value?.data],
+  ([valueDate, percentageData]) => {
     if (intervalId.value) clearInterval(intervalId.value)
     if (route.path !== '/running-time') return
-    if (valueDateOPtion === new Date() && percentageData?.length) {
+    if (valueDate === new Date() && percentageData?.length) {
       intervalId.value = setInterval(
         () => {
           console.log('refetch')
@@ -87,15 +89,8 @@ watch(
   <DefaultLayout>
     <BreadcrumbDefault page-title="Running Time" />
     <LoadingAnimation :state="loadingWebsocket" />
-
     <div class="flex justify-end">
-      <div class="flex justify-between gap-3">
-        <ShiftSelector v-model="selectedShift" />
-        <div class="flex flex-col justify-center">
-          <label class="text-sm font-medium text-black dark:text-white">Date</label>
-          <DatePickerDay v-model:date-option="dateOption" />
-        </div>
-      </div>
+      <DateTimeShiftSelector v-model="dateTimeModel" />
     </div>
     <DataNotFound :condition="percentageMachines?.data.length === 0 && !loadingWebsocket" />
 

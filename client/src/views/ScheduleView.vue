@@ -11,10 +11,9 @@ import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import useWebsocket from '@/composables/useWebsocket'
 import type { PayloadWebsocket, ShiftValue } from '@/types/websocket.type'
 import type { Machine, MachineTimeline, ObjMachineTimeline } from '@/types/machine.type'
-import DatePickerDay from '@/components/common/DatePickerDay.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
+import DateTimeShiftSelector from '@/components/common/DateTimeShiftSelector.vue'
 import InputSwitch from 'primevue/inputswitch'
-import ShiftSelector from '@/components/common/ShiftSelector.vue'
 
 interface Resource {
   id: string
@@ -38,16 +37,21 @@ interface CalendarEvent {
   }
 }
 
-const dateOption = ref<Date>(new Date())
-const selectedShift = ref<ShiftValue>(0)
-const showDetailsInTitle = ref<boolean>(false)
+const showDetailsInTitle = shallowRef<boolean>(false)
+const dateTimeModel = ref<{
+  date: Date
+  shift: ShiftValue
+}>({
+  date: new Date(),
+  shift: 0 as ShiftValue
+})
 
 const payloadWs = computed<PayloadWebsocket>(() => {
   return {
     type: 'timeline',
     data: {
-      date: dateOption.value.toISOString(),
-      shift: selectedShift.value
+      date: dateTimeModel.value.date.toISOString(),
+      shift: dateTimeModel.value.shift
     }
   }
 })
@@ -376,13 +380,7 @@ watch(
               <InputSwitch id="toggleDetails" v-model="showDetailsInTitle" />
             </div>
           </div>
-          <div class="flex justify-between gap-3">
-            <ShiftSelector v-model="selectedShift" />
-            <div class="flex flex-col justify-center">
-              <label class="text-sm font-medium text-black dark:text-white">Date</label>
-              <DatePickerDay v-model:date-option="dateOption" />
-            </div>
-          </div>
+          <DateTimeShiftSelector v-model="dateTimeModel" />
         </div>
         <FullCalendar :options="calendarOptions" :key="calendarKey" />
       </div>

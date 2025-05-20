@@ -8,7 +8,8 @@
     "server": "cd server && npm run start",
     "pull": "cd client && git pull origin main && npm run build-only",
     "backup-db": "cd server/backup && \"C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump.exe\" -U postgres -h localhost -p 5432 -F c -b -v -f dashboard_machine_backup.dump yamaha_dashboard_machine",
-    "push-db": "npm run backup-db && git add . && git commit -m \"backup db\" && git push origin main"
+    "push-db": "npm run backup-db && git add . && git commit -m \"backup db\" && git push origin main",
+    "restore-db": "cd server && npm run full-restore"
   },
   "repository": {
     "type": "git",
