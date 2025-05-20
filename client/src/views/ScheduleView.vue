@@ -15,7 +15,6 @@ import DatePickerDay from '@/components/common/DatePickerDay.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import InputSwitch from 'primevue/inputswitch'
 import ShiftSelector from '@/components/common/ShiftSelector.vue'
-import type { Dictionary } from '@fullcalendar/core/internal'
 
 interface Resource {
   id: string
