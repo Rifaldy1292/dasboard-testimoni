@@ -13,7 +13,7 @@ import type { PayloadWebsocket, ShiftValue } from '@/types/websocket.type'
 import type { Machine, MachineTimeline, ObjMachineTimeline } from '@/types/machine.type'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DateTimeShiftSelector from '@/components/common/DateTimeShiftSelector.vue'
-import InputSwitch from 'primevue/inputswitch'
+import { ToggleSwitch } from 'primevue'
 
 interface Resource {
   id: string
@@ -377,7 +377,7 @@ watch(
           <div class="flex items-center">
             <div class="flex items-center mr-4">
               <label for="toggleDetails" class="mr-2">Show Details:</label>
-              <InputSwitch id="toggleDetails" v-model="showDetailsInTitle" />
+              <ToggleSwitch id="toggleDetails" v-model="showDetailsInTitle" />
             </div>
           </div>
           <DateTimeShiftSelector v-model="dateTimeModel" />

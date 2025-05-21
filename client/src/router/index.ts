@@ -4,13 +4,13 @@ import ForgotPasswordView from '@/views/Authentication/ForgotPasswordView.vue'
 import UsersView from '@/views/UsersView.vue'
 import ResetPasswordView from '@/views/Authentication/ResetPasswordView.vue'
 import EditProfileView from '@/views/EditProfileView.vue'
-import TimelineView from '@/views/TimelineView.vue'
 import CuttingTimeView from '@/views/CuttingTimeView.vue'
 import RunningTimeView from '@/views/RunningTimeView.vue'
 import TransferFileView from '@/views/TransferFileView.vue'
 import DashboardSettingView from '@/views/DashboardSettingView.vue'
+import Timeline2View from '@/views/Timeline2View.vue'
+import Timeline1View from '@/views/Timeline1View.vue'
 import RemainingView from '@/views/RemainingView.vue'
-import ScheduleView from '@/views/ScheduleView.vue'
 
 const routes: Readonly<RouteRecordRaw[]> = [
   {
@@ -27,11 +27,19 @@ const routes: Readonly<RouteRecordRaw[]> = [
         }
       },
       {
-        path: 'timeline',
-        name: 'timeline',
-        component: TimelineView,
+        path: 'timeline1',
+        name: 'timeline1',
+        component: Timeline1View,
         meta: {
-          title: 'Timeline'
+          title: 'Timeline 1'
+        }
+      },
+      {
+        path: 'timeline2',
+        name: 'timeline2',
+        component: Timeline2View,
+        meta: {
+          title: 'Timeline 2'
         }
       },
       {
@@ -42,7 +50,14 @@ const routes: Readonly<RouteRecordRaw[]> = [
           title: 'Cutting Time'
         }
       },
-
+      {
+        path: 'remaining',
+        name: 'remaining',
+        component: RemainingView,
+        meta: {
+          title: 'Remaining Time'
+        }
+      },
       {
         path: '/users',
         name: 'Users',
@@ -51,22 +66,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
           title: 'User List'
         }
       },
-      {
-        path: '/remaining',
-        name: 'remaining',
-        component: RemainingView,
-        meta: {
-          title: 'Remaining'
-        }
-      },
-      {
-        path: '/schedule',
-        name: 'schedule',
-        component: ScheduleView,
-        meta: {
-          title: 'Schedule'
-        }
-      },
+
       {
         path: 'edit-profile',
         name: 'editProfile',

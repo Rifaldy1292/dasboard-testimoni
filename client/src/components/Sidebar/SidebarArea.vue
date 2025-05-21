@@ -44,14 +44,14 @@ const menuGroups = computed<MenuGroup[]>(() => {
               icon: `<i class="fa-solid fa-clock fa-spin-pulse"></i>`
             },
             {
-              label: 'Timeline',
-              route: '/timeline',
+              label: 'Timeline1',
+              route: '/timeline1',
               visible: true,
               icon: `<i class="fa-solid fa-timeline fa-bounce"></i>`
             },
             {
               label: 'Timeline2',
-              route: '/schedule',
+              route: '/timeline2',
               visible: true,
               icon: `<i class="fa-solid fa-timeline fa-bounce"></i>`
             },
@@ -84,12 +84,6 @@ const menuGroups = computed<MenuGroup[]>(() => {
         {
           label: 'Next Process',
           route: '/remaining',
-          visible: true,
-          icon: `<i class="fa-solid fa-forward-fast fa-fade"></i>`
-        },
-        {
-          label: 'Schedule',
-          route: '/schedule',
           visible: true,
           icon: `<i class="fa-solid fa-forward-fast fa-fade"></i>`
         }

@@ -9,6 +9,8 @@ const SOCKET_URL = `ws://localhost:${PORT}`
 
 export const timelineMachines = ref<AllMachineTimeline | undefined>()
 const messageWebsocket = shallowRef<string | undefined>()
+const percentageMachines = ref<GetPercentages | undefined>(undefined)
+
 const operatorMachines = ref<OperatorMachine[]>([])
 export const loadingWebsocket = shallowRef<boolean>(false)
 
@@ -46,6 +48,42 @@ const createSocket = (): Promise<WebSocket> => {
   })
 }
 
+// Message handler with toast access
+const handleMessage = (parsedData: WebsocketResponse, toast: ReturnType<typeof useToast>) => {
+  const { type, data, message } = parsedData
+  console.log(`from server ${type}`, data)
+
+  switch (type) {
+    case 'error':
+      timelineMachines.value = undefined
+      operatorMachines.value = []
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: message || 'An error occurred'
+      })
+      break
+    case 'success':
+      toast.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: message
+      })
+      break
+    case 'timeline':
+      timelineMachines.value = data as AllMachineTimeline
+      break
+    case 'remaining':
+      operatorMachines.value = data as Array<unknown> as OperatorMachine[]
+      break
+    case 'percentage':
+      percentageMachines.value = data as GetPercentages
+      break
+    default:
+      console.log('Unknown type', type, data)
+  }
+}
+
 // Reset all state
 const resetState = () => {
   timelineMachines.value = undefined
@@ -56,43 +94,6 @@ const resetState = () => {
 
 const useWebSocket = (payload: PayloadWebsocket) => {
   const toast = useToast()
-  const percentageMachines = ref<GetPercentages | undefined>(undefined)
-
-  // Message handler with toast access
-  const handleMessage = (parsedData: WebsocketResponse) => {
-    const { type, data, message } = parsedData
-    console.log(`from server ${type}`, data)
-
-    switch (type) {
-      case 'error':
-        timelineMachines.value = undefined
-        operatorMachines.value = []
-        toast.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: message || 'An error occurred'
-        })
-        break
-      case 'success':
-        toast.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: message
-        })
-        break
-      case 'timeline':
-        timelineMachines.value = data as AllMachineTimeline
-        break
-      case 'remaining':
-        operatorMachines.value = data as Array<unknown> as OperatorMachine[]
-        break
-      case 'percentage':
-        percentageMachines.value = data as GetPercentages
-        break
-      default:
-        console.log('Unknown type', type, data)
-    }
-  }
 
   onMounted(async () => {
     try {
@@ -103,7 +104,7 @@ const useWebSocket = (payload: PayloadWebsocket) => {
         const ws = await createSocket()
         ws.onmessage = (event) => {
           const parsedData = JSON.parse(event.data) as WebsocketResponse
-          handleMessage(parsedData)
+          handleMessage(parsedData, toast)
         }
       }
 
@@ -143,7 +144,6 @@ export const closeConnection = () => {
   loadingWebsocket.value = false
 }
 
-// Update sendMessage to be async
 export const sendMessage = async (payload: PayloadWebsocket) => {
   try {
     loadingWebsocket.value = true

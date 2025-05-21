@@ -20,12 +20,12 @@ const tabbItems = [
     id: 1,
     label: 'Cutting Time',
     content: h(CuttingTime)
-  },
-  {
-    id: 2,
-    label: 'Machines',
-    content: h(MachineTable)
   }
+  // {
+  //   id: 2,
+  //   label: 'Machines',
+  //   content: h(MachineTable)
+  // }
 ]
 </script>
 
