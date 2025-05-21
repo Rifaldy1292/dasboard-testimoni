@@ -21,7 +21,6 @@ const visibleDialogForm = defineModel<boolean>('visibleDialogForm', {
   required: true
 })
 
-// const { sendMessage, loadingWebsocket, timelineMachines } = useWebSocket({ type: 'timeline' })
 const { selectedOneMachine } = useMachine()
 
 const toast = useToast()

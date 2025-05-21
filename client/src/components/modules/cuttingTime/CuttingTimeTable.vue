@@ -4,8 +4,6 @@ import type { cuttingTimeInMonth } from '@/types/machine.type'
 import { Column, DataTable, Divider } from 'primevue'
 import { computed } from 'vue'
 
-const { loadingFetch, cuttingTimeMachines } = useMachine()
-
 type Obj = {
   data: number
   actual?: number
@@ -13,7 +11,7 @@ type Obj = {
 
 /**
  * 
- * @return example: 
+ * @example 
  * {
    name: 'Machine 1',
    1: { actual: 30, data: 10 },
@@ -21,6 +19,8 @@ type Obj = {
  }
  */
 type FormatValueDataTable = { name: string } & Record<number, Obj>
+
+const { loadingFetch, cuttingTimeMachines } = useMachine()
 
 const dataTableValue = computed<{ key: string[]; value: FormatValueDataTable[] } | undefined>(
   () => {

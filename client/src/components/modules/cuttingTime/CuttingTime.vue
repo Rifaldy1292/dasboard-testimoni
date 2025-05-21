@@ -14,7 +14,6 @@ const monthValue = ref<Date>(new Date())
 const showLabel = shallowRef<boolean>(true)
 
 watchEffect(() => {
-  console.log({ period: monthValue.value })
   getCuttingTime({
     machineIds: selectedMachines.value.length ? selectedMachines.value : undefined,
     period: monthValue.value

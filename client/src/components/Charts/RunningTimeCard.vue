@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Machine } from '@/types/machine.type'
-import { Button } from 'primevue'
 import { ref } from 'vue'
 import VueApexCharts from 'vue3-apexcharts'
 
@@ -103,12 +102,12 @@ const apexOptions = {
         </div>
       </template>
       <div class="w-full px-8 sm:w-1/2 text-black dark:text-white justify-center ml-2">
-        <Button
-          :label="machine.status"
-          :severity="machine.status === 'Running' ? 'success' : 'warn'"
-          size="large"
-          disabled
-        />
+        <div
+          class="p-2 rounded-md text-center w-full min-w-[60px]"
+          :class="machine.status === 'Running' ? 'bg-green-500 text-white' : 'bg-red-500'"
+        >
+          {{ machine.status }}
+        </div>
       </div>
     </div>
     <!-- </div> -->

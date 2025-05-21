@@ -169,70 +169,70 @@ class MachineController {
     }
   }
 
-  static async refactorGetCuttingTime(req, res) {
-    try {
-      const { period } = req.query;
-      const { date } = dateCuttingTime(period);
+  // static async refactorGetCuttingTime(req, res) {
+  //   try {
+  //     const { period } = req.query;
+  //     const { date } = dateCuttingTime(period);
 
-      const cuttingTime = await CuttingTime.findOne({
-        where: { period: date },
-        attributes: ["period", "target"],
-      });
+  //     const cuttingTime = await CuttingTime.findOne({
+  //       where: { period: date },
+  //       attributes: ["period", "target"],
+  //     });
 
-      if (!cuttingTime) {
-        throw new Error("cutting time not found");
-      }
-      // 28
-      const totalDayInMonth = date.getDate();
+  //     if (!cuttingTime) {
+  //       throw new Error("cutting time not found");
+  //     }
+  //     // 28
+  //     const totalDayInMonth = date.getDate();
 
-      const objTargetCuttingTime = objectTargetCuttingTime(
-        cuttingTime.target,
-        totalDayInMonth
-      );
+  //     const objTargetCuttingTime = objectTargetCuttingTime(
+  //       cuttingTime.target,
+  //       totalDayInMonth
+  //     );
 
-      // [1,2,3...31]
-      const allDayInMonth = Array.from(
-        { length: totalDayInMonth },
-        (_, i) => i + 1
-      );
-      // const allDayInMonth = [9]
+  //     // [1,2,3...31]
+  //     const allDayInMonth = Array.from(
+  //       { length: totalDayInMonth },
+  //       (_, i) => i + 1
+  //     );
+  //     // const allDayInMonth = [9]
 
-      const allDateInMonth = Array.from({ length: totalDayInMonth }, (_, i) => {
-        const day = new Date(date.getUTCFullYear(), date.getUTCMonth(), i + 1);
-        return day;
-      });
+  //     const allDateInMonth = Array.from({ length: totalDayInMonth }, (_, i) => {
+  //       const day = new Date(date.getUTCFullYear(), date.getUTCMonth(), i + 1);
+  //       return day;
+  //     });
 
-      const dailyConfigInMonth = await DailyConfig.findAll({
-        raw: true,
-        attributes: ["date", "startFirstShift"],
-        where: {
-          date: {
-            [Op.in]: allDateInMonth,
-          }
-        }
-      })
+  //     const dailyConfigInMonth = await DailyConfig.findAll({
+  //       raw: true,
+  //       attributes: ["date", "startFirstShift"],
+  //       where: {
+  //         date: {
+  //           [Op.in]: allDateInMonth,
+  //         }
+  //       }
+  //     })
 
-      const dateInDailyConfig = dailyConfigInMonth.map((dailyConfig) => {
-        const { date, startFirstShift } = dailyConfig;
-        const [hour, minute] = startFirstShift.split(':').map(Number);
-        const dateFrom = new Date(date)
-        dateFrom.setHours(hour, minute, 0, 0);
-        const dateTo = new Date(date)
-        dateTo.setDate(dateTo.getDate() + 1);
-        const endMinute = minute === 0 ? 59 : minute - 1;
-        dateTo.setHours(hour + 8, endMinute, 59, 999);
-        const result = {
-          [Op.between]: [dateFrom, dateTo]
-        }
-        return result;
-      });
+  //     const dateInDailyConfig = dailyConfigInMonth.map((dailyConfig) => {
+  //       const { date, startFirstShift } = dailyConfig;
+  //       const [hour, minute] = startFirstShift.split(':').map(Number);
+  //       const dateFrom = new Date(date)
+  //       dateFrom.setHours(hour, minute, 0, 0);
+  //       const dateTo = new Date(date)
+  //       dateTo.setDate(dateTo.getDate() + 1);
+  //       const endMinute = minute === 0 ? 59 : minute - 1;
+  //       dateTo.setHours(hour + 8, endMinute, 59, 999);
+  //       const result = {
+  //         [Op.between]: [dateFrom, dateTo]
+  //       }
+  //       return result;
+  //     });
 
-      console.log(dateInDailyConfig)
+  //     console.log(dateInDailyConfig)
 
-    } catch (error) {
-      serverError(error, res, "Failed to refactor get cutting time");
-    }
-  }
+  //   } catch (error) {
+  //     serverError(error, res, "Failed to refactor get cutting time");
+  //   }
+  // }
 
   static async getMachineOption(_, res) {
     try {
