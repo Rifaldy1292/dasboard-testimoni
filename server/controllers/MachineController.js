@@ -111,7 +111,7 @@ class MachineController {
       res
         .status(200)
         .json({ status: 200, message: "success get cutting time", data });
-      MachineController.refactorGetCuttingTime(req, res);
+      // MachineController.refactorGetCuttingTime(req, res);
     } catch (error) {
       serverError(error, res, "Failed to get cutting time");
     }
