@@ -134,9 +134,9 @@ const events = computed<CalendarEvent[]>(() => {
       }
 
       // Periksa properti isNext dengan lebih hati-hati
-      if (log.isNext === true) {
-        return
-      }
+      // if (log.isNext === true) {
+      //   return
+      // }
 
       try {
         // Periksa apakah createdAt ada dan valid
@@ -257,8 +257,19 @@ const calendarOptions = computed<CalendarOptions>(() => {
       center: 'title',
       right: 'resourceTimelineDay,resourceTimelineWeek,resourceTimelineMonth'
     },
+    slotDuration: '00:05:00', // Set slot per 5 menit
+    slotLabelInterval: '00:30:00', // Label waktu setiap 30 menit
+    slotLabelFormat: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    },
+    snapDuration: '00:05:00', // Snapping events ke interval 5 menit
+    scrollTime: '00:00:00', // Mulai scroll dari jam 00:00
+    resourceAreaWidth: '15%',
+    nowIndicator: true,
     eventContent: (arg) => {
-      // Membuat konten kustom untuk event
+      // Custom event content
       const eventEl = document.createElement('div')
       eventEl.className = 'custom-event-content'
 
@@ -334,6 +345,8 @@ const calendarOptions = computed<CalendarOptions>(() => {
 
       if (extendedProps) {
         const tooltipText = []
+        // time
+        tooltipText.push(`time: ${info.event.title || '-'}`)
         tooltipText.push(`Status: ${status || '-'}`)
         status !== 'Running' && tooltipText.push(`Description: ${description || '-'}`)
         if (status === 'Running') {
@@ -391,10 +404,10 @@ watch(
 <style>
 /* Styling untuk event kustom */
 .custom-event-content {
-  padding: 4px;
+  /* padding: 4px; */
   overflow: hidden;
-  width: 100%;
-  height: 100%;
+  /* width: 100%; */
+  /* height: 100%; */
   display: flex;
   flex-direction: column;
 }
@@ -407,23 +420,39 @@ watch(
 
 /* Memperbaiki tampilan event di FullCalendar */
 .fc-timeline-event {
-  overflow: visible !important;
+  overflow: hidden !important;
   height: auto !important;
   min-height: 30px;
 }
 
 .fc-timeline-event .fc-event-main {
-  overflow: visible !important;
+  /* overflow: visible !important; */
   height: auto !important;
   padding: 0 !important;
+  overflow: hidden !important; /* Ubah dari visible ke hidden */
+  max-height: 30px !important;
 }
 
-.fc-timeline-event-harness {
-  height: auto !important;
-}
-
-/* Memastikan teks dapat wrap */
+/* Memperbaiki tampilan slot waktu */
 .fc .fc-timeline-event .fc-event-title {
   white-space: normal !important;
+}
+
+/* Styling untuk label waktu */
+.fc-timeline-slot-label {
+  font-size: 0.8em !important;
+  padding: 2px !important;
+}
+
+/* Styling untuk now indicator */
+.fc-timeline-now-indicator-line {
+  border-color: #ff0000 !important;
+  border-width: 2px !important;
+  z-index: 1000 !important;
+}
+
+.fc-timeline-now-indicator-arrow {
+  border-color: #ff0000 !important;
+  border-width: 5px !important;
 }
 </style>
