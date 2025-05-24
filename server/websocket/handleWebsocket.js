@@ -31,7 +31,7 @@ const handleWebsocket = (wss) => {
       const { type, data, close } = parsedMessage;
       // console.log(`Received message type: ${type}`, data);
 
-      if (!type) return console.log("Unknown format", messageString);
+      if (!type) return console.log("Unknown format", parsedMessage);
 
       // Handle close flag
       if (close) {

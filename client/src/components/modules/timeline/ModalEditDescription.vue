@@ -27,7 +27,7 @@ const toast = useToast()
 const route = useRoute()
 
 const dataDialogConfirm = computed<DialogFormProps>(() => ({
-  header: `Edit Description ${machineName || ''} ${selectedMachine?.createdAt || ''}`
+  header: `Edit Description ${machineName || ''} ${(selectedMachine?.createdAt && new Date(selectedMachine.createdAt).toLocaleString()) || ''}`
 }))
 
 const inputDescription = shallowRef<string>(selectedMachine?.description as string)

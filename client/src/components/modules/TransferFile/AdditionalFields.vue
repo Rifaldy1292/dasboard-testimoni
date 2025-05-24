@@ -3,13 +3,14 @@ import { useFTP } from '@/composables/useFTP'
 import { useMachine } from '@/composables/useMachine'
 import useToast from '@/composables/useToast'
 import MachineServices from '@/services/machine.service'
-import { type AllMachineTimeline, type MachineOption } from '@/types/machine.type'
+import { type MachineOption } from '@/types/machine.type'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import { AxiosError } from 'axios'
 import { InputNumber, Select, useConfirm } from 'primevue'
-import { ref, shallowRef, watch } from 'vue'
+import { shallowRef, watch } from 'vue'
 import ModalDocumentation from '../timeline/ModalDocumentation.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
+import { timelineMachines } from '@/composables/useWebsocket'
 
 defineProps<{ isDisableAll: boolean }>()
 
@@ -38,12 +39,10 @@ const {
   loadingUpload
 } = useFTP()
 
-// const { timelineMachines } = useWebSocket()
-const timelineMachines = ref<AllMachineTimeline | undefined>(undefined)
-
 const { workPositionOptions, coordinateOptions, coolantOptions, processTypeOptions } =
   additionalOptions
 
+// Watch for changes in the selected work position
 watch(
   () => selectedWorkPosition.value,
   (newVal) => {
@@ -63,7 +62,7 @@ const fetchTimelineByMachineId = async (machine_id: number) => {
     loadingUpload.value = true
     const { data } = await MachineServices.getTimelineByMachineId(machine_id)
     timelineMachines.value = data.data
-    visibleDialogForm.value = true
+    data.data.data.length ? (visibleDialogForm.value = true) : (visibleDialogForm.value = false)
   } catch (error) {
     handleErrorAPI(error, toast)
   } finally {

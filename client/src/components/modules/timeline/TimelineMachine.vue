@@ -38,27 +38,9 @@ const iconTimeline = (
   return { icon: 'pi pi-minus-circle', color: '#de2902' }
 }
 
-// str ex: '1h 2m 3s'
-// expect : 3600000
-const convertStringDifferenceToMilisecond = (str: string): number => {
-  const arr = str.split(' ')
-  let total = 0
-  for (let i = 0; i < arr.length; i++) {
-    const num = parseInt(arr[i].replace('h', '').replace('m', '').replace('s', ''))
-    if (arr[i].includes('h')) {
-      total += num * 3600000
-    } else if (arr[i].includes('m')) {
-      total += num * 60000
-    } else if (arr[i].includes('s')) {
-      total += num * 1000
-    }
-  }
-  return total
-}
-
 // 20 * 5 = 100
 const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
-  const milisecond = convertStringDifferenceToMilisecond(obj.timeDifference)
+  const milisecond = obj.timeDifferenceMs
   const minute = Math.round(milisecond / (1000 * 60))
   const width = minute * 10
   const DEFAULT_WIDTH = 50
@@ -75,24 +57,6 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
   // return DEFAULT_WIDTH
 
   // return DEFAULT_WIDTH
-}
-
-const handleTimeDifference = (obj: ObjMachineTimeline, index: number): string => {
-  /**
-   * @example obj.timeDifference: 1h 2m 3s
-   * @example obj.timeDifference: 2m 3s
-   * @example obj.timeDifference: 3s
-   */
-  // return index.toString()
-  const isLastIndex = index === machine.MachineLogs.length - 1
-  if (!isLastIndex) return obj.timeDifference
-  const arr = obj.timeDifference.split(' ')
-  // find h m s
-  const indexH = arr.findIndex((item) => item.includes('h'))
-  const indexM = arr.findIndex((item) => item.includes('m'))
-  const indexS = arr.findIndex((item) => item.includes('s'))
-  return obj.timeDifference
-  // return 'next'
 }
 </script>
 

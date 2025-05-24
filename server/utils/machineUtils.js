@@ -353,10 +353,11 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
         : logs;
       // console.log({ nextLog: extendLogs[extendLogs.length - 1] });
 
+      // reqId is passed from machineController
       return {
         name: machine.name,
         status: logs[logs.length - 1].current_status,
-        MachineLogs: extendLogs,
+        MachineLogs: reqId ? logs : extendLogs,
       };
     });
 
