@@ -3,8 +3,6 @@ import type { MachineTimeline } from '@/types/machine.type'
 import TimelineMachine from './TimelineMachine.vue'
 import { Dialog } from 'primevue'
 
-defineProps<{ timeline?: MachineTimeline }>()
-
 const timelineDocs: MachineTimeline = {
   name: 'Documentation',
   status: 'Running',
@@ -20,7 +18,8 @@ const timelineDocs: MachineTimeline = {
       operator: 'ANO(operator name)',
       total_cutting_time: 10,
       timeDifference: '1h 2m 3s(total)',
-      calculate_total_cutting_time: '1.200'
+      calculate_total_cutting_time: '1.200',
+      timeDifferenceMs: 3723000
     },
     {
       createdAt: '10:00(last updated)',
@@ -33,7 +32,8 @@ const timelineDocs: MachineTimeline = {
       operator: 'ANO(operator name)',
       total_cutting_time: 10,
       timeDifference: '2h 2m 3s',
-      calculate_total_cutting_time: '1.200'
+      calculate_total_cutting_time: '1.200',
+      timeDifferenceMs: 7323000
     }
   ]
 }
@@ -46,12 +46,12 @@ const visibleDialogForm = defineModel<boolean>('visibleDialogForm', {
 <template>
   <Dialog
     v-model:visible="visibleDialogForm"
-    :header="timeline ? '' : timelineDocs.name"
+    :header="timelineDocs.name"
     @hide="visibleDialogForm = false"
   >
     <template #default>
       <div class="max-w-203">
-        <TimelineMachine :machine="timeline ?? timelineDocs" :resize-count="2" />
+        <TimelineMachine :machine="timelineDocs" :resize-count="2" />
       </div>
     </template>
   </Dialog>

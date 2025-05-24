@@ -26,7 +26,7 @@ router.get('/total-commit', (req, res) => {
 
         const withDots = stdout.trim().split('').join('.');
         res.send({
-            data: `v ${withDots}:\n${lastCommitMessages}`
+            data: `v ${withDots}`
         });
     });
 });

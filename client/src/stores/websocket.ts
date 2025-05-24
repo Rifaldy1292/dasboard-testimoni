@@ -1,14 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref, shallowRef } from 'vue'
 import type { AllMachineTimeline, GetPercentages } from '@/types/machine.type'
-import type { PayloadWebsocket, WebsocketResponse } from '@/types/websocket.type'
+import type { PayloadWebsocket } from '@/types/websocket.type'
 import type { OperatorMachine } from '@/types/user.type'
-import useToast from '@/composables/useToast'
 
 export const useWebsocketStore = defineStore('websocket', () => {
-  // Import toast
-  const toast = useToast()
-
   // State
   const timelineMachines = ref<AllMachineTimeline | undefined>()
   const percentageMachines = ref<GetPercentages | undefined>(undefined)
@@ -21,7 +17,6 @@ export const useWebsocketStore = defineStore('websocket', () => {
       loadingWebsocket.value = true
       const newPayload = { close: payload.close || false, ...payload }
 
-      // Check if websocket exists and is connected
       if (!websocket.value || websocket.value.readyState !== WebSocket.OPEN) {
         throw new Error('WebSocket is not connected')
       }
@@ -36,40 +31,21 @@ export const useWebsocketStore = defineStore('websocket', () => {
     }
   }
 
-  // Message handler with toast access
-  const handleMessage = (parsedData: WebsocketResponse) => {
-    const { type, data, message } = parsedData
-    console.log(`from server ${type}`, data)
-
-    switch (type) {
-      case 'error':
+  const closeConnection = () => {
+    try {
+      if (websocket.value) {
+        websocket.value.close()
+        websocket.value = null
+        // Reset all state
         timelineMachines.value = undefined
-        operatorMachines.value = []
         percentageMachines.value = undefined
-        toast.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: message || 'An error occurred'
-        })
-        break
-      case 'success':
-        toast.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: message
-        })
-        break
-      case 'timeline':
-        timelineMachines.value = data as AllMachineTimeline
-        break
-      case 'remaining':
-        operatorMachines.value = data as Array<unknown> as OperatorMachine[]
-        break
-      case 'percentage':
-        percentageMachines.value = data as GetPercentages
-        break
-      default:
-        console.log('Unknown type', type, data)
+        operatorMachines.value = []
+        console.log('WebSocket connection closed')
+      }
+    } catch (error) {
+      console.error('Failed to close websocket:', error)
+    } finally {
+      loadingWebsocket.value = false
     }
   }
 
@@ -82,6 +58,6 @@ export const useWebsocketStore = defineStore('websocket', () => {
     websocket,
     // Actions
     sendMessage,
-    handleMessage
+    closeConnection
   }
 })

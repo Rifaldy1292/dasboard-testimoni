@@ -3,12 +3,14 @@ import { inject, ref } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 import { useRouter } from 'vue-router'
 import useToast from '@/composables/useToast'
+import { useWebsocketStore } from '@/stores/websocket'
 import type { UserLocalStorage } from '@/types/localStorage.type'
 import happySound from '../../assets/sounds/happy.mp3'
 
 const toast = useToast()
 const router = useRouter()
 const userData = inject('userData') as UserLocalStorage
+const websocketStore = useWebsocketStore()
 
 const target = ref(null)
 const dropdownOpen = ref(false)
@@ -18,8 +20,13 @@ onClickOutside(target, () => {
 })
 
 const handleLogout = () => {
+  // Close websocket connection first
+  websocketStore.closeConnection()
+
+  // Then clear storage and redirect
   localStorage.clear()
   router.replace('/login')
+
   toast.add({
     severity: 'success',
     summary: 'Success',
