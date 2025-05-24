@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import Test2View from '@/components/Test2View.vue'
 import { useMachine } from '@/composables/useMachine'
 import type { cuttingTimeInMonth } from '@/types/machine.type'
-import { Column, DataTable, Divider } from 'primevue'
-import { computed } from 'vue'
+import { Column, DataTable, Divider, Button } from 'primevue'
+import { computed, ref } from 'vue'
+import * as XLSX from 'xlsx'
 
 type Obj = {
   data: number
@@ -58,17 +60,60 @@ const getColorColumn = (value: number) => {
   // red
   if (value < 14) return '#ef4444'
 }
+
+const dt = ref()
+
+const exportCSV = () => {
+  dt.value?.exportCSV()
+}
+
+const exportXLSX = () => {
+  if (!dataTableValue.value) return
+
+  const exportData = dataTableValue.value.value.map((row) => {
+    const formattedRow: Record<string, any> = {}
+    dataTableValue.value?.key.forEach((key) => {
+      if (key === 'name') {
+        formattedRow[key] = row.name
+      } else {
+        const numCol = parseInt(key)
+        if (!isNaN(numCol) && row[numCol]) {
+          formattedRow[key] = row[numCol].data
+        }
+      }
+    })
+    return formattedRow
+  })
+
+  const worksheet = XLSX.utils.json_to_sheet(exportData, {
+    header: dataTableValue.value.key
+  })
+
+  const workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Cutting Time Data')
+
+  XLSX.writeFile(workbook, `cutting_time_report_${new Date().toISOString().split('T')[0]}.xlsx`)
+}
 </script>
 
 <template>
   <div class="cutting-time-table-container">
+    <div class="mb-4 flex justify-end gap-2">
+      <Button v-show="false" label="Export CSV" icon="pi pi-download" @click="exportCSV" />
+      <Button
+        label="Export Excel"
+        icon="pi pi-file-excel"
+        class="p-button-success"
+        @click="exportXLSX"
+      />
+    </div>
     <DataTable
+      ref="dt"
       :value="dataTableValue?.value"
       :loading="loadingFetch"
       :scrollable="true"
       scrollDirection="both"
-      scrollHeight="400px"
-      size="small"
+      size="large"
       lazy
       showGridlines
       row-group-mode="rowspan"
@@ -98,6 +143,7 @@ const getColorColumn = (value: number) => {
       </template>
     </DataTable>
   </div>
+  <Test2View />
 </template>
 
 <style scoped>

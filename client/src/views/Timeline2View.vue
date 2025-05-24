@@ -255,7 +255,7 @@ const calendarOptions = computed<CalendarOptions>(() => {
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
-      right: 'resourceTimelineDay,resourceTimelineWeek,resourceTimelineMonth'
+      right: 'resourceTimelineDay'
     },
     slotDuration: '00:05:00', // Set slot per 5 menit
     slotLabelInterval: '00:30:00', // Label waktu setiap 30 menit
