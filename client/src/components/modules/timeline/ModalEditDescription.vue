@@ -10,21 +10,25 @@ import useToast from '@/composables/useToast'
 import MachineServices from '@/services/machine.service'
 import { useRoute } from 'vue-router'
 import { useMachine } from '@/composables/useMachine'
-import { loadingWebsocket, sendMessage, timelineMachines } from '@/composables/useWebsocket'
+import { useWebsocketStore } from '@/stores/websocket'
+import { storeToRefs } from 'pinia'
 
 const { selectedMachine, machineName } = defineProps<{
   selectedMachine?: ObjMachineTimeline
   machineName: string
 }>()
+const toast = useToast()
+const route = useRoute()
+const { selectedOneMachine } = useMachine()
+
+// Get store and state
+const websocketStore = useWebsocketStore()
+const { loadingWebsocket, timelineMachines } = storeToRefs(websocketStore)
+const { sendMessage } = websocketStore
 
 const visibleDialogForm = defineModel<boolean>('visibleDialogForm', {
   required: true
 })
-
-const { selectedOneMachine } = useMachine()
-
-const toast = useToast()
-const route = useRoute()
 
 const dataDialogConfirm = computed<DialogFormProps>(() => ({
   header: `Edit Description ${machineName || ''} ${(selectedMachine?.createdAt && new Date(selectedMachine.createdAt).toLocaleString()) || ''}`

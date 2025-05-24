@@ -10,7 +10,8 @@ import { InputNumber, Select, useConfirm } from 'primevue'
 import { shallowRef, watch } from 'vue'
 import ModalDocumentation from '../timeline/ModalDocumentation.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
-import { timelineMachines } from '@/composables/useWebsocket'
+import { storeToRefs } from 'pinia'
+import { useWebsocketStore } from '@/stores/websocket'
 
 defineProps<{ isDisableAll: boolean }>()
 
@@ -41,6 +42,8 @@ const {
 
 const { workPositionOptions, coordinateOptions, coolantOptions, processTypeOptions } =
   additionalOptions
+
+const { timelineMachines } = storeToRefs(useWebsocketStore())
 
 // Watch for changes in the selected work position
 watch(
