@@ -35,6 +35,10 @@ const iconTimeline = (
   if (status === 'Running') {
     return { icon: 'pi pi-check', color: '#25c205' }
   }
+  // status disconnect white
+  if (status === 'DISCONNECT') {
+    return { icon: 'pi pi-times', color: '#ffff' }
+  }
   return { icon: 'pi pi-minus-circle', color: '#de2902' }
 }
 
