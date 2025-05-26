@@ -51,13 +51,13 @@ class FTPController {
 
       // Konfigurasi dengan timeout yang lebih tinggi
       await client.access({
-        ...FTPHP,
-        // host: ip_address,
-        // port: 21,
-        // user: "MC",
-        // password: "MC",
-        // secure: false,
-        // timeout: 300000, // 5 menit
+        // ...FTPHP,
+        host: ip_address,
+        port: 21,
+        user: "MC",
+        password: "MC",
+        secure: false,
+        timeout: 300000, // 5 menit
       });
 
       // Set mode ASCII
@@ -209,12 +209,12 @@ class FTPController {
           .json({ message: "Machine not found", status: 400 });
       }
       await client.access({
-        // host: ip_address,
-        // port: 21,
-        // user: "MC",
-        // password: "MC",
-        // secure: false,
-        ...FTPHP,
+        host: ip_address,
+        port: 21,
+        user: "MC",
+        password: "MC",
+        secure: false,
+        // ...FTPHP,
       });
 
       const customMachine = name === "MC-14" || name === "MC-15";
@@ -308,12 +308,12 @@ class FTPController {
       // console.log(ip_address, 222);
 
       await client.access({
-        ...FTPHP,
-        // host: ip_address,
-        // port: 21,
-        // user: "MC",
-        // password: "MC",
-        // secure: false,
+        // ...FTPHP,
+        host: ip_address,
+        port: 21,
+        user: "MC",
+        password: "MC",
+        secure: false,
       });
 
       const customDirMachine = name === "MC-14" || name === "MC-15";
