@@ -136,6 +136,9 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
               <span class="font-medium text-black dark:text-white"
                 >{{ item.operator ?? '-' }}
               </span>
+              <span class="font-medium text-black dark:text-white"
+                >{{ item.remaining ?? '-' }}
+              </span>
             </template>
           </div>
         </template>

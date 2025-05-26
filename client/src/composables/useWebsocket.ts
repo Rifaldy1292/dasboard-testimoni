@@ -40,7 +40,7 @@ export default function useWebSocket(payload: PayloadWebsocket) {
         toast.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Failed to connect to WebSocket server'
+          detail: 'Connection error, please refresh the page'
         })
       }
 

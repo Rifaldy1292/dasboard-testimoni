@@ -294,10 +294,16 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
     if (!sortedMachines.length) {
       return;
     }
+    const MILISECOND = 1000;
+
 
     const formattedMachines = sortedMachines.map((machine) => {
       const logs = machine.MachineLogs.map((log, indexLog) => {
-        const { dataValues, current_status } = log;
+        const { dataValues, current_status, calculate_total_cutting_time } = log;
+        const splitCalculate = calculate_total_cutting_time ? calculate_total_cutting_time.split(".") : [];
+        const remaining = calculate_total_cutting_time ? `remaining ${splitCalculate[0]} project, ${formatTimeDifference(
+          Number(splitCalculate[1]) * MILISECOND
+        )}` : null;
         const operator = dataValues.User?.name || null;
         // calculate_total_cutting_time is in seconds
         const currentTime = log.createdAt;
@@ -326,6 +332,7 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
           output_wp: current_status === "Running" ? log.output_wp : null,
           g_code_name: current_status === "Running" ? log.g_code_name : null,
           operator,
+          remaining
           // log,
           // nextLog,
         };
@@ -336,7 +343,8 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
       const nextCalculate = nextLog.calculate_total_cutting_time
         ? Number(nextLog.calculate_total_cutting_time.split(".")[1])
         : 0;
-      const nextTimeDifference = formatTimeDifference(nextCalculate * 1000);
+      const nextTime = nextCalculate * MILISECOND;
+      const nextTimeDifference = formatTimeDifference(nextTime);
 
       const extendLogs = isNowDate
         ? [
@@ -346,6 +354,7 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
             isNext: true,
             createdAt: nextLog.createdAt,
             timeDifference: nextTimeDifference,
+            timeDifferenceMs: nextTime,
             operator: nextLog.User?.name || null,
             description: "Remaining",
           },

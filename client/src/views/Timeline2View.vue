@@ -128,16 +128,6 @@ const events = computed<CalendarEvent[]>(() => {
     const resourceId = machine.name.toLowerCase().replace('-', '')
 
     machine.MachineLogs.forEach((log: ObjMachineTimeline) => {
-      // Periksa apakah log valid dan memiliki properti yang diperlukan
-      if (!log || typeof log !== 'object') {
-        return
-      }
-
-      // Periksa properti isNext dengan lebih hati-hati
-      // if (log.isNext === true) {
-      //   return
-      // }
-
       try {
         // Periksa apakah createdAt ada dan valid
         if (!log.createdAt) {
@@ -373,12 +363,9 @@ watch(
 )
 
 // Watch perubahan pada toggle untuk memperbarui tampilan
-watch(
-  () => showDetailsInTitle.value,
-  () => {
-    calendarKey.value += 1 // Ubah key untuk memicu re-render
-  }
-)
+watch([() => showDetailsInTitle.value, () => events.value], () => {
+  calendarKey.value += 1 // Ubah key untuk memicu re-render
+})
 </script>
 <template>
   <DefaultLayout>

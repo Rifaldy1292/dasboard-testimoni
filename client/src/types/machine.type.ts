@@ -31,6 +31,7 @@ export type ObjMachineTimeline = {
   k_num: string
   calculate_total_cutting_time: string
   isNext?: boolean
+  remaining: string | null
 }
 
 export type MachineTimeline = {
