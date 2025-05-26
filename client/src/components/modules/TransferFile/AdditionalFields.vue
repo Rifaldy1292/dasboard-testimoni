@@ -1,23 +1,21 @@
 <script setup lang="ts">
+import { watch } from 'vue'
 import { useFTP } from '@/composables/useFTP'
 import { useMachine } from '@/composables/useMachine'
 import useToast from '@/composables/useToast'
 import MachineServices from '@/services/machine.service'
-import type { MachineTimeline, MachineOption } from '@/types/machine.type'
+import type { MachineOption } from '@/types/machine.type'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import { AxiosError } from 'axios'
 import { InputNumber, Select, useConfirm } from 'primevue'
-import { computed, shallowRef, watch } from 'vue'
 import ModalTimeline from './ModalTimeline.vue' // Update import
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
-import { storeToRefs } from 'pinia'
-import { useWebsocketStore } from '@/stores/websocket'
+import { showConfirmTimeline } from './utils/handleSelectMachine.util'
 
 defineProps<{ isDisableAll: boolean }>()
 
 const toast = useToast()
 const confirm = useConfirm()
-const visibleDialogForm = shallowRef<boolean>(false)
 
 const {
   selectedOneMachine,
@@ -43,11 +41,6 @@ const {
 const { workPositionOptions, coordinateOptions, coolantOptions, processTypeOptions } =
   additionalOptions
 
-const { timelineMachines } = storeToRefs(useWebsocketStore())
-const timelineNullDescription = computed<MachineTimeline | undefined>(() => {
-  return timelineMachines.value?.data[0]
-})
-
 // Watch for changes in the selected work position
 watch(
   () => selectedWorkPosition.value,
@@ -63,44 +56,15 @@ watch(
   }
 )
 
-const fetchTimelineByMachineId = async (machine_id: number) => {
-  try {
-    loadingUpload.value = true
-    const { data } = await MachineServices.getTimelineByMachineId(machine_id)
-    timelineMachines.value = data.data
-    data.data.data.length ? (visibleDialogForm.value = true) : (visibleDialogForm.value = false)
-  } catch (error) {
-    handleErrorAPI(error, toast)
-  } finally {
-    loadingUpload.value = false
-  }
-}
-
 const handleSelectMachine = async (machineValue: MachineOption | undefined) => {
   if (!machineValue) return
-  const { id, name } = machineValue
+  const { id } = machineValue
   try {
     loadingUpload.value = true
     await MachineServices.getIsReadyTransferFiles({ machine_id: id })
   } catch (error) {
     if (error instanceof AxiosError && error.response?.status === 422) {
-      return confirm.require({
-        header: 'Tidak dapat memilih mesin',
-        message: `Ada deskripsi timeline di ${name} yang belum diisi nih, isi dulu yuk`,
-        icon: 'pi pi-exclamation-triangle',
-        accept: () => {
-          fetchTimelineByMachineId(id)
-        },
-        acceptProps: {
-          label: 'Edit',
-          severity: 'success'
-        },
-        rejectProps: {
-          label: 'Cancel',
-          severity: 'secondary',
-          outlined: true
-        }
-      })
+      return showConfirmTimeline(machineValue, confirm)
     }
     handleErrorAPI(error, toast)
   } finally {
@@ -110,11 +74,7 @@ const handleSelectMachine = async (machineValue: MachineOption | undefined) => {
 </script>
 
 <template>
-  <ModalTimeline
-    v-if="timelineNullDescription"
-    v-model:visible-dialog-form="visibleDialogForm"
-    :timeline="timelineNullDescription"
-  />
+  <ModalTimeline />
   <LoadingAnimation :state="loadingUpload" />
   <!-- 1/2 -->
   <div

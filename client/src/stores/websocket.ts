@@ -22,7 +22,7 @@ export const useWebsocketStore = defineStore('websocket', () => {
       }
 
       websocket.value.send(JSON.stringify(newPayload))
-      console.log('send message, payload:', newPayload)
+      // console.log('send message, payload:', newPayload)
     } catch (error) {
       console.error('Failed to send message:', error)
       throw error

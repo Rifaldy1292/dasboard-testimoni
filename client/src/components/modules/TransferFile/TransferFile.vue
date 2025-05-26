@@ -17,7 +17,11 @@ import { useConfirm } from 'primevue'
 import { useRouter } from 'vue-router'
 import happpySound from '@/assets/sounds/happy.mp3'
 import RemoveFile from './RemoveFile.vue'
-import { handleNullDescriptionTimeline } from './utils/handleSelectMachine.util'
+import {
+  handleNullDescriptionTimeline,
+  showConfirmTimeline
+} from './utils/handleSelectMachine.util'
+import { AxiosError } from 'axios'
 
 onUnmounted(() => {
   handleClearFile()
@@ -56,6 +60,7 @@ const disabled = computed<{ disableExecute: boolean; disableUpload: boolean }>((
 })
 
 const handleSubmit = async () => {
+  if (!selectedOneMachine.value) return
   loadingUpload.value = true
   try {
     const reverseObjectToFiles = inputFiles.value.map((item) => {
@@ -63,7 +68,7 @@ const handleSubmit = async () => {
     })
 
     const { data } = await MachineServices.postFiles({
-      machine_id: selectedOneMachine.value?.id as number,
+      machine_id: selectedOneMachine.value.id,
       files: reverseObjectToFiles
     })
     toast.add({
@@ -97,6 +102,9 @@ const handleSubmit = async () => {
       })
     }, 1000)
   } catch (error) {
+    if (error instanceof AxiosError && error.response?.status === 422) {
+      return showConfirmTimeline(selectedOneMachine.value, confirm)
+    }
     handleErrorAPI(error, toast)
   } finally {
     loadingUpload.value = false
@@ -182,6 +190,20 @@ const handleExecute = (): void => {
     loadingUpload.value = false
   }
 }
+
+const handleChange = async (event: Event) => {
+  try {
+    // Check if machine has null description timeline before proceeding
+    await handleNullDescriptionTimeline(selectedOneMachine.value, confirm, toast)
+
+    // Process file upload if validation passes
+    await handleUploadFolder(event)
+  } catch (error) {
+    // Clear files if any error occurs during validation or upload
+    await handleClearFile()
+    console.error('Error in handleChange:', error)
+  }
+}
 </script>
 
 <template>
@@ -221,17 +243,7 @@ const handleExecute = (): void => {
               <input
                 type="file"
                 :disabled="disabled.disableUpload"
-                @change="
-                  async (event) => {
-                    try {
-                      await handleNullDescriptionTimeline(selectedOneMachine, confirm, toast)
-                      await handleUploadFolder(event)
-                    } catch (error) {
-                      console.log(1)
-                      await handleClearFile()
-                    }
-                  }
-                "
+                @change="handleChange"
                 :webkitdirectory="uploadType === 'folder'"
                 multiple
                 :style="{

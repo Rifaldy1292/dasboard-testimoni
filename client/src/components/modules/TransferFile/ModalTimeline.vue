@@ -1,26 +1,27 @@
 <script setup lang="ts">
-import type { MachineTimeline } from '@/types/machine.type'
 import TimelineMachine from '../timeline/TimelineMachine.vue'
 import { Dialog } from 'primevue'
+import { storeToRefs } from 'pinia'
+import { useDialogStore } from '@/stores/dialog'
+import { useTimelineStore } from '@/stores/timeline'
 
-defineProps<{ timeline: MachineTimeline }>()
-
-const visibleDialogForm = defineModel<boolean>('visibleDialogForm', {
-  required: true
-})
+const { dialogState } = storeToRefs(useDialogStore())
+const { closeTimelineDialog } = useDialogStore()
+const { timelineNullDescription } = storeToRefs(useTimelineStore())
 </script>
 
 <template>
   <Dialog
-    v-model:visible="visibleDialogForm"
+    v-if="timelineNullDescription"
+    v-model:visible="dialogState.visibleTimelineDialog"
     modal
     :style="{ width: '70vw' }"
-    :header="timeline?.name ?? 'Timeline'"
-    @hide="visibleDialogForm = false"
+    :header="timelineNullDescription.name ?? 'Timeline'"
+    @hide="closeTimelineDialog()"
   >
     <template #default>
       <div class="max-w-203">
-        <TimelineMachine :machine="timeline" :resize-count="2" />
+        <TimelineMachine :machine="timelineNullDescription" :resize-count="2" />
       </div>
     </template>
   </Dialog>

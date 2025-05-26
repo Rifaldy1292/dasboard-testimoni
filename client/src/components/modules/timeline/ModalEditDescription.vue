@@ -11,7 +11,7 @@ import MachineServices from '@/services/machine.service'
 import { useRoute } from 'vue-router'
 import { useMachine } from '@/composables/useMachine'
 import { useWebsocketStore } from '@/stores/websocket'
-import { storeToRefs } from 'pinia'
+import { useTimelineStore } from '@/stores/timeline'
 
 const { selectedMachine, machineName } = defineProps<{
   selectedMachine?: ObjMachineTimeline
@@ -23,7 +23,7 @@ const { selectedOneMachine } = useMachine()
 
 // Get store and state
 const websocketStore = useWebsocketStore()
-const { loadingWebsocket, timelineMachines } = storeToRefs(websocketStore)
+const { fetchTimelineByMachineId } = useTimelineStore()
 const { sendMessage } = websocketStore
 
 const visibleDialogForm = defineModel<boolean>('visibleDialogForm', {
@@ -52,18 +52,6 @@ const descriptionOptions = [
   { name: 'Break', value: 'Break' }
 ]
 
-const fetchTimelineByMachineId = async (machine_id: number) => {
-  try {
-    loadingWebsocket.value = true
-    const { data } = await MachineServices.getTimelineByMachineId(machine_id)
-    timelineMachines.value = data.data
-  } catch (error) {
-    handleErrorAPI(error, toast)
-  } finally {
-    loadingWebsocket.value = false
-  }
-}
-
 const handleEditDescription = async () => {
   try {
     if (!selectedMachine || !inputDescription.value?.trim()) return
@@ -86,7 +74,6 @@ const handleEditDescription = async () => {
           type: 'timeline'
         })
       case 'transferFile':
-        console.log('refecth 1')
         return fetchTimelineByMachineId(selectedOneMachine.value?.id as number)
     }
 
