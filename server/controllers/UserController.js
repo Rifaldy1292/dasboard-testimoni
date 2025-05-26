@@ -68,7 +68,7 @@ class UserController {
       if (error.message === "NIK already exists") {
         return res.status(400).json({ message: error.message, status: 400 });
       }
-      serverError(error, res, "Failed to register user");
+      serverError(error, res, "Failed to register");
     }
   }
   static async login(req, res) {
@@ -105,7 +105,7 @@ class UserController {
       });
       res
         .status(200)
-        .json({ data: { token }, message: "success login", status: 200 });
+        .json({ data: { token }, message: "Login success", status: 200 });
     } catch (error) {
       serverError(error, res, "Login failed");
     }

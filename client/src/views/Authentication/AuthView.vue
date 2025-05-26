@@ -1,22 +1,26 @@
 <script setup lang="ts">
-import { shallowRef, watch, onMounted } from 'vue'
+import { shallowRef, watch, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { RegisterPayload } from '@/dto/user.dto'
 import AuthLayout from '@/layouts/AuthLayout.vue'
 import UserServices from '@/services/user.service'
 import { type FormSubmitEvent } from '@primevue/forms'
-import { AxiosError } from 'axios'
 import { jwtDecode } from 'jwt-decode'
 import AuthForm from '@/components/common/AuthForm.vue'
 import happySound from '../../assets/sounds/happy.mp3'
 import useToast from '@/composables/useToast'
 import API from '@/services/API'
+import { handleErrorAPI } from '@/utils/handleErrorAPI'
+import { useDarkModeStore } from '@/stores/darkMode'
 
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 const page = shallowRef(route.name === 'login' ? 'Sign in' : 'Sign up')
 const info = shallowRef<string | null>(null)
+// Add loading state
+const loading = ref<boolean>(false)
+const { setDarkMode } = useDarkModeStore()
 
 watch(
   () => route.name,
@@ -28,8 +32,9 @@ watch(
 
 // function for submit form login/register
 const submitForm = async (e: FormSubmitEvent): Promise<void> => {
-  console.log(e)
   if (!e.valid) return
+  loading.value = true
+
   // login
   if (page.value === 'Sign in') {
     try {
@@ -40,62 +45,36 @@ const submitForm = async (e: FormSubmitEvent): Promise<void> => {
       toast.add({
         severity: 'success',
         summary: 'Success',
-        detail: 'Login success',
+        detail: data.message,
         life: 3000,
         customMusic: happySound
       })
 
       setTimeout(() => {
         router.replace({ name: 'transferFile' })
-      }, 500)
+        setDarkMode(true)
+      }, 300)
     } catch (error) {
-      if (error instanceof AxiosError && error.response && error.response.data) {
-        return toast.add({
-          severity: 'error',
-          summary: 'Login failed',
-          detail: error.response.data.message
-        })
-      }
-      console.error(error)
-      toast.add({
-        severity: 'error',
-        summary: 'Login failed',
-        detail: 'server error',
-        life: 3000
-      })
+      handleErrorAPI(error, toast)
     }
   }
   // register
   else {
     try {
       const { data } = await UserServices.register(e.values as RegisterPayload)
-      console.log(data)
       toast.add({
         severity: 'success',
         summary: 'Success',
-        detail: 'Register success'
+        detail: data.message
       })
       setTimeout(() => {
         router.replace({ name: 'login' })
-      }, 500)
+      }, 300)
     } catch (error) {
-      if (error instanceof AxiosError && error.response && error.response.data) {
-        if (error.response.data.message === 'NIK already exists') {
-          return toast.add({
-            severity: 'error',
-            summary: 'Register failed',
-            detail: 'NIK already exists'
-          })
-        }
-      }
-      console.error(error)
-      toast.add({
-        severity: 'error',
-        summary: 'Register failed',
-        detail: 'server error'
-      })
+      handleErrorAPI(error, toast)
     }
   }
+  loading.value = false
 }
 
 // Add fetchTotalCommit function
@@ -117,7 +96,7 @@ onMounted(() => {
 
 <template>
   <AuthLayout :page="page" :description="info">
-    <!-- Pass info as prop -->
-    <AuthForm :submit="submitForm" />
+    <!-- Pass loading as prop -->
+    <AuthForm :submit="submitForm" :loading />
   </AuthLayout>
 </template>

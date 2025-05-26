@@ -10,7 +10,9 @@ const UserServices = {
     return API().post('/users/register', body)
   },
 
-  login: (body: LoginPayload): Promise<AxiosResponse<{ data: { token: string } }>> => {
+  login: (
+    body: LoginPayload
+  ): Promise<AxiosResponse<{ data: { token: string }; message: string }>> => {
     return API().post('/users/login', body)
   },
   getUsers: (params?: ParamsGetUsers): Promise<AxiosResponse<GetUsers>> => {

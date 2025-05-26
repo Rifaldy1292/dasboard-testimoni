@@ -14,6 +14,7 @@ interface AuthFormProps extends FormProps {
   }
   isResetPasswordPage?: boolean
   isForgotPasswordPage?: boolean
+  loading?: boolean
 }
 
 interface ShowFormField {
@@ -23,10 +24,12 @@ interface ShowFormField {
   confirmPassword: boolean
 }
 
+const props = defineProps<AuthFormProps>()
+
 const route = useRoute()
 
 const resolver = computed(() => {
-  if (isResetPasswordPage) {
+  if (props.isResetPasswordPage) {
     return zodResolver(
       z.object({
         password: showFormField.value.password
@@ -55,8 +58,8 @@ const resolver = computed(() => {
       NIK: z
         .string()
         .nonempty('NIK is required')
-        .length(7, 'NIK must be 7 characters')
-        .regex(/^RK\d{5}$/, 'NIK must start with RK followed by 4 digits'),
+        .regex(/^RK\d{5}$/, 'NIK must start with RK followed by 4 digits')
+        .length(7, 'NIK must be 7 characters'),
       // required if page is sign up
       name: showFormField.value.name
         ? z.string().min(3, 'Name must be at least 3 characters')
@@ -83,8 +86,6 @@ const resolver = computed(() => {
   )
 })
 
-const { isForgotPasswordPage, isResetPasswordPage } = defineProps<AuthFormProps>()
-
 const page = shallowRef<'Sign in' | 'Sign up'>(route.name === 'login' ? 'Sign in' : 'Sign up')
 const password = ref<string | undefined>()
 const showPassword = shallowRef<boolean>(false)
@@ -92,11 +93,29 @@ const showConfirmPassword = shallowRef<boolean>(false)
 
 const showFormField = computed<ShowFormField>(() => {
   return {
-    name: (page.value === 'Sign up' || isResetPasswordPage) && !isForgotPasswordPage,
+    name: (page.value === 'Sign up' || props.isResetPasswordPage) && !props.isForgotPasswordPage,
     NIK: true,
-    password: !isForgotPasswordPage,
-    confirmPassword: (page.value === 'Sign up' || isResetPasswordPage) && !isForgotPasswordPage
+    password: !props.isForgotPasswordPage,
+    confirmPassword:
+      (page.value === 'Sign up' || props.isResetPasswordPage) && !props.isForgotPasswordPage
   }
+})
+
+// Computed properties for button text and class based on loading state
+const buttonText = computed(() => {
+  if (props.loading) {
+    return page.value === 'Sign in' ? 'Signing in...' : 'Registering...'
+  }
+  return page.value === 'Sign in' ? 'Sign in' : 'Submit'
+})
+
+const buttonClass = computed(() => {
+  return [
+    'w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white transition-all duration-300',
+    props.loading
+      ? 'bg-blue-500 cursor-not-allowed'
+      : 'bg-blue-600 hover:bg-blue-700 focus:outline-none'
+  ]
 })
 </script>
 
@@ -221,11 +240,32 @@ const showFormField = computed<ShowFormField>(() => {
       </div>
 
       <div class="!mt-8">
-        <button
-          type="submit"
-          class="w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
-        >
-          {{ page !== 'Sign in' ? 'Submit' : page }}
+        <button type="submit" :disabled="loading" :class="buttonClass">
+          <div class="flex items-center justify-center">
+            <span v-if="loading" class="inline-flex items-center mr-2">
+              <svg
+                class="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+            </span>
+            {{ buttonText }}
+          </div>
         </button>
       </div>
       <!-- <p class="text-gray-800 text-sm !mt-8 text-center">

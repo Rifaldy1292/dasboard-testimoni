@@ -6,7 +6,9 @@ defineProps<{
 </script>
 
 <template>
-  <div class="bg-gray-900 dark text-white font-[sans-serif]">
+  <div
+    class="bg-gradient-to-br from-blue-900 via-gray-900 to-purple-900 dark text-white font-[sans-serif]"
+  >
     <div class="min-h-screen flex flex-col items-center justify-center py-10 px-4">
       <div class="max-w-md w-full">
         <a href="#">
@@ -17,7 +19,7 @@ defineProps<{
           />
         </a>
 
-        <div class="p-8 rounded-2xl bg-gray-800 shadow-lg ring-1 ring-blue-500/30 backdrop-blur-md">
+        <div class="p-8 rounded-2xl bg-white/10 shadow-xl backdrop-blur-xl border border-white/20">
           <h2 class="text-center text-3xl font-bold text-white tracking-wide">{{ page }}</h2>
           <h5 v-if="description" class="text-blue-300 text-center mt-2">{{ description }}</h5>
 

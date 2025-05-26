@@ -12,5 +12,10 @@ export const useDarkModeStore = defineStore('darkMode', () => {
     document.documentElement.classList.toggle('dark', darkMode.value)
   }
 
-  return { darkMode, toggleDarkMode }
+  const setDarkMode = (value: boolean) => {
+    darkMode.value = value
+    document.documentElement.classList.toggle('dark', darkMode.value)
+  }
+
+  return { darkMode, toggleDarkMode, setDarkMode }
 })
