@@ -63,6 +63,11 @@ watch(
             icon="pi pi-arrow-up"
           />
         </div>
+        <!-- show dateFrom - dateTo -->
+        <span v-if="timelineMachines" class="text-gray-500">
+          {{ new Date(timelineMachines.dateFrom).toLocaleString() }} -
+          {{ new Date(timelineMachines.dateTo).toLocaleString() }}
+        </span>
         <DateTimeShiftSelector v-model="dateTimeModel" />
       </div>
       <div class="flex flex-col gap-1.5">
