@@ -1,6 +1,5 @@
 const {
   Machine,
-  MachineLog,
   EncryptData,
   MachineOperatorAssignment,
 } = require("../models");
@@ -12,15 +11,12 @@ const path = require("path");
 const { Client, FTPError } = require("basic-ftp");
 const { encryptToNumber } = require("../helpers/crypto");
 const { encryptionCache } = require("../cache");
-const { dateQuery } = require("../utils/dateQuery");
-const { getShiftDateRange } = require("../utils/machineUtils");
-const { Op } = require("sequelize");
 
 const localDir = (machine_id) =>
   path.join(__dirname, "..", "public", "cnc_files", machine_id);
 
 const FTPHP = {
-  host: "192.168.43.109",
+  host: "192.168.18.32",
   port: "2221",
   user: "android",
   password: "android",
@@ -55,13 +51,13 @@ class FTPController {
 
       // Konfigurasi dengan timeout yang lebih tinggi
       await client.access({
-        // ...FTPHP,
-        host: ip_address,
-        port: 21,
-        user: "MC",
-        password: "MC",
-        secure: false,
-        timeout: 300000, // 5 menit
+        ...FTPHP,
+        // host: ip_address,
+        // port: 21,
+        // user: "MC",
+        // password: "MC",
+        // secure: false,
+        // timeout: 300000, // 5 menit
       });
 
       // Set mode ASCII
@@ -213,12 +209,12 @@ class FTPController {
           .json({ message: "Machine not found", status: 400 });
       }
       await client.access({
-        host: ip_address,
-        port: 21,
-        user: "MC",
-        password: "MC",
-        // ...FTPHP,
-        secure: false,
+        // host: ip_address,
+        // port: 21,
+        // user: "MC",
+        // password: "MC",
+        // secure: false,
+        ...FTPHP,
       });
 
       const customMachine = name === "MC-14" || name === "MC-15";
@@ -312,12 +308,12 @@ class FTPController {
       // console.log(ip_address, 222);
 
       await client.access({
-        // ...FTPHP,
-        host: ip_address,
-        port: 21,
-        user: "MC",
-        password: "MC",
-        secure: false,
+        ...FTPHP,
+        // host: ip_address,
+        // port: 21,
+        // user: "MC",
+        // password: "MC",
+        // secure: false,
       });
 
       const customDirMachine = name === "MC-14" || name === "MC-15";
@@ -367,7 +363,7 @@ class FTPController {
    * @returns {Promise<Object>} - Response with encrypted content value
    * @throws {Error} - If there is an error when encrypting content value
    */
-  static async encyptContentValue(req, res) {
+  static async encryptContentValue(req, res) {
     try {
       const { gCodeName, kNum, outputWP, toolName } = req.body;
 
@@ -388,46 +384,7 @@ class FTPController {
     }
   }
 
-  static async checkIsReadyTransferFile(req, res) {
-    try {
-      const { machine_id } = req.query;
-      if (!machine_id)
-        return res.status(400).json({
-          status: 400,
-          message: "machine_id is required",
-        });
 
-      const { dateFrom, dateTo } = await getShiftDateRange(new Date(), 0);
-
-      // find where description === null
-      const machineLog = await MachineLog.findOne({
-        where: {
-          createdAt: {
-            [Op.between]: [dateFrom, dateTo],
-          },
-          machine_id,
-          description: null,
-          current_status: "Stopped",
-        },
-      });
-
-      if (machineLog)
-        return res.status(422).json({
-          status: 422,
-          message: "found machine log with description null",
-        });
-
-      res.status(204).send();
-    } catch (error) {
-      if (error.message.includes("No daily config")) {
-        return res.status(404).json({
-          status: 404,
-          message: error.message,
-        });
-      }
-      serverError(error, res, "Failed to check description machine log");
-    }
-  }
 }
 
 module.exports = FTPController;
