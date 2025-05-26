@@ -69,7 +69,6 @@ const handleEditDescription = async () => {
     // refetch
     switch (route.name) {
       case 'timeline':
-        console.log('refetch all')
         return sendMessage({
           type: 'timeline'
         })
