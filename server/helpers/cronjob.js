@@ -113,15 +113,22 @@ const deleteCncFiles = async () => {
  * @see handleResetMachineStatus
  */
 const handleCronJob = async () => {
-  // await createDailyConfig();
-  createCuttingTime();
+  await createDailyConfig();
   // handleResetMachineStatus();
+
+  // jam 12 malam pergantian hari
+  cron.schedule(`0 0 * * *`, async () => {
+    await createDailyConfig();
+    createCuttingTime();
+    deleteCncFiles();
+  });
 
   // find last daily config
   const findDailyConfig = await DailyConfig.findOne({
     attributes: ["startFirstShift"],
     order: [['createdAt', "DESC"]]
   });
+
   if (!findDailyConfig) return;
   const { startFirstShift } = findDailyConfig;
   const [startHour, startMinute] = startFirstShift.split(":").map(Number);
@@ -129,7 +136,6 @@ const handleCronJob = async () => {
     await createDailyConfig();
     await handleResetMachineStatus();
     createCuttingTime();
-    deleteCncFiles();
   });
 
   console.log("cronjob finished");
