@@ -15,10 +15,10 @@ const monthValue = ref<Date>(new Date())
 const showLabel = shallowRef<boolean>(true)
 
 watchEffect(async () => {
-  getCuttingTime({
-    machineIds: selectedMachines.value.length ? selectedMachines.value : undefined,
-    period: monthValue.value
-  })
+  // getCuttingTime({
+  //   machineIds: selectedMachines.value.length ? selectedMachines.value : undefined,
+  //   period: monthValue.value
+  // })
 
   // test
   await API()
