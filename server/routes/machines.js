@@ -13,6 +13,11 @@ machineRouter.get(
     authMiddleware,
     MachineController.getCuttingTime
 );
+machineRouter.get(
+    "/cutting-time2",
+    authMiddleware,
+    MachineController.refactorGetCuttingTime
+);
 
 
 // dropdown

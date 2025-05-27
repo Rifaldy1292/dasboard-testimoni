@@ -1,7 +1,7 @@
 /**
  * Get the last date of the month
  * @param {Date} [dateParam] - If not provided, use current date
- * @returns {Object} - { date: Date }
+ * @returns { {date: Date} }
  */
 const dateCuttingTime = (dateParam) => {
     const nowDate = dateParam ? new Date(dateParam) : new Date();

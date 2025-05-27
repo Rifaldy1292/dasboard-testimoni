@@ -3,6 +3,7 @@ const dateCuttingTime = require("../utils/dateCuttingTime");
 const { serverError } = require("../utils/serverError");
 
 const { getRunningTimeMachineLog, getMachineTimeline } = require("../utils/machineUtils");
+const { Op } = require("sequelize");
 
 const objectTargetCuttingTime = (target, totalDayInMonth) => {
   const targetPerDay = target / totalDayInMonth; // Calculate target hours per day
@@ -168,14 +169,46 @@ class MachineController {
     }
   }
 
+
+  /**
+interface ShiftTime {
+  start: string | null
+  end: string | null
+}
+
+interface DummyData {
+  // name is machine name
+  name: string
+  data: Array<{
+    date: number
+    shifts: {
+      shift1: ShiftTime
+      shift2: ShiftTime
+    }
+    count: {
+      shift1: number | null
+      shift2: number | null
+      combined: number | null
+    }
+  }>
+}
+
+   */
   static async refactorGetCuttingTime(req, res) {
     try {
-      const { period } = req.query;
-      console.log(period)
-      const { date } = dateCuttingTime(period);
+      // period is "2025-05-27T07:32:56.581Z"
+      const { period, machineIds } = req.query;
+      if (!period) {
+        return res.status(400).json({
+          status: 400,
+          message: "Bad request, period is required",
+        });
+      }
+      const dateResult = dateCuttingTime(period).date;
 
+      // {period: "2025-05-31", target: 600}
       const cuttingTime = await CuttingTime.findOne({
-        where: { period: date },
+        where: { period: dateResult },
         attributes: ["period", "target"],
       });
 
@@ -185,52 +218,112 @@ class MachineController {
           message: "Cutting time not found, let's create it",
         });
       }
-      // 28
-      const totalDayInMonth = date.getDate();
+      const startDateInMonth = new Date(dateResult.getFullYear(), dateResult.getMonth(), 1);
+      const endDateInMonth = new Date(dateResult.getFullYear(), dateResult.getMonth() + 1, 0);
 
-      const objTargetCuttingTime = objectTargetCuttingTime(
-        cuttingTime.target,
-        totalDayInMonth
-      );
+      const [allLogInMonth, allConfigInMonth] = await Promise.all([
+        Machine.findAll({
+          where: machineIds ? { id: { [Op.in]: machineIds } } : {},
+          attributes: ["id", "name"],
+          include: [
+            {
+              model: MachineLog,
+              attributes: [
+                "id",
+                "current_status",
+                "createdAt",
+              ],
+              where: {
+                createdAt: {
+                  [Op.between]: [startDateInMonth, endDateInMonth]
+                }
+              },
+            }
+          ],
+          order: [[{ model: MachineLog }, "createdAt", "ASC"]],
+        }),
+        DailyConfig.findAll({
+          attributes: ["id", "date", "startFirstShift", "endFirstShift", "startSecondShift", "endSecondShift"],
+          raw: true,
+          where: {
+            date: {
+              [Op.between]: [startDateInMonth, endDateInMonth]
+            }
+          },
+        })
 
-      // [1,2,3...31]
-      const allDayInMonth = Array.from(
-        { length: totalDayInMonth },
-        (_, i) => i + 1
-      );
-      // const allDayInMonth = [9]
+      ]);
 
-      const allDateInMonth = Array.from({ length: totalDayInMonth }, (_, i) => {
-        const day = new Date(date.getUTCFullYear(), date.getUTCMonth(), i + 1);
-        return day;
+
+      const format = allLogInMonth.map((mc) => {
+        const { name, MachineLogs } = mc.get({ plain: true });
+
+        // shift1: []
+        // shift2: []
+        const groupLogByShiftInDateConfig = Array.isArray(allConfigInMonth) && allConfigInMonth.map((config) => {
+          const { date, startFirstShift, endFirstShift, startSecondShift, endSecondShift } = config;
+
+          // example startFirstShift: "07:00:00"
+          const [startHour1, startMinute1, startSecond1] = startFirstShift.split(':').map(Number);
+          const [endHour1, endMinute1, endSecond1] = endFirstShift.split(':').map(Number);
+          const [startHour2, startMinute2, startSecond2] = startSecondShift.split(':').map(Number);
+          const [endHour2, endMinute2, endSecond2] = endSecondShift.split(':').map(Number);
+
+          const dateConfig = new Date(date)
+          const startShift1 = new Date(date);
+          const endShift1 = new Date(date);
+          const startShift2 = new Date(date);
+          const endShift2 = new Date(date);
+
+          // Set hours, minutes, seconds, and milliseconds to 0
+          startShift1.setHours(startHour1, startMinute1, startSecond1, 0);
+          endShift1.setHours(endHour1, endMinute1, endSecond1, 0);
+          startShift2.setHours(startHour2, startMinute2, startSecond2, 0);
+          endShift2.setHours(endHour2, endMinute2, endSecond2, 0);
+          // shift 2 is end is next day
+          endShift2.setDate(endShift2.getDate() + 1);
+
+          return {
+            date: dateConfig.getDate(),
+            shift1: MachineLogs.filter((log) => {
+              const logDate = new Date(log.createdAt);
+              return logDate.getTime() >= startShift1.getTime() && logDate.getTime() <= endShift1.getTime();
+            }),
+            shift2: MachineLogs.filter((log) => {
+              const logDate = new Date(log.createdAt);
+              const between = logDate.getTime() >= startShift2.getTime() && logDate.getTime() <= endShift2.getTime();
+              return between;
+            }).map((log) => {
+              return { ...log, createdAt: new Date(log.createdAt).toLocaleString() }
+            })
+          };
+        });
+        return {
+          name,
+          ...groupLogByShiftInDateConfig
+        };
       });
 
-      const dailyConfigInMonth = await DailyConfig.findAll({
-        raw: true,
-        attributes: ["date", "startFirstShift"],
-        where: {
-          date: {
-            [Op.in]: allDateInMonth,
-          }
+      res.send({
+        data: {
+          allLogInMonth: allLogInMonth.sort((a, b) => {
+            const numberA = parseInt(a.name.slice(3));
+            const numberB = parseInt(b.name.slice(3));
+            return numberA - numberB;
+          }).map((mc) => {
+            const { name, MachineLogs } = mc;
+            const format = MachineLogs.map(log => ({
+              ...log.get({ plain: true }),
+              createdAt: new Date(log.createdAt).toLocaleString()
+            }));
+            return { name, logs: format };
+          }),
+          allConfigInMonth,
+          format
         }
-      })
-
-      const dateInDailyConfig = dailyConfigInMonth.map((dailyConfig) => {
-        const { date, startFirstShift } = dailyConfig;
-        const [hour, minute] = startFirstShift.split(':').map(Number);
-        const dateFrom = new Date(date)
-        dateFrom.setHours(hour, minute, 0, 0);
-        const dateTo = new Date(date)
-        dateTo.setDate(dateTo.getDate() + 1);
-        const endMinute = minute === 0 ? 59 : minute - 1;
-        dateTo.setHours(hour + 8, endMinute, 59, 999);
-        const result = {
-          [Op.between]: [dateFrom, dateTo]
-        }
-        return result;
+        // data: format
       });
 
-      console.log(dateInDailyConfig)
 
     } catch (error) {
       serverError(error, res, "Failed to refactor get cutting time");

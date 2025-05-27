@@ -7,17 +7,32 @@ import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DataNotFound from '@/components/common/DataNotFound.vue'
 import CuttingTimeHeader from './CuttingTimeHeader.vue'
 import CuttingTimeTable from './CuttingTimeTable.vue'
+import API from '@/services/API'
 
 const { cuttingTimeMachines, getCuttingTime, loadingFetch, selectedMachines } = useMachine()
 
 const monthValue = ref<Date>(new Date())
 const showLabel = shallowRef<boolean>(true)
 
-watchEffect(() => {
+watchEffect(async () => {
   getCuttingTime({
     machineIds: selectedMachines.value.length ? selectedMachines.value : undefined,
     period: monthValue.value
   })
+
+  // test
+  await API()
+    .get('/machines/cutting-time2', {
+      params: {
+        machineIds: selectedMachines.value.length
+          ? selectedMachines.value.map((machine) => machine.id)
+          : undefined,
+        period: monthValue.value
+      }
+    })
+    .then((response) => {
+      console.log(response.data)
+    })
 })
 
 const apexOptions = computed<ApexOptions>(() => {

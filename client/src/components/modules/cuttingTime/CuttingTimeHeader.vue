@@ -17,7 +17,7 @@ const monthValue = defineModel<Date>('monthValue', { required: true })
 
 <template>
   <div class="flex justify-between gap-2">
-    <div :class="`flex gap-5 ${!cuttingTimeMachines && 'opacity-0'}`">
+    <div :class="`flex gap-5 `">
       <MultiSelect
         v-model:model-value="selectedMachines"
         @before-show="getMachineOptions"
