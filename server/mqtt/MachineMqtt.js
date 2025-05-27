@@ -1,11 +1,6 @@
 const { MachineLog, Machine } = require("../models");
 const WebSocket = require("ws");
-const {
-  clientPreferences,
-  messageTypeWebsocketClient,
-} = require("../websocket/handleWebsocket");
 const MachineWebsocket = require("../websocket/MachineWebsocket");
-const { dateQuery } = require("../utils/dateQuery");
 const { decryptFromNumber } = require("../helpers/crypto");
 const { serverError } = require("../utils/serverError");
 const { existMachinesCache } = require("../cache");
@@ -29,11 +24,12 @@ const isManualLog = (createdAt) => {
 // trigger when create log
 const checkIsManualLog = async (machine_id) => {
   try {
-    const { dateFrom, dateTo } = await getShiftDateRange(new Date(), 0);
     const lastMachineLog = await MachineLog.findOne({
-      where: { machine_id, createdAt: { [Op.between]: [dateFrom, dateTo] } },
+      where: { machine_id },
       attributes: ["createdAt"],
       order: [["createdAt", "DESC"]],
+      limit: 1,
+      raw: true,
     });
     if (!lastMachineLog) {
       return false;

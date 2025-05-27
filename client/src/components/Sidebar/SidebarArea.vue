@@ -68,6 +68,12 @@ const menuGroups = computed<MenuGroup[]>(() => {
               icon: `<i class="fa-solid fa-table-cells fa-fade"></i>`
             },
             {
+              label: 'Cutting Time2',
+              route: '/cutting-time2',
+              visible: true,
+              icon: `<i class="fa-solid fa-table-cells fa-fade"></i>`
+            },
+            {
               label: 'For Operators',
               route: '/manual',
               visible: false,

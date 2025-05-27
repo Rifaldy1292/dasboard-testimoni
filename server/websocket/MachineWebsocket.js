@@ -1,5 +1,4 @@
 const { Machine, MachineLog, DailyConfig } = require("../models");
-const { config, dateQuery } = require("../utils/dateQuery");
 const { literal, Op } = require("sequelize");
 const {
   getRunningTimeMachineLog,

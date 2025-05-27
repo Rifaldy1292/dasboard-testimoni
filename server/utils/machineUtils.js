@@ -1,7 +1,7 @@
 const { Op, literal } = require("sequelize");
 const { existMachinesCache } = require("../cache");
 const { MachineLog, Machine, DailyConfig, User } = require("../models");
-const { dateQuery, config } = require("./dateQuery");
+const { dateQuery } = require("./dateQuery");
 const { serverError } = require("./serverError");
 
 /**
