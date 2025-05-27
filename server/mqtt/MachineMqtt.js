@@ -5,8 +5,6 @@ const { decryptFromNumber } = require("../helpers/crypto");
 const { serverError } = require("../utils/serverError");
 const { existMachinesCache } = require("../cache");
 const RemainingController = require("../controllers/RemainingController");
-const { getShiftDateRange } = require("../utils/machineUtils");
-const { Op } = require("sequelize");
 const userMessageCache = require("../cache/userMessageCache");
 
 /**
@@ -16,7 +14,7 @@ const userMessageCache = require("../cache/userMessageCache");
  */
 const isManualLog = (createdAt) => {
   if (!createdAt) return false;
-  const timeDifference = new Date() - new Date(createdAt);
+  const timeDifference = new Date().getTime() - new Date(createdAt).getTime();
   const sixMinutees = 6 * 60 * 1000;
   return timeDifference < sixMinutees;
 };
@@ -28,7 +26,6 @@ const checkIsManualLog = async (machine_id) => {
       where: { machine_id },
       attributes: ["createdAt"],
       order: [["createdAt", "DESC"]],
-      limit: 1,
       raw: true,
     });
     if (!lastMachineLog) {
@@ -37,7 +34,6 @@ const checkIsManualLog = async (machine_id) => {
 
     return isManualLog(lastMachineLog.createdAt);
   } catch (error) {
-    if (error.message.includes("No daily config")) return;
     serverError(error, "checkIsManualLog");
     return false;
   }
@@ -90,7 +86,7 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     const decryptOutputWp = await decryptFromNumber(output_wp);
     const decryptToolName = await decryptFromNumber(tool_name);
 
-    await updateRunningTodayLastMachineLog(existMachine.id, true);
+    await updateDescriptionLastMachineLog(existMachine.id);
     // Create a new log with the updated status
     await MachineLog.create({
       user_id,
@@ -207,26 +203,24 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
  * Update the running time of the last machine log of a given machine.
  *
  * @param {number} machine_id - The ID of the machine to update.
- * @param {boolean} withDescription - Whether to include the description in the update.
  * @returns {Promise<void>}
  */
-const updateRunningTodayLastMachineLog = async (
+const updateDescriptionLastMachineLog = async (
   machine_id,
-  withDescription = false
 ) => {
   try {
-    const { dateFrom, dateTo } = await getShiftDateRange(new Date(), 0);
     const lastLog = await MachineLog.findOne({
-      where: { machine_id, createdAt: { [Op.between]: [dateFrom, dateTo] } },
+      where: { machine_id },
       attributes: ["id", "createdAt", "current_status"],
       order: [["createdAt", "DESC"]],
+      raw: true
     });
-    if (!withDescription || !lastLog) {
-      return;
-    }
+    if (!lastLog) return;
+
+    const { id, createdAt, current_status } = lastLog;
 
     const isManual =
-      isManualLog(lastLog.createdAt) && lastLog.current_status !== "Running";
+      isManualLog(createdAt) && current_status === "Stopped";
     if (!isManual) return;
 
     await MachineLog.update(
@@ -235,11 +229,10 @@ const updateRunningTodayLastMachineLog = async (
         // current_status: isManual ? "Running" : lastLog.current_status,
       },
       {
-        where: { id: lastLog.id },
+        where: { id },
       }
     );
   } catch (error) {
-    if (error.message.includes("No daily config")) return console.log(error.message);
     serverError(error, "updateRunningTodayLastMachineLog");
   }
 };
