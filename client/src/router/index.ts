@@ -11,7 +11,7 @@ import DashboardSettingView from '@/views/DashboardSettingView.vue'
 import Timeline2View from '@/views/Timeline2View.vue'
 import Timeline1View from '@/views/Timeline1View.vue'
 import RemainingView from '@/views/RemainingView.vue'
-import Test2View from '@/components/Test2View.vue'
+import CuttingTime2View from '@/views/CuttingTime2View.vue'
 
 const routes: Readonly<RouteRecordRaw[]> = [
   {
@@ -54,7 +54,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
       {
         path: 'cutting-time2',
         name: 'cuttingTime2',
-        component: Test2View,
+        component: CuttingTime2View,
         meta: {
           title: 'Cutting Time 2'
         }

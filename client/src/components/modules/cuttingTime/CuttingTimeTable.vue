@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Test2View from '@/components/Test2View.vue'
 import { useMachine } from '@/composables/useMachine'
 import type { cuttingTimeInMonth } from '@/types/machine.type'
 import { Column, DataTable, Divider, Button } from 'primevue'
@@ -143,7 +142,6 @@ const exportXLSX = () => {
       </template>
     </DataTable>
   </div>
-  <Test2View />
 </template>
 
 <style scoped>
