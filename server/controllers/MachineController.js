@@ -220,6 +220,8 @@ interface DummyData {
       }
       const startDateInMonth = new Date(dateResult.getFullYear(), dateResult.getMonth(), 1);
       const endDateInMonth = new Date(dateResult.getFullYear(), dateResult.getMonth() + 1, 0);
+      const endDateCuttingTime = endDateInMonth
+      endDateCuttingTime.setDate(endDateCuttingTime.getDate() + 1); // set to next day to include the last day of the month
 
       const [allLogInMonth, allConfigInMonth] = await Promise.all([
         Machine.findAll({
@@ -229,13 +231,12 @@ interface DummyData {
             {
               model: MachineLog,
               attributes: [
-                "id",
                 "current_status",
                 "createdAt",
               ],
               where: {
                 createdAt: {
-                  [Op.between]: [startDateInMonth, endDateInMonth]
+                  [Op.between]: [startDateInMonth, endDateCuttingTime]
                 }
               },
             }
@@ -306,6 +307,9 @@ interface DummyData {
 
       res.send({
         data: {
+          startDateInMonth: startDateInMonth.toLocaleString(),
+          endDateInMonth: endDateInMonth.toLocaleString(),
+          endDateCuttingTime: endDateCuttingTime.toLocaleString(),
           allLogInMonth: allLogInMonth.sort((a, b) => {
             const numberA = parseInt(a.name.slice(3));
             const numberB = parseInt(b.name.slice(3));
