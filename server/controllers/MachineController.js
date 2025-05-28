@@ -2,7 +2,7 @@ const { Machine, CuttingTime, MachineLog, DailyConfig } = require("../models");
 const dateCuttingTime = require("../utils/dateCuttingTime");
 const { serverError } = require("../utils/serverError");
 
-const { getRunningTimeMachineLog, getMachineTimeline } = require("../utils/machineUtils");
+const { getRunningTimeMachineLog, getMachineTimeline, countRunningTime } = require("../utils/machineUtils");
 const { Op } = require("sequelize");
 
 const objectTargetCuttingTime = (target, totalDayInMonth) => {
@@ -246,6 +246,7 @@ interface DummyData {
         DailyConfig.findAll({
           attributes: ["id", "date", "startFirstShift", "endFirstShift", "startSecondShift", "endSecondShift"],
           raw: true,
+          order: [["date", "ASC"]],
           where: {
             date: {
               [Op.between]: [startDateInMonth, endDateInMonth]
@@ -284,19 +285,68 @@ interface DummyData {
           // shift 2 is end is next day
           endShift2.setDate(endShift2.getDate() + 1);
 
+          // filter data by shift
+
+          const logCombineShift = MachineLogs.filter((log) => {
+            const logDate = new Date(log.createdAt);
+            const between = logDate.getTime() >= startShift1.getTime() && logDate.getTime() <= endShift2.getTime();
+            return between;
+          });
+
+          const logShift1 = logCombineShift.filter((log) => {
+            const logDate = new Date(log.createdAt);
+            return logDate.getTime() >= startShift1.getTime() && logDate.getTime() <= endShift1.getTime();
+          });
+
+          const logShift2 = logCombineShift.filter((log) => {
+            const logDate = new Date(log.createdAt);
+            const between = logDate.getTime() >= startShift2.getTime() && logDate.getTime() <= endShift2.getTime();
+            return between;
+          });
+
+
+          // count running time
+          const runningTimeCombineShift = countRunningTime(logCombineShift);
+          const runningTime1 = countRunningTime(logShift1);
+          const runningTime2 = countRunningTime(logShift2);
+
+          let countCombineShift = runningTimeCombineShift.totalRunningTime;
+          let count1 = runningTime1.totalRunningTime;
+          let count2 = runningTime2.totalRunningTime;
+          const isNowDate = dateConfig.toLocaleDateString() === new Date().toLocaleDateString();
+
+          if (runningTimeCombineShift.lastRunningTimestamp) {
+            const lastRunningDate = new Date(runningTimeCombineShift.lastRunningTimestamp);
+            if (isNowDate) {
+              countCombineShift += new Date().getTime() - lastRunningDate.getTime();
+            }
+
+            countCombineShift += endShift2.getTime() - lastRunningDate.getTime();
+          }
+
+          if (runningTime1.lastRunningTimestamp) {
+            const lastRunningDate = new Date(runningTime1.lastRunningTimestamp);
+            if (isNowDate) {
+              count1 += new Date().getTime() - lastRunningDate.getTime();
+            }
+
+            count1 += endShift1.getTime() - lastRunningDate.getTime();
+          }
+
+          if (runningTime2.lastRunningTimestamp) {
+            const lastRunningDate = new Date(runningTime2.lastRunningTimestamp);
+            if (isNowDate) {
+              count2 += new Date().getTime() - lastRunningDate.getTime();
+            }
+
+            count2 += endShift2.getTime() - lastRunningDate.getTime();
+          }
+
           return {
             date: dateConfig.getDate(),
-            shift1: MachineLogs.filter((log) => {
-              const logDate = new Date(log.createdAt);
-              return logDate.getTime() >= startShift1.getTime() && logDate.getTime() <= endShift1.getTime();
-            }),
-            shift2: MachineLogs.filter((log) => {
-              const logDate = new Date(log.createdAt);
-              const between = logDate.getTime() >= startShift2.getTime() && logDate.getTime() <= endShift2.getTime();
-              return between;
-            }).map((log) => {
-              return { ...log, createdAt: new Date(log.createdAt).toLocaleString() }
-            })
+            combine: convertMilisecondToHour(countCombineShift),
+            shift1: convertMilisecondToHour(count1),
+            shift2: convertMilisecondToHour(count2),
           };
         });
         return {

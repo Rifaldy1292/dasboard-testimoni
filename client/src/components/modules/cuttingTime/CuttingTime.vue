@@ -14,14 +14,14 @@ const { cuttingTimeMachines, getCuttingTime, loadingFetch, selectedMachines } = 
 const monthValue = ref<Date>(new Date())
 const showLabel = shallowRef<boolean>(true)
 
-watchEffect(async () => {
-  // getCuttingTime({
-  //   machineIds: selectedMachines.value.length ? selectedMachines.value : undefined,
-  //   period: monthValue.value
-  // })
+watchEffect(() => {
+  getCuttingTime({
+    machineIds: selectedMachines.value.length ? selectedMachines.value : undefined,
+    period: monthValue.value
+  })
 
   // test
-  await API()
+  API()
     .get('/machines/cutting-time2', {
       params: {
         machineIds: selectedMachines.value.length
