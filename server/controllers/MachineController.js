@@ -223,10 +223,6 @@ interface DummyData {
       const endDateCuttingTime = endDateInMonth
       endDateCuttingTime.setDate(endDateCuttingTime.getDate() + 1); // set to next day to include the last day of the month
 
-      const allDateInMonth = Array.from(
-        { length: dateResult.getDate() },
-        (_, i) => i + 1)
-
       const [allLogInMonth, allConfigInMonth] = await Promise.all([
         Machine.findAll({
           where: machineIds ? { id: { [Op.in]: machineIds } } : {},
@@ -268,15 +264,8 @@ interface DummyData {
       }).map((mc) => {
         const { name, MachineLogs } = mc.get({ plain: true });
 
-        // shift1: []
-        // shift2: []
-        // add jsdoc return
         const groupLogByShiftInDateConfig = Array.isArray(allConfigInMonth) && allConfigInMonth.map((config) => {
           const { date, startFirstShift, endFirstShift, startSecondShift, endSecondShift } = config;
-
-          const dateConfig = new Date(date)
-          //  if date in  allDateInMonth not exist in allConfig
-
 
           // example startFirstShift: "07:00:00"
           const [startHour1, startMinute1, startSecond1] = startFirstShift.split(':').map(Number);
@@ -284,6 +273,7 @@ interface DummyData {
           const [startHour2, startMinute2, startSecond2] = startSecondShift.split(':').map(Number);
           const [endHour2, endMinute2, endSecond2] = endSecondShift.split(':').map(Number);
 
+          const dateConfig = new Date(date);
           const startShift1 = new Date(date);
           const endShift1 = new Date(date);
           const startShift2 = new Date(date);
@@ -371,45 +361,63 @@ interface DummyData {
               shift2: count2,
             },
             shifts: {
-              combine: `${startShift1.toLocaleTimeString().slice(0, -3)} - ${endShift2.toLocaleTimeString().slice(0, -3)}`,
-              shift1: `${startShift1.toLocaleTimeString().slice(0, -3)} - ${endShift1.toLocaleTimeString().slice(0, -3)}`,
-              shift2: `${startShift2.toLocaleTimeString().slice(0, -3)} - ${endShift2.toLocaleTimeString().slice(0, -3)}`,
+              // without second
+              combine: `${startFirstShift.slice(0, -3)} - ${endSecondShift.slice(0, -3)}`,
+              shift1: `${startFirstShift.slice(0, -3)} - ${endFirstShift.slice(0, -3)}`,
+              shift2: `${startSecondShift.slice(0, -3)} - ${endSecondShift.slice(0, -3)}`,
             }
           };
         });
 
-        /**
-         * // const example = [1, 2, 3, 4, 9, 0, 2, 0, 1, 0]
-      // expect res[1, 3, 6, 10, 19, 19, 21, 21, 22, 22]
-      // [value index 0, value index 0 + 1, value index 0, 1, 2]
-      const formattedCountLog = [];
-      for (let i = 0; i < getLogAllDateInMonth.length; i++) {
-        let sum = 0;
-        for (let j = 0; j <= i; j++) {
-          sum += getLogAllDateInMonth[j];
-        }
-        formattedCountLog.push(sum);
-      }
 
-       */
+        const allDateInMonth = Array.from(
+          { length: dateResult.getDate() },
+          (_, i) => i + 1)
+
+        const notFoundConfig = allDateInMonth.filter((day) => {
+          return !groupLogByShiftInDateConfig.some((item) => item.date === day);
+        });
+
+        const notFoundConfigFormatted = notFoundConfig.map((day) => {
+          return {
+            date: day,
+            count: {
+              combine: 0,
+              shift1: 0,
+              shift2: 0,
+            },
+            shifts: {
+              combine: null,
+              shift1: null,
+              shift2: null,
+            }
+          };
+        });
+
+        // if notFoundConfig.length, add to groupLogByShiftInDateConfig and sort by date
+        const combinedData = notFoundConfig.length ? [...groupLogByShiftInDateConfig, ...notFoundConfigFormatted].sort((a, b) => a.date - b.date) : groupLogByShiftInDateConfig;
+
+
 
         // index 1 + index 2
 
-        const formattedLogCount = Array.isArray(groupLogByShiftInDateConfig) && groupLogByShiftInDateConfig.map((item, index) => {
+        const formattedLogCount = Array.isArray(combinedData) && combinedData.map((item, index) => {
           let sumCombine = 0
           let sumShift1 = 0
           let sumShift2 = 0
 
           for (let j = 0; j <= index; j++) {
-            sumCombine += groupLogByShiftInDateConfig[j].count.combine || 0;
-            sumShift1 += groupLogByShiftInDateConfig[j].count.shift1 || 0;
-            sumShift2 += groupLogByShiftInDateConfig[j].count.shift2 || 0;
+            const { count } = combinedData[j];
+            sumCombine += count.combine || 0;
+            sumShift1 += count.shift1 || 0;
+            sumShift2 += count.shift2 || 0;
           }
 
           const { combine, shift1, shift2 } = item.count
 
           return {
             ...item,
+            notFoundConfig,
             count: {
               combine: convertMilisecondToHour(combine),
               shift1: convertMilisecondToHour(shift1),
@@ -425,16 +433,13 @@ interface DummyData {
 
         return {
           name,
-          // data: groupLogByShiftInDateConfig,
           data: formattedLogCount,
-          // formattedLogCount
         };
       });
 
       res.send({
         status: 200,
         message: "success refactor get cutting time",
-        allDateInMonth,
         data: format
       });
 

@@ -63,9 +63,8 @@ const colorInformation: { color: string; label: string }[] = [
     <CuttingTimeHeader v-model:month-value="monthValue" v-model:show-label="showLabel" />
     <DataNotFound :condition="!loadingFetch && !cuttingTimeMachines" tittle="Cutting Time" />
 
-    <Table2 :machine-data="test as any" />
-
     <div v-if="cuttingTimeMachines" class="flex flex-col gap-5 overflow-x-auto">
+      <Table2 :machine-data="test as any" />
       <CuttingTimeChart :show-label="showLabel" />
       <div class="flex gap-15 border-y border-stroke px-6 py-7.5 dark:border-strokedark">
         <div v-for="item of colorInformation" :key="item.label" class="flex gap-2">

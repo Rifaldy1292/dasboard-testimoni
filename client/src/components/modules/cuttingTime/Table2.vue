@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { DataTable, Column, ColumnGroup, Row } from 'primevue'
-import DefaultLayout from '@/layouts/DefaultLayout.vue'
 
 // Enhanced types with better type safety
 interface ShiftInfo {
   combine: string
-  shift1: string
-  shift2: string
+  shift1: string | null
+  shift2: string | null
 }
 
 interface CountInfo {
@@ -116,53 +115,48 @@ const shiftTypes: Array<keyof ShiftInfo> = ['shift1', 'shift2']
 </script>
 
 <template>
-  <DefaultLayout>
-    <DataTable
-      :value="transformedData"
-      showGridlines
-      responsiveLayout="scroll"
-      class="p-datatable-sm"
-    >
-      <ColumnGroup type="header">
-        <!-- Day Row -->
-        <Row>
-          <Column header="DATE" :rowspan="3" frozen style="min-width: 100px; text-align: center" />
-          <template v-for="day in daysConfig" :key="`day-${day.date}`">
-            <Column :header="`${day.date}`" :colspan="2" style="text-align: center" />
-          </template>
-        </Row>
+  <DataTable
+    :value="transformedData"
+    showGridlines
+    responsiveLayout="scroll"
+    class="p-datatable-sm"
+  >
+    <ColumnGroup type="header">
+      <!-- Day Row -->
+      <Row>
+        <Column header="DATE" :rowspan="3" frozen style="min-width: 100px; text-align: center" />
+        <template v-for="day in daysConfig" :key="`day-${day.date}`">
+          <Column :header="`${day.date}`" :colspan="2" style="text-align: center" />
+        </template>
+      </Row>
 
-        <!-- Shift Names Row -->
-        <Row>
-          <template v-for="day in daysConfig" :key="`shifts-${day.date}`">
-            <template v-for="shiftType in shiftTypes" :key="`${day.date}-${shiftType}`">
-              <Column :header="shiftType.toUpperCase()" :colspan="1" style="text-align: center" />
-            </template>
+      <!-- Shift Names Row -->
+      <Row>
+        <template v-for="day in daysConfig" :key="`shifts-${day.date}`">
+          <template v-for="shiftType in shiftTypes" :key="`${day.date}-${shiftType}`">
+            <Column :header="shiftType.toUpperCase()" :colspan="1" style="text-align: center" />
           </template>
-        </Row>
+        </template>
+      </Row>
 
-        <!-- Shift Times Row -->
-        <Row>
-          <template v-for="day in daysConfig" :key="`times-${day.date}`">
-            <template
-              v-for="(shiftType, index) in shiftTypes"
-              :key="`time-${day.date}-${shiftType}`"
-            >
-              <Column
-                :header="day.shifts[shiftType]"
-                style="min-width: 100px; text-align: center"
-              />
-            </template>
+      <!-- Shift Times Row -->
+      <Row>
+        <template v-for="day in daysConfig" :key="`times-${day.date}`">
+          <template v-for="(shiftType, index) in shiftTypes" :key="`time-${day.date}-${shiftType}`">
+            <Column
+              :header="day.shifts[shiftType] || '-'"
+              style="min-width: 100px; text-align: center"
+            />
           </template>
-        </Row>
-      </ColumnGroup>
+        </template>
+      </Row>
+    </ColumnGroup>
 
-      <!-- Dynamic data columns -->
-      <template v-for="col in dataColumns" :key="col.field">
-        <Column :field="col.field" :header="col.header" :frozen="col.frozen" :style="col.style" />
-      </template>
-    </DataTable>
-  </DefaultLayout>
+    <!-- Dynamic data columns -->
+    <template v-for="col in dataColumns" :key="col.field">
+      <Column :field="col.field" :header="col.header" :frozen="col.frozen" :style="col.style" />
+    </template>
+  </DataTable>
 </template>
 
 <style scoped>
