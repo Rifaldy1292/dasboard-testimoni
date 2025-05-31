@@ -1,70 +1,41 @@
 <script setup lang="ts">
-import type { ApexOptions } from 'apexcharts'
-import { computed, ref, shallowRef, watchEffect } from 'vue'
-import VueApexCharts from 'vue3-apexcharts'
+import { ref, shallowRef, watchEffect } from 'vue'
 import { useMachine } from '@/composables/useMachine'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DataNotFound from '@/components/common/DataNotFound.vue'
 import CuttingTimeHeader from './CuttingTimeHeader.vue'
 import CuttingTimeTable from './CuttingTimeTable.vue'
+import API from '@/services/API'
+import Table2 from '@/components/modules/cuttingTime/Table2.vue'
+import CuttingTimeChart from './CuttingTimeChart.vue'
 
 const { cuttingTimeMachines, getCuttingTime, loadingFetch, selectedMachines } = useMachine()
 
 const monthValue = ref<Date>(new Date())
 const showLabel = shallowRef<boolean>(true)
+const test = ref<Array<unknown>>([])
 
 watchEffect(() => {
   getCuttingTime({
+    // machineIds: [{ id: 63, name: 'MC-1' }], // Example machine IDs
     machineIds: selectedMachines.value.length ? selectedMachines.value : undefined,
     period: monthValue.value
   })
-})
 
-const apexOptions = computed<ApexOptions>(() => {
-  return {
-    series: cuttingTimeMachines.value?.cuttingTimeInMonth,
-    chart: {
-      height: 350,
-      type: 'line',
-      zoom: {
-        enabled: true
+  // test
+  API()
+    .get('/machines/cutting-time2', {
+      params: {
+        machineIds: selectedMachines.value.length
+          ? selectedMachines.value.map((machine) => machine.id)
+          : undefined,
+        period: monthValue.value
       }
-    },
-    dataLabels: {
-      enabled: showLabel.value
-    },
-    stroke: {
-      width: [5, 7, 5],
-      curve: 'straight',
-      dashArray: [0, 8, 5]
-    },
-    title: {
-      text: `Cutting Time ${cuttingTimeMachines.value?.cuttingTime.period}`,
-      align: 'left'
-    },
-    legend: {
-      tooltipHoverFormatter: function (val, opts) {
-        return (
-          val +
-          ' - <strong>' +
-          opts.w.globals.series[opts.seriesIndex][opts.dataPointIndex] +
-          '</strong>'
-        )
-      }
-    },
-    markers: {
-      size: 0,
-      hover: {
-        sizeOffset: 6
-      }
-    },
-    xaxis: {
-      categories: cuttingTimeMachines.value?.allDayInMonth
-    },
-    grid: {
-      borderColor: '#f1f1f1'
-    }
-  }
+    })
+    .then((response) => {
+      test.value = response.data.data
+      console.log(response.data)
+    })
 })
 
 const colorInformation: { color: string; label: string }[] = [
@@ -93,8 +64,8 @@ const colorInformation: { color: string; label: string }[] = [
     <DataNotFound :condition="!loadingFetch && !cuttingTimeMachines" tittle="Cutting Time" />
 
     <div v-if="cuttingTimeMachines" class="flex flex-col gap-5 overflow-x-auto">
-      <VueApexCharts :options="apexOptions" height="350" :series="apexOptions.series" />
-
+      <Table2 :machine-data="test as any" />
+      <CuttingTimeChart :show-label="showLabel" />
       <div class="flex gap-15 border-y border-stroke px-6 py-7.5 dark:border-strokedark">
         <div v-for="item of colorInformation" :key="item.label" class="flex gap-2">
           <div class="w-10 h-10" :style="{ backgroundColor: item.color }" />

@@ -25,9 +25,9 @@ const authMiddleware = async (req, res, next) => {
     } catch (error) {
         if (error.name === 'JsonWebTokenError') {
             console.log(error.message)
-            return res.status(401).json({ message: 'Invalid token', status: 401 });
+            return res.status(401).json({ message: 'Unauthorized', status: 401 });
         }
-        return res.status(401).json({ message: error.message, status: 401 });
+        return res.status(401).json({ message: 'Unauthorized', status: 401 });
     }
 }
 
