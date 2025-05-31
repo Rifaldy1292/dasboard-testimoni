@@ -1,3 +1,4 @@
+import type { CuttingTimeMachine2 } from './cuttingTime.type'
 import type { ValueFromContent } from './ftp.type'
 import type { UserLocalStorage } from './localStorage.type'
 import type { CuttingTimeMachine, MachineTimeline } from './machine.type'
@@ -20,3 +21,5 @@ export type GetCuttingTimeMachine = ApiResponse<CuttingTimeMachine> | undefined
 
 type EncryptedContent = Record<keyof ValueFromContent, number>
 export type EncryptContent = ApiResponse<Omit<EncryptedContent, 'totalCuttingTimes'>>
+
+export type GetCuttingTimeMachine2 = ApiResponse<CuttingTimeMachine2>

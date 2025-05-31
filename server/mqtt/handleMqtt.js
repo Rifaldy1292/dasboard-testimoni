@@ -45,7 +45,6 @@ const handleMqtt = (wss) => {
   });
 
   mqttClient.on("message", async (topic, message) => {
-    // console.time('Proses');
     try {
       /**
              * Parses the received MQTT message into a JavaScript object.

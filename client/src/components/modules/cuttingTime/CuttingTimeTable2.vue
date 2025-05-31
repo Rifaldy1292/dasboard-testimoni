@@ -1,30 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { DataTable, Column, ColumnGroup, Row } from 'primevue'
-
-// Enhanced types with better type safety
-interface ShiftInfo {
-  combine: string | null
-  shift1: string | null
-  shift2: string | null
-}
-
-interface CountInfo {
-  shift1: number
-  shift2: number
-  combined: number
-}
-
-interface DayData {
-  date: number
-  shifts: ShiftInfo
-  count: CountInfo
-}
-
-interface MachineInfo {
-  name: string
-  data: DayData[]
-}
+import type { MachineInfo, ShiftInfo } from '@/types/cuttingTime.type'
+import { useMachine } from '@/composables/useMachine'
 
 // Type for transformed data that's compatible with DataTable
 interface TransformedRow {
@@ -40,16 +18,19 @@ interface ColumnDef {
   style?: string
 }
 
-const { machineData } = defineProps<{
-  machineData: MachineInfo[]
-}>()
+const { cuttingTimeMachines2, loadingFetch } = useMachine()
+
+const machineData = computed<MachineInfo[]>(() => {
+  if (!cuttingTimeMachines2.value) return []
+  return cuttingTimeMachines2.value.data
+})
 
 // Extract days and shifts from data for table headers
 const daysConfig = computed<Array<{ date: number; shifts: ShiftInfo }>>(() => {
   // Assuming all machines have the same days and shift configuration
-  if (machineData.length === 0) return []
+  if (machineData.value.length === 0) return []
 
-  return machineData[0].data.map((dayData) => ({
+  return machineData.value[0].data.map((dayData) => ({
     date: dayData.date,
     shifts: dayData.shifts
   }))
@@ -57,7 +38,7 @@ const daysConfig = computed<Array<{ date: number; shifts: ShiftInfo }>>(() => {
 
 // Transform data for DataTable compatibility with better type safety
 const transformedData = computed<TransformedRow[]>(() => {
-  return machineData.map((machine) => {
+  return machineData.value.map((machine) => {
     // Initialize with machine name
     const result: TransformedRow = {
       machineName: machine.name
@@ -117,6 +98,7 @@ const shiftTypes: Array<keyof ShiftInfo> = ['shift1', 'shift2']
 <template>
   <DataTable
     :value="transformedData"
+    :loading="loadingFetch"
     showGridlines
     responsiveLayout="scroll"
     :scrollable="true"

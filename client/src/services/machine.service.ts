@@ -1,6 +1,11 @@
 import type { AxiosResponse } from 'axios'
 import API from './API'
-import type { ApiResponse, EncryptContent, GetCuttingTimeMachine } from '@/types/apiResponse.type'
+import type {
+  ApiResponse,
+  EncryptContent,
+  GetCuttingTimeMachine,
+  GetCuttingTimeMachine2
+} from '@/types/apiResponse.type'
 import type { AllMachineTimeline, MachineOption } from '@/types/machine.type'
 import type { ParamsGetCuttingTime, TransferFiles } from '@/dto/machine.dto'
 import type { ValueFromContent } from '@/types/ftp.type'
@@ -19,6 +24,13 @@ const MachineServices = {
   },
   getCuttingTime: (params: ParamsGetCuttingTime): Promise<AxiosResponse<GetCuttingTimeMachine>> => {
     return API({ params }).get('/machines/cutting-time')
+  },
+  getCuttingTime2: (
+    params: ParamsGetCuttingTime
+  ): Promise<AxiosResponse<GetCuttingTimeMachine2>> => {
+    return API({
+      params: { ...params, machineIds: params.machineIds?.map((mc) => mc.id) }
+    }).get('/machines/cutting-time2')
   },
   getMachineOptions: (): Promise<AxiosResponse<ApiResponse<MachineOption[]>>> => {
     return API().get('/machines/options')

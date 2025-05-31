@@ -206,10 +206,16 @@ interface DummyData {
       }
       const dateResult = dateCuttingTime(period).date;
 
+      const allDateInMonth = Array.from(
+        { length: dateResult.getDate() },
+        (_, i) => i + 1
+      );
+
       // {period: "2025-05-31", target: 600}
       const cuttingTime = await CuttingTime.findOne({
         where: { period: dateResult },
         attributes: ["period", "target"],
+        raw: true,
       });
 
       if (!cuttingTime) {
@@ -370,10 +376,6 @@ interface DummyData {
         });
 
 
-        const allDateInMonth = Array.from(
-          { length: dateResult.getDate() },
-          (_, i) => i + 1)
-
         const notFoundConfig = allDateInMonth.filter((day) => {
           return !groupLogByShiftInDateConfig.some((item) => item.date === day);
         });
@@ -439,7 +441,11 @@ interface DummyData {
       res.send({
         status: 200,
         message: "success refactor get cutting time",
-        data: format
+        data: {
+          period: cuttingTime.period,
+          allDateInMonth,
+          data: format
+        }
       });
 
 

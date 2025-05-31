@@ -113,7 +113,6 @@ module.exports = class MachineWebsocket {
    * @param {{ date: string, shift: 0| 1 | 2 }} data - The data object containing date and shift.
    */
   static async percentages(client, data) {
-    console.time("after");
     try {
       const { date, shift } = data;
       if (!date || shift < 0 || shift > 2) return client.send(JSON.stringify({ type: "error", message: "Bad request!" }));
@@ -219,6 +218,5 @@ module.exports = class MachineWebsocket {
         JSON.stringify({ type: "error", message: "Failed to get percentage" })
       );
     }
-    console.timeEnd("after");
   }
 };
