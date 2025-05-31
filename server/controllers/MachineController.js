@@ -417,7 +417,6 @@ interface DummyData {
 
           return {
             ...item,
-            notFoundConfig,
             count: {
               combine: convertMilisecondToHour(combine),
               shift1: convertMilisecondToHour(shift1),

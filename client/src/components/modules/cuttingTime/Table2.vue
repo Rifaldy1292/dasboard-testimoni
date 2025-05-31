@@ -4,7 +4,7 @@ import { DataTable, Column, ColumnGroup, Row } from 'primevue'
 
 // Enhanced types with better type safety
 interface ShiftInfo {
-  combine: string
+  combine: string | null
   shift1: string | null
   shift2: string | null
 }
@@ -119,12 +119,22 @@ const shiftTypes: Array<keyof ShiftInfo> = ['shift1', 'shift2']
     :value="transformedData"
     showGridlines
     responsiveLayout="scroll"
+    :scrollable="true"
+    scrollDirection="both"
+    @row-click="console.log($event.data)"
+    size="large"
+    selectionMode="multiple"
     class="p-datatable-sm"
   >
     <ColumnGroup type="header">
       <!-- Day Row -->
       <Row>
-        <Column header="DATE" :rowspan="3" frozen style="min-width: 100px; text-align: center" />
+        <Column
+          header="DATE & SHIFT"
+          :rowspan="3"
+          frozen
+          style="min-width: 100px; text-align: center"
+        />
         <template v-for="day in daysConfig" :key="`day-${day.date}`">
           <Column :header="`${day.date}`" :colspan="2" style="text-align: center" />
         </template>

@@ -8,6 +8,7 @@
     "backup-db": "cd server/backup && \"C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump.exe\" -U postgres -h localhost -p 5432 -F c -b -v -f dashboard_machine_backup.dump yamaha_dashboard_machine",
     "push-db": "pnpm run backup-db && git add . && git commit -m \"backup db\" && git push origin main",
     "restore-db": "cd server && pnpm run full-restore",
+    "restore-db:linux": "cd server && pnpm run full-restore:linux",
     "commit": "git-cz",
     "install:all": "cd client && pnpm install && cd ../server && pnpm install",
     "clean:all": "cd client && rm -rf node_modules package-lock.json && cd ../server && rm -rf node_modules package-lock.json"
