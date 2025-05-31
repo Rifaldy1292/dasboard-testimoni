@@ -51,7 +51,7 @@ const transformedData = computed<TransformedRow[]>(() => {
       // Add shift1, shift2, and combined values for this day
       result[`${dayKey}_shift1`] = dayData.count.shift1
       result[`${dayKey}_shift2`] = dayData.count.shift2
-      result[`${dayKey}_combined`] = dayData.count.combined
+      result[`${dayKey}_combine`] = dayData.count.combine
     })
 
     return result
@@ -78,13 +78,19 @@ const dataColumns = computed<ColumnDef[]>(() => {
     columns.push({
       field: `${dayKey}_shift1`,
       // text: center
-      style: 'min-width: 150px; text-align: center;'
+      style: 'min-width: 80px; text-align: center;'
     })
 
     // Add shift2 column
     columns.push({
       field: `${dayKey}_shift2`,
-      style: 'min-width: 150px; text-align: center;'
+      style: 'min-width: 80px; text-align: center;'
+    })
+
+    // Add combined column
+    columns.push({
+      field: `${dayKey}_combine`,
+      style: 'min-width: 80px; text-align: center;'
     })
   })
 
@@ -92,7 +98,7 @@ const dataColumns = computed<ColumnDef[]>(() => {
 })
 
 // Define shift types with type safety
-const shiftTypes: Array<keyof ShiftInfo> = ['shift1', 'shift2']
+const shiftTypes: Array<keyof ShiftInfo> = ['shift1', 'shift2', 'combine']
 </script>
 
 <template>
@@ -118,7 +124,15 @@ const shiftTypes: Array<keyof ShiftInfo> = ['shift1', 'shift2']
           style="min-width: 100px; text-align: center"
         />
         <template v-for="day in daysConfig" :key="`day-${day.date}`">
-          <Column :header="`${day.date}`" :colspan="2" style="text-align: center" />
+          <Column
+            :colspan="3"
+            style="text-align: center; justify-content: center"
+            header-style="justify-content: center; align-items: center;"
+          >
+            <template #header>
+              <div style="width: 100%; text-align: center">{{ day.date }}</div>
+            </template>
+          </Column>
         </template>
       </Row>
 
@@ -126,7 +140,7 @@ const shiftTypes: Array<keyof ShiftInfo> = ['shift1', 'shift2']
       <Row>
         <template v-for="day in daysConfig" :key="`shifts-${day.date}`">
           <template v-for="shiftType in shiftTypes" :key="`${day.date}-${shiftType}`">
-            <Column :header="shiftType.toUpperCase()" :colspan="1" style="text-align: center" />
+            <Column :header="shiftType.toUpperCase()" :colspan="1" />
           </template>
         </template>
       </Row>
@@ -135,10 +149,7 @@ const shiftTypes: Array<keyof ShiftInfo> = ['shift1', 'shift2']
       <Row>
         <template v-for="day in daysConfig" :key="`times-${day.date}`">
           <template v-for="(shiftType, index) in shiftTypes" :key="`time-${day.date}-${shiftType}`">
-            <Column
-              :header="day.shifts[shiftType] || '-'"
-              style="min-width: 100px; text-align: center"
-            />
+            <Column :header="day.shifts[shiftType] || '-'" />
           </template>
         </template>
       </Row>
