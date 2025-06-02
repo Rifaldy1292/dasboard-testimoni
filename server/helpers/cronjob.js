@@ -97,6 +97,20 @@ const deleteCncFiles = async () => {
   }
 };
 
+const updateAllDailyConfig = async () => {
+  await DailyConfig.update(
+    {
+      startFirstShift: "06:00:00",
+      endFirstShift: "18:00:00",
+      startSecondShift: "18:00:00",
+      endSecondShift: "06:00:00",
+    },
+    {
+      where: {},
+    }
+  );
+}
+
 /**
  * Initializes and schedules all cron jobs for the application.
  * Sets up jobs for machine status reset, cutting time creation, and daily configuration creation.
@@ -112,6 +126,7 @@ const deleteCncFiles = async () => {
  * @see handleResetMachineStatus
  */
 const handleCronJob = async () => {
+  await updateAllDailyConfig();
   await createDailyConfig();
   await createCuttingTime();
   // jam 12 malam pergantian hari
@@ -133,6 +148,7 @@ const handleCronJob = async () => {
   const [hour2, minute2] = startSecondShift.split(":").map(Number);
   const [endHour1, endMinute1] = endFirstShift.split(":").map(Number);
   const [endHour2, endMinute2] = endSecondShift.split(":").map(Number);
+
 
   cron.schedule(`${minute1} ${hour1} * * *`, () => {
     createDailyConfig();
