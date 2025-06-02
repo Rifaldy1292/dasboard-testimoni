@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { DataTable, Column, ColumnGroup, Row } from 'primevue'
+import { DataTable, Column, ColumnGroup, Row, Divider } from 'primevue'
 import type { MachineInfo, ShiftInfo } from '@/types/cuttingTime.type'
 import { useMachine } from '@/composables/useMachine'
 
@@ -49,9 +49,19 @@ const transformedData = computed<TransformedRow[]>(() => {
       const dayKey = `day${dayData.date}`
 
       // Add shift1, shift2, and combined values for this day
-      result[`${dayKey}_shift1`] = dayData.count.shift1
-      result[`${dayKey}_shift2`] = dayData.count.shift2
-      result[`${dayKey}_combine`] = dayData.count.combine
+      // result[`${dayKey}_shift1`] = dayData.count.shift1
+      result[`${dayKey}_shift1`] = {
+        data: dayData.count.shift1,
+        combine: dayData.count.combine,
+        calculate: dayData.count.calculate.combine
+      }
+      result[`${dayKey}_shift2`] = {
+        data: dayData.count.shift2,
+        combine: dayData.count.combine,
+        calculate: dayData.count.calculate.combine
+      }
+      // result[`${dayKey}_shift2`] = dayData.count.shift2
+      // result[`${dayKey}_combine`] = dayData.count.calculate.combine
     })
 
     return result
@@ -86,19 +96,29 @@ const dataColumns = computed<ColumnDef[]>(() => {
       field: `${dayKey}_shift2`,
       style: 'min-width: 80px; text-align: center;'
     })
-
-    // Add combined column
-    columns.push({
-      field: `${dayKey}_combine`,
-      style: 'min-width: 80px; text-align: center;'
-    })
   })
 
   return columns
 })
 
 // Define shift types with type safety
-const shiftTypes: Array<keyof ShiftInfo> = ['shift1', 'shift2', 'combine']
+const shiftTypes: Array<keyof ShiftInfo> = ['shift1', 'shift2']
+function isCombinedField(field: string): boolean {
+  return field.endsWith('_combine')
+}
+
+function isShiftField(field: string): boolean {
+  return field.endsWith('_shift1') || field.endsWith('_shift2')
+}
+
+const getColorColumn = (value: number) => {
+  // green
+  if (value >= 16) return '#22c55e'
+  // yellow
+  if (value >= 14) return '#f59e0b'
+  // red
+  if (value < 14) return '#ef4444'
+}
 </script>
 
 <template>
@@ -125,7 +145,7 @@ const shiftTypes: Array<keyof ShiftInfo> = ['shift1', 'shift2', 'combine']
         />
         <template v-for="day in daysConfig" :key="`day-${day.date}`">
           <Column
-            :colspan="3"
+            :colspan="2"
             style="text-align: center; justify-content: center"
             header-style="justify-content: center; align-items: center;"
           >
@@ -148,7 +168,7 @@ const shiftTypes: Array<keyof ShiftInfo> = ['shift1', 'shift2', 'combine']
       <!-- Shift Times Row -->
       <Row>
         <template v-for="day in daysConfig" :key="`times-${day.date}`">
-          <template v-for="(shiftType, index) in shiftTypes" :key="`time-${day.date}-${shiftType}`">
+          <template v-for="shiftType in shiftTypes" :key="`time-${day.date}-${shiftType}`">
             <Column :header="day.shifts[shiftType] || '-'" />
           </template>
         </template>
@@ -157,7 +177,18 @@ const shiftTypes: Array<keyof ShiftInfo> = ['shift1', 'shift2', 'combine']
 
     <!-- Dynamic data columns -->
     <template v-for="col in dataColumns" :key="col.field">
-      <Column :field="col.field" :header="col.header" :frozen="col.frozen" :style="col.style" />
+      <Column :field="col.field" :header="col.header" :frozen="col.frozen" :style="col.style">
+        <template #body="{ data }">
+          <span v-if="col.field === 'machineName'">{{ data[col.field] }}</span>
+          <div v-if="isShiftField(col.field)" :title="`combine: ${data[col.field].combine} `">
+            <span>{{ data[col.field].calculate }}</span>
+            <Divider />
+            <span :style="{ color: getColorColumn(data[col.field].combine) }">{{
+              data[col.field].data
+            }}</span>
+          </div>
+        </template>
+      </Column>
     </template>
   </DataTable>
 </template>
