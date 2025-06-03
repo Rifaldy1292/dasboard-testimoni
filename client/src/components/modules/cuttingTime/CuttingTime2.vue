@@ -19,21 +19,6 @@ watchEffect(() => {
     period: monthValue.value
   })
 })
-
-const colorInformation: { color: string; label: string }[] = [
-  {
-    color: '#22c55e',
-    label: 'Target >= 16'
-  },
-  {
-    color: '#f59e0b',
-    label: 'Mendekati >= 14'
-  },
-  {
-    color: '#ef4444',
-    label: 'Tidak Target < 14'
-  }
-]
 </script>
 
 <template>
@@ -48,12 +33,6 @@ const colorInformation: { color: string; label: string }[] = [
     <div v-if="cuttingTimeMachines2" class="flex flex-col gap-5 overflow-x-auto">
       <CuttingTimeChart2 :show-label="showLabel" />
 
-      <div class="flex gap-15 border-y border-stroke px-6 py-7.5 dark:border-strokedark">
-        <div v-for="item of colorInformation" :key="item.label" class="flex gap-2">
-          <div class="w-10 h-10" :style="{ backgroundColor: item.color }" />
-          <span>{{ item.label }}</span>
-        </div>
-      </div>
       <Table2 />
     </div>
   </template>

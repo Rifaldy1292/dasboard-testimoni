@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { DataTable, Column, ColumnGroup, Row, Divider } from 'primevue'
 import type { MachineInfo, ShiftInfo } from '@/types/cuttingTime.type'
 import { useMachine } from '@/composables/useMachine'
+import CuttingTimeTarget from './CuttingTimeTarget.vue'
 
 // Type for transformed data that's compatible with DataTable
 interface TransformedRow {
@@ -20,6 +21,12 @@ interface ColumnDef {
 
 const { cuttingTimeMachines2, loadingFetch } = useMachine()
 
+const colorCount = ref({
+  green: 10,
+  yellow: 8,
+  red: 8
+})
+
 const machineData = computed<MachineInfo[]>(() => {
   if (!cuttingTimeMachines2.value) return []
   return cuttingTimeMachines2.value.data
@@ -28,7 +35,7 @@ const machineData = computed<MachineInfo[]>(() => {
 // Extract days and shifts from data for table headers
 const daysConfig = computed<Array<{ date: number; shifts: ShiftInfo }>>(() => {
   // Assuming all machines have the same days and shift configuration
-  if (machineData.value.length === 0) return []
+  if (machineData.value.length < 1) return []
 
   return machineData.value[1].data.map((dayData) => ({
     date: dayData.date,
@@ -103,9 +110,6 @@ const dataColumns = computed<ColumnDef[]>(() => {
 
 // Define shift types with type safety
 const shiftTypes: Array<keyof ShiftInfo> = ['shift1', 'shift2']
-function isCombinedField(field: string): boolean {
-  return field.endsWith('_combine')
-}
 
 function isShiftField(field: string): boolean {
   return field.endsWith('_shift1') || field.endsWith('_shift2')
@@ -113,15 +117,16 @@ function isShiftField(field: string): boolean {
 
 const getColorColumn = (value: number) => {
   // green
-  if (value >= 16) return '#22c55e'
+  if (value >= colorCount.value.green) return '#22c55e'
   // yellow
-  if (value >= 14) return '#f59e0b'
+  if (value >= colorCount.value.yellow) return '#f59e0b'
   // red
-  if (value < 14) return '#ef4444'
+  if (value < colorCount.value.red) return '#ef4444'
 }
 </script>
 
 <template>
+  <CuttingTimeTarget v-model="colorCount" />
   <DataTable
     :value="transformedData"
     :loading="loadingFetch"
@@ -183,7 +188,7 @@ const getColorColumn = (value: number) => {
           <div v-if="isShiftField(col.field)" :title="`combine: ${data[col.field].combine} `">
             <span>{{ data[col.field].calculate }}</span>
             <Divider v-if="data.machineName !== 'TARGET'" />
-            <span :style="{ color: getColorColumn(data[col.field].combine) }">{{
+            <span :style="{ color: getColorColumn(data[col.field].data) }">{{
               data[col.field].data
             }}</span>
           </div>

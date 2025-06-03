@@ -21,6 +21,21 @@ const objectTargetCuttingTime = (target, totalDayInMonth) => {
   };
 };
 
+/**
+ * Generates a monthly target data structure for cutting time calculations
+ * @param {number} target - The total target hours for the month
+ * @param {number} totalDayInMonth - The number of days in the month
+ * @returns {Object} An object containing:
+ *   - name: "TARGET" string identifier
+ *   - data: Array of daily target objects, each containing:
+ *     - date: The day of the month (1-31)
+ *     - shifts: Object with shift1, shift2, and combine properties (all null)
+ *     - count: Object containing:
+ *       - calculate: Object with shift calculations
+ *       - shift1: null
+ *       - shift2: null 
+ *       - combine: Calculated cumulative target for that day
+ */
 const objectTargetCuttingTime2 = (target, totalDayInMonth) => {
   const targetPerDay = target / totalDayInMonth; // Calculate target hours per day
 
@@ -297,6 +312,14 @@ interface DummyData {
 
       ]);
 
+      if (!allLogInMonth.length || !allConfigInMonth.length) {
+        return res.status(200).json({
+          status: 200,
+          message: "success get cutting time",
+          data: []
+        });
+      }
+
       // sort machine
       const format = Array.isArray(allLogInMonth) && allLogInMonth.sort((a, b) => {
         const numberA = parseInt(a.name.slice(3));
@@ -480,7 +503,7 @@ interface DummyData {
 
       res.send({
         status: 200,
-        message: "success refactor get cutting time",
+        message: "success get cutting time",
         data: {
           ...cuttingTime,
           allDateInMonth,
@@ -490,7 +513,7 @@ interface DummyData {
 
 
     } catch (error) {
-      serverError(error, res, "Failed to refactor get cutting time");
+      serverError(error, res, "Failed to get cutting time");
     }
   }
 
