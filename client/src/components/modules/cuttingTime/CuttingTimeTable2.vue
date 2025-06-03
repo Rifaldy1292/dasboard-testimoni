@@ -4,6 +4,7 @@ import { DataTable, Column, ColumnGroup, Row, Divider, Button } from 'primevue'
 import type { MachineInfo, ShiftInfo } from '@/types/cuttingTime.type'
 import { useMachine } from '@/composables/useMachine'
 import CuttingTimeTarget from './CuttingTimeTarget.vue'
+import * as XLSX from 'xlsx'
 
 // Type for transformed data that's compatible with DataTable
 interface TransformedRow {
@@ -130,8 +131,164 @@ const getColorColumn = (value: number) => {
   if (value < colorCount.value.red) return '#ef4444'
 }
 
+// Export function dengan format yang sama seperti di web
 const exportXLSX = () => {
-  console.log(transformedData.value)
+  try {
+    // Create workbook
+    const workbook = XLSX.utils.book_new()
+
+    // Prepare header structure seperti di web
+    const worksheetData: any[][] = []
+
+    // Header Row 1: DATE & SHIFT dan tanggal
+    const headerRow1 = ['DATE & SHIFT']
+    daysConfig.value.forEach((day) => {
+      headerRow1.push(day.date.toString(), '') // Colspan 2 untuk setiap tanggal
+    })
+    worksheetData.push(headerRow1)
+
+    // Header Row 2: Kosong di kolom pertama, SHIFT1 dan SHIFT2
+    const headerRow2 = ['']
+    daysConfig.value.forEach(() => {
+      headerRow2.push('SHIFT1', 'SHIFT2')
+    })
+    worksheetData.push(headerRow2)
+
+    // Header Row 3: Kosong di kolom pertama, waktu shift
+    const headerRow3 = ['']
+    daysConfig.value.forEach((day) => {
+      const shift1Time = day.shifts.shift1 || '06:00-18:00'
+      const shift2Time = day.shifts.shift2 || '18:00-06:00'
+      headerRow3.push(shift1Time, shift2Time)
+    })
+    worksheetData.push(headerRow3)
+
+    // Data rows
+    transformedData.value.forEach((row) => {
+      // Row untuk calculate values (baris atas)
+      const calculateRow = [row.machineName]
+      daysConfig.value.forEach((day) => {
+        const shift1Key = `day${day.date}_shift1`
+        const shift2Key = `day${day.date}_shift2`
+
+        const shift1Data = row[shift1Key] as { data: number; combine: number; calculate: number }
+        const shift2Data = row[shift2Key] as { data: number; combine: number; calculate: number }
+
+        calculateRow.push(shift1Data?.calculate || 0, shift2Data?.calculate || 0)
+      })
+      worksheetData.push(calculateRow)
+
+      // Row untuk data values (baris bawah) - hanya jika bukan TARGET
+      if (row.machineName !== 'TARGET') {
+        const dataRow = [''] // Empty machine name untuk baris kedua
+        daysConfig.value.forEach((day) => {
+          const shift1Key = `day${day.date}_shift1`
+          const shift2Key = `day${day.date}_shift2`
+
+          const shift1Data = row[shift1Key] as { data: number; combine: number; calculate: number }
+          const shift2Data = row[shift2Key] as { data: number; combine: number; calculate: number }
+
+          dataRow.push(shift1Data?.data || 0, shift2Data?.data || 0)
+        })
+        worksheetData.push(dataRow)
+      }
+    })
+
+    // Create worksheet
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData)
+
+    // Merge cells untuk header (colspan simulation)
+    const merges = []
+
+    // Merge "DATE & SHIFT" cell (A1:A3)
+    merges.push({ s: { r: 0, c: 0 }, e: { r: 2, c: 0 } })
+
+    // Merge tanggal cells (setiap tanggal span 2 kolom)
+    daysConfig.value.forEach((day, index) => {
+      const startCol = 1 + index * 2
+      const endCol = startCol + 1
+      merges.push({ s: { r: 0, c: startCol }, e: { r: 0, c: endCol } })
+    })
+
+    worksheet['!merges'] = merges
+
+    // Set column widths
+    const columnWidths = [
+      { wch: 15 }, // Machine Name column
+      ...Array(daysConfig.value.length * 2).fill({ wch: 12 }) // Data columns
+    ]
+    worksheet['!cols'] = columnWidths
+
+    // Apply styling untuk header rows
+    const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1')
+
+    for (let row = 0; row <= 2; row++) {
+      for (let col = 0; col <= range.e.c; col++) {
+        const cellAddress = XLSX.utils.encode_cell({ r: row, c: col })
+        if (!worksheet[cellAddress]) continue
+
+        worksheet[cellAddress].s = {
+          font: { bold: true },
+          alignment: { horizontal: 'center', vertical: 'center' },
+          fill: { fgColor: { rgb: 'E5E7EB' } },
+          border: {
+            top: { style: 'thin' },
+            bottom: { style: 'thin' },
+            left: { style: 'thin' },
+            right: { style: 'thin' }
+          }
+        }
+      }
+    }
+
+    // Apply data cell styling dengan color coding
+    for (let row = 3; row <= range.e.r; row++) {
+      for (let col = 1; col <= range.e.c; col++) {
+        const cellAddress = XLSX.utils.encode_cell({ r: row, c: col })
+        if (!worksheet[cellAddress]) continue
+
+        const cellValue = worksheet[cellAddress].v
+        let fontColor = '000000' // default black
+
+        // Apply color coding berdasarkan nilai
+        if (typeof cellValue === 'number') {
+          if (cellValue >= colorCount.value.green) {
+            fontColor = '22C55E' // green
+          } else if (cellValue >= colorCount.value.yellow) {
+            fontColor = 'F59E0B' // yellow
+          } else if (cellValue < colorCount.value.red) {
+            fontColor = 'EF4444' // red
+          }
+        }
+
+        worksheet[cellAddress].s = {
+          font: { color: { rgb: fontColor } },
+          alignment: { horizontal: 'center' },
+          border: {
+            top: { style: 'thin' },
+            bottom: { style: 'thin' },
+            left: { style: 'thin' },
+            right: { style: 'thin' }
+          }
+        }
+      }
+    }
+
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Cutting Time Data')
+
+    // Generate filename dengan tanggal
+    const currentDate = new Date().toISOString().split('T')[0]
+    const filename = `cutting-time-data-${currentDate}.xlsx`
+
+    // Export file
+    XLSX.writeFile(workbook, filename)
+
+    console.log('Excel file exported successfully dengan format yang sama seperti web')
+  } catch (error) {
+    console.error('Error exporting to Excel:', error)
+    alert('Terjadi kesalahan saat mengexport data ke Excel')
+  }
 }
 </script>
 
