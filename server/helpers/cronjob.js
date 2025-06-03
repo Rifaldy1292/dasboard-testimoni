@@ -88,28 +88,25 @@ const handleResetMachineStatus = async () => {
 };
 
 const deleteCncFiles = async () => {
-  const folderPath = path.join(__dirname, "public", "cnc_files");
+  const folderPath = path.join(__dirname, "..", "public", "cnc_files");
   try {
     await fs.promises.rm(folderPath, { recursive: true, force: true });
-    console.log("successfully deletted folder cnc_files");
+    console.log("successfully deleted folder cnc_files");
   } catch (err) {
     serverError(err, "failed delete folder cnc_files");
   }
 };
 
-const updateAllDailyConfig = async () => {
-  await DailyConfig.update(
-    {
-      startFirstShift: "06:00:00",
-      endFirstShift: "18:00:00",
-      startSecondShift: "18:00:00",
-      endSecondShift: "06:00:00",
-    },
-    {
-      where: {},
-    }
-  );
-}
+const findLastDailyConfig = async () => {
+  const findDailyConfig = await DailyConfig.findOne({
+    attributes: ["startFirstShift", "startSecondShift", "endFirstShift", "endSecondShift"],
+    order: [['createdAt', "DESC"]],
+    raw: true,
+  });
+  if (!findDailyConfig) return null;
+  return findDailyConfig;
+};
+
 
 /**
  * Initializes and schedules all cron jobs for the application.
@@ -126,50 +123,75 @@ const updateAllDailyConfig = async () => {
  * @see handleResetMachineStatus
  */
 const handleCronJob = async () => {
-  await updateAllDailyConfig();
+  // Store active cron jobs to destroy them when updating
+  let activeCronJobs = [];
+
+  const setupShiftCronJobs = async () => {
+    console.log("Setting up shift cron jobs...");
+
+    // Destroy existing cron jobs
+    activeCronJobs.forEach(job => {
+      if (job && typeof job.destroy === 'function') {
+        job.destroy();
+      }
+    });
+    activeCronJobs = [];
+
+    // Get latest daily config
+    const latestDailyConfig = await findLastDailyConfig();
+    if (!latestDailyConfig) {
+      console.log("No daily config found, skipping shift cron jobs");
+      return;
+    }
+
+    const { startFirstShift, startSecondShift, endFirstShift, endSecondShift } = latestDailyConfig;
+    const [startHour1, startMinute1] = startFirstShift.split(":").map(Number);
+    const [startHour2, startMinute2] = startSecondShift.split(":").map(Number);
+    const [endHour1, endMinute1] = endFirstShift.split(":").map(Number);
+    const [endHour2, endMinute2] = endSecondShift.split(":").map(Number);
+
+    // Create new cron jobs with latest config
+    const job1 = cron.schedule(`${startMinute1} ${startHour1} * * *`, () => {
+      createDailyConfig();
+      handleResetMachineStatus();
+    });
+
+    const job2 = cron.schedule(`${endMinute1} ${endHour1} * * *`, () => {
+      createDailyConfig();
+      handleResetMachineStatus();
+    });
+
+    const job3 = cron.schedule(`${startMinute2} ${startHour2} * * *`, () => {
+      createDailyConfig();
+      handleResetMachineStatus();
+    });
+
+    const job4 = cron.schedule(`${endMinute2} ${endHour2} * * *`, () => {
+      createDailyConfig();
+      handleResetMachineStatus();
+    });
+
+    // Store jobs for future cleanup
+    activeCronJobs = [job1, job2, job3, job4];
+
+    console.log(`Cron jobs updated - Start1: ${startHour1}:${startMinute1}, End1: ${endHour1}:${endMinute1}, Start2: ${startHour2}:${startMinute2}, End2: ${endHour2}:${endMinute2}`);
+  };
+
+  // Initial setup saat startup
   await createDailyConfig();
   await createCuttingTime();
-  // jam 12 malam pergantian hari
+  await setupShiftCronJobs();
+
+  // Daily cron job at midnight - update schedule dengan config terbaru
   cron.schedule(`0 0 * * *`, async () => {
+    await deleteCncFiles();
     await createDailyConfig();
-    createCuttingTime();
-    deleteCncFiles();
+    await createCuttingTime();
+
+    // Re-setup cron jobs dengan config terbaru
+    await setupShiftCronJobs();
   });
 
-  // find last daily config
-  const lastDailyConfig = await DailyConfig.findOne({
-    attributes: ["startFirstShift", "startSecondShift", "endFirstShift", "endSecondShift"],
-    order: [['createdAt', "DESC"]]
-  });
-
-  if (!lastDailyConfig) return;
-  const { startFirstShift, startSecondShift, endFirstShift, endSecondShift } = lastDailyConfig;
-  const [hour1, minute1] = startFirstShift.split(":").map(Number);
-  const [hour2, minute2] = startSecondShift.split(":").map(Number);
-  const [endHour1, endMinute1] = endFirstShift.split(":").map(Number);
-  const [endHour2, endMinute2] = endSecondShift.split(":").map(Number);
-
-
-  cron.schedule(`${minute1} ${hour1} * * *`, () => {
-    createDailyConfig();
-    handleResetMachineStatus();
-  });
-
-  cron.schedule(`${endMinute1} ${endHour1} * * *`, () => {
-    createDailyConfig();
-    handleResetMachineStatus();
-  });
-
-  cron.schedule(`${minute2} ${hour2} * * *`, () => {
-    createDailyConfig();
-    handleResetMachineStatus();
-  });
-
-  cron.schedule(`${endMinute2} ${endHour2} * * *`, () => {
-    createDailyConfig();
-    handleResetMachineStatus();
-  });
-
-  console.log("cronjob finished");
+  console.log("cronjob finished initialization");
 };
 module.exports = handleCronJob;

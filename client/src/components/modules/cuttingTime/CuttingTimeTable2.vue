@@ -30,7 +30,7 @@ const daysConfig = computed<Array<{ date: number; shifts: ShiftInfo }>>(() => {
   // Assuming all machines have the same days and shift configuration
   if (machineData.value.length === 0) return []
 
-  return machineData.value[0].data.map((dayData) => ({
+  return machineData.value[1].data.map((dayData) => ({
     date: dayData.date,
     shifts: dayData.shifts
   }))
@@ -182,7 +182,7 @@ const getColorColumn = (value: number) => {
           <span v-if="col.field === 'machineName'">{{ data[col.field] }}</span>
           <div v-if="isShiftField(col.field)" :title="`combine: ${data[col.field].combine} `">
             <span>{{ data[col.field].calculate }}</span>
-            <Divider />
+            <Divider v-if="data.machineName !== 'TARGET'" />
             <span :style="{ color: getColorColumn(data[col.field].combine) }">{{
               data[col.field].data
             }}</span>

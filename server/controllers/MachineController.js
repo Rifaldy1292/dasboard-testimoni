@@ -21,6 +21,41 @@ const objectTargetCuttingTime = (target, totalDayInMonth) => {
   };
 };
 
+const objectTargetCuttingTime2 = (target, totalDayInMonth) => {
+  const targetPerDay = target / totalDayInMonth; // Calculate target hours per day
+
+  const calculatedTargets = Array.from(
+    { length: totalDayInMonth },
+    (_, i) => {
+      const date = i + 1;
+      const target = Math.round((date * targetPerDay));
+      return {
+        date,
+        shifts: {
+          shift1: null,
+          shift2: null,
+          combine: null,
+        },
+        count: {
+          calculate: {
+            shift1: null,
+            shift2: null,
+            combine: target,
+          },
+          shift1: null,
+          shift2: null,
+          combine: null,
+        }
+      };
+    }
+  ); // Calculate cumulative target for each day
+
+  return {
+    name: "TARGET",
+    data: calculatedTargets,
+  };
+};
+
 /**
  * Converts milliseconds to hours and returns it as a string with one decimal place.
  * @param {number} milliseconds - The time in milliseconds.
@@ -438,13 +473,18 @@ interface DummyData {
         };
       });
 
+      const extendedWithTarget = [
+        objectTargetCuttingTime2(cuttingTime.target, allDateInMonth.length),
+        ...format
+      ];
+
       res.send({
         status: 200,
         message: "success refactor get cutting time",
         data: {
-          period: cuttingTime.period,
+          ...cuttingTime,
           allDateInMonth,
-          data: format
+          data: extendedWithTarget,
         }
       });
 
