@@ -1,4 +1,3 @@
-// Enhanced types with better type safety
 export interface ShiftInfo {
   combine: string | null
   shift1: string | null
@@ -27,7 +26,7 @@ export interface MachineInfo {
   data: DayData[]
 }
 
-export interface CuttingTimeMachine2 {
+export interface CuttingTimeMachine {
   period: string
   allDateInMonth: number[]
   data: MachineInfo[]

@@ -3,13 +3,7 @@ import DatePickerMonth from '@/components/common/DatePickerMonth.vue'
 import { useMachine } from '@/composables/useMachine'
 import { MultiSelect, ToggleSwitch } from 'primevue'
 
-const {
-  machineOptions,
-  loadingDropdown,
-  getMachineOptions,
-  selectedMachines,
-  cuttingTimeMachines
-} = useMachine()
+const { machineOptions, loadingDropdown, getMachineOptions, selectedMachines } = useMachine()
 
 const showLabel = defineModel<boolean>('showLabel', { required: true })
 const monthValue = defineModel<Date>('monthValue', { required: true })

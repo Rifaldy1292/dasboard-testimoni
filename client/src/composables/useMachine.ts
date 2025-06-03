@@ -1,10 +1,10 @@
 import type { ParamsGetCuttingTime } from '@/dto/machine.dto'
 import MachineServices from '@/services/machine.service'
-import type { CuttingTimeMachine, MachineOption } from '@/types/machine.type'
+import type { MachineOption } from '@/types/machine.type'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import useToast from '@/composables/useToast'
 import { ref, shallowRef } from 'vue'
-import type { CuttingTimeMachine2 } from '@/types/cuttingTime.type'
+import type { CuttingTimeMachine } from '@/types/cuttingTime.type'
 
 type ProcessType = 'NC' | 'Drill'
 
@@ -28,7 +28,6 @@ const { coordinateOptions, coolantOptions, processTypeOptions } = additionalOpti
 
 const loadingFetch = shallowRef<boolean>(false)
 const cuttingTimeMachines = ref<CuttingTimeMachine | undefined>(undefined)
-const cuttingTimeMachines2 = ref<CuttingTimeMachine2 | undefined>(undefined)
 const selectedMachines = ref<MachineOption[]>([])
 const selectedOneMachine = ref<MachineOption | undefined>(undefined)
 const loadingDropdown = shallowRef<boolean>(false)
@@ -48,23 +47,9 @@ export const useMachine = () => {
   const getCuttingTime = async (params: ParamsGetCuttingTime) => {
     loadingFetch.value = true
     try {
-      // console.log({ params }, 'from getCuttingTime fn')
       const { data } = await MachineServices.getCuttingTime(params)
-      console.log(data?.data)
-      cuttingTimeMachines.value = data?.data
-    } catch (error) {
-      handleErrorAPI(error, toast)
-    } finally {
-      loadingFetch.value = false
-    }
-  }
-
-  const getCuttingTime2 = async (params: ParamsGetCuttingTime) => {
-    loadingFetch.value = true
-    try {
-      const { data } = await MachineServices.getCuttingTime2(params)
       console.log(data.data)
-      cuttingTimeMachines2.value = data.data
+      cuttingTimeMachines.value = data.data
     } catch (error) {
       handleErrorAPI(error, toast)
     } finally {
@@ -87,10 +72,8 @@ export const useMachine = () => {
 
   return {
     loadingFetch,
-    cuttingTimeMachines2,
-    getCuttingTime2,
-    getCuttingTime,
     cuttingTimeMachines,
+    getCuttingTime,
     loadingDropdown,
     getMachineOptions,
     machineOptions,

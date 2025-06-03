@@ -56,30 +56,18 @@ const menuGroups = computed<MenuGroup[]>(() => {
               icon: `<i class="fa-solid fa-timeline fa-bounce"></i>`
             },
             {
-              label: 'Transfer File',
-              route: '/transfer-file',
-              visible: true,
-              icon: `<i class="fa-solid fa-money-bill-transfer fa-flip"></i>`
-            },
-            {
               label: 'Cutting Time',
               route: '/cutting-time',
               visible: true,
               icon: `<i class="fa-solid fa-table-cells fa-fade"></i>`
-            },
-            {
-              label: 'Cutting Time2',
-              route: '/cutting-time2',
-              visible: true,
-              icon: `<i class="fa-solid fa-table-cells fa-fade"></i>`
-            },
-            {
-              label: 'For Operators',
-              route: '/manual',
-              visible: false,
-              icon: `<i class="fa-solid fa-table fa-fade"></i>  `
             }
           ]
+        },
+        {
+          label: 'Transfer File',
+          route: '/transfer-file',
+          visible: true,
+          icon: `<i class="fa-solid fa-money-bill-transfer fa-flip"></i>`
         },
         {
           label: 'Users',

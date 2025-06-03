@@ -6,17 +6,11 @@ const checkMachineLogMiddleware = require("../middlewares/checkMachineLogMiddlew
 const multer = require('multer');
 const RemainingController = require("../controllers/RemainingController");
 const FTPController = require("../controllers/FTPController");
-const SettingsController = require("../controllers/SettingsController");
 
 machineRouter.get(
     "/cutting-time",
     authMiddleware,
     MachineController.getCuttingTime
-);
-machineRouter.get(
-    "/cutting-time2",
-    authMiddleware,
-    MachineController.refactorGetCuttingTime
 );
 
 

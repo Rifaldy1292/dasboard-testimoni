@@ -4,14 +4,13 @@ import ForgotPasswordView from '@/views/Authentication/ForgotPasswordView.vue'
 import UsersView from '@/views/UsersView.vue'
 import ResetPasswordView from '@/views/Authentication/ResetPasswordView.vue'
 import EditProfileView from '@/views/EditProfileView.vue'
-import CuttingTimeView from '@/views/CuttingTimeView.vue'
 import RunningTimeView from '@/views/RunningTimeView.vue'
 import TransferFileView from '@/views/TransferFileView.vue'
 import DashboardSettingView from '@/views/DashboardSettingView.vue'
 import Timeline2View from '@/views/Timeline2View.vue'
 import Timeline1View from '@/views/Timeline1View.vue'
 import RemainingView from '@/views/RemainingView.vue'
-import CuttingTime2View from '@/views/CuttingTime2View.vue'
+import CuttingTimeView from '@/views/CuttingTimeView.vue'
 
 const routes: Readonly<RouteRecordRaw[]> = [
   {
@@ -49,14 +48,6 @@ const routes: Readonly<RouteRecordRaw[]> = [
         component: CuttingTimeView,
         meta: {
           title: 'Cutting Time'
-        }
-      },
-      {
-        path: 'cutting-time2',
-        name: 'cuttingTime2',
-        component: CuttingTime2View,
-        meta: {
-          title: 'Cutting Time 2'
         }
       },
       {

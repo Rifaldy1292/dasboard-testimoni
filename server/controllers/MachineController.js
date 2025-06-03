@@ -85,141 +85,6 @@ function convertMilisecondToHour(milliseconds) {
 
 
 class MachineController {
-  static async getCuttingTime(req, res) {
-    try {
-      const { period, machineIds } = req.query;
-      if (!period) {
-        return res.status(400).json({
-          status: 400,
-          message: "period is required",
-        });
-      }
-      const { date } = dateCuttingTime(period);
-
-      const cuttingTime = await CuttingTime.findOne({
-        where: { period: date },
-        attributes: ["period", "target"],
-      });
-
-      if (!cuttingTime) return res.status(404).json({
-        status: 404,
-        message: "cutting time not found",
-      });
-
-      // machineIds from query, default all
-      const machines = machineIds?.length ? machineIds : await Machine.findAll({ attributes: ["id", "name"] });
-
-      const sortedMachineIds = machines.sort((a, b) => {
-        const numberA = parseInt(a.name.slice(3));
-        const numberB = parseInt(b.name.slice(3));
-        return numberA - numberB;
-      });
-
-      // 28
-      const totalDayInMonth = date.getDate();
-
-      const objTargetCuttingTime = objectTargetCuttingTime(
-        cuttingTime.target,
-        totalDayInMonth
-      );
-
-      // [1,2,3...31]
-      const allDayInMonth = Array.from(
-        { length: totalDayInMonth },
-        (_, i) => i + 1
-      );
-      // const allDayInMonth = [9]
-
-      const allDateInMonth = Array.from({ length: totalDayInMonth }, (_, i) => {
-        const day = new Date(date.getUTCFullYear(), date.getUTCMonth(), i + 1);
-        return day;
-      });
-
-      // test: only 2025-05-04
-      // const allDateInMonth = [new Date("2025-05-04")];
-
-      const cuttingTimeInMonth = await Promise.all(
-        sortedMachineIds.map(async (machine) => {
-          const data = await MachineController.getCuttingTimeByMachineId({
-            machine_id: machine.id,
-            allDateInMonth: allDateInMonth,
-          });
-          return { name: machine.name, ...data };
-        })
-      );
-
-      const extendedCuttingTimeInMonth = [
-        objTargetCuttingTime,
-        ...cuttingTimeInMonth,
-      ];
-
-      const data = {
-        cuttingTime,
-        allDayInMonth,
-        cuttingTimeInMonth: extendedCuttingTimeInMonth,
-      };
-      res
-        .status(200)
-        .json({ status: 200, message: "success get cutting time", data });
-      // MachineController.refactorGetCuttingTime(req, res);
-    } catch (error) {
-      serverError(error, res, "Failed to get cutting time");
-    }
-  }
-
-  static async getCuttingTimeByMachineId({ machine_id, allDateInMonth }) {
-    try {
-      if (!machine_id || !allDateInMonth) {
-        throw new Error("machine_id or allDateInMonth is required");
-      }
-
-      const getLogAllDateInMonth = await Promise.all(
-        allDateInMonth.map(async (dateValue) => {
-          // console.log({ dateValue }, 333);
-          const reqDate = new Date(dateValue).toLocaleDateString("en-CA");
-          const date = new Date().toLocaleDateString("en-CA");
-          if (reqDate > date) {
-            return 0;
-          }
-          const runningToday = await getRunningTimeMachineLog(
-            machine_id,
-            dateValue
-          );
-
-          const numberOfLog = runningToday?.totalRunningTime ?? 0;
-
-          return numberOfLog;
-        })
-      );
-
-      // console.log({ getLogAllDateInMonth })
-
-      // const example = [1, 2, 3, 4, 9, 0, 2, 0, 1, 0]
-      // expect res[1, 3, 6, 10, 19, 19, 21, 21, 22, 22]
-      // [value index 0, value index 0 + 1, value index 0, 1, 2]
-      const formattedCountLog = [];
-      for (let i = 0; i < getLogAllDateInMonth.length; i++) {
-        let sum = 0;
-        for (let j = 0; j <= i; j++) {
-          sum += getLogAllDateInMonth[j];
-        }
-        formattedCountLog.push(sum);
-      }
-
-      const convertCountLogToHours = formattedCountLog.map((count) =>
-        convertMilisecondToHour(count)
-      );
-      const runningToday = getLogAllDateInMonth.map((count) =>
-        convertMilisecondToHour(count)
-      );
-
-      return { data: convertCountLogToHours, actual: runningToday };
-    } catch (error) {
-      serverError(error, "Failed to get cutting time by machine id");
-    }
-  }
-
-
   /**
 interface ShiftTime {
   start: string | null
@@ -238,13 +103,13 @@ interface DummyData {
     count: {
       shift1: number | null
       shift2: number | null
-      combined: number | null
+      combine: number | null
     }
   }>
 }
 
    */
-  static async refactorGetCuttingTime(req, res) {
+  static async getCuttingTime(req, res) {
     try {
       // period is "2025-05-27T07:32:56.581Z"
       const { period, machineIds } = req.query;

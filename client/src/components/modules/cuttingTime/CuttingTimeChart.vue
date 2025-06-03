@@ -12,7 +12,14 @@ const { cuttingTimeMachines } = useMachine()
 
 const apexOptions = computed<ApexOptions>(() => {
   return {
-    series: cuttingTimeMachines.value?.cuttingTimeInMonth,
+    series: cuttingTimeMachines.value?.data.map((machine) => {
+      return {
+        name: machine.name,
+        data: machine.data.map((day) => {
+          return day.count.calculate.combine
+        })
+      }
+    }),
     chart: {
       height: 350,
       type: 'line',
@@ -29,7 +36,7 @@ const apexOptions = computed<ApexOptions>(() => {
       dashArray: [0, 8, 5]
     },
     title: {
-      text: `Cutting Time ${cuttingTimeMachines.value?.cuttingTime.period}`,
+      text: `Cutting Time ${cuttingTimeMachines.value?.period}`,
       align: 'left'
     },
     legend: {
@@ -49,7 +56,7 @@ const apexOptions = computed<ApexOptions>(() => {
       }
     },
     xaxis: {
-      categories: cuttingTimeMachines.value?.allDayInMonth
+      categories: cuttingTimeMachines.value?.allDateInMonth
     },
     grid: {
       borderColor: '#f1f1f1'

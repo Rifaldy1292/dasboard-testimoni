@@ -47,21 +47,6 @@ export type AllMachineTimeline = {
   dateTo: string
 }
 
-export type cuttingTimeInMonth = {
-  name: string
-  data: number[]
-  actual?: number[]
-}
-
-export interface CuttingTimeMachine {
-  allDayInMonth: number[]
-  cuttingTime: {
-    period: Date
-    target: number
-  }
-  cuttingTimeInMonth: cuttingTimeInMonth[]
-}
-
 export type MachineOption = {
   id: number
   name: MachineName
