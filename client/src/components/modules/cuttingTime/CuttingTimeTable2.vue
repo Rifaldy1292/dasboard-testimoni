@@ -1,14 +1,20 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { DataTable, Column, ColumnGroup, Row, Divider } from 'primevue'
+import { DataTable, Column, ColumnGroup, Row, Divider, Button } from 'primevue'
 import type { MachineInfo, ShiftInfo } from '@/types/cuttingTime.type'
 import { useMachine } from '@/composables/useMachine'
 import CuttingTimeTarget from './CuttingTimeTarget.vue'
 
 // Type for transformed data that's compatible with DataTable
 interface TransformedRow {
+  [key: string]:
+    | {
+        data: number
+        combine: number
+        calculate: number
+      }
+    | string
   machineName: string
-  [key: string]: string | number | null
 }
 
 // Type for column definition
@@ -35,7 +41,7 @@ const machineData = computed<MachineInfo[]>(() => {
 // Extract days and shifts from data for table headers
 const daysConfig = computed<Array<{ date: number; shifts: ShiftInfo }>>(() => {
   // Assuming all machines have the same days and shift configuration
-  if (machineData.value.length < 1) return []
+  if (machineData.value.length <= 1) return []
 
   return machineData.value[1].data.map((dayData) => ({
     date: dayData.date,
@@ -47,7 +53,7 @@ const daysConfig = computed<Array<{ date: number; shifts: ShiftInfo }>>(() => {
 const transformedData = computed<TransformedRow[]>(() => {
   return machineData.value.map((machine) => {
     // Initialize with machine name
-    const result: TransformedRow = {
+    const result: Partial<TransformedRow> = {
       machineName: machine.name
     }
 
@@ -71,7 +77,7 @@ const transformedData = computed<TransformedRow[]>(() => {
       // result[`${dayKey}_combine`] = dayData.count.calculate.combine
     })
 
-    return result
+    return result as TransformedRow
   })
 })
 
@@ -123,6 +129,10 @@ const getColorColumn = (value: number) => {
   // red
   if (value < colorCount.value.red) return '#ef4444'
 }
+
+const exportXLSX = () => {
+  console.log(transformedData.value)
+}
 </script>
 
 <template>
@@ -134,11 +144,20 @@ const getColorColumn = (value: number) => {
     responsiveLayout="scroll"
     :scrollable="true"
     scrollDirection="both"
-    @row-click="console.log($event.data)"
     size="large"
     selectionMode="multiple"
     class="p-datatable-sm"
   >
+    <template #header>
+      <div class="flex justify-end align-items-center">
+        <Button
+          label="Export Excel"
+          icon="pi pi-file-excel"
+          class="p-button-success flex"
+          @click="exportXLSX"
+        />
+      </div>
+    </template>
     <ColumnGroup type="header">
       <!-- Day Row -->
       <Row>
@@ -186,7 +205,7 @@ const getColorColumn = (value: number) => {
         <template #body="{ data }">
           <span v-if="col.field === 'machineName'">{{ data[col.field] }}</span>
           <div v-if="isShiftField(col.field)" :title="`combine: ${data[col.field].combine} `">
-            <span>{{ data[col.field].calculate }}</span>
+            <span @click="console.log(data)">{{ data[col.field].calculate }}</span>
             <Divider v-if="data.machineName !== 'TARGET'" />
             <span :style="{ color: getColorColumn(data[col.field].data) }">{{
               data[col.field].data
