@@ -28,6 +28,8 @@ interface ColumnDef {
 
 const { cuttingTimeMachines, loadingFetch } = useMachine()
 
+// Define shift types with type safety
+const shiftTypes: Array<keyof ShiftInfo> = ['shift1', 'shift2']
 const colorCount = ref({
   green: 10,
   yellow: 8,
@@ -61,18 +63,20 @@ const transformedData = computed<TransformedRow[]>(() => {
     // Process each day's data
     machine.data.forEach((dayData) => {
       const dayKey = `day${dayData.date}`
+      const calculate = dayData.count.calculate.combine
+      const combine = dayData.count.combine
 
       // Add shift1, shift2, and combined values for this day
       // result[`${dayKey}_shift1`] = dayData.count.shift1
       result[`${dayKey}_shift1`] = {
         data: dayData.count.shift1,
-        combine: dayData.count.combine,
-        calculate: dayData.count.calculate.combine
+        combine,
+        calculate
       }
       result[`${dayKey}_shift2`] = {
         data: dayData.count.shift2,
-        combine: dayData.count.combine,
-        calculate: dayData.count.calculate.combine
+        combine,
+        calculate
       }
       // result[`${dayKey}_shift2`] = dayData.count.shift2
       // result[`${dayKey}_combine`] = dayData.count.calculate.combine
@@ -114,9 +118,6 @@ const dataColumns = computed<ColumnDef[]>(() => {
 
   return columns
 })
-
-// Define shift types with type safety
-const shiftTypes: Array<keyof ShiftInfo> = ['shift1', 'shift2']
 
 function isShiftField(field: string): boolean {
   return field.endsWith('_shift1') || field.endsWith('_shift2')
@@ -290,13 +291,36 @@ const exportXLSX = () => {
     alert('Terjadi kesalahan saat mengexport data ke Excel')
   }
 }
+
+const getTableHeight = computed(() => {
+  const screenHeight = window.innerHeight
+  // console.log(screenHeight, 999)
+
+  // For different screen sizes
+  if (screenHeight >= 1440) {
+    // 4K or large monitors
+    return 'calc(100vh - 120px)'
+  } else if (screenHeight >= 1080) {
+    // Full HD monitors
+    return 'calc(100vh - 150px)'
+  } else if (screenHeight >= 900) {
+    // Laptop screens
+    return 'calc(100vh - 180px)'
+  } else {
+    // Small screens
+    return '100vh'
+  }
+})
 </script>
 
 <template>
   <CuttingTimeTarget v-model="colorCount" />
+  <!-- 180vh in 1920device -->
   <DataTable
     :value="transformedData"
     :loading="loadingFetch"
+    :stickyHeader="true"
+    :scroll-height="getTableHeight"
     showGridlines
     responsiveLayout="scroll"
     :scrollable="true"
@@ -322,6 +346,7 @@ const exportXLSX = () => {
           header="DATE & SHIFT"
           :rowspan="3"
           frozen
+          class="text-xl font-extrabold"
           style="min-width: 100px; text-align: center"
         />
         <template v-for="day in daysConfig" :key="`day-${day.date}`">
@@ -331,7 +356,9 @@ const exportXLSX = () => {
             header-style="justify-content: center; align-items: center;"
           >
             <template #header>
-              <div style="width: 100%; text-align: center">{{ day.date }}</div>
+              <div class="text-xl font-extrabold" style="width: 100%; text-align: center">
+                {{ day.date }}
+              </div>
             </template>
           </Column>
         </template>
@@ -360,10 +387,13 @@ const exportXLSX = () => {
     <template v-for="col in dataColumns" :key="col.field">
       <Column :field="col.field" :header="col.header" :frozen="col.frozen" :style="col.style">
         <template #body="{ data }">
+          <!-- Machine Name -->
           <span v-if="col.field === 'machineName'">{{ data[col.field] }}</span>
           <div v-if="isShiftField(col.field)" :title="`combine: ${data[col.field].combine} `">
-            <span @click="console.log(data)">{{ data[col.field].calculate }}</span>
+            <!-- Calculation -->
+            <span>{{ data[col.field].calculate }}</span>
             <Divider v-if="data.machineName !== 'TARGET'" />
+            <!-- Data -->
             <span :style="{ color: getColorColumn(data[col.field].data) }">{{
               data[col.field].data
             }}</span>

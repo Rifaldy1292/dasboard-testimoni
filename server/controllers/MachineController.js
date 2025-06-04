@@ -2,24 +2,10 @@ const { Machine, CuttingTime, MachineLog, DailyConfig } = require("../models");
 const dateCuttingTime = require("../utils/dateCuttingTime");
 const { serverError } = require("../utils/serverError");
 
-const { getRunningTimeMachineLog, getMachineTimeline, countRunningTime } = require("../utils/machineUtils");
+const { getMachineTimeline, countRunningTime } = require("../utils/machineUtils");
 const { Op } = require("sequelize");
 
-const objectTargetCuttingTime = (target, totalDayInMonth) => {
-  const targetPerDay = target / totalDayInMonth; // Calculate target hours per day
 
-  const calculatedTargets = Array.from(
-    { length: totalDayInMonth },
-    (_, i) => (i + 1) * targetPerDay
-  ); // Calculate cumulative target for each day
-
-  const formattedResult = calculatedTargets.map((item) => Math.round(item));
-  // console.log({ test, length: test.length });
-  return {
-    name: "Target",
-    data: formattedResult, // data ubah jadi actual
-  };
-};
 
 /**
  * Generates a monthly target data structure for cutting time calculations
@@ -169,6 +155,7 @@ interface DummyData {
           raw: true,
           order: [["date", "ASC"]],
           where: {
+            // date: { [Op.in]: ['2025-06-02', "2025-06-03", "2025-06-04"] },
             date: {
               [Op.between]: [startDateInMonth, endDateInMonth]
             }
@@ -249,7 +236,7 @@ interface DummyData {
           let count1 = runningTime1.totalRunningTime;
           let count2 = runningTime2.totalRunningTime;
 
-          const isNowDate = (date) => date.toLocaleDateString() === new Date().toLocaleDateString();
+          const isNowDate = (date) => date.toLocaleDateString() === new Date().toLocaleDateString() && date.getHours() >= startHour1
 
           if (runningTimeCombineShift.lastRunningTimestamp) {
             const lastRunningDate = new Date(runningTimeCombineShift.lastRunningTimestamp);
@@ -257,7 +244,6 @@ interface DummyData {
               countCombineShift += new Date().getTime() - lastRunningDate.getTime();
             } else {
               countCombineShift += endShift2.getTime() - lastRunningDate.getTime();
-
             }
 
           }

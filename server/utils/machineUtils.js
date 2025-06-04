@@ -1,7 +1,6 @@
 const { Op, literal } = require("sequelize");
 const { existMachinesCache } = require("../cache");
 const { MachineLog, Machine, DailyConfig, User } = require("../models");
-const { dateQuery } = require("./dateQuery");
 const { serverError } = require("./serverError");
 
 /**
@@ -50,105 +49,6 @@ const countRunningTime = (logs) => {
     totalRunningTime,
     lastRunningTimestamp,
   };
-};
-/**
- * Calculates the total running time of a machine based on today's machine logs
- *
- * @param {number|string} machine_id - ID of the machine to calculate running time for
- * @param {Date|undefined} reqDate - Date to filter machine logs by (optional)
- * @returns {Promise<{totalRunningTime: number, lastLog: {id: number, createdAt: Date} }|undefined>} Object containing totalRunningTime and lastMachineLog, or undefined if no logs exist
- * @throws {Error} If an error occurs during the calculation process
- */
-const getRunningTimeMachineLog = async (machine_id, reqDate) => {
-  try {
-    // Fetch all machine logs for today, ordered by creation time
-    const range = await dateQuery(reqDate);
-    const logs = await MachineLog.findAll({
-      where: {
-        machine_id,
-        createdAt: range,
-      },
-      order: [["createdAt", "ASC"]],
-      attributes: ["id", "createdAt", "current_status"],
-    });
-
-    // If no logs found, return undefined
-    if (!logs.length) {
-      return undefined;
-    }
-
-    const lastLog = logs[logs.length - 1];
-
-    // Calculate total running time
-    const count = countRunningTime(logs);
-    let lastRunningTimestamp = count.lastRunningTimestamp;
-    let totalRunningTime = count.totalRunningTime;
-
-    // if last log is "Running"
-    if (lastRunningTimestamp) {
-      // if reqDate is undefined, use current date
-      if (!reqDate) {
-        const calculate = new Date() - new Date(lastRunningTimestamp);
-        totalRunningTime += calculate;
-        return {
-          totalRunningTime,
-          lastLog: logs[logs.length - 1],
-        };
-      } else {
-        // reqDate is defined
-        const formattedReqDate = new Date(reqDate).toLocaleDateString("en-CA");
-        const formattedDate = new Date().toLocaleDateString("en-CA");
-        // jika tanggal lebih dari hari ini
-        // console.log({ formattedReqDate, formattedDate }, formattedReqDate > formattedDate, 88888)
-        if (formattedReqDate > formattedDate) {
-          return {
-            totalRunningTime: 0,
-            lastLog,
-          };
-        }
-        // // jika tanggal hari ini, maka hitung waktu berjalan
-        if (formattedReqDate === formattedDate) {
-          const calculate = new Date() - new Date(lastRunningTimestamp);
-          totalRunningTime += calculate;
-          return {
-            totalRunningTime,
-            lastLog,
-          };
-        }
-
-        const findDailyConfig = await DailyConfig.findOne({
-          where: {
-            date: formattedReqDate,
-          },
-          attributes: ["startFirstShift"],
-        });
-
-        if (!findDailyConfig) {
-          return {
-            totalRunningTime,
-            lastLog,
-          };
-        }
-
-        const [hour, minute] =
-          findDailyConfig.dataValues.startFirstShift.split(":");
-        const nextDay = new Date(formattedReqDate);
-        nextDay.setDate(nextDay.getDate() + 1);
-        nextDay.setHours(Number(hour), Number(minute), 0, 0);
-        const calculate = new Date(nextDay) - new Date(lastRunningTimestamp);
-        totalRunningTime += calculate;
-      }
-    }
-
-    // console.log({ totalRunningTime })
-
-    return {
-      totalRunningTime,
-      lastLog: logs[logs.length - 1],
-    };
-  } catch (error) {
-    serverError(error, "getRunningTimeMachineLog");
-  }
 };
 
 /**
@@ -381,7 +281,6 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
 
 
 module.exports = {
-  getRunningTimeMachineLog,
   getAllMachine,
   getMachineTimeline,
   countRunningTime,

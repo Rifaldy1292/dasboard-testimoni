@@ -1,7 +1,6 @@
 const { Machine, MachineLog, DailyConfig } = require("../models");
 const { literal, Op } = require("sequelize");
 const {
-  getRunningTimeMachineLog,
   getMachineTimeline,
   countRunningTime,
   getShiftDateRange,
