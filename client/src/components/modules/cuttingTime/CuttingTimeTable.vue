@@ -315,7 +315,6 @@ const getTableHeight = computed(() => {
 
 <template>
   <CuttingTimeTarget v-model="colorCount" />
-  <!-- 180vh in 1920device -->
   <DataTable
     :value="transformedData"
     :loading="loadingFetch"

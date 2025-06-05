@@ -13,7 +13,7 @@ import type { PayloadWebsocket, ShiftValue } from '@/types/websocket.type'
 import type { Machine, MachineTimeline, ObjMachineTimeline } from '@/types/machine.type'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DateTimeShiftSelector from '@/components/common/DateTimeShiftSelector.vue'
-import { ToggleSwitch } from 'primevue'
+// import { ToggleSwitch } from 'primevue'
 import DataNotFound from '@/components/common/DataNotFound.vue'
 
 interface Resource {
@@ -230,6 +230,7 @@ const calendarOptions = computed<CalendarOptions>(() => {
   }
 
   return {
+    noEventsText: 'No Timeline Found',
     schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
     plugins: [resourceTimelinePlugin, interactionPlugin, timeGridPlugin, dayGridPlugin],
     resourceOrder: (a: any, b: any) => {
@@ -250,9 +251,18 @@ const calendarOptions = computed<CalendarOptions>(() => {
     height: 'auto',
     initialDate: timelineMachines.value?.date,
     headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'resourceTimelineDay'
+      // left: 'prev,next today',
+      left: undefined,
+      right: undefined,
+      center: 'title'
+    },
+    titleFormat: {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
     },
     slotDuration: '00:05:00', // Set slot per 5 menit
     slotLabelInterval: '00:30:00', // Label waktu setiap 30 menit
@@ -383,10 +393,10 @@ watch([() => showDetailsInTitle.value, () => events.value], () => {
       <div class="p-4">
         <div class="flex justify-between mb-4">
           <div class="flex items-center">
-            <div class="flex items-center mr-4">
+            <!-- <div class="flex items-center mr-4">
               <label for="toggleDetails" class="mr-2">Show Details:</label>
               <ToggleSwitch id="toggleDetails" v-model="showDetailsInTitle" />
-            </div>
+            </div> -->
           </div>
           <DateTimeShiftSelector v-model="dateTimeModel" />
         </div>

@@ -161,18 +161,9 @@ const handleCronJob = async () => {
       handleResetMachineStatus();
     });
 
-    const job3 = cron.schedule(`${startMinute2} ${startHour2} * * *`, () => {
-      createDailyConfig();
-      handleResetMachineStatus();
-    });
-
-    const job4 = cron.schedule(`${endMinute2} ${endHour2} * * *`, () => {
-      createDailyConfig();
-      handleResetMachineStatus();
-    });
 
     // Store jobs for future cleanup
-    activeCronJobs = [job1, job2, job3, job4];
+    activeCronJobs = [job1, job2];
 
     console.log(`Cron jobs updated - Start1: ${startHour1}:${startMinute1}, End1: ${endHour1}:${endMinute1}, Start2: ${startHour2}:${startMinute2}, End2: ${endHour2}:${endMinute2}`);
   };

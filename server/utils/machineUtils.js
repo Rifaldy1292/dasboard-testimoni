@@ -36,7 +36,9 @@ const countRunningTime = (logs) => {
 
   logs.forEach((log) => {
     if (log.current_status === "Running") {
-      lastRunningTimestamp = log.createdAt;
+      if (!lastRunningTimestamp) {
+        lastRunningTimestamp = log.createdAt;
+      }
     } else if (lastRunningTimestamp) {
       const timeDifference =
         new Date(log.createdAt) - new Date(lastRunningTimestamp);
