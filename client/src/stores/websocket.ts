@@ -4,12 +4,12 @@ import type { AllMachineTimeline, GetPercentages } from '@/types/machine.type'
 import type { PayloadWebsocket } from '@/types/websocket.type'
 import type { OperatorMachine } from '@/types/user.type'
 
+const loadingWebsocket = shallowRef<boolean>(false)
 export const useWebsocketStore = defineStore('websocket', () => {
   // State
   const timelineMachines = ref<AllMachineTimeline | undefined>()
   const percentageMachines = ref<GetPercentages | undefined>(undefined)
   const operatorMachines = ref<OperatorMachine[]>([])
-  const loadingWebsocket = shallowRef<boolean>(false)
   const websocket = shallowRef<WebSocket | null>(null)
 
   const sendMessage = (payload: PayloadWebsocket) => {

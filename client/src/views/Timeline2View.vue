@@ -14,6 +14,7 @@ import type { Machine, MachineTimeline, ObjMachineTimeline } from '@/types/machi
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DateTimeShiftSelector from '@/components/common/DateTimeShiftSelector.vue'
 import { ToggleSwitch } from 'primevue'
+import DataNotFound from '@/components/common/DataNotFound.vue'
 
 interface Resource {
   id: string
@@ -209,7 +210,7 @@ const events = computed<CalendarEvent[]>(() => {
     })
   })
 
-  // console.log(`Total events created: ${allEvents.length}`)
+  // // console.log(`Total events created: ${allEvents.length}`)
   return allEvents
 })
 
@@ -231,6 +232,12 @@ const calendarOptions = computed<CalendarOptions>(() => {
   return {
     schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
     plugins: [resourceTimelinePlugin, interactionPlugin, timeGridPlugin, dayGridPlugin],
+    resourceOrder: (a: any, b: any) => {
+      // Urutkan resources berdasarkan nama mesin
+      const nameA = parseInt(a.title.slice(2))
+      const nameB = parseInt(b.title.slice(2))
+      return nameB - nameA
+    },
     initialView: 'resourceTimelineDay',
     resources: resources.value,
     events: events.value,
@@ -371,7 +378,8 @@ watch([() => showDetailsInTitle.value, () => events.value], () => {
   <DefaultLayout>
     <BreadcrumbDefault pageTitle="Timeline2" />
     <LoadingAnimation :state="loadingWebsocket" />
-    <template v-if="!loadingWebsocket">
+    <DataNotFound :condition="!timelineMachines?.data.length" />
+    <template v-if="timelineMachines?.data.length">
       <div class="p-4">
         <div class="flex justify-between mb-4">
           <div class="flex items-center">
