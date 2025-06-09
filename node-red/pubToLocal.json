@@ -25,33 +25,11 @@
         "wires": []
     },
     {
-        "id": "9346852bde93e660",
-        "type": "OPCUA-IIoT-Read",
-        "z": "761a5f9d0174076a",
-        "attributeId": "13",
-        "maxAge": 1,
-        "depth": 1,
-        "connector": "8402a36728a1a1f8",
-        "name": "",
-        "justValue": true,
-        "showStatusActivities": false,
-        "showErrors": false,
-        "parseStrings": false,
-        "historyDays": 1,
-        "x": 510,
-        "y": 620,
-        "wires": [
-            [
-                "36c44f752ee36a38"
-            ]
-        ]
-    },
-    {
         "id": "36c44f752ee36a38",
         "type": "function",
         "z": "761a5f9d0174076a",
         "name": "function 3",
-        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-10'\n\nif (state === undefined) {\n    node.error(`${name} disconnect`, msg);\n}\nmsg.payload = {\n    name, ipAddress: \"192.168.1.11\", status,\n    state,\n    user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time\n}\nif (state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
+        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-10'\n\n\n\nmsg.payload = {\n    name, ipAddress: \"192.168.1.11\", status,\n    state,\n    user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time\n}\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n// msg.payload = {state}\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -166,33 +144,11 @@
         "wires": []
     },
     {
-        "id": "db2d6ff2bf45dba9",
-        "type": "OPCUA-IIoT-Read",
-        "z": "761a5f9d0174076a",
-        "attributeId": "13",
-        "maxAge": 1,
-        "depth": 1,
-        "connector": "8402a36728a1a1f8",
-        "name": "",
-        "justValue": true,
-        "showStatusActivities": false,
-        "showErrors": false,
-        "parseStrings": false,
-        "historyDays": 1,
-        "x": 530,
-        "y": 1020,
-        "wires": [
-            [
-                "e23c88b50ffa74bb"
-            ]
-        ]
-    },
-    {
         "id": "e23c88b50ffa74bb",
         "type": "function",
         "z": "761a5f9d0174076a",
         "name": "function 5",
-        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-14'\n\nif (state === undefined) {\n    node.error(`${name} disconnect`, msg);\n}\n\nmsg.payload = {\n    name,\n    ipAddress: \"192.168.1.14\",\n    status,\n    state,\n    user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time\n}\n\n// msg.payload = {state}\nreturn msg;\n",
+        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-14'\n\n\nmsg.payload = {\n    name,\n    ipAddress: \"192.168.1.14\",\n    status,\n    state,\n    user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time\n}\n\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n\n\n// msg.payload = {state}\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -307,33 +263,11 @@
         "wires": []
     },
     {
-        "id": "98d70457f705313b",
-        "type": "OPCUA-IIoT-Read",
-        "z": "761a5f9d0174076a",
-        "attributeId": "13",
-        "maxAge": 1,
-        "depth": 1,
-        "connector": "8402a36728a1a1f8",
-        "name": "",
-        "justValue": true,
-        "showStatusActivities": false,
-        "showErrors": false,
-        "parseStrings": false,
-        "historyDays": 1,
-        "x": 510,
-        "y": 1460,
-        "wires": [
-            [
-                "cc6cd68199d5296d"
-            ]
-        ]
-    },
-    {
         "id": "cc6cd68199d5296d",
         "type": "function",
         "z": "761a5f9d0174076a",
         "name": "function 7",
-        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-15'\n\nif (state === undefined) {\n    node.error(`${name} disconnect`, msg);\n}\n\nmsg.payload = {\n    name, ipAddress: \"192.168.1.15\",\n    status, state, user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time\n}\nif (state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
+        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-15'\n\nmsg.payload = {\n    name, ipAddress: \"192.168.1.15\",\n    status, state, user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time\n}\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n// msg.payload = {state}\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -474,7 +408,7 @@
         "type": "function",
         "z": "761a5f9d0174076a",
         "name": "function 9",
-        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-16'\n\nif (state === undefined) {\n    node.error(`${name} disconnect`, msg);\n}\n\n\nmsg.payload = {\n    name, ipAddress: \"192.168.1.116\",\n    status, state, user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time\n}\n\nif(calculate_total_cutting_time) {\n    const temp = calculate_total_cutting_time.split('.')\n    const calculateTotalCuttingTime = temp[1].slice(0, 4)\n    const result = `${temp[0]}.${calculateTotalCuttingTime}`\n    msg.payload.calculate_total_cutting_time = result\n}\n\nif (state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
+        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-16'\n\n\nmsg.payload = {\n    name, ipAddress: \"192.168.1.116\",\n    status, state, user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time\n}\n\nif (calculate_total_cutting_time) {\n    const temp = calculate_total_cutting_time.split('.')\n    const calculateTotalCuttingTime = temp[1] ? temp[1].slice(0, 4) : 0\n    const result = `${temp[0]}.${calculateTotalCuttingTime}`\n    msg.payload.calculate_total_cutting_time = result\n    // msg.payload.test = calculate_total_cutting_time.split('.')[1]\n}\n\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n// msg.payload = {state}\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -602,11 +536,12 @@
         "showErrors": false,
         "parseStrings": false,
         "historyDays": 1,
-        "x": 470,
+        "x": 330,
         "y": 2320,
         "wires": [
             [
-                "61d4c05ae1868f45"
+                "61d4c05ae1868f45",
+                "154ca936092ba65f"
             ]
         ]
     },
@@ -615,7 +550,7 @@
         "type": "function",
         "z": "761a5f9d0174076a",
         "name": "function 11",
-        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-4'\n\nif (state === undefined) {\n    node.error(`${name} disconnect`, msg);\n}\n\nmsg.payload = {\n    name, ipAddress: \"192.168.1.4\", status,\n    state, user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time\n}\n\nif(calculate_total_cutting_time) {\n    const temp = calculate_total_cutting_time.split('.')\n    const calculateTotalCuttingTime = temp[1].slice(0, 4)\n    const result = `${temp[0]}.${calculateTotalCuttingTime}`\n    msg.payload.calculate_total_cutting_time = result\n}\n\nif (state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
+        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-4'\n\n\nmsg.payload = {\n    name, ipAddress: \"192.168.1.4\", status,\n    state, user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time\n}\n\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n\nif(calculate_total_cutting_time) {\n    const temp = calculate_total_cutting_time.split('.')\n     const calculateTotalCuttingTime = temp[1]? temp[1].slice(0, 4) : 0\n    const result = `${temp[0]}.${calculateTotalCuttingTime}`\n    msg.payload.calculate_total_cutting_time = result\n}\n\n\n// msg.payload = {state}\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -708,7 +643,8 @@
         "y": 2300,
         "wires": [
             [
-                "8261bfe307b76a9a"
+                "8261bfe307b76a9a",
+                "29f61af53f4a651d"
             ]
         ]
     },
@@ -756,7 +692,7 @@
         "type": "function",
         "z": "761a5f9d0174076a",
         "name": "function 13",
-        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-5'\nif (state === undefined) {\n    node.error(`${name} disconnect`, msg);\n}\nmsg.payload = {\n    name, ipAddress: \"192.168.1.5\", status,\n    state, user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time\n}\n\n// total_cutting_time: 1799.0000000000002\nif(total_cutting_time) {\n    const temp = total_cutting_time.toString().split('.')\n    msg.payload.total_cutting_time = Number(temp[0])\n}\nif (state === undefined) {\n    msg.payload.err = 'disconnect'\n}\n// msg.payload = {state}\nreturn msg;\n",
+        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-5'\n\nmsg.payload = {\n    name, ipAddress: \"192.168.1.5\", status,\n    state, user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time\n}\n\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n\nif (calculate_total_cutting_time) {\n    const temp = calculate_total_cutting_time.split('.')\n     const calculateTotalCuttingTime = temp[1]? temp[1].slice(0, 4) : 0\n    const result = `${temp[0]}.${calculateTotalCuttingTime}`\n    msg.payload.calculate_total_cutting_time = result\n}\n\n// total_cutting_time: 1799.0000000000002\nif(total_cutting_time) {\n    const temp = total_cutting_time.toString().split('.')\n    msg.payload.total_cutting_time = Number(temp[0])\n}\n\n// msg.payload = {state}\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -849,7 +785,8 @@
         "y": 2660,
         "wires": [
             [
-                "f36b53e21f9bc4a0"
+                "f36b53e21f9bc4a0",
+                "0a1575e182a7f61b"
             ]
         ]
     },
@@ -897,7 +834,7 @@
         "type": "function",
         "z": "761a5f9d0174076a",
         "name": "function 17",
-        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-6'\n\nif (state === undefined) {\n    node.error(`${name} disconnect`, msg);\n}\n\nmsg.payload = {\n    name, ipAddress: \"192.168.1.6\",\n    status, state,\n     user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time\n}\n// msg.payload = {state}\nreturn msg;\n",
+        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-6'\n\nmsg.payload = {\n    name, ipAddress: \"192.168.1.6\",\n    status, state,\n     user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time\n}\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n\n// total_cutting_time: 1799.0000000000002\nif(total_cutting_time.toString().includes('.')) {\n    const temp = total_cutting_time.toString().split('.')\n    msg.payload.total_cutting_time = Number(temp[0])\n}\n// msg.payload = {state}\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1038,7 +975,7 @@
         "type": "function",
         "z": "761a5f9d0174076a",
         "name": "function 1",
-        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\nconst name = \"MC-9\"\n\nif (state === undefined) {\n    node.error(`${name} disconnect`, msg);\n}\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nmsg.payload = {\n    name, ipAddress: \"192.168.1.9\", status,\n    state, user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time\n}\n\n// msg.payload = {state}\nreturn msg;\n",
+        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\nconst name = \"MC-9\"\n\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nmsg.payload = {\n    name, ipAddress: \"192.168.1.9\", status,\n    state, user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time\n}\n\nif (calculate_total_cutting_time) {\n    const temp = calculate_total_cutting_time.split('.')\n    if(temp[1].length >= 5) {\n\n    const calculateTotalCuttingTime = temp[1] ? temp[1].slice(0, 5) : 0\n    const result = `${temp[0]}.${calculateTotalCuttingTime}`\n    msg.payload.calculate_total_cutting_time = result\n    // msg.payload.test = calculate_total_cutting_time.split('.')[1]\n    }\n}\n\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n\n// msg.payload = {state}\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1149,14 +1086,14 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 1020,
-        "y": 400,
+        "y": 420,
         "wires": []
     },
     {
         "id": "1738c1442949d98c",
         "type": "OPCUA-IIoT-Read",
         "z": "761a5f9d0174076a",
-        "attributeId": "13",
+        "attributeId": "0",
         "maxAge": 1,
         "depth": 1,
         "connector": "8402a36728a1a1f8",
@@ -1179,7 +1116,7 @@
         "type": "function",
         "z": "761a5f9d0174076a",
         "name": "function 15",
-        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\n\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-1'\nconst disconnect = state === undefined \n\nif (disconnect) {\n    node.error(`${name} disconnect`, msg);\n}\nmsg.payload = {\n    name,\n    ipAddress: \"192.168.1.1\", status,\n    state,\n    user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time,\n    type: typeof total_cutting_time\n}\n\nconst test = total_cutting_time?.toString()\nif(test?.includes(\".\")) {\n    msg.payload.total_cutting_time = 0\n}\n// msg.payload = {state}\n\nreturn msg;\n",
+        "func": "const state = msg.payload.value[0].value\nconst user_id = msg.payload.value[1].value\nconst g_code_name = msg.payload.value[2].value\nconst k_num = msg.payload.value[3].value\nconst output_wp = msg.payload.value[4].value\nconst tool_name = msg.payload.value[5].value\nconst total_cutting_time = msg.payload.value[6].value\nconst calculate_total_cutting_time = msg.payload.value[7].value?.toString()\n\n\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-1'\nconst disconnect = state === undefined \n\nmsg.payload = {\n    name,\n    ipAddress: \"192.168.1.1\", status,\n    state,\n    user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time,\n    type: typeof total_cutting_time\n}\n\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n\nconst test = total_cutting_time?.toString()\nif(test?.includes(\".\")) {\n    msg.payload.total_cutting_time = 0\n}\n// msg.payload = {state}\n\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1209,8 +1146,8 @@
         "correl": "",
         "expiry": "",
         "broker": "281bb8063a85bef9",
-        "x": 860,
-        "y": 360,
+        "x": 900,
+        "y": 320,
         "wires": []
     },
     {
@@ -1320,7 +1257,7 @@
         "type": "function",
         "z": "761a5f9d0174076a",
         "name": "function 19",
-        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-8'\n\nif (state === undefined) {\n    node.error(`${name} disconnect`, msg);\n}\n\nmsg.payload = {\n    name,\n    ipAddress: \"192.168.1.8\",\n    status,\n    state,\n    user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time: Math.round(total_cutting_time),\n    calculate_total_cutting_time\n}\n\n// msg.payload = {state}\nreturn msg;\n",
+        "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-8'\n\nmsg.payload = {\n    name,\n    ipAddress: \"192.168.1.8\",\n    status,\n    state,\n    user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time: Math.round(total_cutting_time),\n    calculate_total_cutting_time\n}\n\nif (calculate_total_cutting_time) {\n    const temp = calculate_total_cutting_time.split('.')\n    if(temp[1].length >= 5) {\n\n    const calculateTotalCuttingTime = temp[1] ? temp[1].slice(0, 5) : 0\n    const result = `${temp[0]}.${calculateTotalCuttingTime}`\n    msg.payload.calculate_total_cutting_time = result\n    // msg.payload.test = calculate_total_cutting_time.split('.')[1]\n    }\n}\n\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n\n// msg.payload = {state}\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1437,12 +1374,12 @@
         "type": "debug",
         "z": "761a5f9d0174076a",
         "name": "error handler",
-        "active": false,
+        "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
+        "complete": "payload",
+        "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
         "x": 850,
@@ -1454,7 +1391,7 @@
         "type": "function",
         "z": "761a5f9d0174076a",
         "name": "handleError",
-        "func": "\nreturn msg.error;",
+        "func": "\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1470,36 +1407,125 @@
         ]
     },
     {
-        "id": "8402a36728a1a1f8",
-        "type": "OPCUA-IIoT-Connector",
-        "discoveryUrl": "",
-        "endpoint": "opc.tcp://DESKTOP-BCOSC66:48050/",
-        "endpointMustExist": false,
-        "keepSessionAlive": true,
-        "loginEnabled": false,
-        "name": "LOCAL SERVER",
+        "id": "154ca936092ba65f",
+        "type": "debug",
+        "z": "761a5f9d0174076a",
+        "name": "debug 21",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 420,
+        "y": 2460,
+        "wires": []
+    },
+    {
+        "id": "0a1575e182a7f61b",
+        "type": "debug",
+        "z": "761a5f9d0174076a",
+        "name": "debug 22",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 340,
+        "y": 2780,
+        "wires": []
+    },
+    {
+        "id": "29f61af53f4a651d",
+        "type": "debug",
+        "z": "761a5f9d0174076a",
+        "name": "debug 23",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 200,
+        "y": 2420,
+        "wires": []
+    },
+    {
+        "id": "98d70457f705313b",
+        "type": "OPCUA-IIoT-Read",
+        "z": "761a5f9d0174076a",
+        "attributeId": "13",
+        "maxAge": 1,
+        "depth": 1,
+        "connector": "8402a36728a1a1f8",
+        "name": "",
+        "justValue": true,
+        "showStatusActivities": false,
         "showErrors": false,
-        "securityPolicy": "None",
-        "securityMode": "None",
-        "individualCerts": false,
-        "publicCertificateFile": "",
-        "privateKeyFile": "",
-        "defaultSecureTokenLifetime": "",
-        "autoSelectRightEndpoint": false,
-        "strategyMaxRetry": "",
-        "strategyInitialDelay": "",
-        "strategyMaxDelay": "",
-        "strategyRandomisationFactor": "",
-        "requestedSessionTimeout": "",
-        "connectionStartDelay": "",
-        "reconnectDelay": "",
-        "maxBadSessionRequests": 10
+        "parseStrings": false,
+        "historyDays": 1,
+        "x": 510,
+        "y": 1460,
+        "wires": [
+            [
+                "cc6cd68199d5296d"
+            ]
+        ]
+    },
+    {
+        "id": "db2d6ff2bf45dba9",
+        "type": "OPCUA-IIoT-Read",
+        "z": "761a5f9d0174076a",
+        "attributeId": "13",
+        "maxAge": 1,
+        "depth": 1,
+        "connector": "8402a36728a1a1f8",
+        "name": "",
+        "justValue": true,
+        "showStatusActivities": false,
+        "showErrors": false,
+        "parseStrings": false,
+        "historyDays": 1,
+        "x": 450,
+        "y": 1020,
+        "wires": [
+            [
+                "e23c88b50ffa74bb"
+            ]
+        ]
+    },
+    {
+        "id": "9346852bde93e660",
+        "type": "OPCUA-IIoT-Read",
+        "z": "761a5f9d0174076a",
+        "attributeId": "13",
+        "maxAge": 1,
+        "depth": 1,
+        "connector": "8402a36728a1a1f8",
+        "name": "",
+        "justValue": true,
+        "showStatusActivities": false,
+        "showErrors": false,
+        "parseStrings": false,
+        "historyDays": 1,
+        "x": 510,
+        "y": 620,
+        "wires": [
+            [
+                "36c44f752ee36a38"
+            ]
+        ]
     },
     {
         "id": "281bb8063a85bef9",
         "type": "mqtt-broker",
         "name": "pub mc 9",
-        "broker": "mqtt://localhost:1883",
+        "broker": "mqtt://172.25.208.1:1883",
         "port": 1883,
         "clientid": "",
         "autoConnect": true,
@@ -1525,5 +1551,31 @@
         "willMsg": {},
         "userProps": "",
         "sessionExpiry": ""
+    },
+    {
+        "id": "8402a36728a1a1f8",
+        "type": "OPCUA-IIoT-Connector",
+        "discoveryUrl": "",
+        "endpoint": "opc.tcp://192.168.1.2:48050/",
+        "endpointMustExist": false,
+        "keepSessionAlive": true,
+        "loginEnabled": false,
+        "name": "LOCAL SERVER",
+        "showErrors": true,
+        "securityPolicy": "None",
+        "securityMode": "None",
+        "individualCerts": false,
+        "publicCertificateFile": "",
+        "privateKeyFile": "",
+        "defaultSecureTokenLifetime": "",
+        "autoSelectRightEndpoint": false,
+        "strategyMaxRetry": "100000",
+        "strategyInitialDelay": "10",
+        "strategyMaxDelay": "",
+        "strategyRandomisationFactor": "",
+        "requestedSessionTimeout": "",
+        "connectionStartDelay": "1000",
+        "reconnectDelay": "1000",
+        "maxBadSessionRequests": ""
     }
 ]

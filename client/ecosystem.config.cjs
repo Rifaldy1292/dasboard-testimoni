@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-undef
 module.exports = {
   apps: [
     {
@@ -25,18 +26,18 @@ module.exports = {
       script: 'node',
       args: 'mqtt.js',
       cwd: '../server'
+    },
+    {
+      name: 'node-red',
+      script: 'node',
+      args: 'C:\\Users\\User\\AppData\\Local\\nvm\\v20.18.3\\node_modules\\node-red\\red.js',
+      watch: true,
+      autorestart: true,
+      windowsHide: true,
+      env: {
+        NODE_ENV: 'production'
+      }
     }
-    // {
-    //   name: 'node-red',
-    //   script: 'node',
-    //   args: 'C:\\Users\\User\\AppData\\Local\\nvm\\v20.18.3\\node_modules\\node-red\\red.js',
-    //   watch: true,
-    //   autorestart: true,
-    //   windowsHide: true,
-    //   env: {
-    //     NODE_ENV: 'production'
-    //   }
-    // }
   ]
 }
 
