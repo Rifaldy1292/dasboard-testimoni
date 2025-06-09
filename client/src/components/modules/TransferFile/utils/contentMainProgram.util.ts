@@ -160,7 +160,7 @@ G91G28Y0.
 ${macroData}
 G${selectedWorkPosition} G90 G0 X0 Y0.
 G43 Z${selectedCoordinate}. H${toolNumber}
-Z0.
+Z50.
 G5. 1 Q1
 ${'M98P'}${file.name.slice(1)}
 G5. 1 Q0
