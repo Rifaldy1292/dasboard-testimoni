@@ -1,6 +1,10 @@
+const mqtt = require("mqtt");
 const RemainingController = require("../controllers/RemainingController");
 const MachineWebsocket = require("./MachineWebsocket");
 const userMessageCache = require("../cache/userMessageCache");
+
+const MQTT_BROKER = process.env.MQTT_BROKER || "mqtt://localhost:1883";
+const NOTIFICATION_TOPIC = "machine/update";
 
 /**
  * Handles WebSocket connections and messages, providing endpoints for retrieving
@@ -9,6 +13,7 @@ const userMessageCache = require("../cache/userMessageCache");
  * @param {WebSocket.Server} wss - The WebSocket server instance.
  */
 const handleWebsocket = (wss) => {
+
   wss.on("connection", (ws) => {
     console.log("Client connected", Math.random().toFixed(3));
 
@@ -76,8 +81,54 @@ const handleWebsocket = (wss) => {
       userMessageCache.removeClient(ws);
     });
   });
-};
 
+  // Connect to MQTT broker for notifications
+  const mqttClient = mqtt.connect(MQTT_BROKER);
+  mqttClient.on("connect", () => {
+    mqttClient.subscribe(NOTIFICATION_TOPIC);
+  });
+  mqttClient.on("error", (error) => {
+    console.error("MQTT connection error:", error);
+  });
+  mqttClient.on("message", (topic, msg) => {
+    if (topic !== NOTIFICATION_TOPIC) return;
+    console.log("live update from MQTT", topic, msg.toString(), 44444);
+    try {
+      // Send an update to all connected clients
+      wss.clients.forEach(async (client) => {
+        if (client.readyState !== WebSocket.OPEN) return;
+
+        // Check message types using new cache
+        const hasTimelineType = userMessageCache.hasMessageType(client, 'timeline');
+        const hasPercentageType = userMessageCache.hasMessageType(client, 'percentage');
+        const hasRemainingType = userMessageCache.hasMessageType(client, 'remaining');
+
+        // Only send updates if client requested current date
+        if (!userMessageCache.isCurrentDate(client)) return;
+
+        const lastDate = userMessageCache.getLastDate(client);
+        const shift = userMessageCache.getShift(client);
+
+        if (hasTimelineType) {
+          console.log("Sending live timeline update from MQTT");
+          await MachineWebsocket.timelines(client, { date: lastDate, shift: shift ?? 0 });
+        }
+
+        if (hasPercentageType) {
+          await MachineWebsocket.percentages(client, { date: lastDate, shift: shift ?? 0 });
+        }
+
+        if (hasRemainingType) {
+          await RemainingController.getRemaining(client);
+        }
+      });
+
+    } catch (error) {
+      console.error("Failed to parse MQTT message:", error);
+    }
+  });
+
+}
 module.exports = {
   handleWebsocket
 };

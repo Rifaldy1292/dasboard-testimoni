@@ -4,8 +4,15 @@ const MachineWebsocket = require("../websocket/MachineWebsocket");
 const { decryptFromNumber } = require("../helpers/crypto");
 const { serverError } = require("../utils/serverError");
 const { existMachinesCache } = require("../cache");
-const RemainingController = require("../controllers/RemainingController");
-const userMessageCache = require("../cache/userMessageCache");
+const { MqttClient } = require("mqtt");
+
+/**
+ *
+ * @param {MqttClient} client
+ */
+const handleSendToWebsocket = (client) => {
+  client.publish("machine/update", JSON.stringify(Math.random()));
+}
 
 /**
  *
@@ -44,9 +51,10 @@ const checkIsManualLog = async (machine_id) => {
  *
  * @param {Machine} existMachine - The machine record.
  * @param {Object} parseMessage - The parsed MQTT message.
- * @param {WebSocket.Server} wss - The WebSocket server.
+ * @param {MqttClient} client - The MQTT client or WebSocket client.
+ * @returns {Promise<void>}
  */
-const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
+const handleChangeMachineStatus = async (existMachine, parseMessage, client) => {
   try {
     const {
       user_id,
@@ -102,33 +110,7 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
     });
 
     // Send an update to all connected clients
-    wss.clients.forEach(async (client) => {
-      if (client.readyState !== WebSocket.OPEN) return;
-
-      // Check message types using new cache
-      const hasTimelineType = userMessageCache.hasMessageType(client, 'timeline');
-      const hasPercentageType = userMessageCache.hasMessageType(client, 'percentage');
-      const hasRemainingType = userMessageCache.hasMessageType(client, 'remaining');
-
-      // Only send updates if client requested current date
-      if (!userMessageCache.isCurrentDate(client)) return;
-
-      const lastDate = userMessageCache.getLastDate(client);
-      const shift = userMessageCache.getShift(client);
-
-      if (hasTimelineType) {
-        console.log("Sending live timeline update from MQTT");
-        await MachineWebsocket.timelines(client, { date: lastDate, shift: shift ?? 0 });
-      }
-
-      if (hasPercentageType) {
-        await MachineWebsocket.percentages(client, { date: lastDate, shift: shift ?? 0 });
-      }
-
-      if (hasRemainingType) {
-        await RemainingController.getRemaining(client);
-      }
-    });
+    handleSendToWebsocket(client);
   } catch (error) {
     serverError(error, "handleChangeMachineStatus");
   }
@@ -146,8 +128,11 @@ const handleChangeMachineStatus = async (existMachine, parseMessage, wss) => {
  * @param {number} parseMessage.k_num - Encrypted K number value.
  * @param {number} parseMessage.tool_name - Encrypted tool name value.
  * @param {number} parseMessage.total_cutting_time - Encrypted total cutting time value.
+ * @param {number} parseMessage.calculate_total_cutting_time - Calculated total cutting time.
+ * @param {MqttClient} client - The MQTT client or WebSocket client.
+ * @returns {Promise<void>}
  */
-const createMachineAndLogFirstTime = async (parseMessage) => {
+const createMachineAndLogFirstTime = async (parseMessage, client) => {
   try {
     const {
       name,
@@ -162,7 +147,7 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
       calculate_total_cutting_time,
     } = parseMessage;
 
-    console.log(parseMessage, 888)
+    // console.log(parseMessage, 888)
 
     const createMachine = await Machine.create({
       name,
@@ -182,7 +167,7 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
     const decryptOutputWp = await decryptFromNumber(output_wp);
     const decryptToolName = await decryptFromNumber(tool_name);
 
-    return await MachineLog.create({
+    await MachineLog.create({
       user_id,
       machine_id: createMachine.id,
       current_status: createMachine.status,
@@ -194,6 +179,7 @@ const createMachineAndLogFirstTime = async (parseMessage) => {
       total_cutting_time: total_cutting_time || 0,
       calculate_total_cutting_time: calculate_total_cutting_time || null,
     });
+    handleSendToWebsocket(client);
   } catch (error) {
     serverError(error, "createMachineAndLogFirstTime");
   }

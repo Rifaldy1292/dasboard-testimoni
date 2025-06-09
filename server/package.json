@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js",
+    "start": "concurrently \"nodemon app.js\" \"nodemon mqtt.js\"",
     "full-setup": "pnpm install && sequelize-cli db:create && sequelize-cli db:migrate && sequelize-cli db:seed:all",
     "db:create": "sequelize-cli db:create",
     "db:migrate": "sequelize-cli db:migrate",

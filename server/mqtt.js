@@ -1,16 +1,17 @@
-const { Machine } = require("../models");
-const { serverError } = require("../utils/serverError");
+const { Machine } = require("./models");
+const { serverError } = require("./utils/serverError");
 const {
   handleChangeMachineStatus,
   createMachineAndLogFirstTime,
-} = require("./MachineMqtt");
+} = require("./mqtt/MachineMqtt");
 const WebSocket = require("ws");
-require("../websocket/handleWebsocket");
+require("./websocket/handleWebsocket");
 const mqtt = require("mqtt");
-const { existMachinesCache } = require("../cache");
-const { getAllMachine } = require("../utils/machineUtils");
+const { existMachinesCache } = require("./cache");
+const { getAllMachine } = require("./utils/machineUtils");
 
-const mqttClient = mqtt.connect("mqtt://localhost:1883");
+const broker = process.env.MQTT_BROKER || "mqtt://localhost:1883";
+const mqttClient = mqtt.connect(broker);
 
 const mqttTopics = [
   "mc-1/data",
@@ -34,7 +35,7 @@ const mqttTopics = [
 /**
  * @param {WebSocket.Server} wss
  */
-const handleMqtt = (wss) => {
+const handleMqtt = () => {
   mqttClient.on("connect", async () => {
     mqttTopics.forEach((topic) => {
       // console.log("MQTT client connected", topic);
@@ -78,7 +79,7 @@ const handleMqtt = (wss) => {
           attributes: ["id", "name", "status"],
         });
         if (!findExistMachine) {
-          return await createMachineAndLogFirstTime(parseMessage);
+          return await createMachineAndLogFirstTime(parseMessage, mqttClient);
         }
 
         // if machine exist in db, set to cache
@@ -93,12 +94,8 @@ const handleMqtt = (wss) => {
 
       // if status change
       if (existMachine.status !== parseMessage.status) {
-        await handleChangeMachineStatus(existMachine, parseMessage, wss);
+        await handleChangeMachineStatus(existMachine, parseMessage, mqttClient);
       }
-
-      // if (existMachine.status === "Running") {
-      //   return await updateRunningTodayLastMachineLog(existMachine.id);
-      // }
     } catch (error) {
       if (error.message === "Unexpected token < in JSON at position 0") {
         return serverError(error, "Invalid JSON");
@@ -108,4 +105,4 @@ const handleMqtt = (wss) => {
   });
 };
 
-module.exports = handleMqtt;
+handleMqtt();

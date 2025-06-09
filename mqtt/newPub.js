@@ -1,8 +1,5 @@
-const express = require('express');
 const mqtt = require('mqtt');
 
-const app = express();
-const port = 3000;
 
 // Konfigurasi MQTT broker
 const mqttBroker = 'mqtt://localhost:1883';
@@ -53,7 +50,3 @@ setInterval(() => {
 // }, 1000 * 1);
 
 
-
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-});

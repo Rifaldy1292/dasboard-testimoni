@@ -4,7 +4,6 @@ const WebSocket = require("ws");
 const path = require("path");
 const { createServer } = require("http");
 const { PORT } = require("./config/config.env");
-const handleMqtt = require("./mqtt/handleMqtt");
 const router = require("./routes");
 const { handleWebsocket } = require("./websocket/handleWebsocket");
 const handleCronJob = require("./helpers/cronjob");
@@ -28,7 +27,6 @@ app.use("/api", router);
   await handleCronJob();
 })();
 handleWebsocket(wss);
-handleMqtt(wss);
 
 server.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);

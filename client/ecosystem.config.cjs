@@ -20,6 +20,12 @@ module.exports = {
       args: 'app.js',
       cwd: '../server'
     },
+    {
+      name: 'mqtt-broker',
+      script: 'node',
+      args: 'mqtt.js',
+      cwd: '../server'
+    }
     // {
     //   name: 'node-red',
     //   script: 'node',
