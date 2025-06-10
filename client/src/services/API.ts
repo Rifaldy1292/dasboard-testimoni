@@ -23,6 +23,7 @@ const API = ({ headers = {}, params = {}, token }: APIOptions = {}): AxiosInstan
     headers: {
       'Content-type': 'application/json',
       Authorization: `Bearer ${token || user.token}`,
+      'Bypass-Tunnel-Reminder': 'true',
       ...headers
     },
     params
