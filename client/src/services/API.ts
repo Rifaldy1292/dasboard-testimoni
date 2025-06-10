@@ -8,11 +8,14 @@ interface APIOptions {
 
 const API = ({ headers = {}, params = {}, token }: APIOptions = {}): AxiosInstance => {
   const user = JSON.parse(localStorage.getItem('user') as string) ?? {}
-  const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+  const API_URL =
+    import.meta.env.NODE_ENV === 'production'
+      ? import.meta.env.VITE_API_PRODUCTION
+      : import.meta.env.VITE_API_DEVELOPMENT
 
-  if (!BASE_URL) {
-    throw new Error('VITE_API_URL is not defined')
-  }
+  if (!API_URL) throw new Error('env invalid!')
+
+  const BASE_URL = API_URL || 'http://localhost:3000'
 
   const instance = axios.create({
     baseURL: `${BASE_URL}/api`,
