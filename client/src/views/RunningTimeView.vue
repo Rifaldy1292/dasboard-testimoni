@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, shallowRef, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, nextTick, ref, watch } from 'vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
@@ -10,8 +9,6 @@ import DateTimeShiftSelector from '@/components/common/DateTimeShiftSelector.vue
 import RunningTimeCard from '@/components/Charts/RunningTimeCard.vue'
 import { animate, stagger } from 'motion'
 import { type PayloadWebsocket, type ShiftValue } from '@/types/websocket.type'
-
-const route = useRoute()
 
 const dateTimeModel = ref({
   date: new Date(),
@@ -30,36 +27,11 @@ const payloadWs = computed<PayloadWebsocket>(() => {
 
 const { sendMessage, loadingWebsocket, percentageMachines } = useWebSocket(payloadWs.value)
 
-const intervalId = shallowRef<number | null>(null)
-
 watch(
   () => payloadWs.value,
   (newPayload) => {
     sendMessage(newPayload)
   }
-)
-
-// refetch per 5 minute if date not change
-watch(
-  [() => dateTimeModel.value.date, () => percentageMachines.value?.data],
-  ([valueDate, percentageData]) => {
-    if (intervalId.value) clearInterval(intervalId.value)
-    if (route.path !== '/running-time') return
-    if (valueDate === new Date() && percentageData?.length) {
-      intervalId.value = setInterval(
-        () => {
-          console.log('refetch')
-          sendMessage({
-            type: 'percentage'
-          })
-        },
-        5 * 60 * 1000
-      )
-    } else {
-      clearInterval(intervalId.value as number)
-    }
-  },
-  { immediate: true }
 )
 
 watch(

@@ -19,18 +19,14 @@ module.exports = {
       script: 'node',
       args: 'app.js',
       cwd: '../server',
-      autorestart: true, // Tambahkan ini agar server juga restart jika crash
-      env: {
-        NODE_ENV: 'production',
-        PORT: 2222 // Pastikan Express Anda mendengarkan port ini
-      }
+      autorestart: true // Tambahkan ini agar server juga restart jika crash
     },
     {
       name: 'mqtt-broker',
       script: 'node',
       args: 'mqtt.js',
       cwd: '../server',
-      autorestart: true,
+      autorestart: true
     },
     {
       name: 'node-red',
@@ -51,7 +47,7 @@ module.exports = {
         '--domain=purely-certain-spider.ngrok-free.app', // Ganti dengan static domain Anda
         '2222' // Port yang ingin Anda terowongan (port Express server)
       ],
-      autorestart: true, // Sangat disarankan agar tunnel otomatis restart jika putus
+      autorestart: true // Sangat disarankan agar tunnel otomatis restart jika putus
       // Jika ngrok.exe tidak ada di PATH, Anda harus memberikan path absolut:
       // script: 'C:\\ngrok\\ngrok.exe', // Contoh jika ngrok.exe ada di C:\ngrok
       // windowsHide: true, // Opsi untuk menyembunyikan jendela konsol ngrok di Windows
@@ -63,4 +59,4 @@ module.exports = {
       // }
     }
   ]
-};
+}
