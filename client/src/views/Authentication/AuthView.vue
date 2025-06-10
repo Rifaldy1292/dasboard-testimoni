@@ -53,7 +53,7 @@ const submitForm = async (e: FormSubmitEvent): Promise<void> => {
       setTimeout(() => {
         router.replace({ name: 'transferFile' })
         setDarkMode(true)
-      }, 300)
+      }, 200)
     } catch (error) {
       handleErrorAPI(error, toast)
     }
@@ -90,6 +90,7 @@ const fetchTotalCommit = async () => {
 
 // Add onMounted
 onMounted(() => {
+  setDarkMode(false)
   fetchTotalCommit()
 })
 </script>

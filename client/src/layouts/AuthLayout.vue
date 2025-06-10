@@ -1,8 +1,17 @@
 <script setup lang="ts">
+import { useDarkModeStore } from '@/stores/darkMode'
+import { onMounted } from 'vue'
+
 defineProps<{
   page: string
   description?: string | null
 }>()
+
+const { setDarkMode } = useDarkModeStore()
+
+onMounted(() => {
+  setDarkMode(true)
+})
 </script>
 
 <template>

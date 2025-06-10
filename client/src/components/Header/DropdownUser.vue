@@ -6,13 +6,11 @@ import useToast from '@/composables/useToast'
 import { useWebsocketStore } from '@/stores/websocket'
 import type { UserLocalStorage } from '@/types/localStorage.type'
 import happySound from '../../assets/sounds/happy.mp3'
-import { useDarkModeStore } from '@/stores/darkMode'
 
 const toast = useToast()
 const router = useRouter()
 const userData = inject('userData') as UserLocalStorage
 const websocketStore = useWebsocketStore()
-const { setDarkMode } = useDarkModeStore()
 
 const target = ref(null)
 const dropdownOpen = ref(false)
@@ -36,7 +34,6 @@ const handleLogout = () => {
     life: 3000,
     customMusic: happySound
   })
-  setDarkMode(false)
 }
 </script>
 
