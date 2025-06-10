@@ -7,7 +7,7 @@ import type { AllMachineTimeline, GetPercentages } from '@/types/machine.type'
 import type { OperatorMachine } from '@/types/user.type'
 
 const SOCKET_URL =
-  import.meta.env.NODE_ENV === 'production'
+  import.meta.env.VITE_NODE_ENV === 'production'
     ? import.meta.env.VITE_SOCKET_PRODUCTION
     : import.meta.env.VITE_SOCKET_DEVELOPMENT || 'ws://localhost:3000'
 
