@@ -6,8 +6,7 @@ import { storeToRefs } from 'pinia'
 import type { AllMachineTimeline, GetPercentages } from '@/types/machine.type'
 import type { OperatorMachine } from '@/types/user.type'
 
-const PORT = +import.meta.env.VITE_PORT || 3000
-const SOCKET_URL = `ws://localhost:${PORT}`
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || `ws://localhost:3000`
 
 export default function useWebSocket(payload: PayloadWebsocket) {
   const store = useWebsocketStore()
