@@ -2,7 +2,7 @@
 import { ConfirmDialog, Toast } from 'primevue'
 import { RouterView } from 'vue-router'
 import haitod from '@/assets/sounds/haitod.mp3'
-import { computed, onMounted, shallowRef } from 'vue'
+import { computed, onMounted, shallowRef, onUnmounted } from 'vue'
 import axios from 'axios'
 
 const handleOpenDialogConfirm = () => {
@@ -11,7 +11,14 @@ const handleOpenDialogConfirm = () => {
   audio.play()
 }
 
+// Add a reactive ref for the window width
+const windowWidth = shallowRef<number>(window.innerWidth)
 const publicIp = shallowRef<string | null>(null)
+
+// Handle window resize event
+const handleResize = () => {
+  windowWidth.value = window.innerWidth
+}
 
 onMounted(async () => {
   try {
@@ -20,13 +27,22 @@ onMounted(async () => {
   } catch (error) {
     console.error('Error fetching public IP:', error)
   }
+
+  // Add event listener for window resize
+  window.addEventListener('resize', handleResize)
+})
+
+// Clean up event listener on component unmount
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
 })
 
 const NODE_ENV: string = import.meta.env.VITE_NODE_ENV || 'development'
 
-// protect using public IP and device width moble, if mobile return false
+// protect using public IP and device width mobile, if mobile return false
+// Now using the reactive windowWidth instead of directly accessing window.innerWidth
 const isAllowed = computed<boolean>(() => {
-  if (window.innerWidth < 768) return false
+  if (windowWidth.value < 768) return false
   if (NODE_ENV !== 'production') return true
   return publicIp.value === import.meta.env.VITE_INTERNAL_IP
 })
