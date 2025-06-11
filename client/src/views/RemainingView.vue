@@ -43,7 +43,7 @@ watch(
     <LoadingAnimation :state="loadingWebsocket" />
     <DataNotFound :condition="!operatorMachines.length" />
     <template v-if="operatorMachines.length">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-6">
         <template v-for="(operator, index) in operatorMachines" :key="index">
           <RemainingCard
             @refetch-machine="sendMessage({ type: 'remaining' })"
