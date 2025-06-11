@@ -16,7 +16,6 @@ const API = ({ headers = {}, params = {}, token }: APIOptions = {}): AxiosInstan
   if (!API_URL) throw new Error('env invalid!')
 
   const BASE_URL = API_URL || 'http://localhost:3000'
-  console.log({ BASE_URL })
 
   const instance = axios.create({
     baseURL: `${BASE_URL}/api`,
