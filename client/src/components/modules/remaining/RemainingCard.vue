@@ -23,7 +23,10 @@ const toast = useToast()
 
 const loadingfetch = defineModel<boolean>('loadingfetch', { required: true })
 const userData = inject('userData') as UserLocalStorage
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const BASE_URL =
+  import.meta.env.VITE_NODE_ENV === 'production'
+    ? import.meta.env.VITE_API_PRODUCTION
+    : import.meta.env.VITE_API_DEVELOPMENT || 'http://localhost:3000'
 
 const descriptionOptions = [
   { name: 'Manual Operation' },
