@@ -1,6 +1,4 @@
 const { MachineLog, Machine } = require("../models");
-const WebSocket = require("ws");
-const MachineWebsocket = require("../websocket/MachineWebsocket");
 const { decryptFromNumber } = require("../helpers/crypto");
 const { serverError } = require("../utils/serverError");
 const { existMachinesCache } = require("../cache");
@@ -12,15 +10,16 @@ const { MqttClient } = require("mqtt");
  */
 const handleSendToWebsocket = (client) => {
   client.publish("machine/update", JSON.stringify(Math.random()));
-}
+};
 
 /**
  *
- * @param {string} createdAt
+ * @param {{ createdAt: Date, current_status: string}} log
  * @returns {boolean}
  */
-const isManualLog = (createdAt) => {
-  if (!createdAt) return false;
+const isManualLog = (log) => {
+  const { createdAt, current_status } = log;
+  if (!log || !createdAt || current_status !== "Stopped") return false;
   const timeDifference = new Date().getTime() - new Date(createdAt).getTime();
   const sixMinutees = 6 * 60 * 1000;
   return timeDifference < sixMinutees;
@@ -31,15 +30,12 @@ const checkIsManualLog = async (machine_id) => {
   try {
     const lastMachineLog = await MachineLog.findOne({
       where: { machine_id },
-      attributes: ["createdAt"],
+      attributes: ["createdAt", "current_status"],
       order: [["createdAt", "DESC"]],
       raw: true,
     });
-    if (!lastMachineLog) {
-      return false;
-    }
 
-    return isManualLog(lastMachineLog.createdAt);
+    return isManualLog(lastMachineLog);
   } catch (error) {
     serverError(error, "checkIsManualLog");
     return false;
@@ -54,7 +50,11 @@ const checkIsManualLog = async (machine_id) => {
  * @param {MqttClient} client - The MQTT client or WebSocket client.
  * @returns {Promise<void>}
  */
-const handleChangeMachineStatus = async (existMachine, parseMessage, client) => {
+const handleChangeMachineStatus = async (
+  existMachine,
+  parseMessage,
+  client
+) => {
   try {
     const {
       user_id,
@@ -191,22 +191,15 @@ const createMachineAndLogFirstTime = async (parseMessage, client) => {
  * @param {number} machine_id - The ID of the machine to update.
  * @returns {Promise<void>}
  */
-const updateDescriptionLastMachineLog = async (
-  machine_id,
-) => {
+const updateDescriptionLastMachineLog = async (machine_id) => {
   try {
     const lastLog = await MachineLog.findOne({
       where: { machine_id },
       attributes: ["id", "createdAt", "current_status"],
       order: [["createdAt", "DESC"]],
-      raw: true
+      raw: true,
     });
-    if (!lastLog) return;
-
-    const { id, createdAt, current_status } = lastLog;
-
-    const isManual =
-      isManualLog(createdAt) && current_status === "Stopped";
+    const isManual = isManualLog(lastLog);
     if (!isManual) return;
 
     await MachineLog.update(
@@ -215,7 +208,7 @@ const updateDescriptionLastMachineLog = async (
         // current_status: isManual ? "Running" : lastLog.current_status,
       },
       {
-        where: { id },
+        where: { id: lastLog.id },
       }
     );
   } catch (error) {
