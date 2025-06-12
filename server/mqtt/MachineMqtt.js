@@ -19,10 +19,12 @@ const handleSendToWebsocket = (client) => {
  */
 const isManualLog = (log) => {
   const { createdAt, current_status } = log;
-  if (!log || !createdAt || current_status !== "Stopped") return false;
+  if (!log || !createdAt) return false;
   const timeDifference = new Date().getTime() - new Date(createdAt).getTime();
   const sixMinutees = 6 * 60 * 1000;
-  return timeDifference < sixMinutees;
+  const betweenTime = timeDifference < sixMinutees;
+  const isRunning = current_status === "Running";
+  return isRunning && betweenTime;
 };
 
 // trigger when create log
