@@ -46,7 +46,6 @@ module.exports = (sequelize, DataTypes) => {
 
   DailyConfig.beforeCreate(async (dailyConfig, options) => {
     const { startFirstShift, startSecondShift, date } = dailyConfig;
-    // console.log({ dailyConfig })
     // Konversi string waktu ke menit untuk perbandingan yang akurat
     const [firstHour, firstMinute] = startFirstShift.split(':').map(Number);
     const [secondHour, secondMinute] = startSecondShift.split(':').map(Number);

@@ -1,8 +1,8 @@
 const { MachineLog, Machine } = require("../models");
 const { decryptFromNumber } = require("../helpers/crypto");
-const { serverError } = require("../utils/serverError");
 const { existMachinesCache } = require("../cache");
 const { MqttClient } = require("mqtt");
+const { machineLoggerDebug, machineLoggerError } = require("../utils/logger");
 
 /**
  *
@@ -39,7 +39,7 @@ const checkIsManualLog = async (machine_id) => {
 
     return isManualLog(lastMachineLog);
   } catch (error) {
-    serverError(error, "checkIsManualLog");
+    machineLoggerError(error, "checkIsManualLog", { machine_id });
     return false;
   }
 };
@@ -57,29 +57,29 @@ const handleChangeMachineStatus = async (
   parseMessage,
   client
 ) => {
+  const {
+    user_id,
+    status,
+    g_code_name,
+    k_num,
+    output_wp,
+    tool_name,
+    total_cutting_time,
+    calculate_total_cutting_time,
+  } = parseMessage;
   try {
-    const {
-      user_id,
-      status,
-      g_code_name,
-      k_num,
-      output_wp,
-      tool_name,
-      total_cutting_time,
-      calculate_total_cutting_time,
-    } = parseMessage;
     // Find the last log for today
 
     const isManual = await checkIsManualLog(existMachine.id);
     const newStatus = isManual ? "Running" : status;
     // const newStatus = status;
 
-    // console.log(
-    //   { isManual, isSameStatus: newStatus === existMachine.status },
-    //   333
-    // );
     // not update if status is same
     if (newStatus === existMachine.status) return;
+    machineLoggerDebug(
+      `Change machine status for ${existMachine.name} from ${existMachine.status} to ${newStatus}`,
+      "handleChangeMachineStatus"
+    );
     // update machine status
     await Machine.update(
       { status: newStatus },
@@ -114,7 +114,10 @@ const handleChangeMachineStatus = async (
     // Send an update to all connected clients
     handleSendToWebsocket(client);
   } catch (error) {
-    serverError(error, "handleChangeMachineStatus");
+    machineLoggerError(error, "handleChangeMachineStatus", {
+      existMachine,
+      parseMessage,
+    });
   }
 };
 
@@ -135,22 +138,19 @@ const handleChangeMachineStatus = async (
  * @returns {Promise<void>}
  */
 const createMachineAndLogFirstTime = async (parseMessage, client) => {
+  const {
+    name,
+    status,
+    user_id,
+    g_code_name,
+    k_num,
+    output_wp,
+    tool_name,
+    total_cutting_time,
+    ipAddress,
+    calculate_total_cutting_time,
+  } = parseMessage;
   try {
-    const {
-      name,
-      status,
-      user_id,
-      g_code_name,
-      k_num,
-      output_wp,
-      tool_name,
-      total_cutting_time,
-      ipAddress,
-      calculate_total_cutting_time,
-    } = parseMessage;
-
-    // console.log(parseMessage, 888)
-
     const createMachine = await Machine.create({
       name,
       status,
@@ -183,7 +183,9 @@ const createMachineAndLogFirstTime = async (parseMessage, client) => {
     });
     handleSendToWebsocket(client);
   } catch (error) {
-    serverError(error, "createMachineAndLogFirstTime");
+    machineLoggerError(error, "createMachineAndLogFirstTime", {
+      parseMessage,
+    });
   }
 };
 
@@ -214,7 +216,9 @@ const updateDescriptionLastMachineLog = async (machine_id) => {
       }
     );
   } catch (error) {
-    serverError(error, "updateRunningTodayLastMachineLog");
+    machineLoggerError(error, "updateDescriptionLastMachineLog", {
+      machine_id,
+    });
   }
 };
 

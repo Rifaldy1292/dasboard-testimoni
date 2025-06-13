@@ -81,6 +81,91 @@ const logger = winston.createLogger({
     ],
 });
 
+const machineLogger = winston.createLogger({
+    level: 'info',
+    transports: [
+        // Error logs (JSON format)
+        new winston.transports.File({
+            filename: path.join(logDir, 'error_machine.log'),
+            level: 'error',
+            format: jsonFileFormat
+        }),
+
+        // Info logs (JSON format)
+        new winston.transports.File({
+            filename: path.join(logDir, 'info_machine.log'),
+            level: 'info',
+            format: jsonFileFormat
+        }),
+
+        // Combined logs with custom format (level - timestamp - message)
+        new winston.transports.File({
+            filename: path.join(logDir, 'combined_machine.log'),
+            format: customFileFormat
+        }),
+
+        // Console output with full color
+        new winston.transports.Console({
+            format: consoleFormat
+        })
+    ],
+});
+
+
+/**
+ * Enhanced error logger that simplifies error logging by accepting an error object and context
+ *
+ * @param {Error} error - The error object to log
+ * @param {string} context - Context where the error occurred
+ * @param {object} [additionalData={}] - Optional additional data to include in the log
+ */
+const machineLoggerError = (error, context, additionalData = {}) => {
+    machineLogger.error({
+        message: `Error in ${context}: ${error.message}`,
+        stack: error.stack,
+        context,
+        ...additionalData
+    });
+};
+
+/**
+ * Enhanced info logger that automatically adds context
+ * 
+ * @param {string} message - The info message to log
+ * @param {string} context - Context for this info message
+ * @param {object} [additionalData={}] - Optional additional data to include
+ */
+const machineLoggerInfo = (message, context, additionalData = {}) => {
+    if (typeof additionalData === 'object' && Object.keys(additionalData).length > 0) {
+        machineLogger.info({
+            message: `[${context}] ${message}`,
+            context,
+            ...additionalData
+        });
+    } else {
+        machineLogger.info(`[${context}] ${message}`);
+    }
+};
+
+/**
+ * Enhanced warning logger that automatically adds context
+ * 
+ * @param {string} message - The warning message to log
+ * @param {string} context - Context for this warning
+ * @param {object} [additionalData={}] - Optional additional data to include
+ */
+const machineLoggerWarn = (message, context, additionalData = {}) => {
+    if (typeof additionalData === 'object' && Object.keys(additionalData).length > 0) {
+        machineLogger.warn({
+            message: `[${context}] ${message}`,
+            context,
+            ...additionalData
+        });
+    } else {
+        machineLogger.warn(`[${context}] ${message}`);
+    }
+};
+
 
 
 /**
@@ -137,15 +222,51 @@ const logWarn = (message, context, additionalData = {}) => {
     }
 };
 
+/**
+ * Enhanced debug logger that automatically adds context
+ * 
+ * @param {any} message - The debug message or object to log
+ * @param {string} context - Context for this debug message
+ * @param {object} [additionalData={}] - Optional additional data to include
+ */
+const logDebug = (message, context, additionalData = {}) => {
+    if (typeof additionalData === 'object' && Object.keys(additionalData).length > 0) {
+        logger.debug({
+            message: `[${context}] ${typeof message === 'object' ? JSON.stringify(message) : message}`,
+            context,
+            ...additionalData
+        });
+    } else {
+        logger.debug(`[${context}] ${typeof message === 'object' ? JSON.stringify(message) : message}`);
+    }
+};
+
+/**
+ * Enhanced debug logger for machine-specific operations
+ * 
+ * @param {any} message - The debug message or object to log
+ * @param {string} context - Context for this debug message
+ * @param {object} [additionalData={}] - Optional additional data to include
+ */
+const machineLoggerDebug = (message, context, additionalData = {}) => {
+    if (typeof additionalData === 'object' && Object.keys(additionalData).length > 0) {
+        machineLogger.debug({
+            message: `[${context}] ${typeof message === 'object' ? JSON.stringify(message) : message}`,
+            context,
+            ...additionalData
+        });
+    } else {
+        machineLogger.debug(`[${context}] ${typeof message === 'object' ? JSON.stringify(message) : message}`);
+    }
+};
+
 module.exports = {
     logError,
     logInfo,
-    logWarn
+    logWarn,
+    logDebug,
+    machineLoggerDebug,
+    machineLoggerError,
+    machineLoggerInfo,
+    machineLoggerWarn
 };
-
-// test
-// logger.info('Logger initialized successfully');
-// logger.error({ message: 'This is an error message', stack: new Error().stack });
-// logger.warn('This is a warning message');
-
-// Export the logger

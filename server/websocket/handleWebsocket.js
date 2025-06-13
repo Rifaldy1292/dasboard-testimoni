@@ -2,6 +2,7 @@ const mqtt = require("mqtt");
 const RemainingController = require("../controllers/RemainingController");
 const MachineWebsocket = require("./MachineWebsocket");
 const userMessageCache = require("../cache/userMessageCache");
+const { logDebug, logError } = require("../utils/logger");
 
 const MQTT_BROKER = process.env.MQTT_BROKER || "mqtt://localhost:1883";
 const NOTIFICATION_TOPIC = "machine/update";
@@ -15,7 +16,10 @@ const NOTIFICATION_TOPIC = "machine/update";
 const handleWebsocket = (wss) => {
 
   wss.on("connection", (ws) => {
-    console.log("Client connected", Math.random().toFixed(3));
+    logDebug("New client connected", "handleWebsocket", {
+      id: ws._socket.remotePort,
+      address: ws._socket.remoteAddress,
+    });
 
     /**
      * Handles incoming messages from clients.
@@ -68,7 +72,10 @@ const handleWebsocket = (wss) => {
           RemainingController.getRemaining(ws);
           break;
         default:
-          console.log("Unknown type", type);
+          logDebug(`Unknown message type: ${type}`, "handleWebsocket", {
+            type,
+            data,
+          });
           break;
       }
     });
@@ -77,7 +84,10 @@ const handleWebsocket = (wss) => {
      * When a client disconnects, the references to the client are removed from the maps.
      */
     ws.on("close", () => {
-      console.log("Client disconnected");
+      logDebug("Client disconnected", "handleWebsocket", {
+        id: ws._socket.remotePort,
+        address: ws._socket.remoteAddress,
+      });
       userMessageCache.removeClient(ws);
     });
   });
@@ -88,11 +98,14 @@ const handleWebsocket = (wss) => {
     mqttClient.subscribe(NOTIFICATION_TOPIC);
   });
   mqttClient.on("error", (error) => {
-    console.error("MQTT connection error:", error);
+    logDebug("MQTT connection error", "handleWebsocket", error);
   });
   mqttClient.on("message", (topic, msg) => {
     if (topic !== NOTIFICATION_TOPIC) return;
-    console.log("live update from MQTT", topic, msg.toString(), 44444);
+    logDebug("Received MQTT message", "handleWebsocket", {
+      topic,
+      message: msg.toString(),
+    });
     try {
       // Send an update to all connected clients
       wss.clients.forEach(async (client) => {
@@ -110,7 +123,10 @@ const handleWebsocket = (wss) => {
         const shift = userMessageCache.getShift(client);
 
         if (hasTimelineType) {
-          console.log("Sending live timeline update from MQTT");
+          logDebug("Sending live timeline update from MQTT", "handleWebsocket", {
+            lastDate,
+            shift,
+          });
           await MachineWebsocket.timelines(client, { date: lastDate, shift: shift ?? 0 });
         }
 
@@ -124,7 +140,7 @@ const handleWebsocket = (wss) => {
       });
 
     } catch (error) {
-      console.error("Failed to parse MQTT message:", error);
+      logError(error, "handleWebsocket: Failed to parse MQTT message");
     }
   });
 

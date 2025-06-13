@@ -52,7 +52,7 @@ const decryptFromNumber = async (encryptedNumber) => {
     // Jika ditemukan, kembalikan teks aslinya
     return result.original_text;
   } catch (error) {
-    console.error("Database Error:", error);
+    serverError(error, "decryptFromNumber");
     return null;
   }
 };

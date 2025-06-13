@@ -11,6 +11,7 @@ const path = require("path");
 const { Client, FTPError } = require("basic-ftp");
 const { encryptToNumber } = require("../helpers/crypto");
 const { encryptionCache } = require("../cache");
+const { logInfo, logError } = require("../utils/logger");
 
 const localDir = (machine_id) =>
   path.join(__dirname, "..", "public", "cnc_files", machine_id);
@@ -69,8 +70,9 @@ class FTPController {
       }
 
       for (const file of files) {
-        console.log(
-          `Starting upload: ${file.originalname} (Size: ${file.buffer.length} bytes)`
+        logInfo(
+          `Processing file: ${file.originalname} (Size: ${file.buffer.length} bytes)`,
+          'FTPController.transferFiles'
         );
 
         const customMachine = name === "MC-14" || name === "MC-15";
@@ -87,9 +89,12 @@ class FTPController {
           try {
             // Upload file dari disk
             await client.uploadFrom(tempFilePath, filePath);
-            console.log(`Completed upload: ${file.originalname}`);
+            logInfo(
+              `Completed upload: ${file.originalname} to ${filePath}`,
+              'FTPController.transferFiles'
+            );
           } catch (uploadError) {
-            console.error(`Error uploading file: ${uploadError.message}`);
+            logError(uploadError, `Error uploading file: ${uploadError.message}`);
             throw uploadError;
           } finally {
             // Hapus file sementara
@@ -102,7 +107,9 @@ class FTPController {
           const stream = new PassThrough();
           stream.end(file.buffer);
           await client.uploadFrom(stream, filePath);
-          console.log(`Completed upload: ${file.originalname}`);
+          logInfo(
+            `Completed upload: ${file.originalname} to ${filePath}`, 'FTPController.transferFiles'
+          );
         }
       }
 
@@ -258,8 +265,11 @@ class FTPController {
         fileName
       );
 
-      const rmoveFile = await client.remove(fileName);
-      console.log({ removeFile: rmoveFile, downloadFile }, 222);
+      const removeFile = await client.remove(fileName);
+      logInfo(
+        `File ${fileName} removed from ${name} and downloaded to ${localDirectory}`,
+        'FTPController.removeFileFromMachine', removeFile
+      );
       return res.status(200).json({
         status: 200,
         message: `File ${fileName} removed from ${name}`,
@@ -304,8 +314,6 @@ class FTPController {
         return res
           .status(400)
           .json({ message: "Machine not found", status: 400 });
-
-      // console.log(ip_address, 222);
 
       await client.access({
         // ...FTPHP,

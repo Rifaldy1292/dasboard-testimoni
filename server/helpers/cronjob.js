@@ -4,7 +4,7 @@ const fs = require("fs");
 const { Machine, CuttingTime, DailyConfig } = require("../models");
 const dateCuttingTime = require("../utils/dateCuttingTime");
 const { getAllMachine } = require("../utils/machineUtils");
-const { logError, logInfo } = require("../utils/logger"); // Import helper functions
+const { machineLoggerError, machineLoggerInfo, machineLoggerWarn } = require("../utils/logger"); // Import helper functions
 
 /**
  * Creates a new cutting time entry for the current period if one doesn't exist.
@@ -18,20 +18,20 @@ const { logError, logInfo } = require("../utils/logger"); // Import helper funct
 const createCuttingTime = async () => {
   const CONTEXT = "createCuttingTime";
   try {
-    logInfo("Trigger create cutting time", CONTEXT);
+    machineLoggerInfo("Trigger create cutting time", CONTEXT);
     const { date } = dateCuttingTime();
 
     await CuttingTime.create({
       period: date,
     });
-    logInfo(`Cutting time created for period: ${date}`, CONTEXT);
+    machineLoggerInfo(`Cutting time created for period: ${date}`, CONTEXT);
   } catch (error) {
     if (error.message === "Cutting time for this month already exists") {
-      logInfo("Cutting time for this month already exists, skipping creation", CONTEXT);
+      machineLoggerInfo("Cutting time for this month already exists, skipping creation", CONTEXT);
       return;
     }
 
-    logError(error, CONTEXT);
+    machineLoggerError(error, CONTEXT);
   }
 };
 
@@ -47,7 +47,7 @@ const createCuttingTime = async () => {
  */
 const createDailyConfig = async () => {
   try {
-    logInfo("Trigger create daily config");
+    machineLoggerInfo("Trigger create daily config");
     const date = new Date().toLocaleDateString("en-CA");
     /**
      * @example 02:04:00
@@ -86,9 +86,9 @@ const handleResetMachineStatus = async () => {
       }
     );
     await getAllMachine();
-    logInfo(`Successfully reset machine status, affected rows: ${updateMachine[0]}`);
+    machineLoggerInfo(`Successfully reset machine status, affected rows: ${updateMachine[0]}`);
   } catch (error) {
-    logError(error, "handleResetMachineStatus");
+    machineLoggerError(error, "handleResetMachineStatus");
   }
 };
 
@@ -96,9 +96,9 @@ const deleteCncFiles = async () => {
   const folderPath = path.join(__dirname, "..", "public", "cnc_files");
   try {
     await fs.promises.rm(folderPath, { recursive: true, force: true });
-    logInfo("Successfully deleted folder cnc_files");
+    machineLoggerInfo("Successfully deleted folder cnc_files");
   } catch (err) {
-    logError(err, "failed delete folder cnc_files");
+    machineLoggerError(err, "failed delete folder cnc_files");
   }
 };
 
@@ -131,7 +131,7 @@ const handleCronJob = async () => {
   // Store active cron jobs to destroy them when updating
   let activeCronJobs = [];
   const setupShiftCronJobs = async () => {
-    logInfo("Setting up shift cron jobs...");
+    machineLoggerInfo("Setting up shift cron jobs...");
 
     // Destroy existing cron jobs
     activeCronJobs.forEach(job => {
@@ -144,7 +144,7 @@ const handleCronJob = async () => {
     // Get latest daily config
     const latestDailyConfig = await findLastDailyConfig();
     if (!latestDailyConfig) {
-      logWarn("No daily config found, skipping shift cron jobs");
+      machineLoggerWarn("No daily config found, skipping shift cron jobs");
       return;
     }
 
@@ -156,13 +156,13 @@ const handleCronJob = async () => {
 
     // Create new cron jobs with latest config
     const job1 = cron.schedule(`${startMinute1} ${startHour1} * * *`, () => {
-      logInfo(`Executing scheduled job at ${startHour1}:${startMinute1} (first shift start)`);
+      machineLoggerInfo(`Executing scheduled job at ${startHour1}:${startMinute1} (first shift start)`);
       createDailyConfig();
       handleResetMachineStatus();
     });
 
     const job2 = cron.schedule(`${endMinute1} ${endHour1} * * *`, () => {
-      logInfo(`Executing scheduled job at ${endHour1}:${endMinute1} (first shift end)`);
+      machineLoggerInfo(`Executing scheduled job at ${endHour1}:${endMinute1} (first shift end)`);
       createDailyConfig();
       handleResetMachineStatus();
     });
@@ -171,7 +171,7 @@ const handleCronJob = async () => {
     // Store jobs for future cleanup
     activeCronJobs = [job1, job2];
 
-    logInfo(`Cron jobs updated - Start1: ${startHour1}:${startMinute1}, End1: ${endHour1}:${endMinute1}, Start2: ${startHour2}:${startMinute2}, End2: ${endHour2}:${endMinute2}`);
+    machineLoggerInfo(`Cron jobs updated - Start1: ${startHour1}:${startMinute1}, End1: ${endHour1}:${endMinute1}, Start2: ${startHour2}:${startMinute2}, End2: ${endHour2}:${endMinute2}`);
   };
 
   // Initial setup saat startup
@@ -180,16 +180,16 @@ const handleCronJob = async () => {
   await setupShiftCronJobs();
   // Daily cron job at midnight - update schedule dengan config terbaru
   cron.schedule(`0 0 * * *`, async () => {
-    logInfo("Executing daily midnight job for maintenance tasks");
+    machineLoggerInfo("Executing daily midnight job for maintenance tasks");
     await deleteCncFiles();
     await createDailyConfig();
     await createCuttingTime();
 
     // Re-setup cron jobs dengan config terbaru
     await setupShiftCronJobs();
-    logInfo("Midnight maintenance job completed");
+    machineLoggerInfo("Midnight maintenance job completed");
   });
 
-  logInfo("Cronjob system finished initialization");
+  machineLoggerInfo("Cronjob system finished initialization");
 };
 module.exports = handleCronJob;

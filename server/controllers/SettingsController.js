@@ -75,7 +75,6 @@ class SettingsController {
 
             const startDateStr = startDate.toLocaleDateString('en-CA')
             const endDateStr = endDate.toLocaleDateString('en-CA')
-            // console.log(`Fetching data for period: ${period}, date range: ${startDateStr} to ${endDateStr}`);
 
             const data = await DailyConfig.findAll({
                 where: {

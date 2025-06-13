@@ -1,3 +1,4 @@
+const { logError } = require("./logger");
 
 
 /**
@@ -7,8 +8,8 @@
  * @param {string | undefined} description - message to be sent
  */
 const serverError = (error, res, description) => {
-    console.log({ error, stack: error.stack, description, message: error.message });
+    logError(error, "serverError");
     if (res && typeof res !== 'string' && description) return res.status(500).json({ status: 500, message: description });
-}
+};
 
 module.exports = { serverError }

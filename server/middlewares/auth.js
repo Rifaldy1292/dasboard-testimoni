@@ -1,5 +1,6 @@
 const { tokenValidator } = require('../helpers/jsonwebtoken')
-const { User } = require('../models')
+const { User } = require('../models');
+const { logDebug, logError } = require('../utils/logger');
 
 const authMiddleware = async (req, res, next) => {
     try {
@@ -19,12 +20,13 @@ const authMiddleware = async (req, res, next) => {
             return res.status(401).json({ message: "User not found", status: 401 });
         }
         // console.log(user)
+        logDebug(`User authenticated: ${user.name}`, 'authMiddleware', user);
         req.user = decoded; // Menambahkan informasi pengguna yang didekodekan ke req.user
         // console.log('req.user', req.user)
         next(); // Lanjut ke middleware atau handler berikutnya
     } catch (error) {
         if (error.name === 'JsonWebTokenError') {
-            console.log(error.message)
+            logError(error, 'authMiddleware');
             return res.status(401).json({ message: 'Unauthorized', status: 401 });
         }
         return res.status(401).json({ message: 'Unauthorized', status: 401 });

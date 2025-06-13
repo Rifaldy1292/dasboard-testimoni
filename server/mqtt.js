@@ -1,5 +1,4 @@
 const { Machine } = require("./models");
-const { serverError } = require("./utils/serverError");
 const {
   handleChangeMachineStatus,
   createMachineAndLogFirstTime,
@@ -9,6 +8,7 @@ require("./websocket/handleWebsocket");
 const mqtt = require("mqtt");
 const { existMachinesCache } = require("./cache");
 const { getAllMachine } = require("./utils/machineUtils");
+const { machineLoggerInfo, machineLoggerDebug, machineLoggerError } = require("./utils/logger");
 
 const broker = process.env.MQTT_BROKER || "mqtt://localhost:1883";
 const mqttClient = mqtt.connect(broker);
@@ -38,14 +38,14 @@ const mqttTopics = [
 const handleMqtt = () => {
   mqttClient.on("connect", async () => {
     mqttTopics.forEach((topic) => {
-      // console.log("MQTT client connected", topic);
       mqttClient.subscribe(topic);
     });
     await getAllMachine();
-    console.log("MQTT client connected");
+    machineLoggerInfo("MQTT client connected and subscribed to topics", "handleMqtt");
   });
 
   mqttClient.on("message", async (topic, message) => {
+    const parseMessage = JSON.parse(message.toString());
     try {
       /**
              * Parses the received MQTT message into a JavaScript object.
@@ -63,14 +63,17 @@ const handleMqtt = () => {
              *     "calculate_total_cutting_time": 1.2222
              }
              */
-      const parseMessage = JSON.parse(message.toString());
-      // console.log(parseMessage, 77777);
+      machineLoggerDebug(
+        `Received MQTT message on topic ${topic}`, 'handleMqtt', parseMessage
+      );
 
       let existMachine = existMachinesCache.get(parseMessage.name);
-      // console.log({
-      //   existMachine: existMachine?.status,
-      //   parse: parseMessage?.status,
-      // });
+
+      // machineLoggerDebug(
+      //   `Checking if machine ${parseMessage.name} exists in cache`,
+      //   'handleMqtt',
+      //   { existMachine }
+      // );
 
       // create machine & log if machine not exist
       if (!existMachine) {
@@ -98,9 +101,9 @@ const handleMqtt = () => {
       }
     } catch (error) {
       if (error.message === "Unexpected token < in JSON at position 0") {
-        return serverError(error, "Invalid JSON");
+        return machineLoggerError(error, "Invalid JSON format received from MQTT", parseMessage);
       }
-      serverError(error, "Failed to handle MQTT message");
+      machineLoggerError(error, "Failed to handle MQTT message", parseMessage);
     }
   });
 };
