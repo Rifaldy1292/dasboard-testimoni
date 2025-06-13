@@ -64,7 +64,7 @@ const handleMqtt = () => {
              }
              */
       machineLoggerDebug(
-        `Received MQTT message on topic ${topic}`, 'handleMqtt', parseMessage
+        `Received MQTT message on topic ${topic}`, 'handleMqtt: mqttClient.on', parseMessage
       );
 
       let existMachine = existMachinesCache.get(parseMessage.name);

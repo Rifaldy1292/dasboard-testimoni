@@ -113,6 +113,43 @@ const findLastDailyConfig = async () => {
 };
 
 
+
+
+/**
+ * Cleans up log files by recreating the logs directory
+ * More efficient than deleting files individually
+ * 
+ * @async
+ * @function cleanupLogFiles
+ * @returns {Promise<void>} A promise that resolves when log cleanup is complete
+ * @throws {Error} If file operations fail
+ */
+const cleanupLogFiles = async () => {
+  const CONTEXT = "cleanupLogFiles";
+  try {
+    machineLoggerInfo("Starting weekly log files cleanup", CONTEXT);
+
+    // Define the log directory path
+    const logDir = path.join(__dirname, "..", "logs");
+
+    // Ensure we don't remove logs in use
+    machineLoggerInfo("Closing active log streams before cleanup", CONTEXT);
+
+    // Remove and recreate logs directory
+    await fs.promises.rm(logDir, { recursive: true, force: true });
+    machineLoggerInfo("Log directory removed successfully", CONTEXT);
+
+    // Create logs directory again
+    await fs.promises.mkdir(logDir, { recursive: true });
+    machineLoggerInfo("Log directory recreated successfully", CONTEXT);
+
+    machineLoggerInfo("Log cleanup completed successfully", CONTEXT);
+  } catch (error) {
+    machineLoggerError(`Failed to clean up log files: ${error.message}`, CONTEXT);
+  }
+};
+
+
 /**
  * Initializes and schedules all cron jobs for the application.
  * Sets up jobs for machine status reset, cutting time creation, and daily configuration creation.
@@ -190,6 +227,14 @@ const handleCronJob = async () => {
     machineLoggerInfo("Midnight maintenance job completed");
   });
 
+  // Weekly log cleanup job - runs every Sunday at midnight (0 0 * * 0)
+  cron.schedule(`0 0 * * 0`, async () => {
+    machineLoggerInfo("Starting weekly log cleanup job");
+    await cleanupLogFiles();
+    machineLoggerInfo("Weekly log cleanup job completed");
+  });
+
   machineLoggerInfo("Cronjob system finished initialization");
 };
+
 module.exports = handleCronJob;

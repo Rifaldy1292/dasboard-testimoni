@@ -98,6 +98,16 @@ const machineLogger = winston.createLogger({
             format: jsonFileFormat
         }),
 
+        // Debug logs (JSON format) - New addition
+        new winston.transports.File({
+            filename: path.join(logDir, 'debug_machine.log'),
+            level: 'debug',
+            format: jsonFileFormat,
+            maxsize: 5242880, // 5MB max file size
+            maxFiles: 5, // Keep 5 files max
+            tailable: true // Newest logs go to the end
+        }),
+
         // Combined logs with custom format (level - timestamp - message)
         new winston.transports.File({
             filename: path.join(logDir, 'combined_machine.log'),
