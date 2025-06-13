@@ -54,7 +54,7 @@ const createDailyConfig = async () => {
      * @type {string | null} startSecondShift
      */
 
-    const existDailyConfig = await DailyConfig.findOne({
+    const existDailyConfig = await DailyConfi.findOne({
       where: { date },
       attributes: ["date", "startFirstShift", "startSecondShift", "endFirstShift", "endSecondShift"],
       order: [['createdAt', "DESC"]],
@@ -63,6 +63,7 @@ const createDailyConfig = async () => {
     if (existDailyConfig) return;
     await DailyConfig.create({ ...existDailyConfig, date });
   } catch (error) {
+    machineLoggerError(error, "createDailyConfig");
   }
 };
 
