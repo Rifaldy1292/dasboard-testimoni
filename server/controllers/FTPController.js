@@ -9,6 +9,7 @@ const { PassThrough } = require("stream"); // ✅ Tambahkan ini
 const fs = require("fs");
 const path = require("path");
 const { Client, FTPError } = require("basic-ftp");
+const ftp = require("ftp");
 const { encryptToNumber } = require("../helpers/crypto");
 const { encryptionCache } = require("../cache");
 const { logInfo, logError } = require("../utils/logger");
@@ -260,7 +261,7 @@ class FTPController {
         await client.cd(remotePath);
       }
 
-      const downloadFile = await client.downloadTo(
+      await client.downloadTo(
         path.join(localDirectory, fileName),
         fileName
       );
@@ -275,19 +276,7 @@ class FTPController {
         message: `File ${fileName} removed from ${name}`,
       });
     } catch (error) {
-      //   * {
-      //   error: FTPError: 550 STOR requested action not taken: File exists.
-      //       at FTPContext._onControlSocketData (D:\dashboard-machine\server\node_modules\basic-ftp\dist\FtpContext.js:283:39)
-      //       at Socket.<anonymous> (D:\dashboard-machine\server\node_modules\basic-ftp\dist\FtpContext.js:127:44)
-      //       at Socket.emit (node:events:518:28)
-      //       at addChunk (node:internal/streams/readable:561:12)
-      //       at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
-      //       at Readable.push (node:internal/streams/readable:392:5)
-      //       at TCP.onStreamRead (node:internal/stream_base_commons:191:23) {
-      //     code: 550
-      //   },
       //   message: '550 STOR requested action not taken: File exists.'
-      // }
       // handle file exist
       if (error instanceof FTPError && error.message.includes("File exists")) {
         return res.status(500).json({
@@ -302,62 +291,94 @@ class FTPController {
   }
 
   static async getListFiles(req, res) {
-    const client = new Client();
-    try {
-      const { machine_id } = req.params;
+    const { machine_id } = req.params;
 
-      const { ip_address, name } = await Machine.findOne({
-        where: { id: machine_id },
-        attributes: ["ip_address", "name"],
-      });
-      if (!ip_address)
-        return res
-          .status(400)
-          .json({ message: "Machine not found", status: 400 });
-
-      await client.access({
-        // ...FTPHP,
-        host: ip_address,
-        port: 21,
-        user: "MC",
-        password: "MC",
-        secure: false,
-      });
-
-      const customDirMachine = name === "MC-14" || name === "MC-15";
-      if (customDirMachine) {
-        const remotePath = "/Storage Card/USER/DataCenter/";
-        await client.cd(remotePath);
-      }
-      // get all files from local directory
-      const files = await client.list();
-      const fileNames = files.map((file) => ({
-        fileName: file.name,
-        isDeleted: false,
-      }));
-      const localDirectory = localDir(machine_id);
-
-      if (!fs.existsSync(localDirectory)) {
-        fs.mkdirSync(localDirectory, { recursive: true });
-      }
-      const localFiles = fs.readdirSync(localDirectory);
-      const localFileNames = localFiles.map((file) => ({
-        fileName: file,
-        isDeleted: true,
-      }));
-      const allFiles = [...fileNames, ...localFileNames];
-      // compare local files with remote
-
-      res.status(200).json({
-        status: 200,
-        message: "success get list files",
-        data: allFiles,
-      });
-    } catch (error) {
-      serverError(error, res, "Failed to get list files");
-    } finally {
-      client.close();
+    const { ip_address, name } = await Machine.findOne({
+      where: { id: machine_id },
+      attributes: ["ip_address", "name"],
+    });
+    if (!ip_address) {
+      return res
+        .status(400)
+        .json({ message: "Machine not found", status: 400 });
     }
+
+    // MC-3 is not supported for PASV, use ftp library to disable PASV in MC-3
+    if (name !== "MC-3") {
+      const client = new Client();
+      try {
+
+        logInfo(
+          `Connecting to machine ${name} at ${ip_address}`,)
+        try {
+          // error - 13/6/2025, 14.22.32 - Error in Failed to get list files: Timeout (control socket)
+          //  None of the available transfer strategies work. Last error response was 'Error: Client is closed because Timeout (control socket)
+          // client.ftp.epsvAll = false
+          client.ftp.verbose = true;
+          // Coba nonaktifkan mode pasif dan aktifkan mode aktif
+          // client.ftp.useActiveMode = true; // Ini akan mencoba mode aktif (PORT)
+          client.ftp.epsv = false; // Pastikan EPSV dinonaktifkan
+          client.ftp.pasv = false; // Pastikan PASV dinonaktifkan
+          // client.ftp.tlsOptions = null; // Nonaktifkan TLS jika tidak diperlukan
+
+          await client.access({
+            // ...FTPHP,
+            host: ip_address,
+            port: 21,
+            password: "",
+            // user: "MC",
+            // password: "MC",
+            secure: false,
+            timeout: 60000
+          });
+          client.ftp.log(`Connecting to machine ${name} at ${ip_address}`);
+        } catch (error) {
+          return serverError(error, res, 'failed to connect');
+        }
+
+        const customDirMachine = name === "MC-14" || name === "MC-15";
+        if (customDirMachine) {
+          const remotePath = "/Storage Card/USER/DataCenter/";
+          await client.cd(remotePath);
+        }
+        // get all files from local directory
+        const files = await client.list();
+        const fileNames = files.map((file) => ({
+          fileName: file.name,
+          isDeleted: false,
+        }));
+        const localDirectory = localDir(machine_id);
+
+        if (!fs.existsSync(localDirectory)) {
+          fs.mkdirSync(localDirectory, { recursive: true });
+        }
+        const localFiles = fs.readdirSync(localDirectory);
+        const localFileNames = localFiles.map((file) => ({
+          fileName: file,
+          isDeleted: true,
+        }));
+        const allFiles = [...fileNames, ...localFileNames];
+        // compare local files with remote
+
+        res.status(200).json({
+          status: 200,
+          message: "success get list files",
+          data: allFiles,
+        });
+      } catch (error) {
+        console.log(error);
+        serverError(error, res, "Failed to get list files");
+      } finally {
+        client.close();
+      }
+      return
+    }
+
+    // const ftpClient = new ftp.Client()
+    return res.status(500).json({
+      status: 500,
+      message: "Failed to get list files",
+    });
   }
 
   /**
