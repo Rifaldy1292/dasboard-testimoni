@@ -295,9 +295,10 @@ class FTPController {
 
     const { ip_address, name } = await Machine.findOne({
       where: { id: machine_id },
+      raw: true,
       attributes: ["ip_address", "name"],
     });
-    if (!ip_address) {
+    if (!ip_address || !name) {
       return res
         .status(400)
         .json({ message: "Machine not found", status: 400 });
