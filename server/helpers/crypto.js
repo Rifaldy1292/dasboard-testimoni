@@ -45,6 +45,7 @@ const decryptFromNumber = async (encryptedNumber) => {
     const result = await EncryptData.findOne({
       where: { encrypt_number: encryptedNumber },
       attributes: ["original_text"],
+      raw: true,
     });
 
     if (!result) return null;

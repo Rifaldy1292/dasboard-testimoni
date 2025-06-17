@@ -80,6 +80,7 @@ const handleMqtt = () => {
         const findExistMachine = await Machine.findOne({
           where: { name: parseMessage.name },
           attributes: ["id", "name", "status"],
+          raw: true,
         });
         if (!findExistMachine) {
           return await createMachineAndLogFirstTime(parseMessage, mqttClient);

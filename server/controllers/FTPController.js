@@ -22,7 +22,11 @@ const FTPHP = {
   port: "2221",
   user: "android",
   password: "android",
+  secure: false
 };
+
+// const FTPMachine = (ip_address)
+
 class FTPController {
   /**
    * @description Transfer file to machine using FTP
@@ -40,6 +44,7 @@ class FTPController {
       const { ip_address, name } = await Machine.findOne({
         where: { id: machine_id },
         attributes: ["ip_address", "name"],
+        raw: true,
       });
 
       if (!ip_address || !name) {
@@ -119,6 +124,7 @@ class FTPController {
         const existingData = await EncryptData.findOne({
           where: { encrypt_number },
           attributes: ["id"],
+          raw: true,
         });
         if (!existingData) {
           await EncryptData.create({ encrypt_number, original_text });
@@ -132,6 +138,7 @@ class FTPController {
       const { is_using_custom, id } = await MachineOperatorAssignment.findOne({
         where: { machine_id },
         attributes: ["id", "is_using_custom"],
+        raw: true,
       });
 
       if (is_using_custom) {
@@ -209,6 +216,7 @@ class FTPController {
       const { ip_address, name } = await Machine.findOne({
         where: { id: machine_id },
         attributes: ["ip_address", "name"],
+        raw: true,
       });
 
       if (!ip_address) {
@@ -312,25 +320,14 @@ class FTPController {
         logInfo(
           `Connecting to machine ${name} at ${ip_address}`,)
         try {
-          // error - 13/6/2025, 14.22.32 - Error in Failed to get list files: Timeout (control socket)
-          //  None of the available transfer strategies work. Last error response was 'Error: Client is closed because Timeout (control socket)
-          // client.ftp.epsvAll = false
           client.ftp.verbose = true;
-          // Coba nonaktifkan mode pasif dan aktifkan mode aktif
-          // client.ftp.useActiveMode = true; // Ini akan mencoba mode aktif (PORT)
-          client.ftp.epsv = false; // Pastikan EPSV dinonaktifkan
-          client.ftp.pasv = false; // Pastikan PASV dinonaktifkan
-          // client.ftp.tlsOptions = null; // Nonaktifkan TLS jika tidak diperlukan
-
           await client.access({
             // ...FTPHP,
             host: ip_address,
             port: 21,
-            password: "",
-            // user: "MC",
-            // password: "MC",
+            user: "MC",
+            password: "MC",
             secure: false,
-            timeout: 60000
           });
           client.ftp.log(`Connecting to machine ${name} at ${ip_address}`);
         } catch (error) {
@@ -372,14 +369,100 @@ class FTPController {
       } finally {
         client.close();
       }
-      return
+      return;
     }
 
-    // const ftpClient = new ftp.Client()
-    return res.status(500).json({
-      status: 500,
-      message: "Failed to get list files",
-    });
+    const ftpClient = new ftp();
+    try {
+      logInfo(`Connecting to machine ${name} at ${ip_address}`, 'FTPController.getListFiles');
+      ftpClient.ascii((err) => {
+        if (err) {
+          logError(err, 'FTPController.getListFiles', "Failed to set ASCII mode");
+        }
+      })
+
+      ftpClient.status((status) => {
+        logInfo(`FTP Client Status: ${status}`, 'FTPController.getListFiles');
+      });
+      ftpClient.system((err, system) => {
+        if (err) {
+          logError(err, 'FTPController.getListFiles', "Failed to get system info");
+          return res.status(500).json({
+            status: 500,
+            message: "Failed to get system info",
+          });
+        }
+        logInfo(`FTP Client System: ${system}`, 'FTPController.getListFiles');
+      });
+
+
+
+      ftpClient.on("ready", () => {
+        logInfo(`Connected to machine ${name} at ${ip_address}`, 'FTPController.getListFiles');
+        ftpClient.list((err, list) => {
+          if (err) {
+            ftpClient.destroy();
+            ftpClient.end();
+            logError(err, 'getListFile', "Error in Failed to get list files");
+            return res.status(500).json({
+              status: 500,
+              message: "Failed to get list files",
+            });
+          }
+          console.log(list)
+          res.status(200).json({
+            status: 200,
+            message: "Success get list files",
+            data: list,
+          });
+        });
+      });
+
+      ftpClient.on("error", (error) => {
+        logError(error, 'getListFile', "Error in Failed to get list files");
+        serverError(error)
+      });
+
+      ftpClient.connect({
+        host: ip_address,
+        port: 21,
+        user: "MC",
+        password: "MC",
+        secure: true,
+        connTimeout: 8000, // 8 seconds
+
+        debug: (message) => {
+          logInfo(message, 'debug mc-3');
+          console.log(message);
+        },
+      });
+    } catch (error) {
+      logError(error, 'getListFile', "Error in Failed to get list files");
+      if (error.code === 550) {
+        return res.status(500).json({
+          status: 500,
+          message: "Failed to get list files, permission denied",
+        });
+      }
+      if (error.message.includes("Timeout")) {
+        return res.status(500).json({
+          status: 500,
+          message: "Failed to get list files, timeout",
+        });
+      }
+      if (error.message.includes("Connection refused")) {
+        return res.status(500).json({
+          status: 500,
+          message: "Failed to get list files, connection refused",
+        });
+      }
+
+    } finally {
+      // ftpClient.close();
+      ftpClient.end();
+      ftpClient.destroy()
+    }
+
   }
 
   /**

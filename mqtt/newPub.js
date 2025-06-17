@@ -14,15 +14,15 @@ const client = mqtt.connect(mqttBroker);
 // Fungsi untuk mendapatkan status acak
 function getRandomStatus() {
     const statuses = ['Running', 'Stopped'];
-    return statuses[Math.floor(Math.random() * statuses.length)];
-    // return statuses[1];
+    // return statuses[Math.floor(Math.random() * statuses.length)];
+    return statuses[1];
 }
 
 const pubMessage = () => {
     mqttTopics.forEach((topic, index) => {
-        const machineName = topic.replaceAll('/data', '').toUpperCase()
+        const name = topic.replaceAll('/data', '').toUpperCase()
         const message = {
-            name: machineName,
+            name,
             status: getRandomStatus(),
             ipAddress: '38.0.101.76',
             // status: 'Running'

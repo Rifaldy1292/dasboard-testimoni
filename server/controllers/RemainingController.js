@@ -147,7 +147,9 @@ class RemainingController {
             }
 
             const existingAssignment = await MachineOperatorAssignment.findOne({
-                where: { machine_id }
+                where: { machine_id },
+                attributes: ['id'],
+                raw: true,
             })
 
             // create or update assignment

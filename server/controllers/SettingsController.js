@@ -127,7 +127,9 @@ class SettingsController {
 
             // Cek apakah konfigurasi untuk tanggal tersebut sudah ada
             const existingConfig = await DailyConfig.findOne({
-                where: { date }
+                where: { date },
+                attributes: ['id'],
+                raw: true
             });
 
             if (existingConfig) {

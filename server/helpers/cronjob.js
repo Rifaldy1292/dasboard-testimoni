@@ -5,6 +5,7 @@ const { Machine, CuttingTime, DailyConfig } = require("../models");
 const dateCuttingTime = require("../utils/dateCuttingTime");
 const { getAllMachine } = require("../utils/machineUtils");
 const { machineLoggerError, machineLoggerInfo, machineLoggerWarn } = require("../utils/logger"); // Import helper functions
+const { existMachinesCache } = require("../cache");
 
 /**
  * Creates a new cutting time entry for the current period if one doesn't exist.
@@ -88,6 +89,7 @@ const handleResetMachineStatus = async () => {
     );
     await getAllMachine();
     machineLoggerInfo(`Successfully reset machine status, affected rows: ${updateMachine[0]}`);
+    machineLoggerInfo(JSON.stringify(existMachinesCache.values()), "existMachinesCache after reset");
   } catch (error) {
     machineLoggerError(error, "handleResetMachineStatus");
   }

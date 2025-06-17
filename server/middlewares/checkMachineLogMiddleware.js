@@ -35,6 +35,7 @@ const checkMachineLogMiddleware = async (req, res, next) => {
                 description: null,
                 current_status: "Stopped",
             },
+            attributes: ['id'],
         });
 
         // If found machine log with null description, return error
