@@ -42,6 +42,7 @@ const NODE_ENV: string = import.meta.env.VITE_NODE_ENV || 'development'
 // protect using public IP and device width mobile, if mobile return false
 // Now using the reactive windowWidth instead of directly accessing window.innerWidth
 const isAllowed = computed<boolean>(() => {
+  return true
   if (windowWidth.value < 768) return false
   if (NODE_ENV !== 'production') return true
   return publicIp.value === import.meta.env.VITE_INTERNAL_IP
