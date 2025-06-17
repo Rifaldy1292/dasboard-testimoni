@@ -112,6 +112,7 @@ const getAllMachine = async () => {
     existMachinesCache.clear();
     const existMachines = await Machine.findAll({
       attributes: ["id", "name", "status"],
+      raw: true,
     });
 
     existMachines.forEach((machine) => {
