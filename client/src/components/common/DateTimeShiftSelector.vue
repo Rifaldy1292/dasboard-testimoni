@@ -15,10 +15,10 @@ const model = defineModel<ModelValue>('modelValue', {
 
 <template>
   <div class="flex justify-between gap-3">
-    <ShiftSelector v-model:model-value="model.shift" />
     <div class="flex flex-col justify-center">
       <label class="text-sm font-medium text-black dark:text-white">Date</label>
       <DatePickerDay v-model:date-option="model.date" />
     </div>
+    <ShiftSelector v-model:model-value="model.shift" />
   </div>
 </template>

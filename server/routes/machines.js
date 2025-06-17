@@ -71,6 +71,12 @@ machineRouter.get(
     MachineController.getMachineLogByMachineId
 )
 
+machineRouter.get(
+    "/download-logs",
+    authMiddleware,
+    MachineController.downloadMachineLogsMonthly
+)
+
 machineRouter.patch(
     "/machine-log",
     authMiddleware,

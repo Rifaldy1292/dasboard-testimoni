@@ -1,6 +1,7 @@
-const { Machine, CuttingTime, MachineLog, DailyConfig } = require("../models");
+const { Machine, CuttingTime, MachineLog, DailyConfig, User } = require("../models");
 const dateCuttingTime = require("../utils/dateCuttingTime");
 const { serverError } = require("../utils/serverError");
+const { logInfo, logError } = require("../utils/logger");
 
 const { getMachineTimeline, countRunningTime } = require("../utils/machineUtils");
 const { Op } = require("sequelize");
@@ -431,6 +432,141 @@ interface DummyData {
       });
     } catch (error) {
       serverError(error, res, "Failed to get machine log by machine id");
+    }
+  }
+  static async downloadMachineLogsMonthly(req, res) {
+    try {
+      const { date } = req.query;
+
+      if (!date) {
+        return res.status(400).json({
+          status: 400,
+          message: "Bad request, date is required",
+        });
+      }
+
+      const CONTEXT = "downloadMachineLogsMonthly";
+      logInfo(`Download machine logs request for date: ${date}`, CONTEXT);
+
+      // Parse tanggal dan dapatkan rentang bulan
+      const targetDate = new Date(date);
+      const startDateInMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
+      const endDateInMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0);
+
+      // Tambah 1 hari untuk include tanggal terakhir
+      const endDateIncluded = new Date(endDateInMonth);
+      endDateIncluded.setDate(endDateIncluded.getDate() + 1);
+
+
+      const [allMachines, AllDailyConfig] = await Promise.all([
+        Machine.findAll({
+          attributes: ['id', "name"],
+          include: [
+            {
+              model: MachineLog,
+              attributes: [
+                "machine_id",
+                "user_id",
+                "g_code_name",
+                "k_num",
+                "output_wp",
+                "current_status",
+                "description",
+                "createdAt",
+              ],
+              where: {
+                createdAt: {
+                  [Op.between]: [startDateInMonth, endDateIncluded]
+                }
+              },
+              include: [
+                {
+                  model: User,
+                  attributes: ["name"],
+                  required: false // Left join untuk case dimana user_id null
+                }
+              ],
+              required: false, // Left join untuk case dimana tidak ada logs
+              order: [["createdAt", "ASC"]]
+            }
+          ],
+          order: [
+            [{ model: MachineLog }, "createdAt", "ASC"]
+          ]
+        }),
+        DailyConfig.findAll({
+          attributes: ["id", "date", "startFirstShift", "endFirstShift", "startSecondShift", "endSecondShift"],
+          raw: true,
+          order: [["date", "ASC"]],
+          where: {
+            date: {
+              [Op.between]: [startDateInMonth, endDateInMonth]
+            }
+          },
+        })
+      ]);
+
+      // Format data menjadi 1 array flat dengan time difference
+      const machineWithTimeDifference = Array.isArray(allMachines) && allMachines.sort((a, b) => {
+        const numberA = parseInt(a.name.slice(3));
+        const numberB = parseInt(b.name.slice(3));
+        return numberA - numberB;
+
+      })
+      const formats = []
+      machineWithTimeDifference.forEach(machine => {
+        const { MachineLogs, name } = machine.get({ plain: true });
+        const formattedLogs = MachineLogs.map((log, index) => {
+          const { createdAt, g_code_name, User, k_num, output_wp, current_status, description } = log;
+          // Hitung time difference dengan log sebelumnya
+          const currentLogTime = new Date(createdAt);
+          const nextLog = MachineLogs[index + 1];
+          const nextLogTime = nextLog ? new Date(nextLog.createdAt).getTime() : 0;
+          const timeDifference = nextLogTime - currentLogTime.getTime();
+
+          return {
+            // Machine info
+            name,
+
+            // Log info
+            g_code_name,
+            k_num,
+            output_wp,
+            current_status,
+            description,
+            start: currentLogTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }), // format time to 2 digit hour and minute
+            end: nextLog ? new Date(nextLog.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : null, // next log time or null if last log,
+            date: currentLogTime.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+            // User info
+            user: User ? User.name : null,
+
+            // Time difference seconds
+            total: timeDifference,
+          };
+
+        })
+
+        formats.push(...formattedLogs);
+      })
+
+
+
+      res.status(200).json({
+        status: 200,
+        message: "Success get machine logs for download",
+        data: {
+          period: {
+            start: startDateInMonth.toISOString(),
+            end: endDateInMonth.toISOString(),
+            month: targetDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
+          },
+          logs: formats
+        }
+      });
+
+    } catch (error) {
+      logError(error, 'downloadMachineLogsMonthly');
+      serverError(error, res, "Failed to download machine logs");
     }
   }
 
