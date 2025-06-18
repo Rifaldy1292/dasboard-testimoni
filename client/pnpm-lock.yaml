@@ -41,6 +41,9 @@ importers:
       '@primevue/themes':
         specifier: ^4.2.5
         version: 4.3.4
+      '@types/xlsx':
+        specifier: ^0.0.36
+        version: 0.0.36
       '@vue/runtime-core':
         specifier: ^3.5.14
         version: 3.5.14
@@ -757,6 +760,10 @@ packages:
 
   '@types/web-bluetooth@0.0.20':
     resolution: {integrity: sha512-g9gZnnXVq7gM7v3tJCWV/qw7w+KeOlSHAhgF9RytFyifW6AF61hdT2ucrYhPq9hLs5JIryeupHV3qGk95dH9ow==}
+
+  '@types/xlsx@0.0.36':
+    resolution: {integrity: sha512-mvfrKiKKMErQzLMF8ElYEH21qxWCZtN59pHhWGmWCWFJStYdMWjkDSAy6mGowFxHXaXZWe5/TW7pBUiWclIVOw==}
+    deprecated: This is a stub types definition for xlsx (https://github.com/sheetjs/js-xlsx). xlsx provides its own type definitions, so you don't need @types/xlsx installed!
 
   '@typescript-eslint/eslint-plugin@6.21.0':
     resolution: {integrity: sha512-oy9+hTPCUFpngkEZUSzbf9MxI65wbKFoQYsgPdILTfbUldp5ovUuphZVe4i30emU9M/kP+T64Di0mxl7dSw3MA==}
@@ -2831,6 +2838,10 @@ snapshots:
   '@types/semver@7.7.0': {}
 
   '@types/web-bluetooth@0.0.20': {}
+
+  '@types/xlsx@0.0.36':
+    dependencies:
+      xlsx: 0.18.5
 
   '@typescript-eslint/eslint-plugin@6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.3.3))(eslint@8.57.1)(typescript@5.3.3)':
     dependencies:

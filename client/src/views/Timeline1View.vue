@@ -10,6 +10,7 @@ import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import { Button } from 'primevue'
 import { type PayloadWebsocket, type ShiftValue } from '@/types/websocket.type'
 import MachineServices from '@/services/machine.service'
+import { exportTimelineToExcel } from '@/utils/excelExport'
 
 const dateTimeModel = ref({
   date: new Date(),
@@ -28,6 +29,7 @@ const payloadWs = computed<PayloadWebsocket>(() => {
 const { loadingWebsocket, timelineMachines, sendMessage } = useWebsocket(payloadWs.value)
 
 const resizeCount = shallowRef<number>(2)
+const loadingDownload = shallowRef<boolean>(false)
 const updateResizeCount = (type: 'increase' | 'decrease') => {
   if (type === 'increase' && resizeCount.value < 10) {
     resizeCount.value++
@@ -36,84 +38,32 @@ const updateResizeCount = (type: 'increase' | 'decrease') => {
   }
 }
 
-const isDownloadLoading = ref(false)
-
-const downloadMachineLogsCSV = async () => {
+const downloadTimeline = async () => {
   try {
-    isDownloadLoading.value = true
+    loadingDownload.value = true
 
     const response = await MachineServices.downloadMachineLogsMonthly({
       date: dateTimeModel.value.date.toISOString()
     })
 
-    const { logs, period } = response.data.data
+    const monthlyLogs = response.data.data
 
-    // Convert to CSV format
-    const csvHeaders = [
-      'Machine ID',
-      'Machine Name',
-      'Machine Type',
-      'Machine IP',
-      'Log ID',
-      'User ID',
-      'G Code Name',
-      'K Number',
-      'Output WP',
-      'Total Cutting Time',
-      'Calculate Total Cutting Time',
-      'Previous Status',
-      'Current Status',
-      'Description',
-      'Log Created At',
-      'Log Updated At',
-      'User Name',
-      'User NIK',
-      'User Role ID'
-    ].join(',')
+    // Generate filename based on selected date
+    const selectedDate = new Date(dateTimeModel.value.date)
+    const monthName = selectedDate.toLocaleDateString('id-ID', {
+      month: 'long',
+      year: 'numeric'
+    })
+    const filename = `timeline-${monthName.replace(' ', '-').toLowerCase()}`
 
-    // const csvRows = logs.map((log) =>
-    //   [
-    //     log.machine_id,
-    //     `"${log.machine_name}"`,
-    //     `"${log.machine_type}"`,
-    //     `"${log.machine_ip}"`,
-    //     log.log_id,
-    //     log.user_id || '',
-    //     `"${log.g_code_name || ''}"`,
-    //     log.k_num || '',
-    //     log.output_wp || '',
-    //     log.total_cutting_time || '',
-    //     log.calculate_total_cutting_time || '',
-    //     `"${log.previous_status || ''}"`,
-    //     `"${log.current_status}"`,
-    //     `"${log.description || ''}"`,
-    //     `"${new Date(log.log_created_at).toLocaleString('id-ID')}"`,
-    //     `"${new Date(log.log_updated_at).toLocaleString('id-ID')}"`,
-    //     `"${log.user_name || ''}"`,
-    //     `"${log.user_nik || ''}"`,
-    //     log.user_role_id || ''
-    //   ].join(',')
-    // )
-
-    // // const csvContent = [csvHeaders, ...csvRows].join('\n')
-
-    // // // Create and download file
-    // // // const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-    // // // const link = document.createElement('a')
-    // // // const url = URL.createObjectURL(blob)
-    // // // link.setAttribute('href', url)
-    // // // link.setAttribute('download', `machine-logs-${period.month.replace(' ', '-')}.csv`)
-    // // // link.style.visibility = 'hidden'
-    // // // document.body.appendChild(link)
-    // // // link.click()
-    // // // document.body.removeChild(link)
+    // Export to Excel using existing MonthlyLogs type
+    exportTimelineToExcel(monthlyLogs, filename)
   } catch (error) {
-    console.error('Error downloading machine logs:', error)
+    console.error('Error downloading timeline:', error)
   } finally {
-    isDownloadLoading.value = false
+    loadingDownload.value = false
   }
 }
-
 watch(
   () => payloadWs.value,
   (newPayoad) => {
@@ -148,13 +98,13 @@ watch(
             :class="`p-button-rounded p-button-text ${resizeCount === 1 && ' opacity-50 cursor-not-allowed'}`"
             icon="pi pi-arrow-up"
           />
+
           <Button
+            @click="downloadTimeline"
+            :loading="loadingDownload"
             class="p-button-rounded"
             icon="pi pi-download"
             :label="`Download Timeline ${new Date(dateTimeModel.date).toLocaleString('default', { month: 'long' })}`"
-            :loading="isDownloadLoading"
-            :disabled="isDownloadLoading"
-            @click="downloadMachineLogsCSV"
           />
         </div>
       </div>

@@ -9,6 +9,7 @@ const mqtt = require("mqtt");
 const { existMachinesCache } = require("./cache");
 const { getAllMachine } = require("./utils/machineUtils");
 const { machineLoggerInfo, machineLoggerDebug, machineLoggerError } = require("./utils/logger");
+const handleCronJob = require("./helpers/cronjob");
 
 const broker = process.env.MQTT_BROKER || "mqtt://localhost:1883";
 const mqttClient = mqtt.connect(broker);
@@ -109,4 +110,7 @@ const handleMqtt = () => {
   });
 };
 
+(async () => {
+  await handleCronJob();
+})();
 handleMqtt();

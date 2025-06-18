@@ -130,12 +130,25 @@ const machineLogger = winston.createLogger({
  * @param {object} [additionalData={}] - Optional additional data to include in the log
  */
 const machineLoggerError = (error, context, additionalData = {}) => {
-    machineLogger.error({
+    const baseErrorData = {
         message: `Error in ${context}: ${error.message}`,
         stack: error.stack,
-        context,
-        ...additionalData
-    });
+        context
+    };
+
+    if (Array.isArray(additionalData) && additionalData.length > 0) {
+        machineLogger.error({
+            ...baseErrorData,
+            data: additionalData // Store array as 'data' property
+        });
+    } else if (typeof additionalData === 'object' && Object.keys(additionalData).length > 0) {
+        machineLogger.error({
+            ...baseErrorData,
+            ...additionalData
+        });
+    } else {
+        machineLogger.error(baseErrorData);
+    }
 };
 
 /**
@@ -143,10 +156,17 @@ const machineLoggerError = (error, context, additionalData = {}) => {
  * 
  * @param {string} message - The info message to log
  * @param {string} context - Context for this info message
- * @param {object} [additionalData={}] - Optional additional data to include
+ * @param {object|array} [additionalData={}] - Optional additional data to include (can be object or array)
  */
 const machineLoggerInfo = (message, context, additionalData = {}) => {
-    if (typeof additionalData === 'object' && Object.keys(additionalData).length > 0) {
+    // Handle both object and array additional data
+    if (Array.isArray(additionalData) && additionalData.length > 0) {
+        machineLogger.info({
+            message: `[${context}] ${message}`,
+            context,
+            data: additionalData // Store array as 'data' property
+        });
+    } else if (typeof additionalData === 'object' && Object.keys(additionalData).length > 0) {
         machineLogger.info({
             message: `[${context}] ${message}`,
             context,

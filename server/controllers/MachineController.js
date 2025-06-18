@@ -452,10 +452,8 @@ interface DummyData {
       const targetDate = new Date(date);
       const startDateInMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
       const endDateInMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0);
-
-      // Tambah 1 hari untuk include tanggal terakhir
-      const endDateIncluded = new Date(endDateInMonth);
-      endDateIncluded.setDate(endDateIncluded.getDate() + 1);
+      startDateInMonth.setDate(startDateInMonth.getDate() - 1); // Set ke hari terakhir bulan sebelumnya
+      endDateInMonth.setDate(endDateInMonth.getDate() + 1);  // Set ke hari terakhir bulan ini
 
 
       const [allMachines, AllDailyConfig] = await Promise.all([
@@ -476,7 +474,7 @@ interface DummyData {
               ],
               where: {
                 createdAt: {
-                  [Op.between]: [startDateInMonth, endDateIncluded]
+                  [Op.between]: [startDateInMonth, endDateInMonth]
                 }
               },
               include: [
@@ -518,7 +516,6 @@ interface DummyData {
         const { MachineLogs, name } = machine.get({ plain: true });
         const formattedLogs = MachineLogs.map((log, index) => {
           const { createdAt, g_code_name, User, k_num, output_wp, current_status, description } = log;
-          // Hitung time difference dengan log sebelumnya
           const currentLogTime = new Date(createdAt);
           const nextLog = MachineLogs[index + 1];
           const nextLogTime = nextLog ? new Date(nextLog.createdAt).getTime() : 0;
@@ -538,7 +535,7 @@ interface DummyData {
             end: nextLog ? new Date(nextLog.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : null, // next log time or null if last log,
             date: currentLogTime.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }),
             // User info
-            user: User ? User.name : null,
+            operator: User ? User.name : null,
 
             // Time difference seconds
             total: timeDifference,
@@ -554,16 +551,8 @@ interface DummyData {
       res.status(200).json({
         status: 200,
         message: "Success get machine logs for download",
-        data: {
-          period: {
-            start: startDateInMonth.toISOString(),
-            end: endDateInMonth.toISOString(),
-            month: targetDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
-          },
-          logs: formats
-        }
+        data: formats
       });
-
     } catch (error) {
       logError(error, 'downloadMachineLogsMonthly');
       serverError(error, res, "Failed to download machine logs");

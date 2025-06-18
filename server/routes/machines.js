@@ -72,7 +72,7 @@ machineRouter.get(
 )
 
 machineRouter.get(
-    "/download-logs",
+    "/monthly-logs",
     authMiddleware,
     MachineController.downloadMachineLogsMonthly
 )

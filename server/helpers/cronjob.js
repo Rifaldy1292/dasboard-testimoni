@@ -169,6 +169,7 @@ const cleanupLogFiles = async () => {
  */
 const handleCronJob = async () => {
   // Store active cron jobs to destroy them when updating
+  // await handleResetMachineStatus();
   let activeCronJobs = [];
   const setupShiftCronJobs = async () => {
     machineLoggerInfo("Setting up shift cron jobs...");

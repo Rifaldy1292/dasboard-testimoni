@@ -1,6 +1,11 @@
 import type { AxiosResponse } from 'axios'
 import API from './API'
-import type { ApiResponse, EncryptContent, GetCuttingTimeMachine } from '@/types/apiResponse.type'
+import type {
+  ApiResponse,
+  DownloadMachineLogsMonthly,
+  EncryptContent,
+  GetCuttingTimeMachine
+} from '@/types/apiResponse.type'
 import type { AllMachineTimeline, MachineOption } from '@/types/machine.type'
 import type { ParamsGetCuttingTime, TransferFiles } from '@/dto/machine.dto'
 import type { ValueFromContent } from '@/types/ftp.type'
@@ -69,41 +74,10 @@ const MachineServices = {
     return API().get(`/machines/machine-log/${machine_id}`)
   },
 
-  downloadMachineLogsMonthly(params: { date: string }): Promise<
-    AxiosResponse<
-      ApiResponse<{
-        period: {
-          start: string
-          end: string
-          month: string
-        }
-        total_logs: number
-        total_machines: number
-        logs: Array<{
-          machine_id: number
-          machine_name: string
-          machine_type: string
-          machine_ip: string
-          log_id: number
-          user_id: number | null
-          g_code_name: string | null
-          k_num: number | null
-          output_wp: number | null
-          total_cutting_time: number | null
-          calculate_total_cutting_time: number | null
-          previous_status: string | null
-          current_status: string
-          description: string | null
-          log_created_at: string
-          log_updated_at: string
-          user_name: string | null
-          user_nik: string | null
-          user_role_id: number | null
-        }>
-      }>
-    >
-  > {
-    return API({ params }).get('/machines/download-logs')
+  downloadMachineLogsMonthly(params: {
+    date: string
+  }): Promise<AxiosResponse<DownloadMachineLogsMonthly>> {
+    return API({ params }).get('/machines/monthly-logs')
   }
 }
 

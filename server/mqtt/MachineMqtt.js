@@ -87,7 +87,8 @@ const handleChangeMachineStatus = async (
     );
     // update exist machines cache
     existMachinesCache.set(existMachine.name, {
-      ...existMachine,
+      id: existMachine.id,
+      name: existMachine.name,
       status: newStatus,
     });
 

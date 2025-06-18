@@ -2,6 +2,7 @@ const { Op, literal } = require("sequelize");
 const { existMachinesCache } = require("../cache");
 const { MachineLog, Machine, DailyConfig, User } = require("../models");
 const { serverError } = require("./serverError");
+const { machineLoggerInfo } = require("./logger");
 
 /**
  * Formats the time difference between two dates.
@@ -122,6 +123,21 @@ const getAllMachine = async () => {
         status: machine.status,
       });
     });
+
+    // Convert cache values to array for logging
+    const cacheData = Array.from(existMachinesCache.values());
+
+    machineLoggerInfo(
+      `Successfully fetched all machines`,
+      "getAllMachine",
+      cacheData // Pass array instead of iterator
+    );
+
+    console.log(
+      `Successfully fetched all machines, total: ${existMachines.length}`,
+      cacheData
+    );
+
   } catch (error) {
     serverError(error, "Failed to get exist machines");
   }
