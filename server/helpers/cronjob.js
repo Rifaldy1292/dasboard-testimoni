@@ -6,6 +6,11 @@ const dateCuttingTime = require("../utils/dateCuttingTime");
 const { getAllMachine } = require("../utils/machineUtils");
 const { machineLoggerError, machineLoggerInfo, machineLoggerWarn } = require("../utils/logger"); // Import helper functions
 const { existMachinesCache } = require("../cache");
+const mqtt = require('mqtt');
+const { mqttClient, MQTT_TOPICS } = require("../constants");
+
+const MQTT_BROKER = process.env.MQTT_BROKER || "mqtt://localhost:1883";
+
 
 /**
  * Creates a new cutting time entry for the current period if one doesn't exist.
@@ -76,20 +81,27 @@ const createDailyConfig = async () => {
  * @returns {Promise<void>} A promise that resolves when all machine statuses are reset
  * @throws {Error} If database operation fails
  */
-const handleResetMachineStatus = async () => {
+const handleResetMachineStatus = () => {
   try {
     // update all status machine false
-    const updateMachine = await Machine.update(
-      {
-        status: null,
-      },
-      {
-        where: {},
-      }
-    );
-    await getAllMachine();
-    machineLoggerInfo(`Successfully reset machine status, affected rows: ${updateMachine[0]}`);
-    machineLoggerInfo(JSON.stringify(existMachinesCache.values()), "existMachinesCache after reset");
+    mqttClient.on("connect", () => {
+      MQTT_TOPICS.forEach((topic) => {
+        mqttClient.publish(topic, JSON.stringify({ name: topic.slice(0, -5).toUpperCase(), status: 'DISCONNECT' }));
+      });
+    });
+
+
+    // const updateMachine = await Machine.update(
+    //   {
+    //     status: null,
+    //   },
+    //   {
+    //     where: {},
+    //   }
+    // );
+    // await getAllMachine();
+    // machineLoggerInfo(`Successfully reset machine status, affected rows: ${updateMachine[0]}`);
+    machineLoggerInfo("Successfully reset machine status", "handleResetMachineStatus");
   } catch (error) {
     machineLoggerError(error, "handleResetMachineStatus");
   }
@@ -198,14 +210,14 @@ const handleCronJob = async () => {
     // Create new cron jobs with latest config
     const job1 = cron.schedule(`${startMinute1} ${startHour1} * * *`, () => {
       machineLoggerInfo(`Executing scheduled job at ${startHour1}:${startMinute1} (first shift start)`);
-      createDailyConfig();
       handleResetMachineStatus();
+      createDailyConfig();
     });
 
     const job2 = cron.schedule(`${endMinute1} ${endHour1} * * *`, () => {
       machineLoggerInfo(`Executing scheduled job at ${endHour1}:${endMinute1} (first shift end)`);
-      createDailyConfig();
       handleResetMachineStatus();
+      createDailyConfig();
     });
 
 

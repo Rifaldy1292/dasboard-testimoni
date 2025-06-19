@@ -13,9 +13,9 @@ const client = mqtt.connect(mqttBroker);
 
 // Fungsi untuk mendapatkan status acak
 function getRandomStatus() {
-    const statuses = ['Running', 'Stopped'];
+    const statuses = ['Running', 'Stopped', 'DISCONNECT', null];
     // return statuses[Math.floor(Math.random() * statuses.length)];
-    return statuses[1];
+    return statuses[3];
 }
 
 const pubMessage = () => {
