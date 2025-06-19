@@ -1,0 +1,1722 @@
+[
+  {
+    "id": "2b2d98ef5e74e191",
+    "type": "tab",
+    "label": "publish to local mqtt",
+    "disabled": false,
+    "info": "",
+    "env": []
+  },
+  {
+    "id": "d32afef82ea31dcc",
+    "type": "debug",
+    "z": "2b2d98ef5e74e191",
+    "name": "debug 3",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1000,
+    "y": 2320,
+    "wires": []
+  },
+  {
+    "id": "e1bedcb6ba0d2d72",
+    "type": "function",
+    "z": "2b2d98ef5e74e191",
+    "name": "function 3",
+    "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-10'\n\nconst parseIntValue = (value) => {\n    if (!value) return null;\n    return parseInt(value)\n}\n\nmsg.payload = {\n    name,\n    ipAddress: \"192.168.1.11\", status,\n    state: parseInt(state),\n    user_id: parseInt(user_id),\n    output_wp: parseInt(output_wp),\n    g_code_name: parseInt(g_code_name),\n    k_num: parseIntValue(k_num),\n    tool_name: parseInt(tool_name),\n    total_cutting_time: parseInt(total_cutting_time),\n    calculate_total_cutting_time: calculate_total_cutting_time || null,\n}\n\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 640,
+    "y": 2260,
+    "wires": [["d32afef82ea31dcc", "f218dc2317237cd1", "ab55ff03d1a87f39"]]
+  },
+  {
+    "id": "f218dc2317237cd1",
+    "type": "mqtt out",
+    "z": "2b2d98ef5e74e191",
+    "name": "",
+    "topic": "mc-10/data",
+    "qos": "2",
+    "retain": "",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "281bb8063a85bef9",
+    "x": 850,
+    "y": 2280,
+    "wires": []
+  },
+  {
+    "id": "cdf4ddc5a0a8eebd",
+    "type": "OPCUA-IIoT-Inject",
+    "z": "2b2d98ef5e74e191",
+    "injectType": "inject",
+    "payload": "",
+    "payloadType": "date",
+    "topic": "",
+    "repeat": "1",
+    "crontab": "",
+    "once": false,
+    "startDelay": "",
+    "name": "mc-10",
+    "addressSpaceItems": [
+      {
+        "name": "running_state",
+        "nodeId": "ns=2;g=9b7185a4-e709-49b1-a511-47465e7cd315",
+        "datatypeName": ""
+      },
+      {
+        "name": "USER_ID",
+        "nodeId": "ns=2;g=28fbe01e-f011-4452-abea-e835c8f9fad8",
+        "datatypeName": ""
+      },
+      {
+        "name": "G_CODE_NAME",
+        "nodeId": "ns=2;g=c5a79227-dca2-4022-9df1-457c506e4f5b",
+        "datatypeName": ""
+      },
+      {
+        "name": "K_NUM",
+        "nodeId": "ns=2;g=eec2d862-578e-4898-9e6f-27b1c006896e",
+        "datatypeName": ""
+      },
+      {
+        "name": "OUTPUT_WP",
+        "nodeId": "ns=2;g=0047120d-e56e-4484-bd20-67b75d361d3b",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOOL_NAME",
+        "nodeId": "ns=2;g=30be3cf0-e0cf-411f-94fd-9fba77a61fdf",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=a609a7ba-acb2-4d8f-967e-0d99bfa1fdec",
+        "datatypeName": ""
+      },
+      {
+        "name": "CALCULATE_TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=b03b2414-3314-4d7d-800d-ba77283f9f48",
+        "datatypeName": ""
+      }
+    ],
+    "x": 120,
+    "y": 2140,
+    "wires": [["8ef213f516bc2e89"]]
+  },
+  {
+    "id": "53a110b8ba961d49",
+    "type": "debug",
+    "z": "2b2d98ef5e74e191",
+    "name": "debug 5",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1020,
+    "y": 2720,
+    "wires": []
+  },
+  {
+    "id": "b81692055467537d",
+    "type": "function",
+    "z": "2b2d98ef5e74e191",
+    "name": "function 5",
+    "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-14'\n\nconst parseIntValue = (value) => {\n    if (!value) return null;\n    return parseInt(value)\n}\n\nmsg.payload = {\n    name,\n    ipAddress: \"192.168.1.14\", status,\n    state: parseInt(state),\n    user_id: parseInt(user_id),\n    output_wp: parseInt(output_wp),\n    g_code_name: parseInt(g_code_name),\n    k_num: parseIntValue(k_num),\n    tool_name: parseInt(tool_name),\n    total_cutting_time: parseInt(total_cutting_time),\n    calculate_total_cutting_time: calculate_total_cutting_time || null,\n}\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n\n\n// msg.payload = {state}\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 660,
+    "y": 2640,
+    "wires": [["53a110b8ba961d49", "b5693e94531e5e27", "ab55ff03d1a87f39"]]
+  },
+  {
+    "id": "b5693e94531e5e27",
+    "type": "mqtt out",
+    "z": "2b2d98ef5e74e191",
+    "name": "",
+    "topic": "mc-14/data",
+    "qos": "2",
+    "retain": "",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "281bb8063a85bef9",
+    "x": 870,
+    "y": 2680,
+    "wires": []
+  },
+  {
+    "id": "408a968fd81c4911",
+    "type": "OPCUA-IIoT-Inject",
+    "z": "2b2d98ef5e74e191",
+    "injectType": "inject",
+    "payload": "",
+    "payloadType": "date",
+    "topic": "",
+    "repeat": "1",
+    "crontab": "",
+    "once": false,
+    "startDelay": "",
+    "name": "mc-14",
+    "addressSpaceItems": [
+      {
+        "name": "running_state",
+        "nodeId": "ns=2;g=3609fd8e-ce82-4bf0-af9c-625dbda3f45c",
+        "datatypeName": ""
+      },
+      {
+        "name": "user_id",
+        "nodeId": "ns=2;g=52c67c6a-09b2-4e7a-9bb3-9e7af2b5ec5c",
+        "datatypeName": ""
+      },
+      {
+        "name": "G_CODE_NAME",
+        "nodeId": "ns=2;g=66371048-cc5f-4ebf-a779-c24f61c7a762",
+        "datatypeName": ""
+      },
+      {
+        "name": "K_NUM",
+        "nodeId": "ns=2;g=f29e492f-528d-4564-9d5e-738176f7a1d5",
+        "datatypeName": ""
+      },
+      {
+        "name": "OUTPUT_WP",
+        "nodeId": "ns=2;g=7871df99-eada-45c0-9d90-90c813706aaa",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOOL_NAME",
+        "nodeId": "ns=2;g=72b2160f-c97e-417a-be8f-7fad2f6ef2da",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=c6951e5e-de35-479a-928d-32803be49fb8",
+        "datatypeName": ""
+      },
+      {
+        "name": "CALCULATE_TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=0bc5115d-1e02-4e90-ae38-83138b4bfc97",
+        "datatypeName": ""
+      }
+    ],
+    "x": 140,
+    "y": 2540,
+    "wires": [["a79477b7a733bf9a"]]
+  },
+  {
+    "id": "0cde394c6ed9770c",
+    "type": "debug",
+    "z": "2b2d98ef5e74e191",
+    "name": "debug 7",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1000,
+    "y": 3160,
+    "wires": []
+  },
+  {
+    "id": "d3ba42e7e8c4953f",
+    "type": "function",
+    "z": "2b2d98ef5e74e191",
+    "name": "function 7",
+    "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-15'\n\nconst parseIntValue = (value) => {\n    if (!value) return null;\n    return parseInt(value)\n}\n\nmsg.payload = {\n    name,\n    ipAddress: \"192.168.1.15\", status,\n    state: parseInt(state),\n    user_id: parseInt(user_id),\n    output_wp: parseInt(output_wp),\n    g_code_name: parseInt(g_code_name),\n    k_num: parseIntValue(k_num),\n    tool_name: parseInt(tool_name),\n    total_cutting_time: parseInt(total_cutting_time),\n    calculate_total_cutting_time: calculate_total_cutting_time || null,\n}\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n// msg.payload = {state}\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 640,
+    "y": 3100,
+    "wires": [["0cde394c6ed9770c", "f4350a8c408f6015", "ab55ff03d1a87f39"]]
+  },
+  {
+    "id": "f4350a8c408f6015",
+    "type": "mqtt out",
+    "z": "2b2d98ef5e74e191",
+    "name": "",
+    "topic": "mc-15/data",
+    "qos": "2",
+    "retain": "",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "281bb8063a85bef9",
+    "x": 850,
+    "y": 3120,
+    "wires": []
+  },
+  {
+    "id": "8a617ad9fb7b9487",
+    "type": "OPCUA-IIoT-Inject",
+    "z": "2b2d98ef5e74e191",
+    "injectType": "inject",
+    "payload": "",
+    "payloadType": "date",
+    "topic": "",
+    "repeat": "1",
+    "crontab": "",
+    "once": false,
+    "startDelay": "",
+    "name": "mc-15",
+    "addressSpaceItems": [
+      {
+        "name": "running_state",
+        "nodeId": "ns=2;g=a91c44d9-c7e2-4c67-a514-ed0f10fdb471",
+        "datatypeName": ""
+      },
+      {
+        "name": "USER_ID",
+        "nodeId": "ns=2;g=4e004383-fa88-4597-a5d4-d55f82ac90ac",
+        "datatypeName": ""
+      },
+      {
+        "name": "G_CODE_NAME",
+        "nodeId": "ns=2;g=748d2ce5-a17c-4c6e-80b0-55a82f91da4e",
+        "datatypeName": ""
+      },
+      {
+        "name": "K_NUM",
+        "nodeId": "ns=2;g=e15bcdaa-d04f-4a98-856c-c069613177e7",
+        "datatypeName": ""
+      },
+      {
+        "name": "OUTPUT_WP",
+        "nodeId": "ns=2;g=02dd1b4d-690a-4ade-9cce-54ef6278245a",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOOL_NAME",
+        "nodeId": "ns=2;g=c439585a-cb40-483c-94b1-ae2ed78e009a",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=c863f5a7-8bf8-415b-8e2e-8eb29e4da5be",
+        "datatypeName": ""
+      },
+      {
+        "name": "CALCULATE_TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=e3f4758a-a771-4a3a-a871-9c985810838a",
+        "datatypeName": ""
+      }
+    ],
+    "x": 120,
+    "y": 2980,
+    "wires": [["35e841a9fa8e0ce6"]]
+  },
+  {
+    "id": "dc3cd916b583b24d",
+    "type": "debug",
+    "z": "2b2d98ef5e74e191",
+    "name": "debug 9",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1020,
+    "y": 3460,
+    "wires": []
+  },
+  {
+    "id": "63b0a4e026d43106",
+    "type": "OPCUA-IIoT-Read",
+    "z": "2b2d98ef5e74e191",
+    "attributeId": "13",
+    "maxAge": 1,
+    "depth": 1,
+    "connector": "8402a36728a1a1f8",
+    "name": "",
+    "justValue": true,
+    "showStatusActivities": false,
+    "showErrors": false,
+    "parseStrings": false,
+    "historyDays": 1,
+    "x": 450,
+    "y": 3420,
+    "wires": [["faa6a7f022d8bcac"]]
+  },
+  {
+    "id": "faa6a7f022d8bcac",
+    "type": "function",
+    "z": "2b2d98ef5e74e191",
+    "name": "function 9",
+    "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-16'\n\n\nconst parseIntValue = (value) => {\n    if (!value) return null;\n    return parseInt(value)\n}\n\nmsg.payload = {\n    name,\n    ipAddress: \"192.168.1.116\", status,\n    state: parseInt(state),\n    user_id: parseInt(user_id),\n    output_wp: parseInt(output_wp),\n    g_code_name: parseInt(g_code_name),\n    k_num: parseIntValue(k_num),\n    tool_name: parseInt(tool_name),\n    total_cutting_time: parseInt(total_cutting_time),\n    calculate_total_cutting_time: calculate_total_cutting_time || null,\n}\n\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n// msg.payload = {state}\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 620,
+    "y": 3500,
+    "wires": [["dc3cd916b583b24d", "4494626b030b387e", "ab55ff03d1a87f39"]]
+  },
+  {
+    "id": "4494626b030b387e",
+    "type": "mqtt out",
+    "z": "2b2d98ef5e74e191",
+    "name": "",
+    "topic": "mc-16/data",
+    "qos": "2",
+    "retain": "",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "281bb8063a85bef9",
+    "x": 810,
+    "y": 3420,
+    "wires": []
+  },
+  {
+    "id": "93c75074a46a63f2",
+    "type": "OPCUA-IIoT-Inject",
+    "z": "2b2d98ef5e74e191",
+    "injectType": "inject",
+    "payload": "",
+    "payloadType": "date",
+    "topic": "",
+    "repeat": "1",
+    "crontab": "",
+    "once": false,
+    "startDelay": "",
+    "name": "mc-16",
+    "addressSpaceItems": [
+      {
+        "name": "running_state",
+        "nodeId": "ns=2;g=ec8fc5d6-69fc-4e0a-b4e0-45343f70cbef",
+        "datatypeName": ""
+      },
+      {
+        "name": "USER_ID",
+        "nodeId": "ns=2;g=e4d9e265-76e0-44bd-bf6d-af5b871d29fb",
+        "datatypeName": ""
+      },
+      {
+        "name": "G_CODE_NAME",
+        "nodeId": "ns=2;g=e0ba5d55-28a5-44c6-8925-532dc5831fe6",
+        "datatypeName": ""
+      },
+      {
+        "name": "K_NUM",
+        "nodeId": "ns=2;g=4d61c5fa-2e92-4f0a-905d-12d4673f302c",
+        "datatypeName": ""
+      },
+      {
+        "name": "OUTPUT_WP",
+        "nodeId": "ns=2;g=ad8bac49-04d2-44db-998c-afeba242d162",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOOL_NAME",
+        "nodeId": "ns=2;g=d742213f-63bb-425a-a502-7bbabc0d5d0e",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=c1383eba-d54a-4740-b344-ed752c7a56a2",
+        "datatypeName": ""
+      },
+      {
+        "name": "CALCULATE_TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=4a3dc54e-050f-4608-a597-178ad23cc3f9",
+        "datatypeName": ""
+      }
+    ],
+    "x": 100,
+    "y": 3400,
+    "wires": [["63b0a4e026d43106"]]
+  },
+  {
+    "id": "dc676d7602d5b0a5",
+    "type": "debug",
+    "z": "2b2d98ef5e74e191",
+    "name": "debug 11",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1040,
+    "y": 660,
+    "wires": []
+  },
+  {
+    "id": "728adc0ad78cbd0d",
+    "type": "OPCUA-IIoT-Read",
+    "z": "2b2d98ef5e74e191",
+    "attributeId": "13",
+    "maxAge": 1,
+    "depth": 1,
+    "connector": "8402a36728a1a1f8",
+    "name": "",
+    "justValue": true,
+    "showStatusActivities": false,
+    "showErrors": false,
+    "parseStrings": false,
+    "historyDays": 1,
+    "x": 370,
+    "y": 500,
+    "wires": [["108a1e10530e16e1"]]
+  },
+  {
+    "id": "108a1e10530e16e1",
+    "type": "function",
+    "z": "2b2d98ef5e74e191",
+    "name": "function 11",
+    "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-4'\n\nconst parseIntValue = (value) => {\n    if (!value) return null;\n    return parseInt(value)\n}\n\nmsg.payload = {\n    name,\n    ipAddress: \"192.168.1.4\", status,\n    state: parseInt(state),\n    user_id: parseInt(user_id),\n    output_wp: parseInt(output_wp),\n    g_code_name: parseInt(g_code_name),\n    k_num: parseIntValue(k_num),\n    tool_name: parseInt(tool_name),\n    total_cutting_time: parseInt(total_cutting_time),\n    calculate_total_cutting_time: calculate_total_cutting_time || null,\n}\n\n\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 710,
+    "y": 500,
+    "wires": [["dc676d7602d5b0a5", "d8ccd3075f6589c6", "ab55ff03d1a87f39"]]
+  },
+  {
+    "id": "d8ccd3075f6589c6",
+    "type": "mqtt out",
+    "z": "2b2d98ef5e74e191",
+    "name": "",
+    "topic": "mc-4/data",
+    "qos": "2",
+    "retain": "",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "281bb8063a85bef9",
+    "x": 880,
+    "y": 620,
+    "wires": []
+  },
+  {
+    "id": "3d2afd1976976867",
+    "type": "OPCUA-IIoT-Inject",
+    "z": "2b2d98ef5e74e191",
+    "injectType": "inject",
+    "payload": "",
+    "payloadType": "date",
+    "topic": "",
+    "repeat": "1",
+    "crontab": "",
+    "once": false,
+    "startDelay": "",
+    "name": "mc-4",
+    "addressSpaceItems": [
+      {
+        "name": "running_state",
+        "nodeId": "ns=2;g=2ecff197-6a2d-4e87-bfb5-2af1077b09d5",
+        "datatypeName": ""
+      },
+      {
+        "name": "USER_ID",
+        "nodeId": "ns=2;g=f9d37a64-1074-481c-89e1-b374cc86fc90",
+        "datatypeName": ""
+      },
+      {
+        "name": "G_CODE_NAME",
+        "nodeId": "ns=2;g=92ad1686-2d3e-441e-bd20-e9a8ba0f3c5b",
+        "datatypeName": ""
+      },
+      {
+        "name": "K_NUM",
+        "nodeId": "ns=2;g=47f49ca2-563e-4b18-a890-aecce68bc6c4",
+        "datatypeName": ""
+      },
+      {
+        "name": "OUTPUT_WP",
+        "nodeId": "ns=2;g=9f66c07f-0dfa-4b96-93d3-28fa3458cffa",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOOL_NAME",
+        "nodeId": "ns=2;g=8eb3aa97-a2d1-4a95-b7fa-45d54a4eec00",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=8d01f299-7dc2-43ac-8c0c-9db7e42e70bc",
+        "datatypeName": ""
+      },
+      {
+        "name": "CALCULATE_TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=496d6244-1199-48ed-b89d-17682fe9a501",
+        "datatypeName": ""
+      }
+    ],
+    "x": 150,
+    "y": 480,
+    "wires": [["728adc0ad78cbd0d"]]
+  },
+  {
+    "id": "0e188056d02bd995",
+    "type": "debug",
+    "z": "2b2d98ef5e74e191",
+    "name": "debug 13",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1040,
+    "y": 1020,
+    "wires": []
+  },
+  {
+    "id": "883a9344547b396c",
+    "type": "OPCUA-IIoT-Read",
+    "z": "2b2d98ef5e74e191",
+    "attributeId": "13",
+    "maxAge": 1,
+    "depth": 1,
+    "connector": "8402a36728a1a1f8",
+    "name": "",
+    "justValue": true,
+    "showStatusActivities": false,
+    "showErrors": false,
+    "parseStrings": false,
+    "historyDays": 1,
+    "x": 510,
+    "y": 860,
+    "wires": [["24ad0d3ea4bbb3e9"]]
+  },
+  {
+    "id": "24ad0d3ea4bbb3e9",
+    "type": "function",
+    "z": "2b2d98ef5e74e191",
+    "name": "function 13",
+    "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-5'\n\nconst parseIntValue = (value) => {\n    if (!value) return null;\n    return parseInt(value)\n}\n\nmsg.payload = {\n    name,\n    ipAddress: \"192.168.1.5\", status,\n    state: parseInt(state),\n    user_id: parseInt(user_id),\n    output_wp: parseInt(output_wp),\n    g_code_name: parseInt(g_code_name),\n    k_num: parseIntValue(k_num),\n    tool_name: parseInt(tool_name),\n    total_cutting_time: parseInt(total_cutting_time),\n    calculate_total_cutting_time: calculate_total_cutting_time || null,\n}\n\n\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n\n// msg.payload = {state}\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 680,
+    "y": 940,
+    "wires": [["0e188056d02bd995", "e7160d83a69d6bc9", "ab55ff03d1a87f39"]]
+  },
+  {
+    "id": "e7160d83a69d6bc9",
+    "type": "mqtt out",
+    "z": "2b2d98ef5e74e191",
+    "name": "",
+    "topic": "mc-5/data",
+    "qos": "2",
+    "retain": "",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "281bb8063a85bef9",
+    "x": 880,
+    "y": 980,
+    "wires": []
+  },
+  {
+    "id": "22a62ce3fb17de0b",
+    "type": "OPCUA-IIoT-Inject",
+    "z": "2b2d98ef5e74e191",
+    "injectType": "inject",
+    "payload": "",
+    "payloadType": "date",
+    "topic": "",
+    "repeat": "1",
+    "crontab": "",
+    "once": false,
+    "startDelay": "",
+    "name": "mc-5",
+    "addressSpaceItems": [
+      {
+        "name": "running_state",
+        "nodeId": "ns=2;g=e5b29816-d85d-45c5-a1c8-e65d3deae6bd",
+        "datatypeName": ""
+      },
+      {
+        "name": "USER_ID",
+        "nodeId": "ns=2;g=4ea0fcc5-147a-408c-afa6-15f2e68acaca",
+        "datatypeName": ""
+      },
+      {
+        "name": "G_CODE_NAME",
+        "nodeId": "ns=2;g=8fa242c2-83aa-402b-b618-41fc56f672b8",
+        "datatypeName": ""
+      },
+      {
+        "name": "K_NUM",
+        "nodeId": "ns=2;g=8161350b-91f0-458c-83d5-ba629020aaf3",
+        "datatypeName": ""
+      },
+      {
+        "name": "OUTPUT_WP",
+        "nodeId": "ns=2;g=dfa74f3b-de92-4423-add6-28d288ee5249",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOOL_NAME",
+        "nodeId": "ns=2;g=e3c8fd50-6810-44dc-9f35-f45b3ad84588",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=07f3f953-6239-4d3d-a4fd-951fb9f9f49a",
+        "datatypeName": ""
+      },
+      {
+        "name": "CALCULATE_TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=8d291353-281a-4273-a9d1-c668fc485123",
+        "datatypeName": ""
+      }
+    ],
+    "x": 150,
+    "y": 840,
+    "wires": [["883a9344547b396c"]]
+  },
+  {
+    "id": "5dad4d623dde71ae",
+    "type": "debug",
+    "z": "2b2d98ef5e74e191",
+    "name": "debug 17",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1060,
+    "y": 1500,
+    "wires": []
+  },
+  {
+    "id": "ad753d2ab0814f7f",
+    "type": "OPCUA-IIoT-Read",
+    "z": "2b2d98ef5e74e191",
+    "attributeId": "13",
+    "maxAge": 1,
+    "depth": 1,
+    "connector": "8402a36728a1a1f8",
+    "name": "",
+    "justValue": true,
+    "showStatusActivities": false,
+    "showErrors": false,
+    "parseStrings": false,
+    "historyDays": 1,
+    "x": 530,
+    "y": 1340,
+    "wires": [["e1f888a00c2dd8bf"]]
+  },
+  {
+    "id": "e1f888a00c2dd8bf",
+    "type": "function",
+    "z": "2b2d98ef5e74e191",
+    "name": "function 17",
+    "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-6'\n\nconst parseIntValue = (value) => {\n    if (!value) return null;\n    return parseInt(value)\n}\n\nmsg.payload = {\n    name,\n    ipAddress: \"192.168.1.6\", status,\n    state: parseInt(state),\n    user_id: parseInt(user_id),\n    output_wp: parseInt(output_wp),\n    g_code_name: parseInt(g_code_name),\n    k_num: parseIntValue(k_num),\n    tool_name: parseInt(tool_name),\n    total_cutting_time: parseInt(total_cutting_time),\n    calculate_total_cutting_time: calculate_total_cutting_time || null,\n}\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 700,
+    "y": 1420,
+    "wires": [["5dad4d623dde71ae", "44aa2e87d0da304b", "ab55ff03d1a87f39"]]
+  },
+  {
+    "id": "44aa2e87d0da304b",
+    "type": "mqtt out",
+    "z": "2b2d98ef5e74e191",
+    "name": "",
+    "topic": "mc-6/data",
+    "qos": "2",
+    "retain": "",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "281bb8063a85bef9",
+    "x": 900,
+    "y": 1460,
+    "wires": []
+  },
+  {
+    "id": "97cf9ec5fea23845",
+    "type": "OPCUA-IIoT-Inject",
+    "z": "2b2d98ef5e74e191",
+    "injectType": "inject",
+    "payload": "",
+    "payloadType": "date",
+    "topic": "",
+    "repeat": "1",
+    "crontab": "",
+    "once": false,
+    "startDelay": "",
+    "name": "mc-6",
+    "addressSpaceItems": [
+      {
+        "name": "running_state",
+        "nodeId": "ns=2;g=4324bcfb-a756-41f7-a633-4af3122ed729",
+        "datatypeName": ""
+      },
+      {
+        "name": "USER_ID",
+        "nodeId": "ns=2;g=55bae048-2232-47a3-9b27-f24cef7f06fb",
+        "datatypeName": ""
+      },
+      {
+        "name": "G_CODE_NAME",
+        "nodeId": "ns=2;g=5e36095e-0b99-4464-b280-93426e1ac568",
+        "datatypeName": ""
+      },
+      {
+        "name": "K_NUM",
+        "nodeId": "ns=2;g=ca9442d3-3758-4f5f-94ae-17dcfc6d925c",
+        "datatypeName": ""
+      },
+      {
+        "name": "OUTPUT_WP",
+        "nodeId": "ns=2;g=5265aed1-16ca-46e6-82af-16a5549b37d5",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOOL_NAME",
+        "nodeId": "ns=2;g=28e39458-856d-40c0-aebf-7cf086110e53",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=984b2dc9-bc2b-4ca5-ab78-81eb51e596f0",
+        "datatypeName": ""
+      },
+      {
+        "name": "CALCULATE_TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=ef683a3b-bba5-40b5-9c52-ec027816cdee",
+        "datatypeName": ""
+      }
+    ],
+    "x": 170,
+    "y": 1320,
+    "wires": [["ad753d2ab0814f7f"]]
+  },
+  {
+    "id": "bf1bf6ba68817434",
+    "type": "debug",
+    "z": "2b2d98ef5e74e191",
+    "name": "debug 1",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "jsonata",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1040,
+    "y": 2080,
+    "wires": []
+  },
+  {
+    "id": "92cd82055bfb65d2",
+    "type": "OPCUA-IIoT-Read",
+    "z": "2b2d98ef5e74e191",
+    "attributeId": "13",
+    "maxAge": 1,
+    "depth": 1,
+    "connector": "8402a36728a1a1f8",
+    "name": "",
+    "justValue": true,
+    "showStatusActivities": false,
+    "showErrors": false,
+    "parseStrings": false,
+    "historyDays": 1,
+    "x": 470,
+    "y": 2020,
+    "wires": [["00a1e3dd16828594"]]
+  },
+  {
+    "id": "00a1e3dd16828594",
+    "type": "function",
+    "z": "2b2d98ef5e74e191",
+    "name": "function 1",
+    "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\nconst name = \"MC-9\"\n\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\n\nconst parseIntValue = (value) => {\n    if (!value) return null;\n    return parseInt(value)\n}\n\nmsg.payload = {\n    name,\n    ipAddress: \"192.168.1.9\", status,\n    state: parseInt(state),\n    user_id: parseInt(user_id),\n    output_wp: parseInt(output_wp),\n    g_code_name: parseInt(g_code_name),\n    k_num: parseIntValue(k_num),\n    tool_name: parseInt(tool_name),\n    total_cutting_time: parseInt(total_cutting_time),\n    calculate_total_cutting_time: calculate_total_cutting_time || null,\n}\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 660,
+    "y": 2040,
+    "wires": [["bf1bf6ba68817434", "fbdcf0a58d79e35c", "ab55ff03d1a87f39"]]
+  },
+  {
+    "id": "fbdcf0a58d79e35c",
+    "type": "mqtt out",
+    "z": "2b2d98ef5e74e191",
+    "name": "",
+    "topic": "mc-9/data",
+    "qos": "2",
+    "retain": "",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "281bb8063a85bef9",
+    "x": 880,
+    "y": 2020,
+    "wires": []
+  },
+  {
+    "id": "cc5c5a282df5efd0",
+    "type": "OPCUA-IIoT-Inject",
+    "z": "2b2d98ef5e74e191",
+    "injectType": "inject",
+    "payload": "",
+    "payloadType": "date",
+    "topic": "",
+    "repeat": "1",
+    "crontab": "",
+    "once": false,
+    "startDelay": "",
+    "name": "m-9",
+    "addressSpaceItems": [
+      {
+        "name": "running_state",
+        "nodeId": "ns=2;g=dfaa012d-902c-4e51-b812-56b5df1ab6d8",
+        "datatypeName": ""
+      },
+      {
+        "name": "USER_ID",
+        "nodeId": "ns=2;g=da49edb4-d9d9-40bf-8b89-88aebcb24a94",
+        "datatypeName": ""
+      },
+      {
+        "name": "G_CODE_NAME",
+        "nodeId": "ns=2;g=2feaad54-b0a0-4809-9f6a-7f72fad768ec",
+        "datatypeName": ""
+      },
+      {
+        "name": "K_NUM",
+        "nodeId": "ns=2;g=aeaa1dae-2ac4-4c47-9549-986663e28b18",
+        "datatypeName": ""
+      },
+      {
+        "name": "OUTPUT_WP",
+        "nodeId": "ns=2;g=84b3eb72-1bc9-47c2-86d4-837b1e7255cb",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOOL_NAME",
+        "nodeId": "ns=2;g=7cddc413-5966-402f-9b21-339277a683e6",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=f4e121f3-9019-428a-98c1-fd23948555e4",
+        "datatypeName": ""
+      },
+      {
+        "name": "CALCULATE_TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=bfaa8e00-6253-4969-91d5-cd750a26fcff",
+        "datatypeName": ""
+      }
+    ],
+    "x": 110,
+    "y": 2000,
+    "wires": [["92cd82055bfb65d2"]]
+  },
+  {
+    "id": "794f7f60f7d0bf42",
+    "type": "debug",
+    "z": "2b2d98ef5e74e191",
+    "name": "debug 15",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1040,
+    "y": 160,
+    "wires": []
+  },
+  {
+    "id": "f2981208dd958c16",
+    "type": "OPCUA-IIoT-Read",
+    "z": "2b2d98ef5e74e191",
+    "attributeId": "0",
+    "maxAge": 1,
+    "depth": 1,
+    "connector": "8402a36728a1a1f8",
+    "name": "",
+    "justValue": true,
+    "showStatusActivities": false,
+    "showErrors": false,
+    "parseStrings": false,
+    "historyDays": 1,
+    "x": 520,
+    "y": 20,
+    "wires": [["cd69e72ba6867cf0"]]
+  },
+  {
+    "id": "cd69e72ba6867cf0",
+    "type": "function",
+    "z": "2b2d98ef5e74e191",
+    "name": "function 15",
+    "func": "const state = msg.payload.value[0].value\nconst user_id = msg.payload.value[1].value\nconst g_code_name = msg.payload.value[2].value\nconst k_num = msg.payload.value[3].value\nconst output_wp = msg.payload.value[4].value\nconst tool_name = msg.payload.value[5].value\nconst total_cutting_time = msg.payload.value[6].value\nconst calculate_total_cutting_time = msg.payload.value[7].value\n\n\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-1'\nconst disconnect = state === undefined\n\nconst parseIntValue = (value) => {\n    if(!value) return null;\n    return parseInt(value)\n}\n\nmsg.payload = {\n    name,\n    ipAddress: \"192.168.1.1\", status,\n    state: parseInt(state),\n    user_id: parseInt(user_id),\n    output_wp: parseInt(output_wp),\n    g_code_name: parseInt(g_code_name),\n    k_num: parseIntValue(k_num),\n    tool_name: parseInt(tool_name),\n    total_cutting_time: parseInt(total_cutting_time),\n    calculate_total_cutting_time: calculate_total_cutting_time || null,\n}\n\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n\n// msg.payload = {state}\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 690,
+    "y": 100,
+    "wires": [["794f7f60f7d0bf42", "f61a69b49c9b0fe8", "ab55ff03d1a87f39"]]
+  },
+  {
+    "id": "f61a69b49c9b0fe8",
+    "type": "mqtt out",
+    "z": "2b2d98ef5e74e191",
+    "name": "",
+    "topic": "mc-1/data",
+    "qos": "2",
+    "retain": "",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "281bb8063a85bef9",
+    "x": 940,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "1520246328e49060",
+    "type": "OPCUA-IIoT-Inject",
+    "z": "2b2d98ef5e74e191",
+    "injectType": "inject",
+    "payload": "",
+    "payloadType": "date",
+    "topic": "",
+    "repeat": "1",
+    "crontab": "",
+    "once": false,
+    "startDelay": "",
+    "name": "mc-1",
+    "addressSpaceItems": [
+      {
+        "name": "running_state",
+        "nodeId": "ns=2;g=04703049-2f00-4d22-b5a5-b8e73b1aefc9",
+        "datatypeName": ""
+      },
+      {
+        "name": "USER_ID",
+        "nodeId": "ns=2;g=f469ae56-8455-43ce-8888-abeea29394d2",
+        "datatypeName": ""
+      },
+      {
+        "name": "G_CODE_NAME",
+        "nodeId": "ns=2;g=92ed3491-bea7-4f4e-8a85-6de117d2f321",
+        "datatypeName": ""
+      },
+      {
+        "name": "K_NUM",
+        "nodeId": "ns=2;g=4c50b4ac-81d2-4703-baee-bcedd284a095",
+        "datatypeName": ""
+      },
+      {
+        "name": "OUTPUT_WP",
+        "nodeId": "ns=2;g=7aad79a8-8428-4b24-b9d3-7b283d139380",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOOL_NAME",
+        "nodeId": "ns=2;g=543d15eb-540f-4042-a642-bfe62b5ec1e8",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=34f8390e-2644-4d57-9d72-0fc14b0a1bae",
+        "datatypeName": ""
+      },
+      {
+        "name": "CALCULATE_TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=6c01813c-0db0-4aa4-8de9-859f077883a2",
+        "datatypeName": ""
+      }
+    ],
+    "x": 150,
+    "y": 40,
+    "wires": [["f2981208dd958c16"]]
+  },
+  {
+    "id": "d92c0bb154a7beb7",
+    "type": "debug",
+    "z": "2b2d98ef5e74e191",
+    "name": "debug 19",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1010,
+    "y": 1840,
+    "wires": []
+  },
+  {
+    "id": "d57ea00eb036a7b6",
+    "type": "OPCUA-IIoT-Read",
+    "z": "2b2d98ef5e74e191",
+    "attributeId": "13",
+    "maxAge": 1,
+    "depth": 1,
+    "connector": "8402a36728a1a1f8",
+    "name": "",
+    "justValue": true,
+    "showStatusActivities": false,
+    "showErrors": false,
+    "parseStrings": false,
+    "historyDays": 1,
+    "x": 480,
+    "y": 1680,
+    "wires": [["bc7f7dd9382df4d6"]]
+  },
+  {
+    "id": "bc7f7dd9382df4d6",
+    "type": "function",
+    "z": "2b2d98ef5e74e191",
+    "name": "function 19",
+    "func": "const state = msg.payload.value[0].value.value\nconst user_id = msg.payload.value[1].value.value\nconst g_code_name = msg.payload.value[2].value.value\nconst k_num = msg.payload.value[3].value.value\nconst output_wp = msg.payload.value[4].value.value\nconst tool_name = msg.payload.value[5].value.value\nconst total_cutting_time = msg.payload.value[6].value.value\nconst calculate_total_cutting_time = msg.payload.value[7].value.value?.toString()\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-8'\n\nconst parseIntValue = (value) => {\n    if (!value) return null;\n    return parseInt(value)\n}\n\nmsg.payload = {\n    name,\n    ipAddress: \"192.168.1.8\", status,\n    state: parseInt(state),\n    user_id: parseInt(user_id),\n    output_wp: parseInt(output_wp),\n    g_code_name: parseInt(g_code_name),\n    k_num: parseIntValue(k_num),\n    tool_name: parseInt(tool_name),\n    total_cutting_time: parseInt(total_cutting_time),\n    calculate_total_cutting_time: calculate_total_cutting_time || null,\n}\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n\n// msg.payload = {state}\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 650,
+    "y": 1760,
+    "wires": [["d92c0bb154a7beb7", "bb4601ab01c19aec", "ab55ff03d1a87f39"]]
+  },
+  {
+    "id": "bb4601ab01c19aec",
+    "type": "mqtt out",
+    "z": "2b2d98ef5e74e191",
+    "name": "",
+    "topic": "mc-8/data",
+    "qos": "2",
+    "retain": "",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "281bb8063a85bef9",
+    "x": 850,
+    "y": 1800,
+    "wires": []
+  },
+  {
+    "id": "634c024feafee307",
+    "type": "OPCUA-IIoT-Inject",
+    "z": "2b2d98ef5e74e191",
+    "injectType": "inject",
+    "payload": "",
+    "payloadType": "date",
+    "topic": "",
+    "repeat": "1",
+    "crontab": "",
+    "once": false,
+    "startDelay": "",
+    "name": "mc-8",
+    "addressSpaceItems": [
+      {
+        "name": "running_state",
+        "nodeId": "ns=2;g=24f0072f-e7dd-40ec-ac9d-cb8c8d3a3ded",
+        "datatypeName": ""
+      },
+      {
+        "name": "user_id",
+        "nodeId": "ns=2;g=84aad980-87e0-4332-9318-0bd18a13b8d9",
+        "datatypeName": ""
+      },
+      {
+        "name": "g_code_name",
+        "nodeId": "ns=2;g=600833d8-dbb8-41fc-895c-6caba8ec60fe",
+        "datatypeName": ""
+      },
+      {
+        "name": "k_num",
+        "nodeId": "ns=2;g=3e59d283-dfab-4764-bf42-d2891e438b40",
+        "datatypeName": ""
+      },
+      {
+        "name": "output_wp",
+        "nodeId": "ns=2;g=3273fba5-2cea-4033-a3be-88ce90a73e99",
+        "datatypeName": ""
+      },
+      {
+        "name": "tool_name",
+        "nodeId": "ns=2;g=63f11f07-71e1-4f48-b8c7-7b781f01bd6f",
+        "datatypeName": ""
+      },
+      {
+        "name": "total_cutting_time",
+        "nodeId": "ns=2;g=478a3c46-a1c0-4e32-8490-4485ffe47b26",
+        "datatypeName": ""
+      },
+      {
+        "name": "CALCULATE_TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=f4e1f7c3-5a86-4dba-8664-14a08b5ecd50",
+        "datatypeName": ""
+      }
+    ],
+    "x": 120,
+    "y": 1660,
+    "wires": [["d57ea00eb036a7b6"]]
+  },
+  {
+    "id": "393e0cfa600749f3",
+    "type": "catch",
+    "z": "2b2d98ef5e74e191",
+    "name": "",
+    "scope": null,
+    "uncaught": false,
+    "x": 1180,
+    "y": 80,
+    "wires": [["7fcbefdd07bef83a"]]
+  },
+  {
+    "id": "330f7cc31402d20d",
+    "type": "debug",
+    "z": "2b2d98ef5e74e191",
+    "name": "error handler",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1710,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "7fcbefdd07bef83a",
+    "type": "function",
+    "z": "2b2d98ef5e74e191",
+    "name": "handleError",
+    "func": "\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1430,
+    "y": 80,
+    "wires": [["330f7cc31402d20d"]]
+  },
+  {
+    "id": "35e841a9fa8e0ce6",
+    "type": "OPCUA-IIoT-Read",
+    "z": "2b2d98ef5e74e191",
+    "attributeId": "13",
+    "maxAge": 1,
+    "depth": 1,
+    "connector": "8402a36728a1a1f8",
+    "name": "",
+    "justValue": true,
+    "showStatusActivities": false,
+    "showErrors": false,
+    "parseStrings": false,
+    "historyDays": 1,
+    "x": 470,
+    "y": 3000,
+    "wires": [["d3ba42e7e8c4953f"]]
+  },
+  {
+    "id": "a79477b7a733bf9a",
+    "type": "OPCUA-IIoT-Read",
+    "z": "2b2d98ef5e74e191",
+    "attributeId": "13",
+    "maxAge": 1,
+    "depth": 1,
+    "connector": "8402a36728a1a1f8",
+    "name": "",
+    "justValue": true,
+    "showStatusActivities": false,
+    "showErrors": false,
+    "parseStrings": false,
+    "historyDays": 1,
+    "x": 410,
+    "y": 2560,
+    "wires": [["b81692055467537d"]]
+  },
+  {
+    "id": "8ef213f516bc2e89",
+    "type": "OPCUA-IIoT-Read",
+    "z": "2b2d98ef5e74e191",
+    "attributeId": "13",
+    "maxAge": 1,
+    "depth": 1,
+    "connector": "8402a36728a1a1f8",
+    "name": "",
+    "justValue": true,
+    "showStatusActivities": false,
+    "showErrors": false,
+    "parseStrings": false,
+    "historyDays": 1,
+    "x": 470,
+    "y": 2160,
+    "wires": [["e1bedcb6ba0d2d72", "d1c39ed3bb11d7c8"]]
+  },
+  {
+    "id": "7ef345c152e86da4",
+    "type": "debug",
+    "z": "2b2d98ef5e74e191",
+    "name": "debug 2",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1040,
+    "y": 340,
+    "wires": []
+  },
+  {
+    "id": "6d76dfe48d06f223",
+    "type": "OPCUA-IIoT-Read",
+    "z": "2b2d98ef5e74e191",
+    "attributeId": "0",
+    "maxAge": 1,
+    "depth": 1,
+    "connector": "dfe2a11e295c17e3",
+    "name": "",
+    "justValue": true,
+    "showStatusActivities": false,
+    "showErrors": false,
+    "parseStrings": false,
+    "historyDays": 1,
+    "x": 510,
+    "y": 160,
+    "wires": [["1dec4a9ae787bf5a"]]
+  },
+  {
+    "id": "1dec4a9ae787bf5a",
+    "type": "function",
+    "z": "2b2d98ef5e74e191",
+    "name": "function 2",
+    "func": "const state = msg.payload.value[0].value\nconst user_id = msg.payload.value[1].value\nconst g_code_name = msg.payload.value[2].value\nconst k_num = msg.payload.value[3].value\nconst output_wp = msg.payload.value[4].value\nconst tool_name = msg.payload.value[5].value\nconst total_cutting_time = msg.payload.value[6].value\nconst calculate_total_cutting_time = msg.payload.value[7].value?.toString()\n\n\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-2'\nconst disconnect = state === undefined \n\nmsg.payload = {\n    name,\n    ipAddress: \"192.168.1.222\",\n     status,\n    state,\n    user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time,\n}\n\n\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n\nconst test = total_cutting_time?.toString()\nif(test?.includes(\".\")) {\n    msg.payload.total_cutting_time = 0\n}\n// msg.payload = {state}\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 680,
+    "y": 240,
+    "wires": [["7ef345c152e86da4", "7761d270115adb44", "ab55ff03d1a87f39"]]
+  },
+  {
+    "id": "7761d270115adb44",
+    "type": "mqtt out",
+    "z": "2b2d98ef5e74e191",
+    "name": "",
+    "topic": "mc-2/data",
+    "qos": "2",
+    "retain": "",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "281bb8063a85bef9",
+    "x": 920,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "1a34f84a54bc5610",
+    "type": "OPCUA-IIoT-Inject",
+    "z": "2b2d98ef5e74e191",
+    "injectType": "inject",
+    "payload": "",
+    "payloadType": "date",
+    "topic": "",
+    "repeat": "1",
+    "crontab": "",
+    "once": false,
+    "startDelay": "",
+    "name": "mc-2",
+    "addressSpaceItems": [
+      {
+        "name": "running_state",
+        "nodeId": "ns=2;g=e599ec07-4a5e-458d-aa1e-c0aeb440de0a",
+        "datatypeName": ""
+      },
+      {
+        "name": "USER_ID",
+        "nodeId": "ns=2;g=280a051b-0fea-47e3-b796-410e0b4f9d75",
+        "datatypeName": ""
+      },
+      {
+        "name": "G_CODE_NAME",
+        "nodeId": "ns=2;g=34e69b35-2d73-4ad7-bf4b-97ed17fb5b6c",
+        "datatypeName": ""
+      },
+      {
+        "name": "K_NUM",
+        "nodeId": "ns=2;g=b30472ac-d904-4b80-ab35-889c3488b8f3",
+        "datatypeName": ""
+      },
+      {
+        "name": "OUTPUT_WP",
+        "nodeId": "ns=2;g=d15c8098-8ad9-4d91-8f85-2988afeac1c5",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOOL_NAME",
+        "nodeId": "ns=2;g=b25a7eed-bc33-48b1-8e19-787be43807ef",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=9e8d45d6-74c8-4637-bab9-d9a9128236e0",
+        "datatypeName": ""
+      },
+      {
+        "name": "CALCULATE_TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=b2119be6-3e3d-42f6-9851-5602d84f7886",
+        "datatypeName": ""
+      }
+    ],
+    "x": 150,
+    "y": 140,
+    "wires": [["6d76dfe48d06f223"]]
+  },
+  {
+    "id": "adbe02ed5f2d49b1",
+    "type": "debug",
+    "z": "2b2d98ef5e74e191",
+    "name": "debug 4",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1060,
+    "y": 440,
+    "wires": []
+  },
+  {
+    "id": "786268cc36c42c12",
+    "type": "OPCUA-IIoT-Read",
+    "z": "2b2d98ef5e74e191",
+    "attributeId": "0",
+    "maxAge": 1,
+    "depth": 1,
+    "connector": "dfe2a11e295c17e3",
+    "name": "",
+    "justValue": true,
+    "showStatusActivities": false,
+    "showErrors": false,
+    "parseStrings": false,
+    "historyDays": 1,
+    "x": 510,
+    "y": 340,
+    "wires": [["62a39eb0a7488678"]]
+  },
+  {
+    "id": "62a39eb0a7488678",
+    "type": "function",
+    "z": "2b2d98ef5e74e191",
+    "name": "function 4",
+    "func": "const state = msg.payload.value[0].value\nconst user_id = msg.payload.value[1].value\nconst g_code_name = msg.payload.value[2].value\nconst k_num = msg.payload.value[3].value\nconst output_wp = msg.payload.value[4].value\nconst tool_name = msg.payload.value[5].value\nconst total_cutting_time = msg.payload.value[6].value\nconst calculate_total_cutting_time = msg.payload.value[7].value?.toString()\n\n\n\nconst runningValue = 3\nconst runningValue2 = 768\nconst runningCondition = state === runningValue || state === runningValue2\nconst status = runningCondition ? \"Running\" : \"Stopped\"\nconst name = 'MC-3'\nconst disconnect = state === undefined \n\nmsg.payload = {\n    name,\n    ipAddress: \"192.168.1.3\", status,\n    state,\n    user_id,\n    output_wp,\n    g_code_name,\n    k_num,\n    tool_name,\n    total_cutting_time,\n    calculate_total_cutting_time,\n}\n\n\n\nif (state === undefined) {\n    msg.payload.status = 'DISCONNECT'\n    node.error(`${name} disconnect`, msg);\n}\n\n\nreturn msg;\n",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 720,
+    "y": 360,
+    "wires": [["adbe02ed5f2d49b1", "645c2148eb6fb771", "ab55ff03d1a87f39"]]
+  },
+  {
+    "id": "645c2148eb6fb771",
+    "type": "mqtt out",
+    "z": "2b2d98ef5e74e191",
+    "name": "",
+    "topic": "mc-3/data",
+    "qos": "2",
+    "retain": "",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "281bb8063a85bef9",
+    "x": 860,
+    "y": 440,
+    "wires": []
+  },
+  {
+    "id": "f171e4be24d6bcf4",
+    "type": "OPCUA-IIoT-Inject",
+    "z": "2b2d98ef5e74e191",
+    "injectType": "inject",
+    "payload": "",
+    "payloadType": "date",
+    "topic": "",
+    "repeat": "1",
+    "crontab": "",
+    "once": false,
+    "startDelay": "",
+    "name": "mc-3",
+    "addressSpaceItems": [
+      {
+        "name": "running_state",
+        "nodeId": "ns=2;g=16c2a3a3-0706-4537-85a6-ed143e10d558",
+        "datatypeName": ""
+      },
+      {
+        "name": "USER_ID",
+        "nodeId": "ns=2;g=35f185e6-0851-4766-9192-6a138b50a5a8",
+        "datatypeName": ""
+      },
+      {
+        "name": "G_CODE_NAME",
+        "nodeId": "ns=2;g=cebba7db-b269-4583-a2ca-aace4d9212dc",
+        "datatypeName": ""
+      },
+      {
+        "name": "K_NUM",
+        "nodeId": "ns=2;g=343c1ec5-9131-47fb-b5fe-85a6b5031fbb",
+        "datatypeName": ""
+      },
+      {
+        "name": "OUTPUT_WP",
+        "nodeId": "ns=2;g=ef9a3ac0-cca3-477f-a3f8-b70ab139da92",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOOL_NAME",
+        "nodeId": "ns=2;g=f539436b-8dd5-4a4e-9e8c-4136fcf6d81e",
+        "datatypeName": ""
+      },
+      {
+        "name": "TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=c5ab440a-e27d-430f-bff0-1a2d145c16ce",
+        "datatypeName": ""
+      },
+      {
+        "name": "CALCULATE_TOTAL_CUTTING_TIME",
+        "nodeId": "ns=2;g=ff0d8c5b-f87c-4340-a3b3-f9739efa74a5",
+        "datatypeName": ""
+      }
+    ],
+    "x": 150,
+    "y": 320,
+    "wires": [["786268cc36c42c12"]]
+  },
+  {
+    "id": "ab55ff03d1a87f39",
+    "type": "function",
+    "z": "2b2d98ef5e74e191",
+    "name": "Logger status",
+    "func": "const {name, status} = msg.payload\n\nmsg.payload={\nname, status,\ntimestamp: new Date().toLocaleString('id-ID')\n}\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 1800,
+    "y": 420,
+    "wires": [["738358cea3927dbf"]]
+  },
+  {
+    "id": "738358cea3927dbf",
+    "type": "debug",
+    "z": "2b2d98ef5e74e191",
+    "name": "debug 6",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 2080,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "d1c39ed3bb11d7c8",
+    "type": "debug",
+    "z": "2b2d98ef5e74e191",
+    "name": "debug 8",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "false",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 560,
+    "y": 2380,
+    "wires": []
+  },
+  {
+    "id": "281bb8063a85bef9",
+    "type": "mqtt-broker",
+    "name": "pub mc 9",
+    "broker": "mqtt://localhost:1883",
+    "port": 1883,
+    "clientid": "",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": 4,
+    "keepalive": 60,
+    "cleansession": true,
+    "autoUnsubscribe": true,
+    "birthTopic": "",
+    "birthQos": "2",
+    "birthRetain": "false",
+    "birthPayload": "msg.payload",
+    "birthMsg": {},
+    "closeTopic": "",
+    "closeQos": "0",
+    "closeRetain": "false",
+    "closePayload": "",
+    "closeMsg": {},
+    "willTopic": "",
+    "willQos": "0",
+    "willRetain": "false",
+    "willPayload": "",
+    "willMsg": {},
+    "userProps": "",
+    "sessionExpiry": ""
+  },
+  {
+    "id": "8402a36728a1a1f8",
+    "type": "OPCUA-IIoT-Connector",
+    "discoveryUrl": "",
+    "endpoint": "opc.tcp://192.168.1.2:48060/",
+    "endpointMustExist": false,
+    "keepSessionAlive": true,
+    "loginEnabled": false,
+    "name": "LOCAL SERVER",
+    "showErrors": false,
+    "securityPolicy": "None",
+    "securityMode": "None",
+    "individualCerts": false,
+    "publicCertificateFile": "",
+    "privateKeyFile": "",
+    "defaultSecureTokenLifetime": "",
+    "autoSelectRightEndpoint": false,
+    "strategyMaxRetry": "",
+    "strategyInitialDelay": "",
+    "strategyMaxDelay": "",
+    "strategyRandomisationFactor": "",
+    "requestedSessionTimeout": "",
+    "connectionStartDelay": "",
+    "reconnectDelay": "",
+    "maxBadSessionRequests": 10
+  },
+  {
+    "id": "dfe2a11e295c17e3",
+    "type": "OPCUA-IIoT-Connector",
+    "discoveryUrl": "",
+    "endpoint": "opc.tcp://192.168.1.2:4840/",
+    "endpointMustExist": false,
+    "keepSessionAlive": true,
+    "loginEnabled": false,
+    "name": "2&3",
+    "showErrors": false,
+    "securityPolicy": "None",
+    "securityMode": "None",
+    "individualCerts": false,
+    "publicCertificateFile": "",
+    "privateKeyFile": "",
+    "defaultSecureTokenLifetime": "",
+    "autoSelectRightEndpoint": false,
+    "strategyMaxRetry": "",
+    "strategyInitialDelay": "",
+    "strategyMaxDelay": "",
+    "strategyRandomisationFactor": "",
+    "requestedSessionTimeout": "",
+    "connectionStartDelay": "",
+    "reconnectDelay": "",
+    "maxBadSessionRequests": 10
+  }
+]

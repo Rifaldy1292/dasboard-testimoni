@@ -15,15 +15,6 @@ export const useFTP = () => {
   const loadingUpload = shallowRef(false)
   const isCreatedMainProgram = shallowRef<boolean>(false)
 
-  const handleZeroCount = (count: number) => {
-    const stringCount = count.toString()
-    // return -1
-    if (stringCount[stringCount.length - 1] === '0' && count > 0) {
-      return count - 1
-    }
-    return count
-  }
-
   /**
    *
    * @param totalCuttingTime example 0 : 30 : 34
@@ -34,7 +25,7 @@ export const useFTP = () => {
     const minute = totalCuttingTime.split(':')[1]
     const second = totalCuttingTime.split(':')[2]
     const calculate = parseInt(hour) * 3600 + parseInt(minute) * 60 + parseInt(second)
-    const result = handleZeroCount(Math.round(calculate))
+    const result = Math.round(calculate)
     return result
   }
 
@@ -85,7 +76,7 @@ export const useFTP = () => {
         const sliceFiles = extendedFiles.slice(index)
         const totalProgram = extendedFiles.length - index
         const calculateTotalCuttingTime = sliceFiles.reduce(
-          (acc, curr) => handleZeroCount(acc + (curr.totalCuttingTime as number)),
+          (acc, curr) => acc + (curr.totalCuttingTime as number),
           0
         )
         return {
