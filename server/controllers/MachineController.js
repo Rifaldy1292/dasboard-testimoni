@@ -538,7 +538,7 @@ interface DummyData {
             operator: User ? User.name : null,
 
             // Time difference seconds
-            total: timeDifference,
+            total: Math.round(timeDifference / 1000), // convert milliseconds to seconds
           };
 
         })

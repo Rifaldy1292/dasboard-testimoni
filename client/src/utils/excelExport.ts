@@ -19,7 +19,7 @@ export function exportTimelineToExcel(data: MonthlyLogs[], filename: string): vo
       'Output WP': log.output_wp || '-',
       Operator: log.operator || '-',
       Description: log.description || '-',
-      Total: log.total || 0,
+      'Total (in seconds)': log.total || 0,
       Start: log.start || '-',
       End: log.end || '-'
     }))
