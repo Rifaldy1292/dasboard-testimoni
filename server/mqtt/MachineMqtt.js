@@ -17,32 +17,32 @@ const handleSendToWebsocket = (client) => {
  * @param {{ createdAt: Date, current_status: string}} log
  * @returns {boolean}
  */
-const isManualLog = (log) => {
-  const { createdAt, current_status } = log;
-  if (!log || !createdAt) return false;
-  const timeDifference = new Date().getTime() - new Date(createdAt).getTime();
-  const sixMinutees = 6 * 60 * 1000;
-  const betweenTime = timeDifference < sixMinutees;
-  const isRunning = current_status === "Running";
-  return isRunning && betweenTime;
-};
+// const isManualLog = (log) => {
+//   const { createdAt, current_status } = log;
+//   if (!log || !createdAt) return false;
+//   const timeDifference = new Date().getTime() - new Date(createdAt).getTime();
+//   const sixMinutees = 6 * 60 * 1000;
+//   const betweenTime = timeDifference < sixMinutees;
+//   const isRunning = current_status === "Stopped";
+//   return isRunning && betweenTime;
+// };
 
 // trigger when create log
-const checkIsManualLog = async (machine_id) => {
-  try {
-    const lastMachineLog = await MachineLog.findOne({
-      where: { machine_id },
-      attributes: ["createdAt", "current_status"],
-      order: [["createdAt", "DESC"]],
-      raw: true,
-    });
+// const checkIsManualLog = async (machine_id) => {
+//   try {
+//     const lastMachineLog = await MachineLog.findOne({
+//       where: { machine_id },
+//       attributes: ["createdAt", "current_status"],
+//       order: [["createdAt", "DESC"]],
+//       raw: true,
+//     });
 
-    return isManualLog(lastMachineLog);
-  } catch (error) {
-    machineLoggerError(error, "checkIsManualLog", { machine_id });
-    return false;
-  }
-};
+//     return isManualLog(lastMachineLog);
+//   } catch (error) {
+//     machineLoggerError(error, "checkIsManualLog", { machine_id });
+//     return false;
+//   }
+// };
 
 /**
  * Handles machine status changes, creating new logs when necessary.
@@ -199,13 +199,20 @@ const updateDescriptionLastMachineLog = async (machine_id) => {
       order: [["createdAt", "DESC"]],
       raw: true,
     });
-    const isManual = isManualLog(lastLog);
+
+    const { createdAt, current_status } = lastLog;
+    if (!lastLog || !createdAt) return;
+
+    const timeDifference = new Date().getTime() - new Date(createdAt).getTime();
+    const sixMinutees = 6 * 60 * 1000;
+    const betweenTime = timeDifference < sixMinutees;
+    const isRunning = current_status === "Stopped";
+    const isManual = isRunning && betweenTime;
     if (!isManual) return;
 
     await MachineLog.update(
       {
         description: "Manual Operation",
-        // current_status: isManual ? "Running" : lastLog.current_status,
       },
       {
         where: { id: lastLog.id },
