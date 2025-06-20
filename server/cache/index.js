@@ -175,5 +175,6 @@ class MachineCacheManager {
 
 // Create and export singleton instance
 const machineCache = new MachineCacheManager();
+const encryptionCache = new Map();
 
-module.exports = machineCache;
+module.exports = { machineCache, encryptionCache };

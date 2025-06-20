@@ -2,7 +2,7 @@ const { MachineLog, Machine } = require("../models");
 const { decryptFromNumber } = require("../helpers/crypto");
 const { MqttClient } = require("mqtt");
 const { machineLoggerDebug, machineLoggerError } = require("../utils/logger");
-const machineCache = require("../cache");
+const { machineCache } = require("../cache");
 
 /**
  *

@@ -8,7 +8,7 @@ require("./websocket/handleWebsocket");
 const { getAllMachine } = require("./utils/machineUtils");
 const { machineLoggerInfo, machineLoggerDebug, machineLoggerError } = require("./utils/logger");
 const { mqttClient, MQTT_TOPICS } = require("./constants");
-const machineCache = require("./cache");
+const { machineCache } = require("./cache");
 const { decryptFromNumber } = require("./helpers/crypto");
 
 

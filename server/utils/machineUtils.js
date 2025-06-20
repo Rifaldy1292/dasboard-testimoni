@@ -2,7 +2,7 @@ const { Op, literal } = require("sequelize");
 const { MachineLog, Machine, DailyConfig, User } = require("../models");
 const { serverError } = require("./serverError");
 const { machineLoggerInfo } = require("./logger");
-const machineCache = require("../cache");
+const { machineCache } = require("../cache");
 
 /**
  * Formats the time difference between two dates.
