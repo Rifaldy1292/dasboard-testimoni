@@ -88,7 +88,7 @@ export const useFTP = () => {
 
       inputFiles.value = calculateTotalCuttingTimes
 
-      // console.log({ calculateTotalCuttingTime })
+      console.log({ calculateTotalCuttingTimes })
 
       console.log(inputFiles.value, 'inputFiles')
     } catch (error: unknown) {

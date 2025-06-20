@@ -81,27 +81,26 @@ const createDailyConfig = async () => {
  * @returns {Promise<void>} A promise that resolves when all machine statuses are reset
  * @throws {Error} If database operation fails
  */
-const handleResetMachineStatus = () => {
+const handleResetMachineStatus = async () => {
   try {
     // update all status machine false
-    mqttClient.on("connect", () => {
-      MQTT_TOPICS.forEach((topic) => {
-        mqttClient.publish(topic, JSON.stringify({ name: topic.slice(0, -5).toUpperCase(), status: 'DISCONNECT' }));
-      });
-    });
+    // mqttClient.on("connect", () => {
+    //   MQTT_TOPICS.forEach((topic) => {
+    //     mqttClient.publish(topic, JSON.stringify({ name: topic.slice(0, -5).toUpperCase(), status: 'DISCONNECT' }));
+    //   });
+    // });
 
 
-    // const updateMachine = await Machine.update(
-    //   {
-    //     status: null,
-    //   },
-    //   {
-    //     where: {},
-    //   }
-    // );
-    // await getAllMachine();
-    // machineLoggerInfo(`Successfully reset machine status, affected rows: ${updateMachine[0]}`);
-    machineLoggerInfo("Successfully reset machine status", "handleResetMachineStatus");
+    const updateMachine = await Machine.update(
+      {
+        status: null,
+      },
+      {
+        where: {},
+      }
+    );
+    await getAllMachine();
+    machineLoggerInfo(`Successfully reset machine status, affected rows: ${updateMachine[0]}`, "handleResetMachineStatus");
   } catch (error) {
     machineLoggerError(error, "handleResetMachineStatus");
   }
@@ -208,15 +207,15 @@ const handleCronJob = async () => {
     const [endHour2, endMinute2] = endSecondShift.split(":").map(Number);
 
     // Create new cron jobs with latest config
-    const job1 = cron.schedule(`${startMinute1} ${startHour1} * * *`, () => {
+    const job1 = cron.schedule(`${startMinute1} ${startHour1} * * *`, async () => {
       machineLoggerInfo(`Executing scheduled job at ${startHour1}:${startMinute1} (first shift start)`);
-      handleResetMachineStatus();
+      await handleResetMachineStatus();
       createDailyConfig();
     });
 
-    const job2 = cron.schedule(`${endMinute1} ${endHour1} * * *`, () => {
+    const job2 = cron.schedule(`${endMinute1} ${endHour1} * * *`, async () => {
       machineLoggerInfo(`Executing scheduled job at ${endHour1}:${endMinute1} (first shift end)`);
-      handleResetMachineStatus();
+      await handleResetMachineStatus();
       createDailyConfig();
     });
 
