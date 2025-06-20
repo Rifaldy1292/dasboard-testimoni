@@ -1,8 +1,8 @@
 const { MachineLog, Machine } = require("../models");
 const { decryptFromNumber } = require("../helpers/crypto");
-const { existMachinesCache } = require("../cache");
 const { MqttClient } = require("mqtt");
 const { machineLoggerDebug, machineLoggerError } = require("../utils/logger");
+const machineCache = require("../cache");
 
 /**
  *
@@ -68,41 +68,26 @@ const handleChangeMachineStatus = async (
     calculate_total_cutting_time,
   } = parseMessage;
   try {
-    // Find the last log for today
-
-    const isManual = await checkIsManualLog(existMachine.id);
-    const newStatus = isManual ? "Running" : status;
-    // const newStatus = status;
-
     // not update if status is same
-    if (newStatus === existMachine.status) return;
     machineLoggerDebug(
-      `Change machine status for ${existMachine.name} from ${existMachine.status} to ${newStatus}`,
+      `Change machine status for ${existMachine.name} from ${existMachine.status} to ${status}`,
       "handleChangeMachineStatus"
     );
-    // update machine status
-    await Machine.update(
-      { status: newStatus },
-      { where: { id: existMachine.id } }
-    );
-    // update exist machines cache
-    existMachinesCache.set(existMachine.name, {
-      id: existMachine.id,
-      name: existMachine.name,
-      status: newStatus,
-    });
 
-    const decryptGCodeName = await decryptFromNumber(g_code_name);
-    const decryptKNum = await decryptFromNumber(k_num);
-    const decryptOutputWp = await decryptFromNumber(output_wp);
-    const decryptToolName = await decryptFromNumber(tool_name);
+
+    const [decryptGCodeName, decryptKNum, decryptOutputWp, decryptToolName] = await Promise.all([
+      decryptFromNumber(g_code_name),
+      decryptFromNumber(k_num),
+      decryptFromNumber(output_wp),
+      decryptFromNumber(tool_name),
+    ]);
 
     await updateDescriptionLastMachineLog(existMachine.id);
     // Create a new log with the updated status
     await MachineLog.create({
       user_id,
       machine_id: existMachine.id,
-      current_status: newStatus,
+      current_status: status,
       previous_status: existMachine.status,
       g_code_name: decryptGCodeName,
       k_num: decryptKNum,
@@ -110,6 +95,14 @@ const handleChangeMachineStatus = async (
       tool_name: decryptToolName,
       total_cutting_time: total_cutting_time || 0,
       calculate_total_cutting_time: calculate_total_cutting_time || null,
+    });
+
+    // update exist machines cache
+    machineCache.set(existMachine.name, {
+      id: existMachine.id,
+      name: existMachine.name,
+      status,
+      k_num: decryptKNum
     });
 
     // Send an update to all connected clients
@@ -152,28 +145,21 @@ const createMachineAndLogFirstTime = async (parseMessage, client) => {
     calculate_total_cutting_time,
   } = parseMessage;
   try {
-    const createMachine = await Machine.create({
-      name,
-      status,
-      ip_address: ipAddress,
-    });
-
-    //  push to cache
-    existMachinesCache.set(name, {
-      id: createMachine.id,
-      name,
-      status,
-    });
-
-    const decryptGCodeName = await decryptFromNumber(g_code_name);
-    const decryptKNum = await decryptFromNumber(k_num);
-    const decryptOutputWp = await decryptFromNumber(output_wp);
-    const decryptToolName = await decryptFromNumber(tool_name);
+    const [createMachine, decryptGCodeName, decryptKNum, decryptOutputWp, decryptToolName] = await Promise.all([
+      Machine.create({
+        name,
+        ip_address: ipAddress,
+      }),
+      decryptFromNumber(g_code_name),
+      decryptFromNumber(k_num),
+      decryptFromNumber(output_wp),
+      decryptFromNumber(tool_name),
+    ]);
 
     await MachineLog.create({
       user_id,
       machine_id: createMachine.id,
-      current_status: createMachine.status,
+      current_status: status,
       previous_status: null,
       g_code_name: decryptGCodeName,
       k_num: decryptKNum,
@@ -182,6 +168,15 @@ const createMachineAndLogFirstTime = async (parseMessage, client) => {
       total_cutting_time: total_cutting_time || 0,
       calculate_total_cutting_time: calculate_total_cutting_time || null,
     });
+
+    //  push to cache
+    machineCache.set(name, {
+      id: createMachine.id,
+      name,
+      status,
+      k_num: decryptKNum,
+    });
+
     handleSendToWebsocket(client);
   } catch (error) {
     machineLoggerError(error, "createMachineAndLogFirstTime", {

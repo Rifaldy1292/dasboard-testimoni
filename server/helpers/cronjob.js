@@ -5,11 +5,7 @@ const { Machine, CuttingTime, DailyConfig } = require("../models");
 const dateCuttingTime = require("../utils/dateCuttingTime");
 const { getAllMachine } = require("../utils/machineUtils");
 const { machineLoggerError, machineLoggerInfo, machineLoggerWarn } = require("../utils/logger"); // Import helper functions
-const { existMachinesCache } = require("../cache");
-const mqtt = require('mqtt');
-const { mqttClient, MQTT_TOPICS } = require("../constants");
 
-const MQTT_BROKER = process.env.MQTT_BROKER || "mqtt://localhost:1883";
 
 
 /**

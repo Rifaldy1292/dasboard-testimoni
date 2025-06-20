@@ -7,6 +7,7 @@ const { PORT } = require("./config/config.env");
 const router = require("./routes");
 const { handleWebsocket } = require("./websocket/handleWebsocket");
 const { machineLoggerInfo } = require("./utils/logger");
+const handleCronJob = require("./helpers/cronjob");
 
 const app = express();
 const server = createServer(app);
@@ -24,6 +25,10 @@ app.use(
 
 app.use("/api", router);
 
+
+(async () => {
+  await handleCronJob();
+})();
 handleWebsocket(wss);
 
 server.listen(PORT, () => {

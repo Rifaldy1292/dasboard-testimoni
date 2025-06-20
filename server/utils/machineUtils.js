@@ -1,8 +1,8 @@
 const { Op, literal } = require("sequelize");
-const { existMachinesCache } = require("../cache");
 const { MachineLog, Machine, DailyConfig, User } = require("../models");
 const { serverError } = require("./serverError");
 const { machineLoggerInfo } = require("./logger");
+const machineCache = require("../cache");
 
 /**
  * Formats the time difference between two dates.
@@ -110,34 +110,31 @@ const getShiftDateRange = async (date, shift) => {
 }
 const getAllMachine = async () => {
   try {
-    existMachinesCache.clear();
+    machineCache.clear();
     const existMachines = await Machine.findAll({
-      attributes: ["id", "name", "status"],
-      raw: true,
+      attributes: ["id", "name"],
+      include: [
+        {
+          model: MachineLog,
+          attributes: ["k_num", "current_status"],
+          limit: 1,
+          order: [["createdAt", "DESC"]],
+        },
+      ],
     });
 
+
     existMachines.forEach((machine) => {
-      existMachinesCache.set(machine.name, {
-        id: machine.id,
-        name: machine.name,
-        status: machine.status,
+      const { id, name, MachineLogs } = machine.get({ plain: true });
+      machineCache.set(machine.name, {
+        id: id,
+        name: name,
+        status: MachineLogs[0]?.current_status || null,
+        k_num: MachineLogs[0]?.k_num || null,
       });
     });
 
-    // Convert cache values to array for logging
-    const cacheData = Array.from(existMachinesCache.values());
-
-    machineLoggerInfo(
-      `Successfully fetched all machines`,
-      "getAllMachine",
-      cacheData // Pass array instead of iterator
-    );
-
-    console.log(
-      `Successfully fetched all machines, total: ${existMachines.length}`,
-      cacheData
-    );
-
+    machineLoggerInfo("Get all machines from database", machineCache.getAll());
   } catch (error) {
     serverError(error, "Failed to get exist machines");
   }

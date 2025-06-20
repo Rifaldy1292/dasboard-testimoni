@@ -1,16 +1,15 @@
-const { Machine } = require("./models");
+const { Machine, MachineLog } = require("./models");
 const {
   handleChangeMachineStatus,
   createMachineAndLogFirstTime,
 } = require("./mqtt/MachineMqtt");
 const WebSocket = require("ws");
 require("./websocket/handleWebsocket");
-const mqtt = require("mqtt");
-const { existMachinesCache } = require("./cache");
 const { getAllMachine } = require("./utils/machineUtils");
 const { machineLoggerInfo, machineLoggerDebug, machineLoggerError } = require("./utils/logger");
-const handleCronJob = require("./helpers/cronjob");
 const { mqttClient, MQTT_TOPICS } = require("./constants");
+const machineCache = require("./cache");
+const { decryptFromNumber } = require("./helpers/crypto");
 
 
 /**
@@ -47,9 +46,8 @@ const handleMqtt = () => {
       machineLoggerDebug(
         `Received MQTT message on topic ${topic}`, 'handleMqtt: mqttClient.on', parseMessage
       );
-      console.log(parseMessage, 777)
 
-      let existMachine = existMachinesCache.get(parseMessage.name);
+      let existMachine = machineCache.get(parseMessage.name);
 
       // machineLoggerDebug(
       //   `Checking if machine ${parseMessage.name} exists in cache`,
@@ -61,25 +59,33 @@ const handleMqtt = () => {
       if (!existMachine) {
         const findExistMachine = await Machine.findOne({
           where: { name: parseMessage.name },
-          attributes: ["id", "name", "status"],
+          attributes: ["id", "name"],
+          include: [{
+            model: MachineLog,
+            attributes: ['k_num', "current_status"],
+            limit: 1,
+            order: [['createdAt', 'DESC']],
+          }],
           raw: true,
         });
         if (!findExistMachine) {
           return await createMachineAndLogFirstTime(parseMessage, mqttClient);
         }
 
-        // if machine exist in db, set to cache
-        existMachinesCache.set(findExistMachine.name, {
+
+        machineCache.set(findExistMachine.name, {
           id: findExistMachine.id,
           name: findExistMachine.name,
-          status: findExistMachine.status,
+          status: findExistMachine.MachineLog.current_status || null,
+          k_num: findExistMachine.MachineLog.k_num || null,
         });
 
-        existMachine = existMachinesCache.get(findExistMachine.name);
+
+        existMachine = machineCache.get(findExistMachine.name);
       }
 
-      // if status change
-      if (existMachine.status !== parseMessage.status) {
+      const decryptKNum = await decryptFromNumber(parseMessage.k_num);
+      if (existMachine.status !== parseMessage.status || existMachine.k_num !== decryptKNum) {
         await handleChangeMachineStatus(existMachine, parseMessage, mqttClient);
       }
     } catch (error) {
@@ -91,7 +97,4 @@ const handleMqtt = () => {
   });
 };
 
-(async () => {
-  await handleCronJob();
-})();
 handleMqtt();
