@@ -70,6 +70,19 @@ function convertMilisecondToHour(milliseconds) {
   return Number(hours.toFixed(1));
 }
 
+function formatTimeDifference(ms) {
+  const seconds = Math.floor(ms / 1000) % 60;
+  const minutes = Math.floor(ms / (1000 * 60)) % 60;
+  const hours = Math.floor(ms / (1000 * 60 * 60));
+
+  let result = [];
+  if (hours > 0) result.push(`${hours}h`);
+  if (minutes > 0) result.push(`${minutes}m`);
+  if (seconds > 0) result.push(`${seconds}s`);
+
+  return result.length > 0 ? result.join(" ") : "0s";
+}
+
 
 class MachineController {
   /**
@@ -539,6 +552,7 @@ interface DummyData {
 
             // Time difference seconds
             total: Math.round(timeDifference / 1000), // convert milliseconds to seconds
+            total2: formatTimeDifference(timeDifference), // formatted time difference
           };
 
         })

@@ -20,6 +20,7 @@ export function exportTimelineToExcel(data: MonthlyLogs[], filename: string): vo
       Operator: log.operator || '-',
       Description: log.description || '-',
       'Total (in seconds)': log.total || 0,
+      'Total (in hh:mm:ss)': log.total2 || '-',
       Start: log.start || '-',
       End: log.end || '-'
     }))
