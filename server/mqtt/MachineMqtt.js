@@ -78,10 +78,10 @@ const handleChangeMachineStatus = async (
 
 
     const [decryptGCodeName, decryptKNum, decryptOutputWp, decryptToolName] = await Promise.all([
-      decryptFromNumber(g_code_name),
-      decryptFromNumber(k_num),
-      decryptFromNumber(output_wp),
-      decryptFromNumber(tool_name),
+      decryptFromNumber(g_code_name, 'g_code_name'),
+      decryptFromNumber(k_num, 'k_num'),
+      decryptFromNumber(output_wp, 'output_wp'),
+      decryptFromNumber(tool_name, 'tool_name'),
     ]);
 
     await updateDescriptionLastMachineLog(existMachine.id);

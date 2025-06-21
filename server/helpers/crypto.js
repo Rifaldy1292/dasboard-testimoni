@@ -1,33 +1,25 @@
 const { EncryptData } = require("../models");
 
-const crypto = require("crypto");
 const { serverError } = require("../utils/serverError");
-const { encryptionCache } = require("../cache");
-
-const key = Buffer.from("1234567890123456"); // Harus 16 karakter untuk AES-128
-const algorithm = "aes-128-ecb"; // Mode ECB agar tidak perlu IV
 
 /**
  *
  * @param {string} text
+ * @param {'g_code_name' | 'k_num' | 'output_wp' | 'tool_name'} key
  * @returns {number}
  */
-const encryptToNumber = (text) => {
+const encryptToNumber = async (text, key) => {
   try {
-    if (!text) return 0;
+    if (!text || !key) return 0;
+    const create = await EncryptData.create({
+      original_text: text,
+      key: key,
+    });
 
-    const cipher = crypto.createCipheriv(algorithm, key, null);
-    const encrypted = cipher.update(text, "utf8", "hex") + cipher.final("hex");
-
-    // Konversi hasil enkripsi ke BigInt
-    const bigNumber = BigInt("0x" + encrypted);
-
-    // Batasi ke 7 digit dengan BigInt
-    const limitedNumber = Number(bigNumber % BigInt(1_000_000_0));
-    encryptionCache.set(limitedNumber, text);
-    return limitedNumber;
+    return create.id;
   } catch (error) {
-    serverError(error);
+    if (error.message.includes("already exists")) return 0;
+    serverError(error, 'encryptToNumber');
     return 0;
   }
 };
@@ -35,22 +27,29 @@ const encryptToNumber = (text) => {
 /**
  *
  * @param {number} encryptedNumber
+ * @param {'g_code_name' | 'k_num' | 'output_wp' | 'tool_name'} key
  * @returns {Promise<string | null>}
  */
-const decryptFromNumber = async (encryptedNumber) => {
+const decryptFromNumber = async (encryptedNumber, key) => {
   try {
-    if (!encryptedNumber || typeof encryptedNumber !== "number") return null;
+    if (!encryptedNumber || typeof encryptedNumber !== "number" || !key) return null;
     // console.log(encryptedNumber, 123)
     // Cari di database berdasarkan angka enkripsi
+    // nanti dihapus karena migrasi
+    const whereCondition = { key }
+    if (encryptedNumber.toString().length > 5) {
+      whereCondition.encrypt_number = encryptedNumber;
+    } else {
+      whereCondition.id = encryptedNumber;
+    }
     const result = await EncryptData.findOne({
-      where: { encrypt_number: encryptedNumber },
+      where: whereCondition,
       attributes: ["original_text"],
       raw: true,
     });
 
     if (!result) return null;
 
-    // Jika ditemukan, kembalikan teks aslinya
     return result.original_text;
   } catch (error) {
     serverError(error, "decryptFromNumber");

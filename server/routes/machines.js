@@ -59,12 +59,6 @@ machineRouter.post(
     FTPController.undoRemove
 )
 
-machineRouter.delete(
-    "/clear-cache",
-    authMiddleware,
-    FTPController.clearCache
-)
-
 machineRouter.get(
     "/machine-log/:machine_id",
     authMiddleware,

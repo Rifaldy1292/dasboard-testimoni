@@ -1,6 +1,5 @@
 const {
   Machine,
-  EncryptData,
   MachineOperatorAssignment,
 } = require("../models");
 const { serverError } = require("../utils/serverError");
@@ -11,7 +10,6 @@ const path = require("path");
 const { Client, FTPError } = require("basic-ftp");
 const ftp = require("ftp");
 const { encryptToNumber } = require("../helpers/crypto");
-const { encryptionCache } = require("../cache");
 const { logInfo, logError } = require("../utils/logger");
 
 const localDir = (machine_id) =>
@@ -118,22 +116,6 @@ class FTPController {
           );
         }
       }
-
-      //  Setelah sukses transfer, simpan hasil enkripsi ke database
-      for (const [encrypt_number, original_text] of encryptionCache.entries()) {
-        const existingData = await EncryptData.findOne({
-          where: { encrypt_number },
-          attributes: ["id"],
-          raw: true,
-        });
-        if (!existingData) {
-          await EncryptData.create({ encrypt_number, original_text });
-        }
-      }
-
-      //  Hapus dari Map setelah tersimpan ke database
-      encryptionCache.clear();
-
       // find MachineOperatorAssignment.is_using_custom, if true, then update is_using_custom to false
       const { is_using_custom, id } = await MachineOperatorAssignment.findOne({
         where: { machine_id },
@@ -159,10 +141,7 @@ class FTPController {
     }
   }
 
-  static clearCache(_, res) {
-    encryptionCache.clear();
-    res.status(204).send();
-  }
+
 
   static async undoRemove(req, res) {
     try {
@@ -481,10 +460,10 @@ class FTPController {
       const { gCodeName, kNum, outputWP, toolName } = req.body;
 
       const encryptValue = {
-        gCodeName: encryptToNumber(gCodeName),
-        kNum: encryptToNumber(kNum),
-        outputWP: encryptToNumber(outputWP),
-        toolName: encryptToNumber(toolName),
+        gCodeName: encryptToNumber(gCodeName, 'g_code_name'),
+        kNum: encryptToNumber(kNum, 'k_num'),
+        outputWP: encryptToNumber(outputWP, 'output_wp'),
+        toolName: encryptToNumber(toolName, 'tool_name'),
       };
 
       res.status(201).json({

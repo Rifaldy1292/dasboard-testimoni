@@ -200,7 +200,7 @@ const handleChange = async (event: Event) => {
     await handleUploadFolder(event)
   } catch (error) {
     // Clear files if any error occurs during validation or upload
-    await handleClearFile()
+    handleClearFile()
     console.error('Error in handleChange:', error)
   }
 }

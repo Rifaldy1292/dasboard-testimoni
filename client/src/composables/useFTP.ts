@@ -1,7 +1,6 @@
 import { getValueFromContent } from '@/components/modules/TransferFile/utils/contentMainProgram.util'
 import MachineServices from '@/services/machine.service'
 import type { ContentFile, ValueFromContent } from '@/types/ftp.type'
-import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import { ref, shallowRef } from 'vue'
 
 const inputFiles = ref<ContentFile[]>([])
@@ -121,17 +120,10 @@ export const useFTP = () => {
       workPosition: selectedWorkPosition.value
     })
   }
-  const handleClearFile = async () => {
-    try {
-      loadingUpload.value = true
-      inputFiles.value = []
-      isCreatedMainProgram.value = false
-      await MachineServices.deleteClearCache()
-    } catch (error) {
-      handleErrorAPI(error)
-    } finally {
-      loadingUpload.value = false
-    }
+  const handleClearFile = () => {
+    loadingUpload.value = true
+    inputFiles.value = []
+    isCreatedMainProgram.value = false
   }
 
   return {
