@@ -35,6 +35,6 @@ userRouter.patch('/edit-profile',
     editProfile);
 
 userRouter.get('/remaining', authMiddleware, RemainingController.getRemaining);
-userRouter.patch('/remaining', authMiddleware, RemainingController.editOperatorInMachine);
+userRouter.patch('/remaining', authMiddleware, RemainingController.createOrEditOperatorInMachine);
 
 module.exports = userRouter;

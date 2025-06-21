@@ -139,7 +139,7 @@ class RemainingController {
      * @param {Object} res - Express response object
      * @returns {Promise<void>}
      */
-    static async editOperatorInMachine(req, res) {
+    static async createOrEditOperatorInMachine(req, res) {
         try {
             const { machine_id, user_id, is_work, description } = req.body;
             if (!machine_id || !user_id) {

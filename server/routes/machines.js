@@ -4,7 +4,6 @@ const MachineController = require("../controllers/MachineController");
 const authMiddleware = require("../middlewares/auth");
 const checkMachineLogMiddleware = require("../middlewares/checkMachineLogMiddleware");
 const multer = require('multer');
-const RemainingController = require("../controllers/RemainingController");
 const FTPController = require("../controllers/FTPController");
 
 machineRouter.get(
@@ -84,7 +83,6 @@ machineRouter.get('/is-ready-transfer-files',
     (_, res) => (res.status(204).send())
 );
 
-machineRouter.put('/remaining', authMiddleware, RemainingController.editOperatorInMachine)
 
 module.exports = machineRouter;
 
