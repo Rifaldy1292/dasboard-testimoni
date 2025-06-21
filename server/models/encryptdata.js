@@ -21,19 +21,20 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'EncryptData',
   });
   EncryptData.beforeCreate(async (encryptData, options) => {
+    console.log({ encryptData: encryptData.get({ plain: true }) }, 999);
     const { original_text, key } = encryptData;
     // not allow if original_text and key is empty
-    if (!original_text || !key) {
-      throw new Error("original_text and key must be provided");
+    if (!original_text) {
+      throw new Error("original_text must be provided");
     }
     const existingEntry = await EncryptData.findOne({
-      where: { original_text, key },
+      where: { original_text },
       attributes: ['id'],
       raw: true,
     });
 
     if (existingEntry) {
-      throw new Error("Data with the same original_text and key already exists");
+      throw new Error("Data with the same original_text already exists");
     }
 
   });

@@ -121,7 +121,6 @@ export const useFTP = () => {
     })
   }
   const handleClearFile = () => {
-    loadingUpload.value = true
     inputFiles.value = []
     isCreatedMainProgram.value = false
   }

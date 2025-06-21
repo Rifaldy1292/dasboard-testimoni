@@ -11,10 +11,12 @@ const { serverError } = require("../utils/serverError");
 const encryptToNumber = async (text, key) => {
   try {
     if (!text || !key) return 0;
+    console.log({ text, key }, 123);
     const create = await EncryptData.create({
       original_text: text,
       key: key,
     });
+    console.log(create, 123);
 
     return create.id;
   } catch (error) {

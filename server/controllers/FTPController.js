@@ -459,11 +459,17 @@ class FTPController {
     try {
       const { gCodeName, kNum, outputWP, toolName } = req.body;
 
+      const [gCodeNameEnc, kNumEnc, outputWPEnt, toolNameEnc] = await Promise.all([
+        encryptToNumber(gCodeName, 'g_code_name'),
+        encryptToNumber(kNum, 'k_num'),
+        encryptToNumber(outputWP, 'output_wp'),
+        encryptToNumber(toolName, 'tool_name'),
+      ]);
       const encryptValue = {
-        gCodeName: encryptToNumber(gCodeName, 'g_code_name'),
-        kNum: encryptToNumber(kNum, 'k_num'),
-        outputWP: encryptToNumber(outputWP, 'output_wp'),
-        toolName: encryptToNumber(toolName, 'tool_name'),
+        gCodeName: gCodeNameEnc,
+        kNum: kNumEnc,
+        outputWP: outputWPEnt,
+        toolName: toolNameEnc,
       };
 
       res.status(201).json({
