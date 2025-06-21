@@ -84,7 +84,7 @@ const handleMqtt = () => {
         existMachine = machineCache.get(findExistMachine.name);
       }
 
-      const decryptKNum = parseMessage.k_num ? await decryptFromNumber(parseMessage.k_num) : null;
+      const decryptKNum = await decryptFromNumber(parseMessage.k_num);
       if (existMachine.status !== parseMessage.status || existMachine.k_num !== decryptKNum) {
         await handleChangeMachineStatus(existMachine, parseMessage, mqttClient);
       }
