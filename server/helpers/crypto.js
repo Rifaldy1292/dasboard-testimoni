@@ -12,13 +12,20 @@ const encryptToNumber = async (text, key) => {
   try {
     if (!text || !key) return 0;
     console.log({ text, key }, 123);
-    const create = await EncryptData.create({
-      original_text: text,
-      key: key,
-    });
-    console.log(create, 123);
 
-    return create.id;
+    const [record, created] = await EncryptData.findOrCreate({
+      where: { original_text: text, key },
+      attributes: ['id'],
+
+      defaults: {
+        original_text: text,
+        key: key,
+      }
+    });
+    const plainRecord = record.get({ plain: true });
+
+
+    return plainRecord.id;
   } catch (error) {
     if (error.message.includes("already exists")) return 0;
     serverError(error, 'encryptToNumber');

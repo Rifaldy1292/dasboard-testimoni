@@ -15,26 +15,26 @@ module.exports = (sequelize, DataTypes) => {
   }
   EncryptData.init({
     encrypt_number: DataTypes.INTEGER,
-    original_text: DataTypes.STRING
+    original_text: DataTypes.STRING,
+    key: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'EncryptData',
   });
-  EncryptData.beforeCreate(async (encryptData, options) => {
-    console.log({ encryptData: encryptData.get({ plain: true }) }, 999);
+  EncryptData.beforeCreate(async (encryptData) => {
     const { original_text, key } = encryptData;
     // not allow if original_text and key is empty
-    if (!original_text) {
-      throw new Error("original_text must be provided");
+    if (!original_text || !key) {
+      throw new Error("original_text and key must be provided");
     }
     const existingEntry = await EncryptData.findOne({
-      where: { original_text },
+      where: { original_text, key },
       attributes: ['id'],
       raw: true,
     });
 
     if (existingEntry) {
-      throw new Error("Data with the same original_text already exists");
+      throw new Error("Data with the same original_text and key already exists");
     }
 
   });
