@@ -23,21 +23,21 @@ module.exports = (sequelize, DataTypes) => {
     startFirstShift: {
       type: DataTypes.TIME,
       allowNull: false,
-      defaultValue: '06:00:00'
+      defaultValue: '07:00:00'
     },
     startSecondShift: {
       type: DataTypes.TIME,
       allowNull: false,
-      defaultValue: '18:00:00'
+      defaultValue: '19:00:00'
     },
     endFirstShift: {
       type: DataTypes.TIME,
       allowNull: false,
-      defaultValue: '18:00:00',
+      defaultValue: '19:00:00',
     },
     endSecondShift: {
       type: DataTypes.TIME,
-      defaultValue: '06:00:00',
+      defaultValue: '07:00:00',
     },
   }, {
     sequelize,

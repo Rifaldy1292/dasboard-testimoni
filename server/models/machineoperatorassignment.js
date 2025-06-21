@@ -16,8 +16,22 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   MachineOperatorAssignment.init({
-    machine_id: DataTypes.INTEGER,
-    user_id: DataTypes.INTEGER,
+    machine_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Machines',
+        key: 'id'
+      }
+    },
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Users',
+        key: 'id'
+      }
+    },
     is_using_custom: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
@@ -30,6 +44,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     description: {
       type: DataTypes.STRING,
+      defaultValue: "Dandori tool",
       allowNull: true
     }
   }, {

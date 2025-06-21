@@ -62,7 +62,8 @@ const handleEditTable = async (event: DataTableCellEditCompleteEvent) => {
       newValue: string
       data: DailyConfig
     }
-    if (data[field] === newValue) return
+    if (newData) if (data[field] === newValue) return
+
     await SettingServices.patchDailyConfig({
       id: newData.id,
       field,
@@ -70,6 +71,22 @@ const handleEditTable = async (event: DataTableCellEditCompleteEvent) => {
     })
     toast.add({ severity: 'success', summary: 'Success', detail: 'Update success' })
     await fetchDailyConfig(selectedMonth.value)
+    if (new Date(data.date as string).toLocaleDateString() === new Date().toLocaleDateString()) {
+      confirm.require({
+        header: 'Restart PC',
+        message: 'Please restart your PC to apply the changes',
+        icon: 'pi pi-info-circle',
+        acceptProps: {
+          label: 'Okay',
+          severity: 'success'
+        },
+        rejectProps: {
+          label: 'Later',
+          severity: 'secondary',
+          outlined: true
+        }
+      })
+    }
   } catch (error) {
     handleErrorAPI(error, toast)
   } finally {
