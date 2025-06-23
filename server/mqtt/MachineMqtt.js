@@ -25,18 +25,34 @@ const isBetweenTimeManualLog = (createdAt) => {
 
 /**
  *
- * @param {{ createdAt: Date, current_status: string}} log
+ * @param {machineCache} existMachine - The existing machine record.
+ * @param {Object} parseMessage - The parsed MQTT message containing machine data.
  * @returns {Promise<boolean>}
  */
-const isManualLog = async () => {
-  const log = await MachineLog.findOne({
+const isManualLog = async (existMachine, parseMessage) => {
+  const isNull = machineCache.isNullStatus(existMachine.name);
+  if (isNull) return false;
+
+  //  isManualOperation is when the status is "Stopped" but the machine cache is  running
+  const isManualOperation =
+    parseMessage.status === "Stopped" && existMachine.status === "Running";
+  if (!isManualOperation) return false;
+
+
+  const lastLog = await MachineLog.findOne({
     raw: true,
     attributes: ["createdAt"],
+    order: [["createdAt", "DESC"]],
+    where: {
+      machine_id: existMachine.id,
+    }
   }).catch((error) => {
     machineLoggerError(error, "isManualLog");
   });
-  if (!log || !log.createdAt) return false;
-  return isBetweenTimeManualLog(log.createdAt);
+  if (!lastLog || !lastLog.createdAt) return false;
+
+
+  return isBetweenTimeManualLog(lastLog.createdAt);
 };
 
 /**
@@ -64,11 +80,9 @@ const handleChangeMachineStatus = async (
   } = parseMessage;
   try {
     //  isManualOperation is when the status is "Stopped" but the machine cache is  running
-    const isManualOperation =
-      status === "Stopped" && existMachine.status === "Running";
-    const isManualOperationDetected =
-      isManualOperation || (await isManualLog());
-    const effectiveStatus = isManualOperationDetected ? "Running" : status;
+    const isManualOperation = await isManualLog(existMachine, parseMessage);
+    const effectiveStatus = isManualOperation ? "Running" : status;
+
 
     // not update if status is same
     if (existMachine.status === effectiveStatus) return;

@@ -13,7 +13,6 @@ const {
 } = require("./utils/logger");
 const { mqttClient, MQTT_TOPICS } = require("./constants");
 const { machineCache } = require("./cache");
-const { decryptFromNumber } = require("./helpers/crypto");
 
 /**
  * @param {WebSocket.Server} wss
@@ -111,6 +110,12 @@ const handleMqtt = () => {
       machineLoggerError(error, "Failed to handle MQTT message", parseMessage);
     }
   });
-};
 
+  mqttClient.on("error", (error) => {
+    machineLoggerError(error, "MQTT client error", {
+      message: error.message,
+      stack: error.stack,
+    });
+  });
+};
 handleMqtt();

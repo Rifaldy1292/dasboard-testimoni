@@ -1,7 +1,10 @@
 const mqtt = require('mqtt')
+// for testing purposes, you can use a public broker like:
+// const broker = 'mqtt://test.mosquitto.org:1883'; // Example public broker
+// const MQTT_TOPICS = ['jonfry/RK11111']
+
 const broker = process.env.MQTT_BROKER || "mqtt://localhost:1883";
 const mqttClient = mqtt.connect(broker);
-
 const MQTT_TOPICS = [
     "mc-1/data",
     "mc-2/data",
@@ -20,6 +23,7 @@ const MQTT_TOPICS = [
     "mc-15/data",
     "mc-16/data",
 ];
+
 
 module.exports = {
     MQTT_TOPICS,

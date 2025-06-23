@@ -33,6 +33,11 @@ class MachineCacheManager {
     return this.machineCache.get(machineName) || null;
   }
 
+  isNullStatus(machineName) {
+    const machine = this.machineCache.get(machineName);
+    return machine ? machine.status === null : true;
+  }
+
   resetStatusAndKNum() {
     this.machineCache.forEach((machine) => {
       machine.status = null;
