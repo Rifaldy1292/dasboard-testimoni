@@ -45,7 +45,10 @@ const isAllowed = computed<boolean>(() => {
   // return true
   if (NODE_ENV !== 'production') return true
   if (windowWidth.value < 768) return false
-  return publicIp.value === import.meta.env.VITE_INTERNAL_IP
+  return (
+    publicIp.value === import.meta.env.VITE_INTERNAL_IP ||
+    publicIp.value === import.meta.env.VITE_INTERNAL_IP2
+  )
 })
 </script>
 
