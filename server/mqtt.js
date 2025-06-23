@@ -6,11 +6,14 @@ const {
 const WebSocket = require("ws");
 require("./websocket/handleWebsocket");
 const { getAllMachine } = require("./utils/machineUtils");
-const { machineLoggerInfo, machineLoggerDebug, machineLoggerError } = require("./utils/logger");
+const {
+  machineLoggerInfo,
+  machineLoggerDebug,
+  machineLoggerError,
+} = require("./utils/logger");
 const { mqttClient, MQTT_TOPICS } = require("./constants");
 const { machineCache } = require("./cache");
 const { decryptFromNumber } = require("./helpers/crypto");
-
 
 /**
  * @param {WebSocket.Server} wss
@@ -21,7 +24,10 @@ const handleMqtt = () => {
       mqttClient.subscribe(topic);
     });
     await getAllMachine();
-    machineLoggerInfo("MQTT client connected and subscribed to topics", "handleMqtt");
+    machineLoggerInfo(
+      "MQTT client connected and subscribed to topics",
+      "handleMqtt"
+    );
   });
 
   mqttClient.on("message", async (topic, message) => {
@@ -44,7 +50,9 @@ const handleMqtt = () => {
              }
              */
       machineLoggerDebug(
-        `Received MQTT message on topic ${topic}`, 'handleMqtt: mqttClient.on', parseMessage
+        `Received MQTT message on topic ${topic}`,
+        "handleMqtt: mqttClient.on",
+        parseMessage
       );
 
       let existMachine = machineCache.get(parseMessage.name);
@@ -60,37 +68,44 @@ const handleMqtt = () => {
         const findExistMachine = await Machine.findOne({
           where: { name: parseMessage.name },
           attributes: ["id", "name"],
-          include: [{
-            model: MachineLog,
-            attributes: ['k_num', "current_status"],
-            limit: 1,
-            order: [['createdAt', 'DESC']],
-          }],
-          raw: true,
+          include: [
+            {
+              model: MachineLog,
+              attributes: ["k_num", "current_status"],
+              limit: 1,
+              order: [["createdAt", "DESC"]],
+            },
+          ],
         });
         if (!findExistMachine) {
           return await createMachineAndLogFirstTime(parseMessage, mqttClient);
         }
+        const { id, name, MachineLogs } = findExistMachine.get({ plain: true });
 
-
-        machineCache.set(findExistMachine.name, {
-          id: findExistMachine.id,
-          name: findExistMachine.name,
-          status: findExistMachine.MachineLog.current_status || null,
-          k_num: findExistMachine.MachineLog.k_num || null,
+        machineCache.set(name, {
+          id: id,
+          name: name,
+          status: MachineLogs[0]?.current_status || null,
+          k_num: MachineLogs[0]?.k_num || null,
         });
-
 
         existMachine = machineCache.get(findExistMachine.name);
       }
 
-      const decryptKNum = await decryptFromNumber(parseMessage.k_num, 'k_num');
-      if (existMachine.status !== parseMessage.status || existMachine.k_num !== decryptKNum) {
+      const decryptKNum = await decryptFromNumber(parseMessage.k_num, "k_num");
+      if (
+        existMachine.status !== parseMessage.status ||
+        existMachine.k_num !== decryptKNum
+      ) {
         await handleChangeMachineStatus(existMachine, parseMessage, mqttClient);
       }
     } catch (error) {
       if (error.message === "Unexpected token < in JSON at position 0") {
-        return machineLoggerError(error, "Invalid JSON format received from MQTT", parseMessage);
+        return machineLoggerError(
+          error,
+          "Invalid JSON format received from MQTT",
+          parseMessage
+        );
       }
       machineLoggerError(error, "Failed to handle MQTT message", parseMessage);
     }

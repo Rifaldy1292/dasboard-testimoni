@@ -65,7 +65,12 @@ const getShiftDateRange = async (date, shift) => {
     const formattedDate = new Date(date).toLocaleDateString("en-CA");
     const dailyConfig = await DailyConfig.findOne({
       where: { date: formattedDate },
-      attributes: ["startFirstShift", "endFirstShift", "startSecondShift", "endSecondShift"],
+      attributes: [
+        "startFirstShift",
+        "endFirstShift",
+        "startSecondShift",
+        "endSecondShift",
+      ],
       raw: true,
     });
 
@@ -75,27 +80,28 @@ const getShiftDateRange = async (date, shift) => {
 
     const dateFrom = new Date(date);
     const dateTo = new Date(date);
-    const { startFirstShift, endFirstShift, startSecondShift, endSecondShift } = dailyConfig;
+    const { startFirstShift, endFirstShift, startSecondShift, endSecondShift } =
+      dailyConfig;
 
     switch (shift) {
       case 0: {
-        const [hour, minute, second] = startFirstShift.split(':').map(Number);
-        const [hour2, minute2, second2] = endSecondShift.split(':').map(Number);
+        const [hour, minute, second] = startFirstShift.split(":").map(Number);
+        const [hour2, minute2, second2] = endSecondShift.split(":").map(Number);
         dateFrom.setHours(hour, minute, second);
         dateTo.setDate(dateTo.getDate() + 1);
         dateTo.setHours(hour2, minute2, second2);
         break;
       }
       case 1: {
-        const [hour, minute, second] = startFirstShift.split(':').map(Number);
-        const [hour2, minute2, second2] = endFirstShift.split(':').map(Number);
+        const [hour, minute, second] = startFirstShift.split(":").map(Number);
+        const [hour2, minute2, second2] = endFirstShift.split(":").map(Number);
         dateFrom.setHours(hour, minute, second);
         dateTo.setHours(hour2, minute2, second2);
         break;
       }
       case 2: {
-        const [hour, minute, second] = startSecondShift.split(':').map(Number);
-        const [hour2, minute2, second2] = endSecondShift.split(':').map(Number);
+        const [hour, minute, second] = startSecondShift.split(":").map(Number);
+        const [hour2, minute2, second2] = endSecondShift.split(":").map(Number);
         dateFrom.setHours(hour, minute, second);
         dateTo.setHours(hour2, minute2, second2);
         dateTo.setDate(dateFrom.getDate() + 1);
@@ -107,22 +113,20 @@ const getShiftDateRange = async (date, shift) => {
   } catch (error) {
     throw error;
   }
-}
+};
 const getAllMachine = async () => {
   try {
-    machineCache.clear();
     const existMachines = await Machine.findAll({
       attributes: ["id", "name"],
       include: [
         {
           model: MachineLog,
           attributes: ["k_num", "current_status"],
-          limit: 1,
           order: [["createdAt", "DESC"]],
+          limit: 1, // Get only the latest log for each machine
         },
       ],
     });
-
 
     existMachines.forEach((machine) => {
       const { id, name, MachineLogs } = machine.get({ plain: true });
@@ -133,6 +137,7 @@ const getAllMachine = async () => {
         k_num: MachineLogs[0]?.k_num || null,
       });
     });
+    // machineLoggerInfo("Get all
 
     machineLoggerInfo("Get all machines from database", machineCache.getAll());
   } catch (error) {
@@ -152,7 +157,7 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
     const whereMachineLog = {
       createdAt: {
         [Op.between]: [dateFrom, dateTo],
-      }
+      },
     };
     // req id passed from machineController
     if (reqId) {
@@ -212,14 +217,18 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
     }
     const MILISECOND = 1000;
 
-
     const formattedMachines = sortedMachines.map((machine) => {
       const logs = machine.MachineLogs.map((log, indexLog) => {
-        const { dataValues, current_status, calculate_total_cutting_time } = log;
-        const splitCalculate = calculate_total_cutting_time ? calculate_total_cutting_time.split(".") : [];
-        const remaining = calculate_total_cutting_time ? `remaining ${splitCalculate[0]} project, ${formatTimeDifference(
-          Number(splitCalculate[1]) * MILISECOND
-        )}` : null;
+        const { dataValues, current_status, calculate_total_cutting_time } =
+          log;
+        const splitCalculate = calculate_total_cutting_time
+          ? calculate_total_cutting_time.split(".")
+          : [];
+        const remaining = calculate_total_cutting_time
+          ? `remaining ${splitCalculate[0]} project, ${formatTimeDifference(
+              Number(splitCalculate[1]) * MILISECOND
+            )}`
+          : null;
         const operator = dataValues.User?.name || null;
         // calculate_total_cutting_time is in seconds
         const currentTime = log.createdAt;
@@ -228,7 +237,7 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
         const lastLogAndIsnowDate = isLastLog && isNowDate;
         // const timeDifference = lastLogAndIsnowDate ? new Date() - new Date(currentTime) :
         //   new Date(nextLog?.createdAt || 0) - new Date(currentTime);
-        let timeDifference = 0
+        let timeDifference = 0;
         switch (true) {
           case lastLogAndIsnowDate:
             timeDifference = new Date() - new Date(currentTime);
@@ -237,7 +246,8 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
             timeDifference = dateTo - new Date(currentTime);
             break;
           default:
-            timeDifference = new Date(nextLog?.createdAt || 0) - new Date(currentTime);
+            timeDifference =
+              new Date(nextLog?.createdAt || 0) - new Date(currentTime);
         }
         return {
           ...log.dataValues,
@@ -248,7 +258,7 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
           output_wp: current_status === "Running" ? log.output_wp : null,
           g_code_name: current_status === "Running" ? log.g_code_name : null,
           operator,
-          remaining
+          remaining,
           // log,
           // nextLog,
         };
@@ -264,17 +274,17 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
 
       const extendLogs = isNowDate
         ? [
-          ...logs,
+            ...logs,
 
-          {
-            isNext: true,
-            createdAt: nextLog.createdAt,
-            timeDifference: nextTimeDifference,
-            timeDifferenceMs: nextTime,
-            operator: nextLog.User?.name || null,
-            description: "Remaining",
-          },
-        ]
+            {
+              isNext: true,
+              createdAt: nextLog.createdAt,
+              timeDifference: nextTimeDifference,
+              timeDifferenceMs: nextTime,
+              operator: nextLog.User?.name || null,
+              description: "Remaining",
+            },
+          ]
         : logs;
       // console.log({ nextLog: extendLogs[extendLogs.length - 1] });
 
@@ -289,12 +299,10 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
     return { data: formattedMachines, date: dateOption, dateFrom, dateTo };
   } catch (error) {
     // 'No daily config for 2025-05-15'
-    if (error.message.includes("No daily config")) throw error
+    if (error.message.includes("No daily config")) throw error;
     serverError(error, "getMachineTimeline");
   }
 };
-
-
 
 module.exports = {
   getAllMachine,

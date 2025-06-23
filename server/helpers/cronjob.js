@@ -4,9 +4,12 @@ const fs = require("fs");
 const { Machine, CuttingTime, DailyConfig } = require("../models");
 const dateCuttingTime = require("../utils/dateCuttingTime");
 const { getAllMachine } = require("../utils/machineUtils");
-const { machineLoggerError, machineLoggerInfo, machineLoggerWarn } = require("../utils/logger"); // Import helper functions
-
-
+const {
+  machineLoggerError,
+  machineLoggerInfo,
+  machineLoggerWarn,
+} = require("../utils/logger"); // Import helper functions
+const { machineCache } = require("../cache");
 
 /**
  * Creates a new cutting time entry for the current period if one doesn't exist.
@@ -29,7 +32,10 @@ const createCuttingTime = async () => {
     machineLoggerInfo(`Cutting time created for period: ${date}`, CONTEXT);
   } catch (error) {
     if (error.message === "Cutting time for this month already exists") {
-      machineLoggerInfo("Cutting time for this month already exists, skipping creation", CONTEXT);
+      machineLoggerInfo(
+        "Cutting time for this month already exists, skipping creation",
+        CONTEXT
+      );
       return;
     }
 
@@ -58,8 +64,14 @@ const createDailyConfig = async () => {
 
     const existDailyConfig = await DailyConfig.findOne({
       where: { date },
-      attributes: ["date", "startFirstShift", "startSecondShift", "endFirstShift", "endSecondShift"],
-      order: [['createdAt', "DESC"]],
+      attributes: [
+        "date",
+        "startFirstShift",
+        "startSecondShift",
+        "endFirstShift",
+        "endSecondShift",
+      ],
+      order: [["createdAt", "DESC"]],
       raw: true,
     });
     if (existDailyConfig) return;
@@ -77,28 +89,18 @@ const createDailyConfig = async () => {
  * @returns {Promise<void>} A promise that resolves when all machine statuses are reset
  * @throws {Error} If database operation fails
  */
-const handleResetMachineStatus = async () => {
+const handleResetMachineStatus = () => {
+  const CONTEXT = "handleResetMachineStatus";
   try {
     // update all status machine false
-    // mqttClient.on("connect", () => {
-    //   MQTT_TOPICS.forEach((topic) => {
-    //     mqttClient.publish(topic, JSON.stringify({ name: topic.slice(0, -5).toUpperCase(), status: 'DISCONNECT' }));
-    //   });
-    // });
-
-
-    const updateMachine = await Machine.update(
-      {
-        status: null,
-      },
-      {
-        where: {},
-      }
+    machineCache.resetStatusAndKNum();
+    machineLoggerInfo(
+      "Resetting all machine statuses to null",
+      CONTEXT,
+      machineCache.getAll()
     );
-    await getAllMachine();
-    machineLoggerInfo(`Successfully reset machine status, affected rows: ${updateMachine[0]}`, "handleResetMachineStatus");
   } catch (error) {
-    machineLoggerError(error, "handleResetMachineStatus");
+    machineLoggerError(error, CONTEXT);
   }
 };
 
@@ -112,11 +114,10 @@ const deleteCncFiles = async () => {
   }
 };
 
-
 /**
  * Cleans up log files by recreating the logs directory
  * More efficient than deleting files individually
- * 
+ *
  * @async
  * @function cleanupLogFiles
  * @returns {Promise<void>} A promise that resolves when log cleanup is complete
@@ -143,10 +144,12 @@ const cleanupLogFiles = async () => {
 
     machineLoggerInfo("Log cleanup completed successfully", CONTEXT);
   } catch (error) {
-    machineLoggerError(`Failed to clean up log files: ${error.message}`, CONTEXT);
+    machineLoggerError(
+      `Failed to clean up log files: ${error.message}`,
+      CONTEXT
+    );
   }
 };
-
 
 /**
  * Initializes and schedules all cron jobs for the application.
@@ -163,11 +166,44 @@ const cleanupLogFiles = async () => {
  * @see handleResetMachineStatus
  */
 const handleCronJob = async () => {
-  // Initial setup 
+  // Initial setup
   machineLoggerInfo("Cronjob system finished initialization");
-  await createDailyConfig();
+  // handleResetMachineStatus();
+  createDailyConfig();
+  createCuttingTime();
 
-  await createCuttingTime();
+  // Get latest daily config
+  const latestDailyConfig = await DailyConfig.findOne({
+    attributes: ["startFirstShift", "startSecondShift"],
+    order: [["createdAt", "DESC"]],
+    raw: true,
+  });
+  if (!latestDailyConfig) {
+    machineLoggerWarn("No daily config found, skipping shift cron jobs");
+    return;
+  }
+
+  const { startFirstShift, startSecondShift } = latestDailyConfig;
+  const [startHour1, startMinute1] = startFirstShift.split(":").map(Number);
+  const [startHour2, startMinute2] = startSecondShift.split(":").map(Number);
+
+  // Create new cron jobs with latest config
+  cron.schedule(`${startMinute1} ${startHour1} * * *`, async () => {
+    machineLoggerInfo(
+      `Executing scheduled job at ${startHour1}:${startMinute1} (first shift start)`
+    );
+    handleResetMachineStatus();
+    createDailyConfig();
+  });
+
+  cron.schedule(`${startMinute2} ${startHour2} * * *`, async () => {
+    machineLoggerInfo(
+      `Executing scheduled job at ${startHour2}:${startMinute2} (first shift end)`
+    );
+    handleResetMachineStatus();
+    createDailyConfig();
+  });
+
   // Daily cron job at midnight
   cron.schedule(`0 0 * * *`, async () => {
     machineLoggerInfo("Executing daily midnight job for maintenance tasks");
@@ -185,39 +221,6 @@ const handleCronJob = async () => {
     cleanupLogFiles();
     machineLoggerInfo("Weekly log cleanup job completed");
   });
-
-
-  // Get latest daily config
-  const latestDailyConfig = await DailyConfig.findOne({
-    attributes: ["startFirstShift", "startSecondShift", "endFirstShift", "endSecondShift"],
-    order: [['createdAt', "DESC"]],
-    raw: true,
-  });
-  if (!latestDailyConfig) {
-    machineLoggerWarn("No daily config found, skipping shift cron jobs");
-    return;
-  }
-
-  const { startFirstShift, startSecondShift, endFirstShift, endSecondShift } = latestDailyConfig;
-  const [startHour1, startMinute1] = startFirstShift.split(":").map(Number);
-  const [startHour2, startMinute2] = startSecondShift.split(":").map(Number);
-  const [endHour1, endMinute1] = endFirstShift.split(":").map(Number);
-  const [endHour2, endMinute2] = endSecondShift.split(":").map(Number);
-
-  // Create new cron jobs with latest config
-  cron.schedule(`${startMinute1} ${startHour1} * * *`, async () => {
-    machineLoggerInfo(`Executing scheduled job at ${startHour1}:${startMinute1} (first shift start)`);
-    await handleResetMachineStatus();
-    createDailyConfig();
-  });
-
-  cron.schedule(`${endMinute1} ${endHour1} * * *`, async () => {
-    machineLoggerInfo(`Executing scheduled job at ${endHour1}:${endMinute1} (first shift end)`);
-    await handleResetMachineStatus();
-    createDailyConfig();
-  });
-
-
 };
 
 module.exports = handleCronJob;

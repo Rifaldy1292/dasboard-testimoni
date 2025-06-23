@@ -21,7 +21,7 @@ const isBetweenTimeManualLog = (createdAt) => {
   const sixMinutees = 6 * 60 * 1000;
   const timeDifference = new Date().getTime() - new Date(createdAt).getTime();
   return timeDifference < sixMinutees;
-}
+};
 
 /**
  *
@@ -38,7 +38,6 @@ const isManualLog = async () => {
   if (!log || !log.createdAt) return false;
   return isBetweenTimeManualLog(log.createdAt);
 };
-
 
 /**
  * Handles machine status changes, creating new logs when necessary.
@@ -64,32 +63,33 @@ const handleChangeMachineStatus = async (
     calculate_total_cutting_time,
   } = parseMessage;
   try {
-    const isManualOperation = status === "Stopped" && existMachine.status === "Running";
-    const isManualOperationDetected = isManualOperation || await isManualLog();
+    const isManualOperation =
+      status === "Stopped" && existMachine.status === "Running";
+    const isManualOperationDetected =
+      isManualOperation || (await isManualLog());
     const effectiveStatus = isManualOperationDetected ? "Running" : status;
-    if (existMachine.status === effectiveStatus) return;
-
 
     // not update if status is same
+    if (existMachine.status === effectiveStatus) return;
     machineLoggerDebug(
       `Change machine status for ${existMachine.name} from ${existMachine.status} to ${status}`,
       "handleChangeMachineStatus"
     );
 
-
-    const [decryptGCodeName, decryptKNum, decryptOutputWp, decryptToolName] = await Promise.all([
-      decryptFromNumber(g_code_name, 'g_code_name'),
-      decryptFromNumber(k_num, 'k_num'),
-      decryptFromNumber(output_wp, 'output_wp'),
-      decryptFromNumber(tool_name, 'tool_name'),
-    ]);
+    const [decryptGCodeName, decryptKNum, decryptOutputWp, decryptToolName] =
+      await Promise.all([
+        decryptFromNumber(g_code_name, "g_code_name"),
+        decryptFromNumber(k_num, "k_num"),
+        decryptFromNumber(output_wp, "output_wp"),
+        decryptFromNumber(tool_name, "tool_name"),
+      ]);
 
     await updateDescriptionLastMachineLog(existMachine.id);
     // Create a new log with the updated status
     await MachineLog.create({
       user_id,
       machine_id: existMachine.id,
-      current_status: status,
+      current_status: effectiveStatus,
       previous_status: existMachine.status,
       g_code_name: decryptGCodeName,
       k_num: decryptKNum,
@@ -104,7 +104,7 @@ const handleChangeMachineStatus = async (
       id: existMachine.id,
       name: existMachine.name,
       status,
-      k_num: decryptKNum
+      k_num: decryptKNum,
     });
 
     // Send an update to all connected clients
@@ -147,7 +147,13 @@ const createMachineAndLogFirstTime = async (parseMessage, client) => {
     calculate_total_cutting_time,
   } = parseMessage;
   try {
-    const [createMachine, decryptGCodeName, decryptKNum, decryptOutputWp, decryptToolName] = await Promise.all([
+    const [
+      createMachine,
+      decryptGCodeName,
+      decryptKNum,
+      decryptOutputWp,
+      decryptToolName,
+    ] = await Promise.all([
       Machine.create({
         name,
         ip_address: ipAddress,
@@ -157,6 +163,13 @@ const createMachineAndLogFirstTime = async (parseMessage, client) => {
       decryptFromNumber(output_wp),
       decryptFromNumber(tool_name),
     ]);
+
+    machineCache.set(name, {
+      id: createMachine.id,
+      name,
+      status,
+      k_num: decryptKNum,
+    });
 
     await MachineLog.create({
       user_id,
