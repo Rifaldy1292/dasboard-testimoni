@@ -32,6 +32,8 @@ const handleMqtt = () => {
 
   mqttClient.on("message", async (topic, message) => {
     const parseMessage = JSON.parse(message.toString());
+    const k_num = parseMessage.k_num || 0;
+
     try {
       /**
              * Parses the received MQTT message into a JavaScript object.
@@ -71,7 +73,7 @@ const handleMqtt = () => {
           include: [
             {
               model: MachineLog,
-              attributes: ["k_num", "current_status"],
+              attributes: ["current_status"],
               limit: 1,
               order: [["createdAt", "DESC"]],
             },
@@ -86,16 +88,15 @@ const handleMqtt = () => {
           id: id,
           name: name,
           status: MachineLogs[0]?.current_status || null,
-          k_num: MachineLogs[0]?.k_num || null,
+          k_num
         });
 
         existMachine = machineCache.get(findExistMachine.name);
       }
 
-      const decryptKNum = await decryptFromNumber(parseMessage.k_num, "k_num");
       if (
         existMachine.status !== parseMessage.status ||
-        existMachine.k_num !== decryptKNum
+        existMachine.k_num !== k_num
       ) {
         await handleChangeMachineStatus(existMachine, parseMessage, mqttClient);
       }

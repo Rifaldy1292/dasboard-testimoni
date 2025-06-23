@@ -12,7 +12,7 @@ class MachineCacheManager {
      * @property {number} id - Unique identifier for the machine
      * @property {string} name - Name of the machine
      * @property {'Running' | 'Stopped' | 'DISCONNECT'} status - Current status of the machine
-     * @property {string | null} k_num - K-number identifier
+     * @property {number} k_num - encrypt K-number identifier
      */
 
     /**
@@ -36,12 +36,12 @@ class MachineCacheManager {
   resetStatusAndKNum() {
     this.machineCache.forEach((machine) => {
       machine.status = null;
-      machine.k_num = null;
+      machine.k_num = 0;
 
       this.machineCache.set(machine.name, {
         ...machine,
         status: null,
-        k_num: null,
+        k_num: 0,
       });
     });
   }
@@ -52,8 +52,8 @@ class MachineCacheManager {
    * @param {MachineData} machineData - Machine data to store
    * @returns {MachineCacheManager} Returns this for method chaining
    */
-  set(machineName, machineData) {
-    this.machineCache.set(machineName, { ...machineData });
+  set(machineName, machineData = {}) {
+    this.machineCache.set(machineName, { ...machineData, k_num: machineData?.k_num || 0 });
     return this;
   }
 

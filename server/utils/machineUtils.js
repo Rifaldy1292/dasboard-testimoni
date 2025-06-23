@@ -121,7 +121,7 @@ const getAllMachine = async () => {
       include: [
         {
           model: MachineLog,
-          attributes: ["k_num", "current_status"],
+          attributes: ["current_status"],
           order: [["createdAt", "DESC"]],
           limit: 1, // Get only the latest log for each machine
         },
@@ -134,10 +134,8 @@ const getAllMachine = async () => {
         id: id,
         name: name,
         status: MachineLogs[0]?.current_status || null,
-        k_num: MachineLogs[0]?.k_num || null,
       });
     });
-    // machineLoggerInfo("Get all
 
     machineLoggerInfo("Get all machines from database", machineCache.getAll());
   } catch (error) {
@@ -226,8 +224,8 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
           : [];
         const remaining = calculate_total_cutting_time
           ? `remaining ${splitCalculate[0]} project, ${formatTimeDifference(
-              Number(splitCalculate[1]) * MILISECOND
-            )}`
+            Number(splitCalculate[1]) * MILISECOND
+          )}`
           : null;
         const operator = dataValues.User?.name || null;
         // calculate_total_cutting_time is in seconds
@@ -274,17 +272,17 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
 
       const extendLogs = isNowDate
         ? [
-            ...logs,
+          ...logs,
 
-            {
-              isNext: true,
-              createdAt: nextLog.createdAt,
-              timeDifference: nextTimeDifference,
-              timeDifferenceMs: nextTime,
-              operator: nextLog.User?.name || null,
-              description: "Remaining",
-            },
-          ]
+          {
+            isNext: true,
+            createdAt: nextLog.createdAt,
+            timeDifference: nextTimeDifference,
+            timeDifferenceMs: nextTime,
+            operator: nextLog.User?.name || null,
+            description: "Remaining",
+          },
+        ]
         : logs;
       // console.log({ nextLog: extendLogs[extendLogs.length - 1] });
 

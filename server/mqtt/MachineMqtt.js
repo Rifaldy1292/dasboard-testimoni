@@ -63,6 +63,7 @@ const handleChangeMachineStatus = async (
     calculate_total_cutting_time,
   } = parseMessage;
   try {
+    //  isManualOperation is when the status is "Stopped" but the machine cache is  running
     const isManualOperation =
       status === "Stopped" && existMachine.status === "Running";
     const isManualOperationDetected =
@@ -100,12 +101,7 @@ const handleChangeMachineStatus = async (
     });
 
     // update exist machines cache
-    machineCache.set(existMachine.name, {
-      id: existMachine.id,
-      name: existMachine.name,
-      status,
-      k_num: decryptKNum,
-    });
+    machineCache.updateStatusAndKNum(existMachine.name, effectiveStatus, k_num);
 
     // Send an update to all connected clients
     handleSendToWebsocket(client);
@@ -164,13 +160,6 @@ const createMachineAndLogFirstTime = async (parseMessage, client) => {
       decryptFromNumber(tool_name),
     ]);
 
-    machineCache.set(name, {
-      id: createMachine.id,
-      name,
-      status,
-      k_num: decryptKNum,
-    });
-
     await MachineLog.create({
       user_id,
       machine_id: createMachine.id,
@@ -189,7 +178,7 @@ const createMachineAndLogFirstTime = async (parseMessage, client) => {
       id: createMachine.id,
       name,
       status,
-      k_num: decryptKNum,
+      k_num
     });
 
     handleSendToWebsocket(client);
