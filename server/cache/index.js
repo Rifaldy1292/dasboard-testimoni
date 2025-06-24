@@ -1,3 +1,4 @@
+const { machineLoggerInfo } = require('../utils/logger');
 /**
  * Machine Cache Manager - Singleton class for managing machine cache
  */
@@ -39,16 +40,21 @@ class MachineCacheManager {
   }
 
   resetStatusAndKNum() {
+    const beforeReset = this.getAll();
     this.machineCache.forEach((machine) => {
-      machine.status = null;
-      machine.k_num = 0;
+      const { id, name } = machine;
 
-      this.machineCache.set(machine.name, {
-        ...machine,
+      this.machineCache.set(name, {
+        id: id,
+        name,
         status: null,
         k_num: 0,
       });
     });
+
+    const afterReset = this.getAll();
+    machineLoggerInfo(`Reset status and k_num for ${beforeReset.length} machines. After reset: ${afterReset.length} machines.`);
+    return this;
   }
 
   /**

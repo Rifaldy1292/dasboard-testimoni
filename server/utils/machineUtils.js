@@ -114,28 +114,31 @@ const getShiftDateRange = async (date, shift) => {
     throw error;
   }
 };
-const getAllMachine = async () => {
+const setupMachineCache = async () => {
   try {
     const existMachines = await Machine.findAll({
       attributes: ["id", "name"],
-      include: [
-        {
-          model: MachineLog,
-          attributes: ["current_status"],
-          order: [["createdAt", "DESC"]],
-          limit: 1, // Get only the latest log for each machine
-        },
-      ],
+      raw: true,
     });
 
-    existMachines.forEach((machine) => {
-      const { id, name, MachineLogs } = machine.get({ plain: true });
+    Array.isArray(existMachines) && existMachines.sort((a, b) => {
+      const numberA = parseInt(a.name.slice(3));
+      const numberB = parseInt(b.name.slice(3));
+      return numberA - numberB;
+    }).forEach((machine) => {
+      const { id, name } = machine;
       machineCache.set(machine.name, {
         id: id,
         name: name,
-        status: MachineLogs[0]?.current_status || null,
+        status: null,
+        k_num: null,
       });
     });
+
+    // console.log(machineCache.getAll(), 444);
+    console.log('trigger from setupMachineCache');
+    machineCache.resetStatusAndKNum();
+    // console.log(machineCache.getAll(), 555);
 
     machineLoggerInfo("Get all machines from database", machineCache.getAll());
   } catch (error) {
@@ -303,7 +306,7 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
 };
 
 module.exports = {
-  getAllMachine,
+  setupMachineCache,
   getMachineTimeline,
   countRunningTime,
   getShiftDateRange,
