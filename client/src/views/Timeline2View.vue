@@ -92,7 +92,7 @@ const parseTimeDifference = (timeDiffMS: number, startDate: Date): Date => {
 
     // Jika format timeDifference tidak valid, kembalikan tanggal 1 jam setelah startDate
     if (!timeDiffMS || isNaN(timeDiffMS)) {
-      endDate.setHours(endDate.getHours() + 1)
+      endDate.setTime(endDate.getTime() + 1)
       return endDate
     }
 
@@ -101,7 +101,7 @@ const parseTimeDifference = (timeDiffMS: number, startDate: Date): Date => {
 
     // Jika tidak ada perubahan waktu, tambahkan 1 jam sebagai default
     if (endDate.getTime() === startDate.getTime()) {
-      endDate.setHours(endDate.getHours() + 1)
+      endDate.setTime(endDate.getTime() + 1)
     }
 
     return endDate
@@ -109,7 +109,7 @@ const parseTimeDifference = (timeDiffMS: number, startDate: Date): Date => {
     console.error('Error parsing timeDifference:', error)
     // Fallback: kembalikan tanggal 1 jam setelah startDate
     const fallbackDate = new Date(startDate.getTime())
-    fallbackDate.setHours(fallbackDate.getHours() + 1)
+    fallbackDate.setTime(fallbackDate.getTime() + 1)
     return fallbackDate
   }
 }
@@ -145,8 +145,7 @@ const events = computed<CalendarEvent[]>(() => {
         if (!log.timeDifference) {
           // Gunakan waktu default (1 jam)
           const endDate = new Date(startDate.getTime())
-          endDate.setHours(endDate.getHours() + 1)
-
+          endDate.setTime(endDate.getTime() + 1) // Tambahkan ms
           const event = {
             id: `${machine.name}-${log.id || Math.random().toString(36).substring(2, 9)}`,
             resourceId,
@@ -410,7 +409,7 @@ watch([() => showDetailsInTitle.value, () => events.value], () => {
 /* Styling untuk event kustom */
 .custom-event-content {
   /* padding: 4px; */
-  overflow: hidden;
+  /* overflow: hidden; */
   /* width: 100%; */
   /* height: 100%; */
   display: flex;
@@ -425,7 +424,7 @@ watch([() => showDetailsInTitle.value, () => events.value], () => {
 
 /* Memperbaiki tampilan event di FullCalendar */
 .fc-timeline-event {
-  overflow: hidden !important;
+  /* overflow: hidden !important; */
   height: auto !important;
   min-height: 30px;
 }
