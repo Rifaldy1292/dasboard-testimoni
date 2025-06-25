@@ -8,7 +8,8 @@ const {
   machineLoggerInfo,
   machineLoggerWarn,
 } = require("../utils/logger"); // Import helper functions
-const { MQTT_TOPICS, mqttClient } = require("../constants");
+const { machineCache } = require("../cache");
+const { setupMachineCache } = require("../utils/machineUtils");
 
 /**
  * Creates a new cutting time entry for the current period if one doesn't exist.
@@ -85,19 +86,45 @@ const createDailyConfig = async () => {
  *
  * @async
  * @function handleResetMachineStatus
- * @returns {void}  that resolves when the reset is complete
+ * @returns {Promise<void>} A promise that resolves when all machine statuses are reset
  * @throws {Error} If database operation fails
  */
-const handleResetMachineStatus = () => {
+const handleResetMachineStatus = async () => {
   const CONTEXT = "handleResetMachineStatus";
   try {
-    MQTT_TOPICS.forEach((topic) => {
-      // Unsubscribe from all MQTT topics before reset
-      mqttClient.publish(topic, JSON.stringify({ status: null }));
-    });
+    console.log('trigger form cronjob handleResetMachineStatus');
 
+    // Check cache state before reset
+    const cacheSize = machineCache.size();
+    const allMachines = machineCache.getAll();
 
-    machineLoggerInfo("Unsubscribed from all MQTT topics", CONTEXT);
+    machineLoggerInfo(
+      `Cache state before reset: ${cacheSize} machines`,
+      CONTEXT,
+      { cacheSize, machineCount: allMachines.length }
+    );
+
+    // If cache is empty, try to reinitialize
+    if (!cacheSize || !allMachines.length) {
+      machineLoggerWarn(
+        "Cache is empty during reset, attempting to reinitialize",
+        CONTEXT
+      );
+
+      // Re-setup cache if empty
+      await setupMachineCache();
+      return;
+    }
+
+    // Proceed with normal reset
+    machineCache.resetStatusAndKNum();
+
+    const afterResetSize = machineCache.size();
+    machineLoggerInfo(
+      `Reset completed: ${afterResetSize} machines`,
+      CONTEXT,
+      { afterResetSize }
+    );
 
   } catch (error) {
     machineLoggerError(error, CONTEXT);
@@ -192,7 +219,7 @@ const handleCronJob = async () => {
     machineLoggerInfo(
       `Executing scheduled job at ${startHour1}:${startMinute1} (first shift start)`
     );
-    handleResetMachineStatus();
+    await handleResetMachineStatus();
     createDailyConfig();
   });
 
@@ -200,7 +227,7 @@ const handleCronJob = async () => {
     machineLoggerInfo(
       `Executing scheduled job at ${startHour2}:${startMinute2} (first shift end)`
     );
-    handleResetMachineStatus();
+    await handleResetMachineStatus();
     createDailyConfig();
   });
 
