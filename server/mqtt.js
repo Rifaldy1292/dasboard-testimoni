@@ -13,6 +13,7 @@ const {
 } = require("./utils/logger");
 const { mqttClient, MQTT_TOPICS } = require("./constants");
 const { machineCache } = require("./cache");
+const handleCronJob = require("./helpers/cronjob");
 
 /**
  * @param {WebSocket.Server} wss
@@ -106,4 +107,10 @@ const handleMqtt = () => {
     });
   });
 };
-handleMqtt();
+
+function main() {
+  handleCronJob()
+  handleMqtt()
+}
+
+main()

@@ -19,7 +19,7 @@ module.exports = {
       script: 'node',
       args: 'app.js',
       cwd: '../server',
-      autorestart: true // Tambahkan ini agar server juga restart jika crash
+      autorestart: true // agar server  restart jika crash
     },
     {
       name: 'mqtt-broker',
