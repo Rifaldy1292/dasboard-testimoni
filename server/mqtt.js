@@ -86,13 +86,7 @@ const handleMqtt = () => {
         return;
       }
 
-      if (
-        existMachine.status !== parseMessage.status ||
-        existMachine.k_num !== k_num
-      ) {
-        // console.log(111)
-        await handleChangeMachineStatus(existMachine, parseMessage, mqttClient);
-      }
+      await handleChangeMachineStatus(existMachine, parseMessage, mqttClient);
     } catch (error) {
       if (error.message === "Unexpected token < in JSON at position 0") {
         return machineLoggerError(

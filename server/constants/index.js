@@ -3,8 +3,8 @@ const mqtt = require('mqtt')
 // const broker = 'mqtt://test.mosquitto.org:1883'; // Example public broker
 // const MQTT_TOPICS = ['jonfry/RK11111']
 
-const broker = process.env.MQTT_BROKER || "mqtt://localhost:1883";
-// const broker = "mqtt://192.168.1.2:1883"; // Default broker URL, can be overridden by environment variable
+// const broker = process.env.MQTT_BROKER || "mqtt://localhost:1883";
+const broker = "mqtt://192.168.1.2:1883"; // Default broker URL, can be overridden by environment variable
 const mqttClient = mqtt.connect(broker);
 const MQTT_TOPICS = [
     "mc-1/data",

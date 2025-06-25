@@ -100,7 +100,7 @@ class MachineCacheManager {
    * Update both status and k_num
    * @param {string} machineName - Name of the machine
    * @param {string} status - New status
-   * @param {string} kNum - New k_num
+   * @param {number} kNum - New k_num
    * @returns {boolean} True if updated, false if machine not found
    */
   updateStatusAndKNum(machineName, status, kNum) {

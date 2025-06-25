@@ -30,12 +30,14 @@ const isBetweenTimeManualLog = (createdAt) => {
  * @returns {Promise<boolean>}
  */
 const isManualLog = async (existMachine, parseMessage) => {
+  const actualMachineStatus = parseMessage.status;
+  const statusFromCache = existMachine.status;
   const isNull = machineCache.isNullStatus(existMachine.name);
   if (isNull) return false;
 
   //  isManualOperation is when the status is "Stopped" but the machine cache is  running
   const isManualOperation =
-    parseMessage.status === "Stopped" && existMachine.status === "Running";
+    actualMachineStatus === "Stopped" && statusFromCache === "Running";
   if (!isManualOperation) return false;
 
 
@@ -78,16 +80,24 @@ const handleChangeMachineStatus = async (
     total_cutting_time,
     calculate_total_cutting_time,
   } = parseMessage;
+
+
+  if (
+    existMachine.status === status &&
+    existMachine.k_num === k_num
+  ) return;
+
   try {
+
+    const machineCacheStatus = existMachine.status;
+
     //  isManualOperation is when the status is "Stopped" but the machine cache is  running
     const isManualOperation = await isManualLog(existMachine, parseMessage);
     const effectiveStatus = isManualOperation ? "Running" : status;
-
-
-    // not update if status is same
-    if (existMachine.status === effectiveStatus) return;
+    const allowUpdate = machineCacheStatus === null || machineCacheStatus !== effectiveStatus;
+    if (!allowUpdate) return;
     machineLoggerDebug(
-      `Change machine status for ${existMachine.name} from ${existMachine.status} to ${status}`,
+      `Change machine status for ${existMachine.name} from ${existMachine.status} to ${effectiveStatus}`,
       "handleChangeMachineStatus"
     );
 
@@ -101,7 +111,7 @@ const handleChangeMachineStatus = async (
 
     await updateDescriptionLastMachineLog(existMachine.id);
     // Create a new log with the updated status
-    await MachineLog.create({
+    const newLog = await MachineLog.create({
       user_id,
       machine_id: existMachine.id,
       current_status: effectiveStatus,
@@ -113,6 +123,8 @@ const handleChangeMachineStatus = async (
       total_cutting_time: total_cutting_time || 0,
       calculate_total_cutting_time: calculate_total_cutting_time || null,
     });
+
+    console.log({ newLog: newLog.get({ plain: true }) });
 
     // update exist machines cache
     machineCache.updateStatusAndKNum(existMachine.name, effectiveStatus, k_num);

@@ -1,15 +1,14 @@
 const path = require("path");
 const cron = require("node-cron");
 const fs = require("fs");
-const { Machine, CuttingTime, DailyConfig } = require("../models");
+const { CuttingTime, DailyConfig } = require("../models");
 const dateCuttingTime = require("../utils/dateCuttingTime");
 const {
   machineLoggerError,
   machineLoggerInfo,
   machineLoggerWarn,
 } = require("../utils/logger"); // Import helper functions
-const { machineCache } = require("../cache");
-const { setupMachineCache } = require("../utils/machineUtils");
+const { MQTT_TOPICS, mqttClient } = require("../constants");
 
 /**
  * Creates a new cutting time entry for the current period if one doesn't exist.
@@ -86,45 +85,19 @@ const createDailyConfig = async () => {
  *
  * @async
  * @function handleResetMachineStatus
- * @returns {Promise<void>} A promise that resolves when all machine statuses are reset
+ * @returns {void}  that resolves when the reset is complete
  * @throws {Error} If database operation fails
  */
-const handleResetMachineStatus = async () => {
+const handleResetMachineStatus = () => {
   const CONTEXT = "handleResetMachineStatus";
   try {
-    console.log('trigger form cronjob handleResetMachineStatus');
+    MQTT_TOPICS.forEach((topic) => {
+      // Unsubscribe from all MQTT topics before reset
+      mqttClient.publish(topic, JSON.stringify({ status: null }));
+    });
 
-    // Check cache state before reset
-    const cacheSize = machineCache.size();
-    const allMachines = machineCache.getAll();
 
-    machineLoggerInfo(
-      `Cache state before reset: ${cacheSize} machines`,
-      CONTEXT,
-      { cacheSize, machineCount: allMachines.length }
-    );
-
-    // If cache is empty, try to reinitialize
-    if (!cacheSize || !allMachines.length) {
-      machineLoggerWarn(
-        "Cache is empty during reset, attempting to reinitialize",
-        CONTEXT
-      );
-
-      // Re-setup cache if empty
-      await setupMachineCache();
-      return;
-    }
-
-    // Proceed with normal reset
-    machineCache.resetStatusAndKNum();
-
-    const afterResetSize = machineCache.size();
-    machineLoggerInfo(
-      `Reset completed: ${afterResetSize} machines`,
-      CONTEXT,
-      { afterResetSize }
-    );
+    machineLoggerInfo("Unsubscribed from all MQTT topics", CONTEXT);
 
   } catch (error) {
     machineLoggerError(error, CONTEXT);
@@ -219,7 +192,7 @@ const handleCronJob = async () => {
     machineLoggerInfo(
       `Executing scheduled job at ${startHour1}:${startMinute1} (first shift start)`
     );
-    await handleResetMachineStatus();
+    handleResetMachineStatus();
     createDailyConfig();
   });
 
@@ -227,7 +200,7 @@ const handleCronJob = async () => {
     machineLoggerInfo(
       `Executing scheduled job at ${startHour2}:${startMinute2} (first shift end)`
     );
-    await handleResetMachineStatus();
+    handleResetMachineStatus();
     createDailyConfig();
   });
 
