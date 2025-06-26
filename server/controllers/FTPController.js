@@ -8,9 +8,9 @@ const { PassThrough } = require("stream"); // ✅ Tambahkan ini
 const fs = require("fs");
 const path = require("path");
 const { Client, FTPError } = require("basic-ftp");
-const ftp = require("ftp");
 const { encryptToNumber } = require("../helpers/crypto");
 const { logInfo, logError } = require("../utils/logger");
+const FTPMC3Controller = require("./FTPMC3.controller");
 
 const localDir = (machine_id) =>
   path.join(__dirname, "..", "public", "cnc_files", machine_id);
@@ -26,6 +26,10 @@ const FTPHP = {
 // const FTPMachine = (ip_address)
 
 class FTPController {
+  localDir = (machine_id) =>
+    path.join(__dirname, "..", "public", "cnc_files", machine_id);
+
+
   /**
    * @description Transfer file to machine using FTP
    * @param {request} req - Request object
@@ -285,164 +289,70 @@ class FTPController {
       raw: true,
       attributes: ["ip_address", "name"],
     });
+
     if (!ip_address || !name) {
-      return res
-        .status(400)
-        .json({ message: "Machine not found", status: 400 });
+      return res.status(400).json({
+        message: "Machine not found",
+        status: 400
+      });
     }
 
-    // MC-3 is not supported for PASV, use ftp library to disable PASV in MC-3
-    if (name !== "MC-3") {
-      const client = new Client();
-      try {
-
-        logInfo(
-          `Connecting to machine ${name} at ${ip_address}`,)
-        try {
-          client.ftp.verbose = true;
-          await client.access({
-            // ...FTPHP,
-            host: ip_address,
-            port: 21,
-            user: "MC",
-            password: "MC",
-            secure: false,
-          });
-          client.ftp.log(`Connecting to machine ${name} at ${ip_address}`);
-        } catch (error) {
-          return serverError(error, res, 'failed to connect');
-        }
-
-        const customDirMachine = name === "MC-14" || name === "MC-15";
-        if (customDirMachine) {
-          const remotePath = "/Storage Card/USER/DataCenter/";
-          await client.cd(remotePath);
-        }
-        // get all files from local directory
-        const files = await client.list();
-        const fileNames = files.map((file) => ({
-          fileName: file.name,
-          isDeleted: false,
-        }));
-        const localDirectory = localDir(machine_id);
-
-        if (!fs.existsSync(localDirectory)) {
-          fs.mkdirSync(localDirectory, { recursive: true });
-        }
-        const localFiles = fs.readdirSync(localDirectory);
-        const localFileNames = localFiles.map((file) => ({
-          fileName: file,
-          isDeleted: true,
-        }));
-        const allFiles = [...fileNames, ...localFileNames];
-        // compare local files with remote
-
-        res.status(200).json({
-          status: 200,
-          message: "success get list files",
-          data: allFiles,
-        });
-      } catch (error) {
-        console.log(error);
-        serverError(error, res, "Failed to get list files");
-      } finally {
-        client.close();
-      }
-      return;
+    // Handle MC-3  connection only
+    if (name === "MC-3") {
+      return await FTPMC3Controller.handleMC3GetListFiles(ip_address, name, machine_id, res);
     }
 
-    const ftpClient = new ftp();
+    // Handle mesin lain dengan basic-ftp (existing code)
+    const client = new Client();
     try {
-      logInfo(`Connecting to machine ${name} at ${ip_address}`, 'FTPController.getListFiles');
-      ftpClient.ascii((err) => {
-        if (err) {
-          logError(err, 'FTPController.getListFiles', "Failed to set ASCII mode");
-        }
-      })
+      logInfo(`Connecting to machine ${name} at ${ip_address}`);
 
-      ftpClient.status((status) => {
-        logInfo(`FTP Client Status: ${status}`, 'FTPController.getListFiles');
-      });
-      ftpClient.system((err, system) => {
-        if (err) {
-          logError(err, 'FTPController.getListFiles', "Failed to get system info");
-          return res.status(500).json({
-            status: 500,
-            message: "Failed to get system info",
-          });
-        }
-        logInfo(`FTP Client System: ${system}`, 'FTPController.getListFiles');
-      });
-
-
-
-      ftpClient.on("ready", () => {
-        logInfo(`Connected to machine ${name} at ${ip_address}`, 'FTPController.getListFiles');
-        ftpClient.list((err, list) => {
-          if (err) {
-            ftpClient.destroy();
-            ftpClient.end();
-            logError(err, 'getListFile', "Error in Failed to get list files");
-            return res.status(500).json({
-              status: 500,
-              message: "Failed to get list files",
-            });
-          }
-          console.log(list)
-          res.status(200).json({
-            status: 200,
-            message: "Success get list files",
-            data: list,
-          });
-        });
-      });
-
-      ftpClient.on("error", (error) => {
-        logError(error, 'getListFile', "Error in Failed to get list files");
-        serverError(error)
-      });
-
-      ftpClient.connect({
+      await client.access({
         host: ip_address,
         port: 21,
         user: "MC",
         password: "MC",
-        secure: true,
-        connTimeout: 8000, // 8 seconds
+        secure: false,
+      });
 
-        debug: (message) => {
-          logInfo(message, 'debug mc-3');
-          console.log(message);
-        },
+      const customDirMachine = name === "MC-14" || name === "MC-15";
+      if (customDirMachine) {
+        const remotePath = "/Storage Card/USER/DataCenter/";
+        await client.cd(remotePath);
+      }
+
+      const files = await client.list();
+      const fileNames = files.map((file) => ({
+        fileName: file.name,
+        isDeleted: false,
+      }));
+
+      const localDirectory = localDir(machine_id);
+      if (!fs.existsSync(localDirectory)) {
+        fs.mkdirSync(localDirectory, { recursive: true });
+      }
+
+      const localFiles = fs.readdirSync(localDirectory);
+      const localFileNames = localFiles.map((file) => ({
+        fileName: file,
+        isDeleted: true,
+      }));
+
+      const allFiles = [...fileNames, ...localFileNames];
+
+      res.status(200).json({
+        status: 200,
+        message: "success get list files",
+        data: allFiles,
       });
     } catch (error) {
-      logError(error, 'getListFile', "Error in Failed to get list files");
-      if (error.code === 550) {
-        return res.status(500).json({
-          status: 500,
-          message: "Failed to get list files, permission denied",
-        });
-      }
-      if (error.message.includes("Timeout")) {
-        return res.status(500).json({
-          status: 500,
-          message: "Failed to get list files, timeout",
-        });
-      }
-      if (error.message.includes("Connection refused")) {
-        return res.status(500).json({
-          status: 500,
-          message: "Failed to get list files, connection refused",
-        });
-      }
-
+      console.log(error);
+      serverError(error, res, "Failed to get list files");
     } finally {
-      // ftpClient.close();
-      ftpClient.end();
-      ftpClient.destroy()
+      client.close();
     }
-
   }
+
 
   /**
    * Encrypt content value
@@ -487,60 +397,3 @@ class FTPController {
 
 module.exports = FTPController;
 
-// Executing (default): SELECT "ip_address", "name" FROM "Machines" AS "Machine" WHERE "Machine"."id" = '66';
-// {
-//   error: FTPError: 550 RETR requested action not taken: Permission denied.
-//       at FTPContext._onControlSocketData (D:\dashboard-machine\server\node_modules\basic-ftp\dist\FtpContext.js:283:39)
-//       at Socket.<anonymous> (D:\dashboard-machine\server\node_modules\basic-ftp\dist\FtpContext.js:127:44)
-//       at Socket.emit (node:events:518:28)
-//       at addChunk (node:internal/streams/readable:561:12)
-//       at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
-//       at Readable.push (node:internal/streams/readable:392:5)
-//       at TCP.onStreamRead (node:internal/stream_base_commons:191:23) {
-//     code: 550
-//   },
-//   stack: 'FTPError: 550 RETR requested action not taken: Permission denied.\n' +
-//     '    at FTPContext._onControlSocketData (D:\\dashboard-machine\\server\\node_modules\\basic-ftp\\dist\\FtpContext.js:283:39)\n' +
-//     '    at Socket.<anonymous> (D:\\dashboard-machine\\server\\node_modules\\basic-ftp\\dist\\FtpContext.js:127:44)\n' +
-//     '    at Socket.emit (node:events:518:28)\n' +
-//     '    at addChunk (node:internal/streams/readable:561:12)\n' +
-//     '    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)\n' +
-//     '    at Readable.push (node:internal/streams/readable:392:5)\n' +
-//     '    at TCP.onStreamRead (node:internal/stream_base_commons:191:23)',
-//   description: 'Failed to remove file from machine',
-//   message: '550 RETR requested action not taken: Permission denied.'
-// }
-
-
-/**
- * {
-  error: FTPError: 550 STOR requested action not taken: File exists.
-      at FTPContext._onControlSocketData (D:\dashboard-machine\server\node_modules\basic-ftp\dist\FtpContext.js:283:39)
-      at Socket.<anonymous> (D:\dashboard-machine\server\node_modules\basic-ftp\dist\FtpContext.js:127:44)
-      at Socket.emit (node:events:518:28)
-      at addChunk (node:internal/streams/readable:561:12)
-      at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
-      at Readable.push (node:internal/streams/readable:392:5)
-      at TCP.onStreamRead (node:internal/stream_base_commons:191:23) {
-    code: 550
-  },
-  message: '550 STOR requested action not taken: File exists.'
-}
-Executing (default): SELECT "id", "name", "password", "role_id", "NIK", "machine_id", "profile_image", "createdAt", "updatedAt" FROM "Users" AS "User" WHERE "User"."id" = 8;
-Executing (default): SELECT "id", "name" FROM "Machines" AS "Machine";
-Executing (default): SELECT "id", "name", "password", "role_id", "NIK", "machine_id", "profile_image", "createdAt", "updatedAt" FROM "Users" AS "User" WHERE "User"."id" = 8;
-Executing (default): SELECT "User"."id", "User"."name", "User"."NIK", "User"."machine_id", "User"."profile_image", "User"."createdAt", "User"."updatedAt", "Role"."name" AS "Role.name", "Machines"."name" AS "Machines.name" FROM "Users" AS "User" LEFT OUTER JOIN "Roles" AS "Role" ON "User"."role_id" = "Role"."id" LEFT OUTER JOIN "Machines" AS "Machines" ON "User"."id" = "Machines"."user_id" WHERE "User"."role_id" = 2;
-Executing (default): SELECT "id", "name", "password", "role_id", "NIK", "machine_id", "profile_image", "createdAt", "updatedAt" FROM "Users" AS "User" WHERE "User"."id" = 8;
-Executing (default): SELECT "ip_address" FROM "Machines" AS "Machine" WHERE "Machine"."id" = '68';
-{
-  error: Error: Timeout (control socket)
-      at Socket.<anonymous> (D:\dashboard-machine\server\node_modules\basic-ftp\dist\FtpContext.js:319:33)
-      at Object.onceWrapper (node:events:632:28)
-      at Socket.emit (node:events:518:28)
-      at Socket._onTimeout (node:net:595:8)
-      at listOnTimeout (node:internal/timers:581:17)
-      at process.processTimers (node:internal/timers:519:7),
-  message: 'Timeout (control socket)'
-}
-
- */

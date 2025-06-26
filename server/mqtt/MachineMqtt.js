@@ -1,7 +1,7 @@
 const { MachineLog, Machine } = require("../models");
 const { decryptFromNumber } = require("../helpers/crypto");
 const { MqttClient } = require("mqtt");
-const { machineLoggerDebug, machineLoggerError } = require("../utils/logger");
+const { machineLoggerDebug, machineLoggerError, machineLoggerInfo } = require("../utils/logger");
 const { machineCache } = require("../cache");
 
 const setupMachineCache = async () => {
@@ -32,7 +32,7 @@ const setupMachineCache = async () => {
 
     machineLoggerInfo("Get all machines from database", machineCache.getAll());
   } catch (error) {
-    serverError(error, "Failed to get exist machines");
+    machineLoggerError(error, "setupMachineCache");
   }
 };
 
