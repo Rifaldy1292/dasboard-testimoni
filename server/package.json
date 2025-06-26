@@ -7,6 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "concurrently \"nodemon app.js\" \"nodemon mqtt.js\"",
     "full-setup": "pnpm install && sequelize-cli db:create && sequelize-cli db:migrate && sequelize-cli db:seed:all",
+    "dev:app": "nodemon app.js",
+    "dev:mqtt": "nodemon mqtt.js",
     "db:create": "sequelize-cli db:create",
     "db:migrate": "sequelize-cli db:migrate",
     "db:seed": "sequelize-cli db:seed --seed",

@@ -9,7 +9,7 @@ const {
   machineLoggerWarn,
 } = require("../utils/logger"); // Import helper functions
 const { machineCache } = require("../cache");
-const { setupMachineCache } = require("../utils/machineUtils");
+const { setupMachineCache } = require("../mqtt/MachineMqtt");
 
 /**
  * Creates a new cutting time entry for the current period if one doesn't exist.

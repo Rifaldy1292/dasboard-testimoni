@@ -2,10 +2,10 @@ const { Machine } = require("./models");
 const {
   handleChangeMachineStatus,
   createMachineAndLogFirstTime,
+  setupMachineCache,
 } = require("./mqtt/MachineMqtt");
 const WebSocket = require("ws");
 require("./websocket/handleWebsocket");
-const { setupMachineCache } = require("./utils/machineUtils");
 const {
   machineLoggerInfo,
   machineLoggerDebug,

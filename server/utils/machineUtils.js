@@ -1,8 +1,6 @@
 const { Op, literal } = require("sequelize");
 const { MachineLog, Machine, DailyConfig, User } = require("../models");
 const { serverError } = require("./serverError");
-const { machineLoggerInfo } = require("./logger");
-const { machineCache } = require("../cache");
 
 /**
  * Formats the time difference between two dates.
@@ -112,37 +110,6 @@ const getShiftDateRange = async (date, shift) => {
     return { dateFrom, dateTo };
   } catch (error) {
     throw error;
-  }
-};
-const setupMachineCache = async () => {
-  try {
-    const existMachines = await Machine.findAll({
-      attributes: ["id", "name"],
-      raw: true,
-    });
-
-    Array.isArray(existMachines) && existMachines.sort((a, b) => {
-      const numberA = parseInt(a.name.slice(3));
-      const numberB = parseInt(b.name.slice(3));
-      return numberA - numberB;
-    }).forEach((machine) => {
-      const { id, name } = machine;
-      machineCache.set(machine.name, {
-        id: id,
-        name: name,
-        status: null,
-        k_num: null,
-      });
-    });
-
-    // console.log(machineCache.getAll(), 444);
-    console.log('trigger from setupMachineCache');
-    machineCache.resetStatusAndKNum();
-    // console.log(machineCache.getAll(), 555);
-
-    machineLoggerInfo("Get all machines from database", machineCache.getAll());
-  } catch (error) {
-    serverError(error, "Failed to get exist machines");
   }
 };
 
@@ -306,7 +273,6 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
 };
 
 module.exports = {
-  setupMachineCache,
   getMachineTimeline,
   countRunningTime,
   getShiftDateRange,
