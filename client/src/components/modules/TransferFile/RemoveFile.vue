@@ -40,11 +40,13 @@ watch(
 
 const fetchFileList = async (machine_id: number): Promise<void> => {
   try {
+    fileList.value = []
     loading.value = true
     const { data } = await MachineServices.getFileList(machine_id)
     fileList.value = data.data
     // console.log(fileList.value)
   } catch (error) {
+    fileList.value = []
     handleErrorAPI(error, toast)
   } finally {
     loading.value = false

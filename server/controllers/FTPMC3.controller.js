@@ -5,6 +5,7 @@ const { logInfo, logError } = require("../utils/logger");
 const net = require("net");
 const os = require("os");
 
+const MAX_TIMEOUT = 5000;
 const localDir = (machine_id) =>
   path.join(__dirname, "..", "public", "cnc_files", machine_id);
 
@@ -21,20 +22,48 @@ const getLocalAddress = () => {
   return "127.0.0.1";
 };
 
-const FTPHP = {
-  host: "192.168.18.32",
-  port: "2221",
-  user: "android",
-  password: "android",
-  secure: false,
-};
-
 class FTPMC3Controller {
   /**
    * Handle MC-3 dengan mendapatkan list file menggunakan Active Mode
    */
   static async handleMC3GetListFiles(ip_address, name, machine_id, res) {
     const ftpClient = new ftp();
+    let isResponseSent = false;
+    let operationTimeout;
+    let isConnectionClosed = false;
+
+    const closeConnection = () => {
+      if (isConnectionClosed) return;
+      isConnectionClosed = true;
+
+      if (operationTimeout) {
+        clearTimeout(operationTimeout);
+      }
+
+      try {
+        ftpClient.removeAllListeners();
+        ftpClient.end();
+        ftpClient.destroy();
+      } catch (err) {
+        console.log("Cleanup error (ignored):", err.message);
+      }
+    };
+
+    const sendResponse = (statusCode, message, data = null, error = null) => {
+      if (isResponseSent) return;
+      isResponseSent = true;
+      closeConnection();
+
+      const response = {
+        status: statusCode,
+        message: message,
+      };
+
+      if (data) response.data = data;
+      if (error) response.error = error;
+
+      return res.status(statusCode).json(response);
+    };
 
     try {
       logInfo(
@@ -42,14 +71,24 @@ class FTPMC3Controller {
         "FTPController.handleMC3GetListFiles"
       );
 
-      // Event listeners SEBELUM connect
+      // Manual timeout untuk keseluruhan operasi (5 detik)
+      operationTimeout = setTimeout(() => {
+        logError(
+          new Error("Operation timeout after 5 seconds"),
+          "FTPController.handleMC3GetListFiles",
+          "Operation took too long"
+        );
+        sendResponse(408, "Timeout: Operasi MC-3 melebihi 5 detik");
+      }, MAX_TIMEOUT);
+
+      // Setup ALL event listeners SEBELUM connect untuk mencegah unhandled errors
       ftpClient.on("ready", () => {
         logInfo(
           `Successfully connected to ${name} - Forcing Active Mode`,
           "FTPController.handleMC3GetListFiles"
         );
 
-        // Set ASCII mode first (seperti FFFTP)
+        // Set ASCII mode first
         ftpClient.ascii((asciiErr) => {
           if (asciiErr) {
             logError(
@@ -64,16 +103,21 @@ class FTPMC3Controller {
             );
           }
 
-          // FORCE Active Mode - override internal PASV behavior
-          // const originalList = ftpClient.list;
+          // Override list method untuk Active Mode
           ftpClient.list = function (path, callback) {
             if (typeof path === "function") {
               callback = path;
               path = ".";
             }
 
-            // Create data server for Active Mode
             const dataServer = net.createServer();
+            let dataTimeout;
+
+            // Timeout khusus untuk data transfer (3 detik)
+            dataTimeout = setTimeout(() => {
+              dataServer.close();
+              callback(new Error("Data transfer timeout after 3 seconds"));
+            }, MAX_TIMEOUT);
 
             dataServer.listen(0, () => {
               const port = dataServer.address().port;
@@ -95,6 +139,7 @@ class FTPMC3Controller {
                 portCommand,
                 (err, responseText, responseCode) => {
                   if (err || responseCode !== 200) {
+                    clearTimeout(dataTimeout);
                     dataServer.close();
                     return callback(
                       new Error(`PORT command failed: ${err || responseText}`)
@@ -119,6 +164,7 @@ class FTPMC3Controller {
                     });
 
                     dataSocket.on("end", () => {
+                      clearTimeout(dataTimeout);
                       logInfo(
                         `List data received: ${dataReceived.length} bytes`,
                         "FTPController.handleMC3GetListFiles"
@@ -153,6 +199,7 @@ class FTPMC3Controller {
                     });
 
                     dataSocket.on("error", (err) => {
+                      clearTimeout(dataTimeout);
                       logError(
                         err,
                         "FTPController.handleMC3GetListFiles",
@@ -166,6 +213,7 @@ class FTPMC3Controller {
                   // Send LIST command
                   ftpClient._send("LIST", (listErr, listResponse, listCode) => {
                     if (listErr || (listCode !== 150 && listCode !== 125)) {
+                      clearTimeout(dataTimeout);
                       dataServer.close();
                       return callback(
                         new Error(
@@ -184,16 +232,18 @@ class FTPMC3Controller {
             });
 
             dataServer.on("error", (err) => {
+              clearTimeout(dataTimeout);
               logError(
                 err,
                 "FTPController.handleMC3GetListFiles",
                 "Data server error"
               );
-              callback(err);
+              dataServer.close();
+              callback(new Error(`Data server error: ${err.message}`));
             });
           };
 
-          // Get list files using our custom Active Mode implementation
+          // Get list files
           ftpClient.list((err, list) => {
             if (err) {
               logError(
@@ -201,14 +251,15 @@ class FTPMC3Controller {
                 "FTPController.handleMC3GetListFiles",
                 "Failed to get file list"
               );
-              ftpClient.end();
-              return res.status(500).json({
-                status: 500,
-                message: "Failed to get file list from MC-3",
-                error: err.message,
-              });
+              return sendResponse(
+                500,
+                "Failed to get file list from MC-3",
+                null,
+                err.message
+              );
             }
-            console.log(list, 999);
+
+            console.log(list, "File list from MC-3");
 
             // Format remote files
             const remoteFiles = list.map((file) => ({
@@ -240,25 +291,28 @@ class FTPMC3Controller {
               );
             }
 
-            const combinedFiles = [...remoteFiles, ...localFiles];
+            // Remove duplicates - prioritaskan remote files
+            const remoteFileNames = new Set(remoteFiles.map((f) => f.fileName));
+            const uniqueLocalFiles = localFiles.filter(
+              (f) => !remoteFileNames.has(f.fileName)
+            );
+            const combinedFiles = [...remoteFiles, ...uniqueLocalFiles];
 
             logInfo(
-              `Retrieved ${list.length} remote files and ${localFiles.length} local files from ${name}`,
+              `Retrieved ${list.length} remote files and ${uniqueLocalFiles.length} local files from ${name}`,
               "FTPController.handleMC3GetListFiles"
             );
 
-            // Close connection
-            ftpClient.end();
-
-            res.status(200).json({
-              status: 200,
-              message: "Success get list files from MC-3",
-              data: combinedFiles,
-            });
+            return sendResponse(
+              200,
+              "Success get list files from MC-3",
+              combinedFiles
+            );
           });
         });
       });
 
+      // ERROR handler - PENTING: Setup sebelum connect untuk menangkap semua error
       ftpClient.on("error", (error) => {
         logError(
           error,
@@ -266,27 +320,29 @@ class FTPMC3Controller {
           "FTP connection error"
         );
 
-        ftpClient.destroy();
-
+        // Handle different error types
         if (error.code === "ECONNRESET") {
-          return res.status(503).json({
-            status: 503,
-            message: "MC-3 connection was reset",
-          });
+          return sendResponse(503, "MC-3 connection was reset");
         }
 
         if (error.code === "ECONNREFUSED") {
-          return res.status(503).json({
-            status: 503,
-            message: "MC-3 is not accessible",
-          });
+          return sendResponse(503, "MC-3 is not accessible");
         }
 
-        return res.status(500).json({
-          status: 500,
-          message: "Failed to connect to MC-3",
-          error: error.message,
-        });
+        if (error.code === "ETIMEDOUT") {
+          return sendResponse(408, "Connection to MC-3 timed out");
+        }
+
+        if (error.message && error.message.includes("timeout")) {
+          return sendResponse(408, "Connection to MC-3 timed out");
+        }
+
+        return sendResponse(
+          500,
+          "Failed to connect to MC-3",
+          null,
+          error.message
+        );
       });
 
       ftpClient.on("timeout", () => {
@@ -295,12 +351,7 @@ class FTPMC3Controller {
           "FTPController.handleMC3GetListFiles",
           "Connection timeout"
         );
-
-        ftpClient.destroy();
-        return res.status(408).json({
-          status: 408,
-          message: "Connection to MC-3 timed out",
-        });
+        return sendResponse(408, "Connection to MC-3 timed out");
       });
 
       ftpClient.on("end", () => {
@@ -317,6 +368,10 @@ class FTPMC3Controller {
             "FTPController.handleMC3GetListFiles",
             "Connection closed unexpectedly"
           );
+          // Jika close dengan error dan belum ada response, kirim error
+          if (!isResponseSent) {
+            return sendResponse(503, "Connection to MC-3 closed unexpectedly");
+          }
         } else {
           logInfo(
             `Connection to ${name} closed`,
@@ -325,7 +380,7 @@ class FTPMC3Controller {
         }
       });
 
-      // Connect configuration untuk MC-3 - tanpa PASV
+      // Connect dengan timeout yang lebih agresif
       logInfo(
         `Attempting to connect to ${ip_address}:21 with Active Mode only`,
         "FTPController.handleMC3GetListFiles"
@@ -336,10 +391,10 @@ class FTPMC3Controller {
         port: 21,
         user: "MC",
         password: "MC",
-        secure: false, // No SSL untuk FANUC
-        connTimeout: 15000, // 15 second connection timeout
-        pasvTimeout: 0, // Disable PASV timeout
-        keepalive: 0, // Disable keepalive
+        secure: false,
+        connTimeout: MAX_TIMEOUT,
+        pasvTimeout: 0,
+        keepalive: 0,
 
         debug: (message) => {
           logInfo(
@@ -350,19 +405,19 @@ class FTPMC3Controller {
         },
       });
     } catch (error) {
-      // clearTimeout(connectionTimeout);
       logError(
         error,
         "FTPController.handleMC3GetListFiles",
         "Unexpected error during connection setup"
       );
-
-      return res.status(500).json({
-        status: 500,
-        message: "Failed to setup connection to MC-3",
-        error: error.message,
-      });
+      return sendResponse(
+        500,
+        "Failed to setup connection to MC-3",
+        null,
+        error.message
+      );
     }
   }
 }
+
 module.exports = FTPMC3Controller;
