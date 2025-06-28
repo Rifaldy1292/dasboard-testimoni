@@ -1,7 +1,4 @@
-const {
-  Machine,
-  MachineOperatorAssignment,
-} = require("../models");
+const { Machine, MachineOperatorAssignment } = require("../models");
 const { serverError } = require("../utils/serverError");
 
 const { PassThrough } = require("stream"); // ✅ Tambahkan ini
@@ -20,7 +17,7 @@ const FTPHP = {
   port: "2221",
   user: "android",
   password: "android",
-  secure: false
+  secure: false,
 };
 
 // const FTPMachine = (ip_address)
@@ -29,6 +26,27 @@ class FTPController {
   localDir = (machine_id) =>
     path.join(__dirname, "..", "public", "cnc_files", machine_id);
 
+  /**
+   *
+   * @param {Request} req
+   * @param {string} req.params.machine_id - ID of the machine
+   * @returns {Promise<{ ip_address: string, name: string } | null>}
+   */
+  static async getMachineIpAndName(machine_id) {
+    if (!machine_id) {
+      throw new Error("Machine ID is required");
+    }
+
+    const machine = await Machine.findOne({
+      where: { id: machine_id },
+      attributes: ["ip_address", "name"],
+      raw: true,
+    });
+
+    if (!machine) return null;
+
+    return machine;
+  }
 
   /**
    * @description Transfer file to machine using FTP
@@ -36,22 +54,30 @@ class FTPController {
    * @param {response} res - Response object
    */
   static async transferFiles(req, res) {
-    const client = new Client();
+    const { files } = req;
     const { machine_id, isUndo } = req.body;
-    try {
-      const { files } = req;
-      if (!files || !files.length || !machine_id) {
-        return res.status(400).json({ message: "Bad request", status: 400 });
-      }
-      const { ip_address, name } = await Machine.findOne({
-        where: { id: machine_id },
-        attributes: ["ip_address", "name"],
-        raw: true,
-      });
 
-      if (!ip_address || !name) {
-        return res.status(404).json({ message: "Machine not found" });
-      }
+    if (!files || !files.length || !machine_id) {
+      return res.status(400).json({ message: "Bad request", status: 400 });
+    }
+    const machine = await FTPController.getMachineIpAndName(machine_id);
+
+    if (!machine) {
+      return res.status(404).json({ message: "Machine not found" });
+    }
+    const { ip_address, name } = machine;
+    if (name === "MC-3") {
+      return await FTPMC3Controller.handleMC3TransferFiles(
+        ip_address,
+        name,
+        machine_id,
+        files,
+        res
+      );
+    }
+
+    const client = new Client();
+    try {
       // Buat direktori temp jika belum ada
       const tempDir = path.join(__dirname, "..", "temp");
       if (!fs.existsSync(tempDir)) {
@@ -80,7 +106,7 @@ class FTPController {
       for (const file of files) {
         logInfo(
           `Processing file: ${file.originalname} (Size: ${file.buffer.length} bytes)`,
-          'FTPController.transferFiles'
+          "FTPController.transferFiles"
         );
 
         const customMachine = name === "MC-14" || name === "MC-15";
@@ -99,10 +125,13 @@ class FTPController {
             await client.uploadFrom(tempFilePath, filePath);
             logInfo(
               `Completed upload: ${file.originalname} to ${filePath}`,
-              'FTPController.transferFiles'
+              "FTPController.transferFiles"
             );
           } catch (uploadError) {
-            logError(uploadError, `Error uploading file: ${uploadError.message}`);
+            logError(
+              uploadError,
+              `Error uploading file: ${uploadError.message}`
+            );
             throw uploadError;
           } finally {
             // Hapus file sementara
@@ -116,7 +145,8 @@ class FTPController {
           stream.end(file.buffer);
           await client.uploadFrom(stream, filePath);
           logInfo(
-            `Completed upload: ${file.originalname} to ${filePath}`, 'FTPController.transferFiles'
+            `Completed upload: ${file.originalname} to ${filePath}`,
+            "FTPController.transferFiles"
           );
         }
       }
@@ -139,13 +169,15 @@ class FTPController {
         message: `Successfully ${isUndo ? "undo" : "transfer"} files`,
       });
     } catch (error) {
-      serverError(error, res, `Failed to ${isUndo ? "undo" : "transfer"} files`);
+      serverError(
+        error,
+        res,
+        `Failed to ${isUndo ? "undo" : "transfer"} files`
+      );
     } finally {
       client.close();
     }
   }
-
-
 
   static async undoRemove(req, res) {
     try {
@@ -252,15 +284,13 @@ class FTPController {
         await client.cd(remotePath);
       }
 
-      await client.downloadTo(
-        path.join(localDirectory, fileName),
-        fileName
-      );
+      await client.downloadTo(path.join(localDirectory, fileName), fileName);
 
       const removeFile = await client.remove(fileName);
       logInfo(
         `File ${fileName} removed from ${name} and downloaded to ${localDirectory}`,
-        'FTPController.removeFileFromMachine', removeFile
+        "FTPController.removeFileFromMachine",
+        removeFile
       );
       return res.status(200).json({
         status: 200,
@@ -293,13 +323,18 @@ class FTPController {
     if (!ip_address || !name) {
       return res.status(400).json({
         message: "Machine not found",
-        status: 400
+        status: 400,
       });
     }
 
     // Handle MC-3  connection only
     if (name === "MC-3") {
-      return await FTPMC3Controller.handleMC3GetListFiles(ip_address, name, machine_id, res);
+      return await FTPMC3Controller.handleMC3GetListFiles(
+        ip_address,
+        name,
+        machine_id,
+        res
+      );
     }
 
     // Handle mesin lain dengan basic-ftp (existing code)
@@ -353,7 +388,6 @@ class FTPController {
     }
   }
 
-
   /**
    * Encrypt content value
    * @param {Express.Request} req.body - Request body
@@ -369,12 +403,13 @@ class FTPController {
     try {
       const { gCodeName, kNum, outputWP, toolName } = req.body;
 
-      const [gCodeNameEnc, kNumEnc, outputWPEnt, toolNameEnc] = await Promise.all([
-        encryptToNumber(gCodeName, 'g_code_name'),
-        encryptToNumber(kNum, 'k_num'),
-        encryptToNumber(outputWP, 'output_wp'),
-        encryptToNumber(toolName, 'tool_name'),
-      ]);
+      const [gCodeNameEnc, kNumEnc, outputWPEnt, toolNameEnc] =
+        await Promise.all([
+          encryptToNumber(gCodeName, "g_code_name"),
+          encryptToNumber(kNum, "k_num"),
+          encryptToNumber(outputWP, "output_wp"),
+          encryptToNumber(toolName, "tool_name"),
+        ]);
       const encryptValue = {
         gCodeName: gCodeNameEnc,
         kNum: kNumEnc,
@@ -391,9 +426,6 @@ class FTPController {
       serverError(error, res, "Failed to encrypt content value");
     }
   }
-
-
 }
 
 module.exports = FTPController;
-

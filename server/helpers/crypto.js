@@ -11,24 +11,25 @@ const { serverError } = require("../utils/serverError");
 const encryptToNumber = async (text, key) => {
   try {
     if (!text || !key) return 0;
-    console.log({ text, key }, 123);
 
-    const [record, created] = await EncryptData.findOrCreate({
+    const existingRecord = await EncryptData.findOne({
       where: { original_text: text, key },
-      attributes: ['id'],
-
-      defaults: {
-        original_text: text,
-        key: key,
-      }
+      attributes: ["id", "encrypt_number"],
+      raw: true,
     });
-    const plainRecord = record.get({ plain: true });
 
+    if (existingRecord) return existingRecord.id;
 
-    return plainRecord.id;
+    // Generate a new encrypted number
+    const createdRecord = await EncryptData.create({
+      original_text: text,
+      key: key,
+    });
+
+    return createdRecord.id;
   } catch (error) {
     if (error.message.includes("already exists")) return 0;
-    serverError(error, 'encryptToNumber');
+    serverError(error, "encryptToNumber");
     return 0;
   }
 };
@@ -41,11 +42,12 @@ const encryptToNumber = async (text, key) => {
  */
 const decryptFromNumber = async (encryptedNumber, key) => {
   try {
-    if (!encryptedNumber || typeof encryptedNumber !== "number" || !key) return null;
+    if (!encryptedNumber || typeof encryptedNumber !== "number" || !key)
+      return null;
     // console.log(encryptedNumber, 123)
     // Cari di database berdasarkan angka enkripsi
     // nanti dihapus karena migrasi
-    const whereCondition = { key }
+    const whereCondition = { key };
     if (encryptedNumber.toString().length > 5) {
       whereCondition.encrypt_number = encryptedNumber;
     } else {
