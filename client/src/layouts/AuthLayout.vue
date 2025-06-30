@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useDarkModeStore } from '@/stores/darkMode'
 import { onMounted } from 'vue'
+import video from '@/assets/videos/tf_mc3.mp4'
 
 defineProps<{
   page: string
@@ -31,6 +32,12 @@ onMounted(() => {
         <div class="p-8 rounded-2xl bg-white/10 shadow-xl backdrop-blur-xl border border-white/20">
           <h2 class="text-center text-3xl font-bold text-white tracking-wide">{{ page }}</h2>
           <h5 v-if="description" class="text-blue-300 text-center mt-2">{{ description }}</h5>
+          <!-- link video tutorial -->
+          <p class="text-center text-red-400 mt-2">
+            <a :href="video" target="_blank" rel="noopener noreferrer" class="hover:underline">
+              Tutorial Transfer File MC-3
+            </a>
+          </p>
 
           <slot />
         </div>
