@@ -74,7 +74,8 @@ const handleSubmit = async () => {
     toast.add({
       severity: 'success',
       summary: 'Success',
-      detail: data.message
+      detail: data.message,
+      life: 10000
     })
     // logout confirm
     setTimeout(() => {

@@ -8,6 +8,7 @@ const { Client, FTPError } = require("basic-ftp");
 const { encryptToNumber } = require("../helpers/crypto");
 const { logInfo, logError } = require("../utils/logger");
 const FTPMC3Controller = require("./FTPMC3.controller");
+const RemainingController = require("./RemainingController");
 
 const localDir = (machine_id) =>
   path.join(__dirname, "..", "public", "cnc_files", machine_id);
@@ -156,39 +157,16 @@ class FTPController {
         message: `Successfully ${isUndo ? "undo" : "transfer"} files`,
       });
 
-      FTPController.handleChangeMachineOperatorAssignment(
-        machine_id)
+      RemainingController.handleChangeMachineOperatorAssignment(machine_id);
     } catch (error) {
       serverError(
         error,
         res,
+
         `Failed to ${isUndo ? "undo" : "transfer"} files`
       );
     } finally {
       client.close();
-    }
-  }
-
-  static async handleChangeMachineOperatorAssignment(machine_id) {
-    try {
-      // find MachineOperatorAssignment.is_using_custom, if true, then update is_using_custom to false
-      const { is_using_custom, id } = await MachineOperatorAssignment.findOne({
-        where: { machine_id },
-        attributes: ["id", "is_using_custom"],
-        raw: true,
-      });
-
-      if (is_using_custom) {
-        await MachineOperatorAssignment.update(
-          { is_using_custom: false },
-          { where: { id } }
-        );
-      }
-    } catch (error) {
-      logError(
-        error,
-        `Failed to update MachineOperatorAssignment for machine_id: ${machine_id} when transferring files`
-      );
     }
   }
 

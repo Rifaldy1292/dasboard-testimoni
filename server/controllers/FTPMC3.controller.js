@@ -5,13 +5,12 @@ const { logInfo, logError } = require("../utils/logger");
 const net = require("net");
 const os = require("os");
 const { PassThrough } = require("stream");
-const FTPController = require("./FTPController");
+const RemainingController = require("./RemainingController");
 
 const MAX_TIMEOUT = 5000;
 
 const localDir = (machine_id) =>
   path.join(__dirname, "..", "public", "cnc_files", machine_id);
-
 
 // Manual PORT command untuk Active Mode
 const getLocalAddress = () => {
@@ -444,17 +443,30 @@ class FTPMC3Controller {
     res
   ) {
     try {
-      const localDirectory = path.join(__dirname, '..', '..', '..', 'transfer_files', name);
+      const localDirectory = path.join(
+        __dirname,
+        "..",
+        "..",
+        "..",
+        "transfer_files",
+        name
+      );
       // if folder exist, delete folder
       if (fs.existsSync(localDirectory)) {
         fs.rmSync(localDirectory, { recursive: true, force: true });
       }
       fs.mkdirSync(localDirectory, { recursive: true });
       files.forEach((file) => {
-        fs.writeFileSync(path.join(localDirectory, file.originalname), file.buffer);
+        fs.writeFileSync(
+          path.join(localDirectory, file.originalname),
+          file.buffer
+        );
       });
-      logInfo(`Files uploaded to local folder: ${localDirectory}`, "FTPMC3Controller.uploadFileToLocalFolder");
-      FTPController.handleChangeMachineOperatorAssignment(machine_id);
+      logInfo(
+        `Files uploaded to local folder: ${localDirectory}`,
+        "FTPMC3Controller.uploadFileToLocalFolder"
+      );
+      RemainingController.handleChangeMachineOperatorAssignment(machine_id);
       return res.status(200).json({
         status: 200,
         message: `Berhasil transfer file ke ${localDirectory}`,
