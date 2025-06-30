@@ -150,6 +150,27 @@ class FTPController {
           );
         }
       }
+
+      res.status(200).json({
+        status: 200,
+        message: `Successfully ${isUndo ? "undo" : "transfer"} files`,
+      });
+
+      FTPController.handleChangeMachineOperatorAssignment(
+        machine_id)
+    } catch (error) {
+      serverError(
+        error,
+        res,
+        `Failed to ${isUndo ? "undo" : "transfer"} files`
+      );
+    } finally {
+      client.close();
+    }
+  }
+
+  static async handleChangeMachineOperatorAssignment(machine_id) {
+    try {
       // find MachineOperatorAssignment.is_using_custom, if true, then update is_using_custom to false
       const { is_using_custom, id } = await MachineOperatorAssignment.findOne({
         where: { machine_id },
@@ -163,19 +184,11 @@ class FTPController {
           { where: { id } }
         );
       }
-
-      res.status(200).json({
-        status: 200,
-        message: `Successfully ${isUndo ? "undo" : "transfer"} files`,
-      });
     } catch (error) {
-      serverError(
+      logError(
         error,
-        res,
-        `Failed to ${isUndo ? "undo" : "transfer"} files`
+        `Failed to update MachineOperatorAssignment for machine_id: ${machine_id} when transferring files`
       );
-    } finally {
-      client.close();
     }
   }
 
