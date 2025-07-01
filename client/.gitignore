@@ -30,4 +30,4 @@ coverage
 *.tsbuildinfo
 
 
-src/assets/videos*
+# src/assets/videos*
