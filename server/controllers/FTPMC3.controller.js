@@ -42,19 +42,19 @@ class FTPMC3Controller {
   static async handleMC3GetListFiles(ip_address, name, machine_id, res) {
     const ftpClient = new ftp();
     let isResponseSent = false;
-    let operationTimeout;
+    // let operationTimeout;
     let isConnectionClosed = false;
+
 
     const closeConnection = () => {
       if (isConnectionClosed) return;
       isConnectionClosed = true;
 
-      if (operationTimeout) {
-        clearTimeout(operationTimeout);
-      }
+      // if (operationTimeout) {
+      //   clearTimeout(operationTimeout);
+      // }
 
       try {
-        ftpClient.removeAllListeners();
         ftpClient.end();
         ftpClient.destroy();
       } catch (err) {
@@ -85,49 +85,43 @@ class FTPMC3Controller {
       );
 
       // Increase timeout untuk MC-3 yang lambat (10 detik)
-      operationTimeout = setTimeout(() => {
-        logError(
-          new Error("Operation timeout after 10 seconds"),
-          "FTPController.handleMC3GetListFiles",
-          "Operation took too long"
-        );
-        sendResponse(408, "Timeout: Operasi MC-3 melebihi 10 detik");
-      }, MAX_TIMEOUT);
+      // operationTimeout = setTimeout(() => {
+      //   logError(
+      //     new Error("Operation timeout after 10 seconds"),
+      //     "FTPController.handleMC3GetListFiles",
+      //     "Operation took too long"
+      //   );
+      //   sendResponse(408, "Timeout: Operasi MC-3 melebihi 10 detik");
+      // }, MAX_TIMEOUT);
 
-      // Setup error handlers FIRST untuk mencegah unhandled errors
       ftpClient.on("error", (error) => {
-        console.log(error, error.message, 999);
+        closeConnection();
         logError(
           error,
-          "FTPController.handleMC3GetListFiles",
+          "FTPController.handleMC3DeleteFiles",
           "FTP connection error"
         );
-
-        // Handle different error types
-        if (
-          error.message &&
-          error.message.includes("Timeout while connecting")
-        ) {
-          return sendResponse(408, "Timeout: Koneksi ke MC-3 timeout");
-        }
-
         if (error.code === "ECONNRESET") {
-          return sendResponse(503, "MC-3 connection was reset");
+          return sendResponse(
+            503,
+            "Koneksi MC-3 terputus saat mendapatkan list file"
+          );
+        }
+        if (error.code === "ECONNREFUSED") {
+          return sendResponse(
+            503,
+            "MC-3 tidak dapat diakses untuk mendapatkan list file"
+          );
         }
 
-        if (error.code === "ECONNREFUSED") {
-          return sendResponse(503, "MC-3 tidak dapat diakses");
+        if (error.message && error.message.toLowerCase().includes("timeout")) {
+          return sendResponse(408, "Connection Timeout");
         }
 
         if (error.code === "ETIMEDOUT") {
-          return sendResponse(408, "Connection to MC-3 timed out");
+          return sendResponse(408, "Timeout koneksi ke MC-3 saat mendapatkan list file");
         }
-
-        if (error.message && error.message.includes("timeout")) {
-          return sendResponse(408, "Connection to MC-3 timed out");
-        }
-
-        return sendResponse(500, "Gagal koneksi ke MC-3", null, error.message);
+        return sendResponse(500, "Connection error", null, error.message);
       });
 
       ftpClient.on("timeout", () => {
@@ -949,6 +943,19 @@ class FTPMC3Controller {
               message: `Gagal menghapus file ${fileName} dari MC-3`,
             });
           }
+          // list file
+          Ftp.list((err, list) => {
+            if (err) {
+              closeConnection();
+              logError(
+                err,
+                "FTPController.handleMC3DeleteFiles",
+                "Failed to list files after delete"
+              );
+
+            }
+            console.log(list, 999)
+          });
           closeConnection();
           return res.status(200).json({
             status: 200,

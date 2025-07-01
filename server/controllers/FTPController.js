@@ -261,15 +261,21 @@ class FTPController {
       // remove all files
       if (!fileName) {
         if (!customMachine) {
-          // // push all files in machine to public/cnc_files/machine_id
+          // Ambil semua file di mesin dan download ke PC sebelum dihapus
           const allFiles = await client.list();
           for (const file of allFiles) {
+            // Download file terlebih dahulu
             await client.downloadTo(
               path.join(localDirectory, file.name),
               file.name
             );
+            // Hapus file satu per satu
+            await client.remove(file.name);
+            logInfo(
+              `File ${file.name} removed from ${name}`,
+              "FTPController.removeFileFromMachine"
+            );
           }
-          await client.removeDir("/");
           return res
             .status(200)
             .json({ status: 200, message: `All files removed from ${name}` });
