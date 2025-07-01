@@ -272,7 +272,7 @@ interface DummyData {
           return {
             date: dateConfig.getDate(),
             count: {
-              combine: countCombineShift,
+              combine: count1 + count2,
               shift1: count1,
               shift2: count2,
             },

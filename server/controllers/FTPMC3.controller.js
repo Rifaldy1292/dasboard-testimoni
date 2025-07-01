@@ -6,6 +6,7 @@ const net = require("net");
 const os = require("os");
 const { PassThrough } = require("stream");
 const RemainingController = require("./RemainingController");
+const Client = require("ftp");
 
 const MAX_TIMEOUT = 10000;
 
@@ -25,6 +26,9 @@ const getLocalAddress = () => {
   return "127.0.0.1";
 };
 
+/**
+ * @type {Client.Options} 
+ */
 const FTPMachine = {
   port: 21,
   user: "MC",
@@ -33,6 +37,11 @@ const FTPMachine = {
   connTimeout: MAX_TIMEOUT,
   pasvTimeout: 0,
   keepalive: 0,
+  debug: (message) => {
+    logInfo(message, "FTPMachine.debug");
+  }
+
+
 };
 
 class FTPMC3Controller {
@@ -43,23 +52,10 @@ class FTPMC3Controller {
     const ftpClient = new ftp();
     let isResponseSent = false;
     // let operationTimeout;
-    let isConnectionClosed = false;
-
 
     const closeConnection = () => {
-      if (isConnectionClosed) return;
-      isConnectionClosed = true;
-
-      // if (operationTimeout) {
-      //   clearTimeout(operationTimeout);
-      // }
-
-      try {
-        ftpClient.end();
-        ftpClient.destroy();
-      } catch (err) {
-        console.log("Cleanup error (ignored):", err.message);
-      }
+      ftpClient.end();
+      ftpClient.destroy();
     };
 
     const sendResponse = (statusCode, message, data = null, error = null) => {
@@ -101,26 +97,7 @@ class FTPMC3Controller {
           "FTPController.handleMC3DeleteFiles",
           "FTP connection error"
         );
-        if (error.code === "ECONNRESET") {
-          return sendResponse(
-            503,
-            "Koneksi MC-3 terputus saat mendapatkan list file"
-          );
-        }
-        if (error.code === "ECONNREFUSED") {
-          return sendResponse(
-            503,
-            "MC-3 tidak dapat diakses untuk mendapatkan list file"
-          );
-        }
 
-        if (error.message && error.message.toLowerCase().includes("timeout")) {
-          return sendResponse(408, "Connection Timeout");
-        }
-
-        if (error.code === "ETIMEDOUT") {
-          return sendResponse(408, "Timeout koneksi ke MC-3 saat mendapatkan list file");
-        }
         return sendResponse(500, "Connection error", null, error.message);
       });
 
@@ -288,7 +265,7 @@ class FTPMC3Controller {
                     });
                   });
 
-                  // Send LIST command
+                  // // Send LIST command
                   ftpClient._send("LIST", (listErr, listResponse, listCode) => {
                     if (listErr || (listCode !== 150 && listCode !== 125)) {
                       clearTimeout(dataTimeout);
@@ -398,14 +375,6 @@ class FTPMC3Controller {
       ftpClient.connect({
         ...FTPMachine,
         host: ip_address,
-        connTimeout: MAX_TIMEOUT, // Increase connection timeout untuk MC-3
-        debug: (message) => {
-          logInfo(
-            `MC-3 Debug: ${message}`,
-            "FTPController.handleMC3GetListFiles"
-          );
-          console.log(`[MC-3 Debug] ${message}`);
-        },
       });
     } catch (error) {
       logError(
@@ -902,30 +871,13 @@ class FTPMC3Controller {
         closeConnection();
         logError(
           error,
-          "FTPController.handleMC3DeleteFiles",
+          "FTPController.handleMC3DeleteFiles.ftp.onError",
           "FTP connection error"
         );
-        if (error.code === "ECONNRESET") {
-          return res.status(503).json({
-            status: 503,
-            message: "Koneksi MC-3 terputus saat menghapus file",
-          });
-        }
-        if (error.code === "ECONNREFUSED") {
-          return res.status(503).json({
-            status: 503,
-            message: "MC-3 tidak dapat diakses untuk menghapus file",
-          });
-        }
-        if (error.code === "ETIMEDOUT") {
-          return res.status(408).json({
-            status: 408,
-            message: "Timeout koneksi ke MC-3 saat menghapus file",
-          });
-        }
+
         return res.status(500).json({
           status: 500,
-          message: "Terjadi kesalahan tidak terduga saat menghapus file",
+          message: "Connection Error",
         });
       });
 
