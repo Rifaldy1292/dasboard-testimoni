@@ -4,7 +4,8 @@
   "scripts": {
     "client": "cd client && pnpm run dev",
     "server": "cd server && pnpm run start",
-    "pull": "cd client && git pull origin main && pnpm run build-only",
+    "build": "cd client && pnpm run build-only",
+    "pull": "git pull origin main && pnpm run build",
     "backup-db": "cd server/backup && \"C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump.exe\" -U postgres -h localhost -p 5432 -F c -b -v -f dashboard_machine_backup.dump yamaha_dashboard_machine",
     "push-db": "pnpm run backup-db && git add . && git commit -m \"backup db\" && git push origin main",
     "restore-db": "cd server && pnpm run full-restore",

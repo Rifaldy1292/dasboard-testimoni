@@ -14,6 +14,7 @@ import SettingServices from '@/services/setting.service'
 import type { DailyConfig } from '@/types/dailyConfig.type'
 import DatePickerMonth from '@/components/common/DatePickerMonth.vue'
 import CreateDailyConfigModal from './CreateDailyConfigModal.vue'
+import API from '@/services/API'
 
 type TableField = keyof Omit<DailyConfig, 'id'>
 type TableCollumn = {
@@ -73,11 +74,13 @@ const handleEditTable = async (event: DataTableCellEditCompleteEvent) => {
     await fetchDailyConfig(selectedMonth.value)
     if (new Date(data.date as string).toLocaleDateString() === new Date().toLocaleDateString()) {
       confirm.require({
-        header: 'Restart PC',
-        message: 'Please restart your PC to apply the changes',
+        header: 'Restart Applications',
+        message: 'Please restart to apply the changes',
         icon: 'pi pi-info-circle',
+        accept: restartApps,
+        reject: () => {},
         acceptProps: {
-          label: 'Okay',
+          label: 'Restart Now',
           severity: 'success'
         },
         rejectProps: {
@@ -87,6 +90,22 @@ const handleEditTable = async (event: DataTableCellEditCompleteEvent) => {
         }
       })
     }
+  } catch (error) {
+    handleErrorAPI(error, toast)
+  } finally {
+    loading.value = false
+  }
+}
+
+const restartApps = async () => {
+  try {
+    loading.value = true
+    await API().post('restart')
+    toast.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: 'Applications restarted successfully'
+    })
   } catch (error) {
     handleErrorAPI(error, toast)
   } finally {
