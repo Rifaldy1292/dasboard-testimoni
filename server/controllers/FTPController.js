@@ -74,7 +74,7 @@ class FTPController {
         machine_id,
         files,
         res
-      );
+      ).catch((error) => console.error(error));
     }
 
     const client = new Client();
@@ -210,26 +210,37 @@ class FTPController {
    * @returns {Promise<void>}
    */
   static async removeFileFromMachine(req, res) {
+    // type all or single
+    const { fileName, machine_id } = req.query;
+
+    if (!machine_id)
+      return res
+        .status(400)
+        .json({ message: "machine_id is required", status: 400 });
+    const { ip_address, name } = await Machine.findOne({
+      where: { id: machine_id },
+      attributes: ["ip_address", "name"],
+      raw: true,
+    });
+
+    if (!ip_address) {
+      return res
+        .status(404)
+        .json({ message: "Machine not found", status: 404 });
+    }
+    // Handle MC-3 connection only
+    if (name === "MC-3") {
+      return await FTPMC3Controller.handleMC3DeleteFiles(
+        ip_address,
+        name,
+        machine_id,
+        fileName,
+        res
+      );
+    }
     const client = new Client();
     try {
-      // type all or single
-      const { fileName, machine_id } = req.query;
 
-      if (!machine_id)
-        return res
-          .status(400)
-          .json({ message: "machine_id is required", status: 400 });
-      const { ip_address, name } = await Machine.findOne({
-        where: { id: machine_id },
-        attributes: ["ip_address", "name"],
-        raw: true,
-      });
-
-      if (!ip_address) {
-        return res
-          .status(400)
-          .json({ message: "Machine not found", status: 400 });
-      }
       await client.access({
         host: ip_address,
         port: 21,

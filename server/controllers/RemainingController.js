@@ -227,18 +227,10 @@ class RemainingController {
    */
   static async handleChangeMachineOperatorAssignment(machine_id) {
     try {
-      const { is_using_custom, id } = await MachineOperatorAssignment.findOne({
-        where: { machine_id },
-        attributes: ["id", "is_using_custom"],
-        raw: true,
-      });
-
-      if (is_using_custom) {
-        await MachineOperatorAssignment.update(
-          { is_using_custom: false },
-          { where: { id } }
-        );
-      }
+      await MachineOperatorAssignment.update(
+        { is_using_custom: false },
+        { where: { machine_id } }
+      );
     } catch (error) {
       logError(
         error,

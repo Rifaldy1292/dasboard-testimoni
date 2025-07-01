@@ -7,7 +7,7 @@ const os = require("os");
 const { PassThrough } = require("stream");
 const RemainingController = require("./RemainingController");
 
-const MAX_TIMEOUT = 5000;
+const MAX_TIMEOUT = 10000;
 
 const localDir = (machine_id) =>
   path.join(__dirname, "..", "public", "cnc_files", machine_id);
@@ -96,7 +96,7 @@ class FTPMC3Controller {
 
       // Setup error handlers FIRST untuk mencegah unhandled errors
       ftpClient.on("error", (error) => {
-        console.log(error);
+        console.log(error, error.message, 999);
         logError(
           error,
           "FTPController.handleMC3GetListFiles",
@@ -201,7 +201,7 @@ class FTPMC3Controller {
             dataTimeout = setTimeout(() => {
               dataServer.close();
               callback(new Error("Data transfer timeout after 8 seconds"));
-            }, 8000);
+            }, MAX_TIMEOUT);
 
             dataServer.listen(0, () => {
               const port = dataServer.address().port;
@@ -400,10 +400,11 @@ class FTPMC3Controller {
         "FTPController.handleMC3GetListFiles"
       );
 
+
       ftpClient.connect({
         ...FTPMachine,
         host: ip_address,
-        connTimeout: 8000, // Increase connection timeout untuk MC-3
+        connTimeout: MAX_TIMEOUT, // Increase connection timeout untuk MC-3
         debug: (message) => {
           logInfo(
             `MC-3 Debug: ${message}`,
@@ -432,7 +433,7 @@ class FTPMC3Controller {
    * @param {string} ip_address - IP address of the MC-3 machine
    * @param {string} name - Name of the MC-3 machine
    * @param {string} machine_id - ID of the machine
-   * @param {Express} res - Express response object
+   * @param {Express.Response} res - Express response object
    * @returns {Promise<Response>} - Express response with status and message
    */
   static async handleMC3TransferFiles(
@@ -875,6 +876,99 @@ class FTPMC3Controller {
     //     error.message
     //   );
     // }
+  }
+
+  /**
+   * @param {string} ip_address - IP address of the MC-3 machine
+   * @param {string} name - Name of the MC-3 machine
+   * @param {string} machine_id - ID of the machine
+   * @param {string} fileName - Name of the file to delete
+   * @param {Express.Response} res - Express response object
+   * @returns {Promise<Response>} - Express response with status and message
+   * */
+  static async handleMC3DeleteFiles(
+    ip_address,
+    name,
+    machine_id,
+    fileName,
+    res
+  ) {
+    const Ftp = new ftp();
+    const closeConnection = () => {
+      Ftp.end();
+    };
+    try {
+      logInfo(
+        `Deleting file ${fileName} from ${name} at ${ip_address} (Forced Active Mode)`,
+        "FTPController.handleMC3DeleteFiles"
+      );
+      // Setup error handlers FIRST untuk mencegah unhandled errors
+      Ftp.on("error", (error) => {
+        console.log(error, error.message, 999);
+        closeConnection();
+        logError(
+          error,
+          "FTPController.handleMC3DeleteFiles",
+          "FTP connection error"
+        );
+        if (error.code === "ECONNRESET") {
+          return res.status(503).json({
+            status: 503,
+            message: "Koneksi MC-3 terputus saat menghapus file",
+          });
+        }
+        if (error.code === "ECONNREFUSED") {
+          return res.status(503).json({
+            status: 503,
+            message: "MC-3 tidak dapat diakses untuk menghapus file",
+          });
+        }
+        if (error.code === "ETIMEDOUT") {
+          return res.status(408).json({
+            status: 408,
+            message: "Timeout koneksi ke MC-3 saat menghapus file",
+          });
+        }
+        return res.status(500).json({
+          status: 500,
+          message: "Terjadi kesalahan tidak terduga saat menghapus file",
+        });
+      });
+
+      Ftp.on("ready", () => {
+        Ftp.delete(fileName, (error) => {
+          if (error) {
+            closeConnection();
+            logError(
+              error,
+              "FTPController.handleMC3DeleteFiles",
+              "FTP delete error"
+            );
+            return res.status(500).json({
+              status: 500,
+              message: `Gagal menghapus file ${fileName} dari MC-3`,
+            });
+          }
+          closeConnection();
+          return res.status(200).json({
+            status: 200,
+            message: `Berhasil menghapus file ${fileName} `
+          });
+        });
+      });
+
+      Ftp.connect({
+        host: ip_address,
+        ...FTPMachine,
+      });
+    } catch (error) {
+      closeConnection();
+      logError(error, "FTPController.handleMC3DeleteFiles");
+      return res.status(500).json({
+        status: 500,
+        message: `Gagal menghapus file dari MC-3`,
+      });
+    }
   }
 }
 
