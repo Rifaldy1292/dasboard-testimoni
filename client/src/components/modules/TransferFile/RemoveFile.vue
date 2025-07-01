@@ -135,9 +135,9 @@ const handleClickButton = (button: 'removeAll' | 'remove' | 'undo', fileName?: s
 }
 
 const isDisableRemoveAll = computed<boolean>(() => {
-  return false
-  // const name = selectedOneMachine.value?.name as MachineName
+  const name = selectedOneMachine.value?.name as MachineName
   // const disabled = name !== 'MC-16' && name !== 'MC-6'
+  return name !== 'MC-3'
   // return disabled
 })
 </script>
