@@ -895,19 +895,6 @@ class FTPMC3Controller {
               message: `Gagal menghapus file ${fileName} dari MC-3`,
             });
           }
-          // list file
-          Ftp.list((err, list) => {
-            if (err) {
-              closeConnection();
-              logError(
-                err,
-                "FTPController.handleMC3DeleteFiles",
-                "Failed to list files after delete"
-              );
-
-            }
-            console.log(list, 999)
-          });
           closeConnection();
           return res.status(200).json({
             status: 200,

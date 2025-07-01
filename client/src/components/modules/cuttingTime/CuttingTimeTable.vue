@@ -5,6 +5,7 @@ import type { MachineInfo, ShiftInfo } from '@/types/cuttingTime.type'
 import { useMachine } from '@/composables/useMachine'
 import CuttingTimeTarget from './CuttingTimeTarget.vue'
 import * as XLSX from 'xlsx'
+import useToast from '@/composables/useToast'
 
 // Type for transformed data that's compatible with DataTable
 interface TransformedRow {
@@ -26,6 +27,7 @@ interface ColumnDef {
   style?: string
 }
 
+const toast = useToast()
 const { cuttingTimeMachines, loadingFetch } = useMachine()
 
 // Define shift types with type safety
@@ -175,7 +177,10 @@ const exportXLSX = () => {
         const shift1Data = row[shift1Key] as { data: number; combine: number; calculate: number }
         const shift2Data = row[shift2Key] as { data: number; combine: number; calculate: number }
 
-        calculateRow.push(shift1Data?.calculate || 0, shift2Data?.calculate || 0)
+        calculateRow.push(
+          shift1Data?.calculate.toString() || '0',
+          shift2Data?.calculate.toString() || '0'
+        )
       })
       worksheetData.push(calculateRow)
 
@@ -189,7 +194,7 @@ const exportXLSX = () => {
           const shift1Data = row[shift1Key] as { data: number; combine: number; calculate: number }
           const shift2Data = row[shift2Key] as { data: number; combine: number; calculate: number }
 
-          dataRow.push(shift1Data?.data || 0, shift2Data?.data || 0)
+          dataRow.push(shift1Data?.data.toString() || '0', shift2Data?.data.toString() || '0')
         })
         worksheetData.push(dataRow)
       }
@@ -284,8 +289,14 @@ const exportXLSX = () => {
 
     // Export file
     XLSX.writeFile(workbook, filename)
+    toast.add({
+      severity: 'success',
+      summary: 'Export Successful',
+      detail: `${filename} exported successfully `,
+      life: 3000
+    })
 
-    console.log('Excel file exported successfully dengan format yang sama seperti web')
+    // console.log('Excel file exported successfully dengan format yang sama seperti web')
   } catch (error) {
     console.error('Error exporting to Excel:', error)
     alert('Terjadi kesalahan saat mengexport data ke Excel')

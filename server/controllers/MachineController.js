@@ -70,17 +70,20 @@ function convertMilisecondToHour(milliseconds) {
   return Number(hours.toFixed(1));
 }
 
+/**
+ * 
+ * @param {number} ms 
+ * @returns {string} formatted time difference in hh:mm:ss
+ */
 function formatTimeDifference(ms) {
-  const seconds = Math.floor(ms / 1000) % 60;
-  const minutes = Math.floor(ms / (1000 * 60)) % 60;
-  const hours = Math.floor(ms / (1000 * 60 * 60));
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
 
-  let result = [];
-  if (hours > 0) result.push(`${hours}h`);
-  if (minutes > 0) result.push(`${minutes}m`);
-  if (seconds > 0) result.push(`${seconds}s`);
-
-  return result.length > 0 ? result.join(" ") : "0s";
+  return `${hours.toString().padStart(2, "0")}:${minutes
+    .toString()
+    .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 }
 
 
@@ -544,8 +547,8 @@ interface DummyData {
             output_wp,
             current_status,
             description,
-            start: currentLogTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }), // format time to 2 digit hour and minute
-            end: nextLog ? new Date(nextLog.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : null, // next log time or null if last log,
+            start: currentLogTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replaceAll('.', ':'), // format time to 2 digit hour and minute
+            end: nextLog ? new Date(nextLog.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replaceAll('.', ':') : null, // next log time or null if last log,
             date: currentLogTime.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }),
             // User info
             operator: User ? User.name : null,

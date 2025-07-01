@@ -11,6 +11,9 @@ import { Button } from 'primevue'
 import { type PayloadWebsocket, type ShiftValue } from '@/types/websocket.type'
 import MachineServices from '@/services/machine.service'
 import { exportTimelineToExcel } from '@/utils/excelExport'
+import useToast from '@/composables/useToast'
+
+const toast = useToast()
 
 const dateTimeModel = ref({
   date: new Date(),
@@ -58,8 +61,20 @@ const downloadTimeline = async () => {
 
     // Export to Excel using existing MonthlyLogs type
     exportTimelineToExcel(monthlyLogs, filename)
+    toast.add({
+      severity: 'success',
+      summary: 'Download Successful',
+      detail: `${filename}.xlsx downloaded successfully`,
+      life: 3000
+    }) // Show success toast
   } catch (error) {
     console.error('Error downloading timeline:', error)
+    toast.add({
+      severity: 'error',
+      summary: 'Download Failed',
+      detail: 'Failed to download timeline. Please try again later.',
+      life: 3000
+    }) // Show error toast
   } finally {
     loadingDownload.value = false
   }
