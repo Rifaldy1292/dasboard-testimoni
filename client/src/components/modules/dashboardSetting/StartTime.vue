@@ -100,7 +100,7 @@ const handleEditTable = async (event: DataTableCellEditCompleteEvent) => {
 const restartApps = async () => {
   try {
     loading.value = true
-    await API().post('restart')
+    await API().post('/restart')
     toast.add({
       severity: 'success',
       summary: 'Success',
