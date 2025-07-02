@@ -364,7 +364,6 @@ interface DummyData {
           ...cuttingTime,
           allDateInMonth,
           data: extendedWithTarget,
-          format
         }
       });
 

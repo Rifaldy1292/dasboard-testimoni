@@ -20,7 +20,8 @@ const payloadWs = computed<PayloadWebsocket>(() => {
     type: 'percentage',
     data: {
       date: dateTimeModel.value.date.toISOString(),
-      shift: dateTimeModel.value.shift
+      shift: dateTimeModel.value.shift,
+      monthly: dateTimeModel.value.shift === true
     }
   }
 })
@@ -38,6 +39,7 @@ watch(
   () => percentageMachines.value?.data,
   async (newData) => {
     if (newData?.length) {
+      console.log('newData', newData)
       await nextTick()
       animate(
         '.running-time-card',
@@ -64,7 +66,7 @@ watch(
     <div class="flex justify-end">
       <DateTimeShiftSelector v-model="dateTimeModel" />
     </div>
-    <DataNotFound :condition="percentageMachines?.data.length === 0 && !loadingWebsocket" />
+    <DataNotFound :condition="!percentageMachines?.data?.length && !loadingWebsocket" />
 
     <span class="text-lg font-semibold text-black dark:text-white"
       >{{

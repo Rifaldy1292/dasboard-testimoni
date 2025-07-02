@@ -109,11 +109,14 @@ module.exports = class MachineWebsocket {
    * Retrieves machine percentages and sends them to the client.
    * 
    * @param {WebSocket} client - The WebSocket client instance.
-   * @param {{ date: string, shift: 0| 1 | 2 }} data - The data object containing date and shift.
+   * @param {{ date: string, shift: 0| 1 | 2 ; monthly?: boolean }} data - The data object containing date and shift.
    */
   static async percentages(client, data) {
     try {
       const { date, shift } = data;
+      if (data.monthly) {
+        return client.send(JSON.stringify({ type: "error", message: "Monthly is not supported yet" }));
+      }
       if (!date || shift < 0 || shift > 2) return client.send(JSON.stringify({ type: "error", message: "Bad request!" }));
 
       const nowDate = new Date(date)

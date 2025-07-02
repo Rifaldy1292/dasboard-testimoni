@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import { Select } from 'primevue'
 import { type ShiftValue } from '@/types/websocket.type'
+import { useRoute } from 'vue-router'
+import { computed } from 'vue'
 
-type Shift = 'Combine' | 'Shift 1' | 'Shift2'
+type Options = 'Combine' | 'Shift 1' | 'Shift2' | 'Monthly'
+
+const route = useRoute()
+
 const selectedShift = defineModel<ShiftValue>('modelValue', {
   required: true
 })
 
-const shiftOptions: { name: Shift; value: ShiftValue }[] = [
+const shiftOptions: { name: Options; value: ShiftValue }[] = [
   {
     name: 'Combine',
     value: 0
@@ -21,6 +26,13 @@ const shiftOptions: { name: Shift; value: ShiftValue }[] = [
     value: 2
   }
 ]
+
+const extendedOptions = computed(() => {
+  if (route.path.includes('running-time')) {
+    return [...shiftOptions, { name: 'Monthly', value: true }]
+  }
+  return shiftOptions
+})
 </script>
 
 <template>
@@ -31,7 +43,7 @@ const shiftOptions: { name: Shift; value: ShiftValue }[] = [
       option-value="value"
       v-model="selectedShift"
       :default-value="selectedShift"
-      :options="shiftOptions"
+      :options="extendedOptions"
       placeholder="Select Shift"
       class="relative flex items-center"
     />

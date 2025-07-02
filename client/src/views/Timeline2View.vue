@@ -387,21 +387,23 @@ watch([() => showDetailsInTitle.value, () => events.value], () => {
   <DefaultLayout>
     <BreadcrumbDefault pageTitle="Timeline2" />
     <LoadingAnimation :state="loadingWebsocket" />
-    <DataNotFound :condition="!timelineMachines?.data.length" />
-    <template v-if="timelineMachines?.data.length">
-      <div class="p-4">
-        <div class="flex justify-between mb-4">
-          <div class="flex items-center">
-            <!-- <div class="flex items-center mr-4">
+    <DataNotFound :condition="!timelineMachines?.data?.length" />
+    <div class="p-4">
+      <div class="flex justify-between mb-4">
+        <div class="flex items-center">
+          <!-- <div class="flex items-center mr-4">
               <label for="toggleDetails" class="mr-2">Show Details:</label>
               <ToggleSwitch id="toggleDetails" v-model="showDetailsInTitle" />
             </div> -->
-          </div>
-          <DateTimeShiftSelector v-model="dateTimeModel" />
         </div>
-        <FullCalendar :options="calendarOptions" :key="calendarKey" />
+        <DateTimeShiftSelector v-model="dateTimeModel" />
       </div>
-    </template>
+      <FullCalendar
+        v-if="timelineMachines?.data?.length"
+        :options="calendarOptions"
+        :key="calendarKey"
+      />
+    </div>
   </DefaultLayout>
 </template>
 

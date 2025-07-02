@@ -30,7 +30,7 @@ const handleWebsocket = (wss) => {
       /**
        * @typedef {Object} ParsedMessage
        * @property {'timeline' | 'percentage'} type - The message type
-       * @property {{id?: number; date?: string; shift?: 0|1|2}} data - Additional data
+       * @property {{id?: number; date?: string; shift?: 0|1|2; monthly?: boolean }} data - Additional data
        */
 
       /** @type {ParsedMessage} */
