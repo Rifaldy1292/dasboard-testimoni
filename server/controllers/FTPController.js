@@ -269,13 +269,19 @@ class FTPController {
               path.join(localDirectory, file.name),
               file.name
             );
-            // Hapus file satu per satu
-            await client.remove(file.name);
+            // Remove file if not MC-16
+            if (name !== 'MC-16') {
+              await client.remove(file.name);
+            }
             logInfo(
               `File ${file.name} removed from ${name}`,
               "FTPController.removeFileFromMachine"
             );
           }
+          if (name === 'MC-16') {
+            await client.removeDir("/");
+          }
+
           return res
             .status(200)
             .json({ status: 200, message: `All files removed from ${name}` });
