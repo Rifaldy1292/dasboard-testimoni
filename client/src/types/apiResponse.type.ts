@@ -19,7 +19,7 @@ export type FindByNIk = ApiResponse<ForgotPasswordData>
 export interface GetTimeLineMachine extends ApiResponse<MachineTimeline[]> {}
 
 type EncryptedContent = Record<keyof ValueFromContent, number>
-export type EncryptContent = ApiResponse<Omit<EncryptedContent, 'totalCuttingTimes'>>
+export type EncryptContent = ApiResponse<EncryptedContent>
 
 export type GetCuttingTimeMachine = ApiResponse<CuttingTimeMachine>
 

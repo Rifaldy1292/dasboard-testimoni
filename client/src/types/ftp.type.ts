@@ -1,5 +1,6 @@
 export type ContentFile = {
   content: string
+  transfer_file_id: number
   name: string
   toolNumber: number
   kNum: string | number
@@ -13,9 +14,12 @@ export type ContentFile = {
 }
 
 export type ValueFromContent = {
+  transfer_file_id: number
   kNum: string
   gCodeName: string
   outputWP: string
   toolName: string
   totalCuttingTime: string
+  calculateTotalCuttingTime: string
+  nextProjects: ValueFromContent[]
 }

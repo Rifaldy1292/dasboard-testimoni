@@ -31,7 +31,7 @@ const MachineServices = {
   },
 
   postEncryptContentValue: (
-    body: Omit<ValueFromContent, 'totalCuttingTime'>
+    body: Omit<ValueFromContent, 'transfer_file_id'>
   ): Promise<AxiosResponse<EncryptContent>> => {
     return API().post('/machines/encrypt-content', body)
   },

@@ -19,7 +19,8 @@ export const useFTP = () => {
    * @param totalCuttingTime example 0 : 30 : 34
    */
   const getCuttingTimeInSecond = (totalCuttingTime: string): number => {
-    if (!totalCuttingTime) return 0
+    console.log(totalCuttingTime, 'totalCuttingTime')
+    if (!totalCuttingTime || !totalCuttingTime) return 0
     const hour = totalCuttingTime.split(':')[0]
     const minute = totalCuttingTime.split(':')[1]
     const second = totalCuttingTime.split(':')[2]
@@ -34,40 +35,18 @@ export const useFTP = () => {
       const { files } = event.target as HTMLInputElement
       if (!files) return
 
-      const editFileValue = await Promise.all(
+      const readFileValue = (await Promise.all(
         Array.from(files || []).map(async (file) => {
-          // 'O' + last 4 digit
-          const fileName = file.name.split('.')[0]
           const res = await readFile(file)
-
-          const { gCodeName, kNum, outputWP, toolName, totalCuttingTime } = res as ValueFromContent
-
-          // const calculateTotalCuttingTime = Array.from(files)
-          //   .slice(index)
-          //   .reduce((acc, curr) => acc + getCuttingTimeInSecond(totalCuttingTime as string), 0)
-
-          const { data } = await MachineServices.postEncryptContentValue({
-            gCodeName,
-            kNum,
-            outputWP,
-            toolName
-          })
-
           return {
             ...res,
-            name: 'O' + fileName.slice(-4),
-            gCodeName: data.data.gCodeName,
-            kNum: data.data.kNum,
-            outputWP: data.data.outputWP,
-            toolName: data.data.toolName,
-            totalCuttingTime: getCuttingTimeInSecond(totalCuttingTime)
-            // calculateTotalCuttingTime,
-            // test: getCuttingTimeInSecond(totalCuttingTime)
+            totalCuttingTime: getCuttingTimeInSecond(res.totalCuttingTime as string),
+            name: 'O' + file.name.split('.')[0].slice(-4)
           }
         })
-      )
+      )) as ContentFile[]
 
-      const extendedFiles = [...inputFiles.value, ...editFileValue].sort((a, b) =>
+      const extendedFiles = [...inputFiles.value, ...readFileValue].sort((a, b) =>
         a.name.localeCompare(b.name)
       )
 
@@ -80,14 +59,85 @@ export const useFTP = () => {
         )
         return {
           ...item,
-          calculateTotalCuttingTime,
-          totalProgram
+          calculateTotalCuttingTime: `${totalProgram || 0}.${calculateTotalCuttingTime || 0}`
         }
       })
 
-      inputFiles.value = calculateTotalCuttingTimes
+      const nextProjects = calculateTotalCuttingTimes.map((item, index) => {
+        const nextProjects = calculateTotalCuttingTimes.slice(index).map((item) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { content, ...rest } = item
+          return {
+            ...rest
+          }
+        })
+        return {
+          ...item,
+          nextProjects: nextProjects.length ? nextProjects : []
+        }
+      })
 
-      console.log({ calculateTotalCuttingTimes })
+      const editFileValue = await Promise.all(
+        Array.from(nextProjects || []).map(async (file) => {
+          const {
+            gCodeName,
+            kNum,
+            outputWP,
+            toolName,
+            totalCuttingTime,
+            calculateTotalCuttingTime,
+            nextProjects
+          } = file as unknown as Omit<ValueFromContent, 'transfer_file_id'>
+
+          // const calculateTotalCuttingTime = Array.from(files)
+          //   .slice(index)
+          //   .reduce((acc, curr) => acc + getCuttingTimeInSecond(totalCuttingTime as string), 0)
+
+          const { data } = await MachineServices.postEncryptContentValue({
+            gCodeName,
+            kNum,
+            outputWP,
+            toolName,
+            totalCuttingTime,
+            calculateTotalCuttingTime,
+            nextProjects
+          })
+
+          return {
+            ...file,
+            gCodeName: data.data.gCodeName,
+            kNum: data.data.kNum,
+            outputWP: data.data.outputWP,
+            toolName: data.data.toolName,
+            transfer_file_id: data.data.transfer_file_id
+            // calculateTotalCuttingTime,
+            // test: getCuttingTimeInSecond(totalCuttingTime)
+          }
+        })
+      )
+
+      // const extendedFiles = [...inputFiles.value, ...editFileValue].sort((a, b) =>
+      //   a.name.localeCompare(b.name)
+      // )
+
+      // const calculateTotalCuttingTimes = extendedFiles.map((item, index) => {
+      //   const sliceFiles = extendedFiles.slice(index)
+      //   const totalProgram = extendedFiles.length - index
+      //   const calculateTotalCuttingTime = sliceFiles.reduce(
+      //     (acc, curr) => acc + (curr.totalCuttingTime as number),
+      //     0
+      //   )
+      //   return {
+      //     ...item,
+      //     calculateTotalCuttingTime,
+      //     totalProgram
+      //   }
+      // })
+
+      // inputFiles.value = calculateTotalCuttingTimes
+      inputFiles.value = editFileValue as unknown as ContentFile[]
+
+      console.log({ editFileValue })
 
       console.log(inputFiles.value, 'inputFiles')
     } catch (error: unknown) {
@@ -97,7 +147,7 @@ export const useFTP = () => {
     }
   }
 
-  const readFile = async (file: File): Promise<ContentFile> => {
+  const readFile = async (file: File): Promise<Omit<ContentFile, 'transfer_file_id'>> => {
     const reader = new FileReader()
     const content = (await new Promise((resolve, reject) => {
       reader.onload = (e) => {
@@ -110,14 +160,14 @@ export const useFTP = () => {
 
     const { gCodeName, kNum, outputWP, toolName, totalCuttingTime } = getValueFromContent(content)
     return Object.assign(file, {
-      content,
       toolNumber: 0,
       kNum,
       gCodeName,
       outputWP,
       toolName,
       totalCuttingTime,
-      workPosition: selectedWorkPosition.value
+      workPosition: selectedWorkPosition.value,
+      content
     })
   }
   const handleClearFile = () => {

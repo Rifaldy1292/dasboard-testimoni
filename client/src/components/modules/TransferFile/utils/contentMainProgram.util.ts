@@ -13,6 +13,7 @@ type params = {
   selectedProgramNumber: number
 }
 type DocsMacro =
+  | 'TRANSFER_FILE_ID'
   | 'USER_ID'
   | 'G_CODE_NAME'
   | 'K_NUM'
@@ -42,11 +43,13 @@ export const contentMainProgram = ({
       totalCuttingTime,
       calculateTotalCuttingTime,
       totalProgram,
-      workPosition
+      workPosition,
+      transfer_file_id
     } = file
     const selectedWorkPosition = workPosition
 
     let docs: Docs = {
+      TRANSFER_FILE_ID: '',
       G_CODE_NAME: '',
       K_NUM: '',
       OUTPUT_WP: '',
@@ -59,6 +62,7 @@ export const contentMainProgram = ({
     switch (selectedOneMachine.startMacro) {
       case 500: {
         docs = {
+          TRANSFER_FILE_ID: '#500',
           USER_ID: '#501',
           G_CODE_NAME: '#502',
           K_NUM: '#503',
@@ -71,6 +75,7 @@ export const contentMainProgram = ({
       }
       case 540: {
         docs = {
+          TRANSFER_FILE_ID: '#540',
           USER_ID: '#541',
           G_CODE_NAME: '#542',
           K_NUM: '#543',
@@ -83,6 +88,7 @@ export const contentMainProgram = ({
       }
       case 560: {
         docs = {
+          TRANSFER_FILE_ID: '#560',
           USER_ID: '#561',
           G_CODE_NAME: '#562',
           K_NUM: '#563',
@@ -97,13 +103,14 @@ export const contentMainProgram = ({
 
     const M198P = 'M198P'
 
-    const macroData = `${docs.USER_ID}=${user.id}
+    const macroData = `${docs.TRANSFER_FILE_ID}=${transfer_file_id}
+${docs.USER_ID}=${user.id}
 ${docs.G_CODE_NAME}=${gCodeName}
 ${docs.K_NUM}=${kNum}
 ${docs.OUTPUT_WP}=${outputWP}
 ${docs.TOOL_NAME}=${toolName}
 ${docs.TOTAL_CUTTING_TIME}=${totalCuttingTime}
-${docs.CALCULATE_TOTAL_CUTTING_TIME}=${totalProgram || 0}.${calculateTotalCuttingTime || 0}`
+${docs.CALCULATE_TOTAL_CUTTING_TIME}=${calculateTotalCuttingTime}`
 
     const body500 = `${macroData}
 G54 G90 G00 G01 Z0. F3000 ${selectedOneMachine.name === 'MC-6' ? `M${selectedCoolant}` : ''}
@@ -226,7 +233,9 @@ M30
   return content(selectedOneMachine.startMacro)
 }
 
-export const getValueFromContent = (content: string): ValueFromContent => {
+export const getValueFromContent = (
+  content: string
+): Omit<ValueFromContent, 'transfer_file_id'> => {
   const kNum = content.match(/K-NUM : ([^)]+)/g)
   const gCodeName = content.match(/NAMA G CODE : ([^)]+)/g)
   const outputWP = content.match(/OUTPUT WP : ([^)]+)/g)
@@ -242,6 +251,8 @@ export const getValueFromContent = (content: string): ValueFromContent => {
     : ''
 
   return {
+    calculateTotalCuttingTime: '',
+    nextProjects: [],
     kNum: kNumValue,
     gCodeName: gCodeNameValue,
     outputWP: outputWPValue,

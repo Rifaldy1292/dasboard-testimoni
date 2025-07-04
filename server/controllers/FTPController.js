@@ -1,4 +1,4 @@
-const { Machine, MachineOperatorAssignment } = require("../models");
+const { Machine, TransferFile } = require("../models");
 const { serverError } = require("../utils/serverError");
 
 const { PassThrough } = require("stream"); // ✅ Tambahkan ini
@@ -414,17 +414,63 @@ class FTPController {
    * @throws {Error} - If there is an error when encrypting content value
    */
   static async encryptContentValue(req, res) {
-    try {
-      const { gCodeName, kNum, outputWP, toolName } = req.body;
+    const { gCodeName, kNum, outputWP, toolName, totalCuttingTime, calculateTotalCuttingTime, nextProjects } = req.body || { gCodeName: null, kNum: null, outputWP: null, toolName: null, totalCuttingTime: null, calculateTotalCuttingTime: null, nextProjects: null };
 
+
+    const defaultNextProjects = nextProjects.map((project) => {
+      return {
+        user_id: req.user.id,
+        g_code_name: project.gCodeName || null,
+        k_num: project.kNum || null,
+        output_wp: project.outputWP || null,
+        tool_name: project.toolName || null,
+        total_cutting_time: project.totalCuttingTime || null,
+        calculate_total_cutting_time: project.calculateTotalCuttingTime || null,
+      }
+    })
+
+    try {
       const [gCodeNameEnc, kNumEnc, outputWPEnt, toolNameEnc] =
         await Promise.all([
           encryptToNumber(gCodeName, "g_code_name"),
           encryptToNumber(kNum, "k_num"),
           encryptToNumber(outputWP, "output_wp"),
           encryptToNumber(toolName, "tool_name"),
+
         ]);
+
+      const findTransferFile = await TransferFile.findOne({
+        where: {
+          user_id: req.user.id,
+          g_code_name: gCodeName,
+          k_num: kNum,
+          output_wp: outputWP,
+          tool_name: toolName,
+          total_cutting_time: totalCuttingTime,
+          calculate_total_cutting_time: calculateTotalCuttingTime,
+          next_projects: defaultNextProjects,
+        }
+      })
+
+      let transferFileId = null;
+      if (findTransferFile) {
+        transferFileId = findTransferFile.id
+      } else {
+        const createTransferFile = await TransferFile.create({
+          user_id: req.user.id,
+          g_code_name: gCodeName,
+          k_num: kNum,
+          output_wp: outputWP,
+          tool_name: toolName,
+          total_cutting_time: totalCuttingTime,
+          calculate_total_cutting_time: calculateTotalCuttingTime,
+          next_projects: defaultNextProjects,
+        })
+        transferFileId = createTransferFile.id
+      }
+
       const encryptValue = {
+        transfer_file_id: transferFileId,
         gCodeName: gCodeNameEnc,
         kNum: kNumEnc,
         outputWP: outputWPEnt,
@@ -437,6 +483,7 @@ class FTPController {
         data: encryptValue,
       });
     } catch (error) {
+      console.log(error)
       serverError(error, res, "Failed to encrypt content value");
     }
   }

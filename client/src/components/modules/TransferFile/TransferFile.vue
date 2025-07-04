@@ -128,6 +128,7 @@ const handleExecute = (): void => {
     })
 
     const mainProgramContent: ContentFile = {
+      transfer_file_id: 0,
       content,
       name: 'O00' + selectedProgramNumber.value,
       gCodeName: '',
