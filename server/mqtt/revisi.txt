@@ -1,5 +1,0 @@
-pengecekan tidak hanya dilakukan berdasarkan status, namun k_number juga,
-if(status === current_status && knum === current_knum) return;
-create new log
-
-waktu getDataCaching, ubah agar include machineLogs attributes= k_num

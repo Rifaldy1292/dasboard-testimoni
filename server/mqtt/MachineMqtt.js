@@ -26,8 +26,7 @@ const setupMachineCache = async () => {
     });
 
     // console.log(machineCache.getAll(), 444);
-    console.log('trigger from setupMachineCache');
-    machineCache.resetStatusAndKNum();
+
     // console.log(machineCache.getAll(), 555);
 
     machineLoggerInfo("Get all machines from database", machineCache.getAll());
@@ -157,6 +156,7 @@ const handleChangeMachineStatus = async (
       calculate_total_cutting_time: calculate_total_cutting_time || null,
     });
 
+    const plainNewLog = newLog.get({ plain: true });
     // console.log({ newLog: newLog.get({ plain: true }) });
 
     // update exist machines cache

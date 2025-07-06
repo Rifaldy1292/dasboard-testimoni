@@ -1,4 +1,3 @@
-const { machineLoggerInfo } = require('../utils/logger');
 /**
  * Machine Cache Manager - Singleton class for managing machine cache
  */
@@ -39,23 +38,6 @@ class MachineCacheManager {
     return machine ? machine.status === null : true;
   }
 
-  resetStatusAndKNum() {
-    const beforeReset = this.getAll();
-    this.machineCache.forEach((machine) => {
-      const { id, name } = machine;
-
-      this.machineCache.set(name, {
-        id: id,
-        name,
-        status: null,
-        k_num: 0,
-      });
-    });
-
-    const afterReset = this.getAll();
-    machineLoggerInfo(`Reset status and k_num for ${beforeReset.length} machines. After reset: ${afterReset.length} machines.`);
-    return this;
-  }
 
   /**
    * Set machine data in cache
@@ -68,33 +50,6 @@ class MachineCacheManager {
     return this;
   }
 
-  /**
-   * Update machine status
-   * @param {string} machineName - Name of the machine
-   * @param {'Running' | 'Stopped' | 'DISCONNECT'} status - New status
-   * @returns {boolean} True if updated, false if machine not found
-   */
-  updateStatus(machineName, status) {
-    const machine = this.machineCache.get(machineName);
-    if (!machine) return false;
-
-    machine.status = status;
-    return true;
-  }
-
-  /**
-   * Update machine k_num
-   * @param {string} machineName - Name of the machine
-   * @param {string} kNum - New k_num
-   * @returns {boolean} True if updated, false if machine not found
-   */
-  updateKNum(machineName, kNum) {
-    const machine = this.machineCache.get(machineName);
-    if (!machine) return false;
-
-    machine.k_num = kNum;
-    return true;
-  }
 
   /**
    * Update both status and k_num
@@ -151,14 +106,7 @@ class MachineCacheManager {
     return Array.from(this.machineCache.keys());
   }
 
-  /**
-   * Remove machine from cache
-   * @param {string} machineName - Name of the machine to remove
-   * @returns {boolean} True if machine was removed
-   */
-  remove(machineName) {
-    return this.machineCache.delete(machineName);
-  }
+
 
   /**
    * Clear all machines from cache
