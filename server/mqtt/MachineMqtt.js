@@ -192,11 +192,8 @@ const handleChangeMachineStatus = async (
 /**
  * Creates a machine and logs the first entry with the provided message data.
  *
- * @param {Object} parseMessage - The parsed message containing machine data.
- * @param {string} parseMessage.name - Name of the machine.
- * @param {'Running'|'Stopped' | 'DISCONNECT' | null} parseMessage.status - Status of the machine.
- * @param {number} parseMessage.transfer_file_id - ID of the transfer file.
- * @param {MqttClient} client - The MQTT client or WebSocket client.
+ * @param {{name: string, status: 'Running'|'Stopped' | 'DISCONNECT' | null, transfer_file_id: number, ipAddress?: string}} parseMessage - The parsed message containing machine data.
+* @param {MqttClient} client - The MQTT client or WebSocket client.
  * @returns {Promise<void>}
  */
 const createMachineAndLogFirstTime = async (parseMessage, client) => {
@@ -206,15 +203,11 @@ const createMachineAndLogFirstTime = async (parseMessage, client) => {
     transfer_file_id,
   } = parseMessage;
   try {
-    const machine = await Machine.findOne({ where: { name } });
-    if (!machine) {
-      machineLoggerError(
-        new Error(`Machine with name ${name} not found. Cannot create first log.`),
-        "createMachineAndLogFirstTime",
-        parseMessage
-      );
-      return;
-    }
+
+    const createMachine = await Machine.create({
+      name,
+      ipAddress: parseMessage.ipAddress || null,
+    });
 
     const {
       user_id,
@@ -228,7 +221,7 @@ const createMachineAndLogFirstTime = async (parseMessage, client) => {
 
     const newLog = await MachineLog.create({
       user_id,
-      machine_id: machine.id,
+      machine_id: createMachine.id,
       current_status: status,
       previous_status: null,
       g_code_name,

@@ -117,7 +117,7 @@ const handleResetMachineStatus = async () => {
     }
 
     // Proceed with normal reset
-    machineCache.resetStatusAndKNum();
+    machineCache.reset();
 
     const afterResetSize = machineCache.size();
     machineLoggerInfo(

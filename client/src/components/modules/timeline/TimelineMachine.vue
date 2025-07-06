@@ -109,7 +109,7 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
             }"
             :class="`text-md ${isHover ? 'h-20' : 'h-70'} text-start flex flex-col  break-words`"
           >
-            <i :class="`${isHover ? 'text-xs' : ''} font-bold text-black dark:text-white`"
+            <i :class="`${isHover ? 'text-xs' : ''} font-bold text-white dark:text-black`"
               >{{
                 new Date(item.createdAt).toLocaleTimeString('id-ID', {
                   hour: 'numeric',

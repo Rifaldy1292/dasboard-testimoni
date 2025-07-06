@@ -430,14 +430,6 @@ class FTPController {
     })
 
     try {
-      const [gCodeNameEnc, kNumEnc, outputWPEnt, toolNameEnc] =
-        await Promise.all([
-          encryptToNumber(gCodeName, "g_code_name"),
-          encryptToNumber(kNum, "k_num"),
-          encryptToNumber(outputWP, "output_wp"),
-          encryptToNumber(toolName, "tool_name"),
-
-        ]);
 
       const findTransferFile = await TransferFile.findOne({
         where: {
@@ -471,10 +463,10 @@ class FTPController {
 
       const encryptValue = {
         transfer_file_id: transferFileId,
-        gCodeName: gCodeNameEnc,
-        kNum: kNumEnc,
-        outputWP: outputWPEnt,
-        toolName: toolNameEnc,
+        gCodeName: null,
+        kNum: null,
+        outputWP: null,
+        toolName: null,
       };
 
       res.status(201).json({

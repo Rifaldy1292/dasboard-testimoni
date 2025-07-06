@@ -67,6 +67,14 @@ class MachineCacheManager {
     return true;
   }
 
+  reset() {
+    const machines = this.getAll();
+    machines.forEach((machine) => {
+      this.machineCache.set(machine.name, { ...machine, status: null, transfer_file_id: null, createdAt: null });
+    });
+    return this;
+  }
+
   /**
    * Check if status or transfer_file_id has changed
    * @param {string} machineName - Name of the machine
