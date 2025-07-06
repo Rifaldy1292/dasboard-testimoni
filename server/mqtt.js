@@ -31,27 +31,26 @@ const handleMqtt = () => {
   });
 
   mqttClient.on("message", async (topic, message) => {
+    /**
+             * Parses the received MQTT message into a JavaScript object.
+             * @type {{
+             *  name: string,
+             *  status: 'Running' | 'Stopped' | 'DISCONNECT',
+             *  transfer_file_id: number,
+             * }}
+             * @example 
+             *   {
+             *  "name": "mc-1",
+             *  "status": "Running",
+             *  "transfer_file_id": 123
+             *   }
+             */
     const parseMessage = JSON.parse(message.toString());
-    const k_num = parseMessage.k_num || 0;
+
     // console.log(topic, parseMessage);
 
     try {
-      /**
-             * Parses the received MQTT message into a JavaScript object.
-             * @type {Object}
-             * @example 
-             * {
-             *   "name": "mc-1",
-             *   "status": "Running" | "Stopped", 
-             *    "user_id": 1,
-             *    "ipAddress": "38.0.101.76",
-             *    "output_wp": 2112 // encrypt value
-             *    "k_num": 2112 // encrypt value
-             *    "tool_name": 2112 // encrypt value
-             *    "total_cutting_time   : 2112 // encrypt value
-             *     "calculate_total_cutting_time": 1.2222
-             }
-             */
+
       machineLoggerDebug(
         `Received MQTT message on topic ${topic}`,
         "handleMqtt: mqttClient.on",
@@ -82,7 +81,8 @@ const handleMqtt = () => {
           id: id,
           name: name,
           status: null,
-          k_num: null,
+          transfer_file_id: null,
+          createdAt: null,
         });
         return;
       }

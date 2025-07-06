@@ -11,8 +11,9 @@ class MachineCacheManager {
      * @typedef {Object} MachineData
      * @property {number} id - Unique identifier for the machine
      * @property {string} name - Name of the machine
-     * @property {'Running' | 'Stopped' | 'DISCONNECT'} status - Current status of the machine
-     * @property {number} k_num - encrypt K-number identifier
+     * @property {'Running' | 'Stopped' | 'DISCONNECT' | null} status - Current status of the machine
+     * @property {number | null} transfer_file_id - ID from mqtt message
+     * @property {Date | null} createdAt - Timestamp from the last log
      */
 
     /**
@@ -46,39 +47,38 @@ class MachineCacheManager {
    * @returns {MachineCacheManager} Returns this for method chaining
    */
   set(machineName, machineData = {}) {
-    this.machineCache.set(machineName, { ...machineData, k_num: machineData?.k_num || 0 });
+    this.machineCache.set(machineName, { ...machineData });
     return this;
   }
 
-
   /**
-   * Update both status and k_num
-   * @param {string} machineName - Name of the machine
-   * @param {string} status - New status
-   * @param {number} kNum - New k_num
-   * @returns {boolean} True if updated, false if machine not found
+   * Update cache data
+   * @param {string} machineName
+   * @param {{status: string, transfer_file_id: number, createdAt: Date}} data
+   * @returns {boolean}
    */
-  updateStatusAndKNum(machineName, status, kNum) {
+  updateCacheData(machineName, data) {
     const machine = this.machineCache.get(machineName);
     if (!machine) return false;
 
-    machine.status = status;
-    machine.k_num = kNum;
+    machine.status = data.status;
+    machine.transfer_file_id = data.transfer_file_id;
+    machine.createdAt = data.createdAt;
     return true;
   }
 
   /**
-   * Check if status or k_num has changed (sesuai revisi requirement)
+   * Check if status or transfer_file_id has changed
    * @param {string} machineName - Name of the machine
    * @param {string} newStatus - New status to check
-   * @param {string} newKNum - New k_num to check
-   * @returns {boolean} True if either status or k_num has changed
+   * @param {number} newTransferFileId - New transfer_file_id to check
+   * @returns {boolean} True if either status or transfer_file_id has changed
    */
-  hasStatusOrKNumChanged(machineName, newStatus, newKNum) {
+  hasDataChanged(machineName, newStatus, newTransferFileId) {
     const machine = this.machineCache.get(machineName);
     if (!machine) return true; // If machine not in cache, consider it as changed
 
-    return machine.status !== newStatus || machine.k_num !== newKNum;
+    return machine.status !== newStatus || machine.transfer_file_id !== newTransferFileId;
   }
 
   /**

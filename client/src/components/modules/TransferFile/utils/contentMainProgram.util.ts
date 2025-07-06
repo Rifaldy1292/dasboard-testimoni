@@ -103,14 +103,7 @@ export const contentMainProgram = ({
 
     const M198P = 'M198P'
 
-    const macroData = `${docs.TRANSFER_FILE_ID}=${transfer_file_id}
-${docs.USER_ID}=${user.id}
-${docs.G_CODE_NAME}=${gCodeName}
-${docs.K_NUM}=${kNum}
-${docs.OUTPUT_WP}=${outputWP}
-${docs.TOOL_NAME}=${toolName}
-${docs.TOTAL_CUTTING_TIME}=${totalCuttingTime}
-${docs.CALCULATE_TOTAL_CUTTING_TIME}=${calculateTotalCuttingTime}`
+    const macroData = `${docs.TRANSFER_FILE_ID}=${transfer_file_id}`
 
     const body500 = `${macroData}
 G54 G90 G00 G01 Z0. F3000 ${selectedOneMachine.name === 'MC-6' ? `M${selectedCoolant}` : ''}

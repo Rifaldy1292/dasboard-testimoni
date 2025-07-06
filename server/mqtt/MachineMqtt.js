@@ -1,5 +1,4 @@
-const { MachineLog, Machine } = require("../models");
-const { decryptFromNumber } = require("../helpers/crypto");
+const { MachineLog, Machine, TransferFile } = require("../models");
 const { MqttClient } = require("mqtt");
 const { machineLoggerDebug, machineLoggerError, machineLoggerInfo } = require("../utils/logger");
 const { machineCache } = require("../cache");
@@ -21,7 +20,8 @@ const setupMachineCache = async () => {
         id: id,
         name: name,
         status: null,
-        k_num: null,
+        transfer_file_id: null,
+        createdAt: null,
       });
     });
 
@@ -35,6 +35,36 @@ const setupMachineCache = async () => {
   }
 };
 
+
+/**
+ * Get the transfer file from the database.
+ * @param {number} transfer_file_id - The ID of the transfer file.
+ * @returns {Promise<{user_id: number, g_code_name: string, k_num: number, output_wp: number, tool_name: string, total_cutting_time: number, calculate_total_cutting_time: number}>} The transfer file object.
+ */
+const getTransferFile = async (transfer_file_id) => {
+  let objTransferFile = {
+    user_id: null,
+    g_code_name: null,
+    k_num: null,
+    output_wp: null,
+    tool_name: null,
+    total_cutting_time: null,
+    calculate_total_cutting_time: null,
+  };
+  if (!transfer_file_id) return objTransferFile;
+  try {
+    const transferFile = await TransferFile.findByPk(transfer_file_id, {
+      raw: true,
+    });
+    if (!transferFile) return objTransferFile;
+    objTransferFile = transferFile;
+    return objTransferFile;
+
+  } catch (error) {
+    machineLoggerError(error, "getTransferFile", { transfer_file_id });
+    return objTransferFile;
+  }
+};
 
 /**
  *
@@ -59,9 +89,9 @@ const isBetweenTimeManualLog = (createdAt) => {
  *
  * @param {machineCache} existMachine - The existing machine record.
  * @param {Object} parseMessage - The parsed MQTT message containing machine data.
- * @returns {Promise<boolean>}
+ * @returns {boolean}
  */
-const isManualLog = async (existMachine, parseMessage) => {
+const isManualLog = (existMachine, parseMessage) => {
   const actualMachineStatus = parseMessage.status;
   const statusFromCache = existMachine.status;
   const isNull = machineCache.isNullStatus(existMachine.name);
@@ -73,20 +103,12 @@ const isManualLog = async (existMachine, parseMessage) => {
   if (!isManualOperation) return false;
 
 
-  const lastLog = await MachineLog.findOne({
-    raw: true,
-    attributes: ["createdAt"],
-    order: [["createdAt", "DESC"]],
-    where: {
-      machine_id: existMachine.id,
-    }
-  }).catch((error) => {
-    machineLoggerError(error, "isManualLog");
-  });
-  if (!lastLog || !lastLog.createdAt) return false;
+  const { createdAt } = existMachine;
+  if (!createdAt) return false;
+  return isBetweenTimeManualLog(createdAt);
 
 
-  return isBetweenTimeManualLog(lastLog.createdAt);
+
 };
 
 /**
@@ -102,29 +124,18 @@ const handleChangeMachineStatus = async (
   parseMessage,
   client
 ) => {
-  const {
-    user_id,
-    status,
-    g_code_name,
-    k_num,
-    output_wp,
-    tool_name,
-    total_cutting_time,
-    calculate_total_cutting_time,
-  } = parseMessage;
+  const { status, transfer_file_id } = parseMessage;
 
-
-  if (
-    existMachine.status === status &&
-    existMachine.k_num === k_num
-  ) return;
+  if (!machineCache.hasDataChanged(existMachine.name, status, transfer_file_id)) {
+    return;
+  }
 
   try {
 
     const machineCacheStatus = existMachine.status;
 
     //  isManualOperation is when the status is "Stopped" but the machine cache is  running
-    const isManualOperation = await isManualLog(existMachine, parseMessage);
+    const isManualOperation = isManualLog(existMachine, parseMessage);
     const effectiveStatus = isManualOperation ? "Running" : status;
     const allowUpdate = machineCacheStatus === null || machineCacheStatus !== effectiveStatus;
     if (!allowUpdate) return;
@@ -133,13 +144,16 @@ const handleChangeMachineStatus = async (
       "handleChangeMachineStatus"
     );
 
-    const [decryptGCodeName, decryptKNum, decryptOutputWp, decryptToolName] =
-      await Promise.all([
-        decryptFromNumber(g_code_name, "g_code_name"),
-        decryptFromNumber(k_num, "k_num"),
-        decryptFromNumber(output_wp, "output_wp"),
-        decryptFromNumber(tool_name, "tool_name"),
-      ]);
+    const {
+      user_id,
+      g_code_name,
+      k_num,
+      output_wp,
+      tool_name,
+      total_cutting_time,
+      calculate_total_cutting_time,
+    } = await getTransferFile(transfer_file_id);
+
 
     await updateDescriptionLastMachineLog(existMachine.id);
     // Create a new log with the updated status
@@ -148,19 +162,22 @@ const handleChangeMachineStatus = async (
       machine_id: existMachine.id,
       current_status: effectiveStatus,
       previous_status: existMachine.status,
-      g_code_name: decryptGCodeName,
-      k_num: decryptKNum,
-      output_wp: decryptOutputWp,
-      tool_name: decryptToolName,
-      total_cutting_time: total_cutting_time || 0,
-      calculate_total_cutting_time: calculate_total_cutting_time || null,
+      g_code_name,
+      k_num,
+      output_wp,
+      tool_name,
+      total_cutting_time,
+      calculate_total_cutting_time,
     });
 
     const plainNewLog = newLog.get({ plain: true });
-    // console.log({ newLog: newLog.get({ plain: true }) });
 
     // update exist machines cache
-    machineCache.updateStatusAndKNum(existMachine.name, effectiveStatus, k_num);
+    machineCache.updateCacheData(existMachine.name, {
+      status: effectiveStatus,
+      transfer_file_id,
+      createdAt: plainNewLog.createdAt,
+    });
 
     // Send an update to all connected clients
     handleSendToWebsocket(client);
@@ -177,14 +194,8 @@ const handleChangeMachineStatus = async (
  *
  * @param {Object} parseMessage - The parsed message containing machine data.
  * @param {string} parseMessage.name - Name of the machine.
- * @param {'Running'|'Stopped'} parseMessage.status - Status of the machine.
- * @param {number} parseMessage.user_id - User ID associated with the machine.
- * @param {string} parseMessage.ipAddress - IP address of the machine.
- * @param {number} parseMessage.output_wp - Encrypted output workpiece value.
- * @param {number} parseMessage.k_num - Encrypted K number value.
- * @param {number} parseMessage.tool_name - Encrypted tool name value.
- * @param {number} parseMessage.total_cutting_time - Encrypted total cutting time value.
- * @param {number} parseMessage.calculate_total_cutting_time - Calculated total cutting time.
+ * @param {'Running'|'Stopped' | 'DISCONNECT' | null} parseMessage.status - Status of the machine.
+ * @param {number} parseMessage.transfer_file_id - ID of the transfer file.
  * @param {MqttClient} client - The MQTT client or WebSocket client.
  * @returns {Promise<void>}
  */
@@ -192,52 +203,51 @@ const createMachineAndLogFirstTime = async (parseMessage, client) => {
   const {
     name,
     status,
-    user_id,
-    g_code_name,
-    k_num,
-    output_wp,
-    tool_name,
-    total_cutting_time,
-    ipAddress,
-    calculate_total_cutting_time,
+    transfer_file_id,
   } = parseMessage;
   try {
-    const [
-      createMachine,
-      decryptGCodeName,
-      decryptKNum,
-      decryptOutputWp,
-      decryptToolName,
-    ] = await Promise.all([
-      Machine.create({
-        name,
-        ip_address: ipAddress,
-      }),
-      decryptFromNumber(g_code_name),
-      decryptFromNumber(k_num),
-      decryptFromNumber(output_wp),
-      decryptFromNumber(tool_name),
-    ]);
+    const machine = await Machine.findOne({ where: { name } });
+    if (!machine) {
+      machineLoggerError(
+        new Error(`Machine with name ${name} not found. Cannot create first log.`),
+        "createMachineAndLogFirstTime",
+        parseMessage
+      );
+      return;
+    }
 
-    await MachineLog.create({
+    const {
       user_id,
-      machine_id: createMachine.id,
+      g_code_name,
+      k_num,
+      output_wp,
+      tool_name,
+      total_cutting_time,
+      calculate_total_cutting_time,
+    } = await getTransferFile(transfer_file_id);
+
+    const newLog = await MachineLog.create({
+      user_id,
+      machine_id: machine.id,
       current_status: status,
       previous_status: null,
-      g_code_name: decryptGCodeName,
-      k_num: decryptKNum,
-      output_wp: decryptOutputWp,
-      tool_name: decryptToolName,
+      g_code_name,
+      k_num,
+      output_wp,
+      tool_name,
       total_cutting_time: total_cutting_time || 0,
       calculate_total_cutting_time: calculate_total_cutting_time || null,
     });
 
+    const plainNewLog = newLog.get({ plain: true });
+
     //  push to cache
     machineCache.set(name, {
-      id: createMachine.id,
+      id: machine.id,
       name,
       status,
-      k_num
+      transfer_file_id,
+      createdAt: plainNewLog.createdAt,
     });
 
     handleSendToWebsocket(client);
