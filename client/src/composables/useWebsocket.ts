@@ -52,7 +52,7 @@ export default function useWebSocket(payload: PayloadWebsocket) {
       ws.onmessage = (event) => {
         const parsedData = JSON.parse(event.data) as WebsocketResponse
         const { type, data, message } = parsedData
-        // console.log(`from server ${type}`, data)
+        console.log(`from server ${type}`, data)
 
         switch (type) {
           case 'error':

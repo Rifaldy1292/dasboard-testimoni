@@ -39,7 +39,7 @@ const setupMachineCache = async () => {
 /**
  * Get the transfer file from the database.
  * @param {number} transfer_file_id - The ID of the transfer file.
- * @returns {Promise<{user_id: number, g_code_name: string, k_num: number, output_wp: number, tool_name: string, total_cutting_time: number, calculate_total_cutting_time: number}>} The transfer file object.
+ * @returns {Promise<{user_id: number, g_code_name: string, k_num: number, output_wp: number, tool_name: string, total_cutting_time: number, calculate_total_cutting_time: number; next_projects: unknown[]}>} The transfer file object.
  */
 const getTransferFile = async (transfer_file_id) => {
   let objTransferFile = {
@@ -50,6 +50,7 @@ const getTransferFile = async (transfer_file_id) => {
     tool_name: null,
     total_cutting_time: 0,
     calculate_total_cutting_time: null,
+    next_projects: []
   };
   if (!transfer_file_id) return objTransferFile;
   try {
@@ -152,6 +153,7 @@ const handleChangeMachineStatus = async (
       tool_name,
       total_cutting_time,
       calculate_total_cutting_time,
+      next_projects,
     } = await getTransferFile(transfer_file_id);
 
 
@@ -168,6 +170,7 @@ const handleChangeMachineStatus = async (
       tool_name,
       total_cutting_time,
       calculate_total_cutting_time,
+      next_projects,
     });
 
     const plainNewLog = newLog.get({ plain: true });

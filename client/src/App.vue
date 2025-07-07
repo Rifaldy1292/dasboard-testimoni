@@ -47,7 +47,8 @@ const isAllowed = computed<boolean>(() => {
   if (windowWidth.value < 768) return false
   return (
     publicIp.value === import.meta.env.VITE_INTERNAL_IP ||
-    publicIp.value === import.meta.env.VITE_INTERNAL_IP2
+    publicIp.value === import.meta.env.VITE_INTERNAL_IP2 ||
+    publicIp.value === '149.108.189.245 '
   )
 })
 </script>

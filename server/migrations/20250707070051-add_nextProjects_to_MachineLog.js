@@ -1,94 +1,16 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
-  class TransferFile extends Model {
+
+/** @type {import('sequelize-cli').Migration} */
+module.exports = {
+  async up(queryInterface, Sequelize) {
     /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
+     * Add altering commands here.
+     *
+     * Example:
+     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-    static associate(models) {
-      // define association here
-      TransferFile.belongsTo(models.User, {
-        foreignKey: 'user_id',
-        as: 'user'
-      });
-    }
-  }
-  TransferFile.init({
-    user_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    g_code_name: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      validate: {
-        len: {
-          args: [0, 255],
-          msg: 'G-code name must be less than 255 characters'
-        }
-      }
-    },
-    k_num: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      validate: {
-        len: {
-          args: [0, 100],
-          msg: 'K number must be less than 100 characters'
-        }
-      }
-    },
-    output_wp: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      validate: {
-        len: {
-          args: [0, 255],
-          msg: 'Output WP must be less than 255 characters'
-        }
-      }
-    },
-    tool_name: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      validate: {
-        len: {
-          args: [0, 255],
-          msg: 'Tool name must be less than 255 characters'
-        }
-      }
-    },
-    total_cutting_time: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0,
-      validate: {
-        isInt: {
-          msg: 'Total cutting time must be an integer'
-        },
-        min: {
-          args: [0],
-          msg: 'Total cutting time must be greater than or equal to 0'
-        }
-      }
-    },
-    calculate_total_cutting_time: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: '0',
-      validate: {
-        len: {
-          args: [0, 500],
-          msg: 'Calculate total cutting time must be less than 500 characters'
-        }
-      }
-    },
-    next_projects: {
-      type: DataTypes.JSONB,
+    await queryInterface.addColumn('MachineLogs', 'next_projects', {
+      type: Sequelize.JSONB,
       allowNull: false,
       defaultValue: [],
       validate: {
@@ -143,10 +65,37 @@ module.exports = (sequelize, DataTypes) => {
           }
         }
       }
-    }
-  }, {
-    sequelize,
-    modelName: 'TransferFile',
-  });
-  return TransferFile;
+    });
+
+    // change collumn next_projects in TransferFile to required default []
+    await queryInterface.changeColumn('TransferFiles', 'next_projects', {
+      type: Sequelize.JSONB,
+      allowNull: false,
+      defaultValue: [],
+      validate: {
+        isValidProjectsArray(value) {
+          if (value !== null && value !== undefined) {
+            if (!Array.isArray(value)) {
+              throw new Error('Next projects must be an array');
+            }
+          }
+        }
+      }
+    });
+  },
+
+  async down(queryInterface, Sequelize) {
+    /**
+     * Add reverting commands here.
+     *
+     * Example:
+     * await queryInterface.dropTable('users');
+     */
+    await queryInterface.removeColumn('MachineLogs', 'next_projects');
+    await queryInterface.changeColumn('TransferFiles', 'next_projects', {
+      type: Sequelize.JSONB,
+      defaultValue: [],
+      allowNull: true,
+    });
+  }
 };
