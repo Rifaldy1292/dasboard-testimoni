@@ -2,7 +2,7 @@ import type { ContentFile, ValueFromContent } from '@/types/ftp.type'
 import type { MachineOption } from '@/types/machine.type'
 import type { User } from '@/types/user.type'
 
-type params = {
+type Params = {
   inputFiles: ContentFile[]
   selectedOneMachine: MachineOption
   user: User
@@ -14,7 +14,7 @@ type params = {
 }
 type DocsMacro =
   | 'TRANSFER_FILE_ID'
-  | 'USER_ID'
+  // | 'USER_ID'
   | 'G_CODE_NAME'
   | 'K_NUM'
   | 'OUTPUT_WP'
@@ -32,7 +32,7 @@ export const contentMainProgram = ({
   // selectedWorkPosition,
   inputStartPoint,
   selectedProgramNumber
-}: params): string => {
+}: Params): string => {
   const bodyContent = inputFiles.map((file) => {
     const {
       toolNumber,
@@ -55,15 +55,15 @@ export const contentMainProgram = ({
       OUTPUT_WP: '',
       TOOL_NAME: '',
       TOTAL_CUTTING_TIME: '',
-      USER_ID: '',
+      // USER_ID: '',
       CALCULATE_TOTAL_CUTTING_TIME: ''
     }
 
     switch (selectedOneMachine.startMacro) {
       case 500: {
         docs = {
-          TRANSFER_FILE_ID: '#500',
-          USER_ID: '#501',
+          TRANSFER_FILE_ID: '#501',
+          // USER_ID: '#501',
           G_CODE_NAME: '#502',
           K_NUM: '#503',
           OUTPUT_WP: '#504',
@@ -75,8 +75,8 @@ export const contentMainProgram = ({
       }
       case 540: {
         docs = {
-          TRANSFER_FILE_ID: '#540',
-          USER_ID: '#541',
+          TRANSFER_FILE_ID: '#541',
+          // USER_ID: '#541',
           G_CODE_NAME: '#542',
           K_NUM: '#543',
           OUTPUT_WP: '#544',
@@ -88,8 +88,8 @@ export const contentMainProgram = ({
       }
       case 560: {
         docs = {
-          TRANSFER_FILE_ID: '#560',
-          USER_ID: '#561',
+          TRANSFER_FILE_ID: '#561',
+          // USER_ID: '#561',
           G_CODE_NAME: '#562',
           K_NUM: '#563',
           OUTPUT_WP: '#564',
