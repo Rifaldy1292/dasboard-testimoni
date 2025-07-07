@@ -175,6 +175,7 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
             "output_wp",
             "createdAt",
             "calculate_total_cutting_time",
+            "next_projects"
           ],
           include: [
             {
@@ -200,8 +201,9 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
 
     const formattedMachines = sortedMachines.map((machine) => {
       const logs = machine.MachineLogs.map((log, indexLog) => {
-        const { dataValues, current_status, calculate_total_cutting_time } =
-          log;
+        const { User, current_status, calculate_total_cutting_time, ...rest } =
+          log.get({ plain: true });
+
         const splitCalculate = calculate_total_cutting_time
           ? calculate_total_cutting_time.split(".")
           : [];
@@ -210,7 +212,7 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
             Number(splitCalculate[1]) * MILISECOND
           )}`
           : null;
-        const operator = dataValues.User?.name || null;
+        const operator = User?.name || null;
         // calculate_total_cutting_time is in seconds
         const currentTime = log.createdAt;
         const isLastLog = indexLog === machine.MachineLogs.length - 1;
@@ -231,7 +233,8 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
               new Date(nextLog?.createdAt || 0) - new Date(currentTime);
         }
         return {
-          ...log.dataValues,
+          ...rest,
+          current_status,
           timeDifference: formatTimeDifference(timeDifference),
           timeDifferenceMs: timeDifference,
           k_num: current_status === "Running" ? log.k_num : null,
