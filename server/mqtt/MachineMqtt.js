@@ -48,7 +48,7 @@ const getTransferFile = async (transfer_file_id) => {
     k_num: null,
     output_wp: null,
     tool_name: null,
-    total_cutting_time: null,
+    total_cutting_time: 0,
     calculate_total_cutting_time: null,
   };
   if (!transfer_file_id) return objTransferFile;
