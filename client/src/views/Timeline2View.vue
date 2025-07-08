@@ -15,6 +15,7 @@ import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DateTimeShiftSelector from '@/components/common/DateTimeShiftSelector.vue'
 // import { ToggleSwitch } from 'primevue'
 import DataNotFound from '@/components/common/DataNotFound.vue'
+import { useToast } from 'primevue'
 
 interface Resource {
   id: string
@@ -38,6 +39,7 @@ interface CalendarEvent {
     next_projects: Project[]
   }
 }
+const toast = useToast()
 
 const showDetailsInTitle = shallowRef<boolean>(false)
 const dateTimeModel = ref<{
@@ -267,7 +269,7 @@ const calendarOptions = computed<CalendarOptions>(() => {
       hour12: false
     },
     slotDuration: '00:05:00', // Set slot per 5 menit
-    slotLabelInterval: '00:30:00', // Label waktu setiap 30 menit
+    slotLabelInterval: 1_800_000, // Label waktu setiap 30 menit
     slotLabelFormat: {
       hour: '2-digit',
       minute: '2-digit',
@@ -366,9 +368,8 @@ const calendarOptions = computed<CalendarOptions>(() => {
         // }
         tooltipText.push(`Operator: ${operator || '-'}`)
         if (next_projects.length) {
-          tooltipText.push(`Next Projects:`)
-          next_projects.forEach((project, index) => {
-            console.log({ project }, 777)
+          tooltipText.push(`\nNext Projects:`)
+          next_projects.forEach((project: any, index: any) => {
             tooltipText.push(`${index + 1}.`)
             tooltipText.push(`G-Code: ${project.g_code_name}`)
             tooltipText.push(`Output WP: ${project.output_wp}`)
@@ -383,6 +384,44 @@ const calendarOptions = computed<CalendarOptions>(() => {
       } else {
         info.el.removeAttribute('title')
       }
+    },
+    eventClick: (info) => {
+      const {
+        status,
+        description,
+        k_num,
+        g_code_name,
+        output_wp,
+        operator,
+        next_projects = []
+      } = info.event.extendedProps
+
+      const tooltipText = []
+      // time
+      tooltipText.push(`Time: ${info.event.title || '-'}`)
+      tooltipText.push(`Status: ${status || '-'}`)
+      status !== 'Running' && tooltipText.push(`Description: ${description || '-'}`)
+      tooltipText.push(`K-NUMBER: ${k_num || '-'}`)
+      tooltipText.push(`G-CODE: ${g_code_name || '-'}`)
+      tooltipText.push(`Output WP: ${output_wp || '-'}`)
+      tooltipText.push(`Operator: ${operator || '-'}`)
+      if (next_projects.length) {
+        tooltipText.push(`\nNext Projects:`)
+        next_projects.forEach((project: any, index: any) => {
+          tooltipText.push(`${index + 1}.`)
+          tooltipText.push(`  G-Code: ${project.g_code_name}`)
+          tooltipText.push(`  Output WP: ${project.output_wp}`)
+          tooltipText.push(`  K_NUM: ${project.k_num}`)
+          tooltipText.push(`  Time: ${project.total_cutting_time}s`)
+        })
+      }
+      // alert(tooltipText.join('\n'))
+      toast.add({
+        severity: 'info',
+        summary: 'Log Details',
+        detail: tooltipText.join('\n'),
+        life: 10000
+      })
     }
   }
 })
