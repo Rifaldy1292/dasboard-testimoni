@@ -10,7 +10,7 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import useWebsocket from '@/composables/useWebsocket'
 import type { PayloadWebsocket, ShiftValue } from '@/types/websocket.type'
-import type { Machine, MachineTimeline, ObjMachineTimeline } from '@/types/machine.type'
+import type { Machine, MachineTimeline, ObjMachineTimeline, Project } from '@/types/machine.type'
 import LoadingAnimation from '@/components/common/LoadingAnimation.vue'
 import DateTimeShiftSelector from '@/components/common/DateTimeShiftSelector.vue'
 // import { ToggleSwitch } from 'primevue'
@@ -35,6 +35,7 @@ interface CalendarEvent {
     output_wp: string | null
     g_code_name: string | null
     k_num: string | null
+    next_projects: Project[]
   }
 }
 
@@ -159,7 +160,8 @@ const events = computed<CalendarEvent[]>(() => {
               output_wp: log.output_wp,
               g_code_name: log.g_code_name,
               k_num: log.k_num,
-              status: log.current_status
+              status: log.current_status,
+              next_projects: log.next_projects
             }
           }
           // console.log(`Created event with default duration for log ${log.id || 'unknown'}:`, event)
@@ -172,7 +174,7 @@ const events = computed<CalendarEvent[]>(() => {
 
         // Validasi tanggal akhir
         if (!isValidDate(endDate)) {
-          // console.warn(`Invalid end date calculated for log ${log.id || 'unknown'}`)
+          console.warn(`Invalid end date calculated for log ${log.id || 'unknown'}`)
           return // Skip this log
         }
 
@@ -181,7 +183,7 @@ const events = computed<CalendarEvent[]>(() => {
           // console.warn(
           //   `End date is not after start date for log ${log.id || 'unknown'}, adjusting...`
           // )
-          endDate.setHours(startDate.getHours() + 1) // Tambahkan 1 jam sebagai default
+          // endDate.setHours(startDate.getHours() + 1) // Tambahkan 1 jam sebagai default
         }
 
         const event = {
@@ -197,7 +199,8 @@ const events = computed<CalendarEvent[]>(() => {
             output_wp: log.output_wp,
             g_code_name: log.g_code_name,
             k_num: log.k_num,
-            status: log.current_status
+            status: log.current_status,
+            next_projects: log.next_projects
           }
         }
         // console.log(`Created event for log ${log.id || 'unknown'}:`, event)
@@ -343,7 +346,8 @@ const calendarOptions = computed<CalendarOptions>(() => {
       // Type assertion for extendedProps
       const extendedProps = info.event.extendedProps as CalendarEvent['extendedProps']
       if (!extendedProps) return
-      const { status, description, g_code_name, k_num, operator, output_wp } = extendedProps
+      const { status, description, g_code_name, k_num, operator, output_wp, next_projects } =
+        extendedProps
 
       if (status) {
         info.el.setAttribute('data-status', status)
@@ -355,12 +359,25 @@ const calendarOptions = computed<CalendarOptions>(() => {
         tooltipText.push(`time: ${info.event.title || '-'}`)
         tooltipText.push(`Status: ${status || '-'}`)
         status !== 'Running' && tooltipText.push(`Description: ${description || '-'}`)
-        if (status === 'Running') {
-          tooltipText.push(`K-NUMBER: ${k_num || '-'}`)
-          tooltipText.push(`G-CODE: ${g_code_name || '-'}`)
-          tooltipText.push(`Output WP: ${output_wp || '-'}`)
-        }
+        // if (status === 'Running') {
+        tooltipText.push(`K-NUMBER: ${k_num || '-'}`)
+        tooltipText.push(`G-CODE: ${g_code_name || '-'}`)
+        tooltipText.push(`Output WP: ${output_wp || '-'}`)
+        // }
         tooltipText.push(`Operator: ${operator || '-'}`)
+        if (next_projects.length) {
+          tooltipText.push(`Next Projects:`)
+          next_projects.forEach((project, index) => {
+            console.log({ project }, 777)
+            tooltipText.push(`${index + 1}.`)
+            tooltipText.push(`G-Code: ${project.g_code_name}`)
+            tooltipText.push(`Output WP: ${project.output_wp}`)
+            tooltipText.push(`K_NUM: ${project.k_num}`)
+            tooltipText.push(`Time: ${project.total_cutting_time}`)
+            tooltipText.push(' ')
+            // tooltipText.push(`Operator: ${project.operator}`)
+          })
+        }
 
         info.el.title = tooltipText.join('\n')
       } else {

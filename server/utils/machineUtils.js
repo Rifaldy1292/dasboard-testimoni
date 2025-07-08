@@ -232,15 +232,26 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
             timeDifference =
               new Date(nextLog?.createdAt || 0) - new Date(currentTime);
         }
+
+        const next_projects = log.next_projects.map((project) => {
+          const total_cutting_time_ms = project.total_cutting_time * MILISECOND;
+          return {
+            ...project,
+            total_cutting_time: formatTimeDifference(total_cutting_time_ms),
+          }
+        })
+
         return {
           ...rest,
           current_status,
           timeDifference: formatTimeDifference(timeDifference),
           timeDifferenceMs: timeDifference,
-          k_num: current_status === "Running" ? log.k_num : null,
           isLastLog,
-          output_wp: current_status === "Running" ? log.output_wp : null,
-          g_code_name: current_status === "Running" ? log.g_code_name : null,
+          next_projects,
+
+          // k_num: current_status === "Running" ? log.k_num : null,
+          // output_wp: current_status === "Running" ? log.output_wp : null,
+          // g_code_name: current_status === "Running" ? log.g_code_name : null,
           operator,
           remaining,
           // log,
@@ -260,11 +271,11 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
       const next_projects = lastLog.next_projects?.length ? lastLog.next_projects.map((project) => {
         const total_cutting_time_ms = project.total_cutting_time * MILISECOND;
         return {
+          ...project,
           isNext: true,
-          description: "Remaining",
+          description: "Next Project",
           createdAt: lastLog.createdAt,
           operator: lastLog.User?.name || null,
-          remaining: null,
           timeDifference: formatTimeDifference(total_cutting_time_ms),
           timeDifferenceMs: total_cutting_time_ms,
           next_projects: []

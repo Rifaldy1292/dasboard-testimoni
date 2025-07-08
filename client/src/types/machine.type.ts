@@ -17,20 +17,24 @@ export type GetPercentages = {
   dateTo: string
 }
 
-export type ObjMachineTimeline = {
+export type Project = {
+  operator: string | null
+  output_wp: string
+  total_cutting_time: number
+  g_code_name: string
+  k_num: string
+  isNext?: boolean
+}
+
+export type ObjMachineTimeline = Project & {
   id: number
   current_status: Machine['status']
   createdAt: string
   timeDifference: string
   timeDifferenceMs: number
   description: string | null
-  operator: string | null
-  output_wp: string
-  total_cutting_time: number
-  g_code_name: string
-  k_num: string
   calculate_total_cutting_time: string
-  isNext?: boolean
+  next_projects: Project[]
   remaining: string | null
 }
 
