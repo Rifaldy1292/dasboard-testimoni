@@ -174,7 +174,7 @@ const handleChangeMachineStatus = async (
 
 
     const plainNewLog = newLog.get({ plain: true });
-    console.log({ plainNewLog, next_projects }, 777);
+    // console.log({ plainNewLog, next_projects }, 777);
 
     // update exist machines cache
     machineCache.updateCacheData(existMachine.name, {
