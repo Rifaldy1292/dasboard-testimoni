@@ -9,11 +9,7 @@ import DateTimeShiftSelector from '@/components/common/DateTimeShiftSelector.vue
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import { Button } from 'primevue'
 import { type PayloadWebsocket, type ShiftValue } from '@/types/websocket.type'
-import MachineServices from '@/services/machine.service'
-import { exportTimelineToExcel } from '@/utils/excelExport'
-import useToast from '@/composables/useToast'
-
-const toast = useToast()
+import DownloadTimeline from '@/components/modules/timeline/DownloadTimeline.vue'
 
 const dateTimeModel = ref({
   date: new Date(),
@@ -32,7 +28,6 @@ const payloadWs = computed<PayloadWebsocket>(() => {
 const { loadingWebsocket, timelineMachines, sendMessage } = useWebsocket(payloadWs.value)
 
 const resizeCount = shallowRef<number>(2)
-const loadingDownload = shallowRef<boolean>(false)
 const updateResizeCount = (type: 'increase' | 'decrease') => {
   if (type === 'increase' && resizeCount.value < 10) {
     resizeCount.value++
@@ -41,44 +36,6 @@ const updateResizeCount = (type: 'increase' | 'decrease') => {
   }
 }
 
-const downloadTimeline = async () => {
-  try {
-    loadingDownload.value = true
-
-    const response = await MachineServices.downloadMachineLogsMonthly({
-      date: dateTimeModel.value.date.toISOString()
-    })
-
-    const monthlyLogs = response.data.data
-
-    // Generate filename based on selected date
-    const selectedDate = new Date(dateTimeModel.value.date)
-    const monthName = selectedDate.toLocaleDateString('id-ID', {
-      month: 'long',
-      year: 'numeric'
-    })
-    const filename = `timeline-${monthName.replace(' ', '-').toLowerCase()}`
-
-    // Export to Excel using existing MonthlyLogs type
-    exportTimelineToExcel(monthlyLogs, filename)
-    toast.add({
-      severity: 'success',
-      summary: 'Download Successful',
-      detail: `${filename}.xlsx downloaded successfully`,
-      life: 3000
-    }) // Show success toast
-  } catch (error) {
-    console.error('Error downloading timeline:', error)
-    toast.add({
-      severity: 'error',
-      summary: 'Download Failed',
-      detail: 'Failed to download timeline. Please try again later.',
-      life: 3000
-    }) // Show error toast
-  } finally {
-    loadingDownload.value = false
-  }
-}
 watch(
   () => payloadWs.value,
   (newPayoad) => {
@@ -113,14 +70,7 @@ watch(
             :class="`p-button-rounded p-button-text ${resizeCount === 1 && ' opacity-50 cursor-not-allowed'}`"
             icon="pi pi-arrow-up"
           />
-
-          <Button
-            @click="downloadTimeline"
-            :loading="loadingDownload"
-            class="p-button-rounded"
-            icon="pi pi-download"
-            :label="`Download Timeline ${new Date(dateTimeModel.date).toLocaleString('default', { month: 'long' })}`"
-          />
+          <DownloadTimeline :date="dateTimeModel.date" />
         </div>
       </div>
       <div class="flex flex-col gap-1.5">

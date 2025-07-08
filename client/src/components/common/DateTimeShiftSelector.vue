@@ -20,5 +20,6 @@ const model = defineModel<ModelValue>('modelValue', {
       <DatePickerDay v-model:date-option="model.date" />
     </div>
     <ShiftSelector v-model:model-value="model.shift" />
+    <slot name="right" />
   </div>
 </template>

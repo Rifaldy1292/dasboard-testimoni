@@ -17,6 +17,7 @@ import DateTimeShiftSelector from '@/components/common/DateTimeShiftSelector.vue
 import DataNotFound from '@/components/common/DataNotFound.vue'
 import { useToast } from 'primevue'
 import Dropdown from 'primevue/dropdown'
+import DownloadTimeline from '@/components/modules/timeline/DownloadTimeline.vue'
 
 interface Resource {
   id: string
@@ -49,9 +50,8 @@ interface SlotLabelOption {
 const toast = useToast()
 
 const showDetailsInTitle = shallowRef<boolean>(false)
-const slotLabelInterval = shallowRef<number>(1_800_000) // Default 30 menit (30 * 60 * 1000)
+const slotLabelInterval = shallowRef<number>(1_800_000) // Default 30mnt
 
-// Options untuk slot label interval
 const slotLabelOptions: SlotLabelOption[] = [
   { label: '5 menit', value: 300_000 },
   { label: '10 menit', value: 600_000 },
@@ -481,7 +481,11 @@ watch([() => showDetailsInTitle.value, () => events.value, () => slotLabelInterv
             />
           </div>
         </div>
-        <DateTimeShiftSelector v-model="dateTimeModel" />
+        <DateTimeShiftSelector v-model="dateTimeModel">
+          <template #right>
+            <DownloadTimeline :date="dateTimeModel.date" />
+          </template>
+        </DateTimeShiftSelector>
       </div>
       <FullCalendar
         v-if="timelineMachines?.data?.length"
