@@ -34,6 +34,11 @@ module.exports = (sequelize, DataTypes) => {
     previous_status: DataTypes.STRING,
     current_status: DataTypes.STRING,
     description: DataTypes.STRING,
+    next_projects: {
+      type: DataTypes.JSONB,
+      allowNull: false,
+      defaultValue: []
+    }
   }, {
     sequelize,
     modelName: 'MachineLog',

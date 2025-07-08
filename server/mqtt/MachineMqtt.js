@@ -42,7 +42,7 @@ const setupMachineCache = async () => {
  * @returns {Promise<{user_id: number, g_code_name: string, k_num: number, output_wp: number, tool_name: string, total_cutting_time: number, calculate_total_cutting_time: number; next_projects: unknown[]}>} The transfer file object.
  */
 const getTransferFile = async (transfer_file_id) => {
-  let objTransferFile = {
+  const defaultTransferFile = {
     user_id: null,
     g_code_name: null,
     k_num: null,
@@ -52,18 +52,17 @@ const getTransferFile = async (transfer_file_id) => {
     calculate_total_cutting_time: null,
     next_projects: []
   };
-  if (!transfer_file_id) return objTransferFile;
+  if (!transfer_file_id) return defaultTransferFile;
   try {
     const transferFile = await TransferFile.findByPk(transfer_file_id, {
       raw: true,
     });
-    if (!transferFile) return objTransferFile;
-    objTransferFile = transferFile;
-    return objTransferFile;
+    if (!transferFile) return defaultTransferFile;
+    return transferFile;
 
   } catch (error) {
     machineLoggerError(error, "getTransferFile", { transfer_file_id });
-    return objTransferFile;
+    return defaultTransferFile;
   }
 };
 
@@ -173,7 +172,9 @@ const handleChangeMachineStatus = async (
       next_projects,
     });
 
+
     const plainNewLog = newLog.get({ plain: true });
+    console.log({ plainNewLog, next_projects }, 777);
 
     // update exist machines cache
     machineCache.updateCacheData(existMachine.name, {
@@ -220,6 +221,7 @@ const createMachineAndLogFirstTime = async (parseMessage, client) => {
       tool_name,
       total_cutting_time,
       calculate_total_cutting_time,
+      next_projects
     } = await getTransferFile(transfer_file_id);
 
     const newLog = await MachineLog.create({
@@ -233,13 +235,14 @@ const createMachineAndLogFirstTime = async (parseMessage, client) => {
       tool_name,
       total_cutting_time: total_cutting_time || 0,
       calculate_total_cutting_time: calculate_total_cutting_time || null,
+      next_projects
     });
 
     const plainNewLog = newLog.get({ plain: true });
 
     //  push to cache
     machineCache.set(name, {
-      id: machine.id,
+      id: createMachine.id,
       name,
       status,
       transfer_file_id,
