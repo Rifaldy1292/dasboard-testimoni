@@ -274,7 +274,7 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
           ...project,
           isNext: true,
           description: "Next Project",
-          createdAt: lastLog.createdAt,
+          createdAt: new Date().toISOString(),
           operator: lastLog.User?.name || null,
           timeDifference: formatTimeDifference(total_cutting_time_ms),
           timeDifferenceMs: total_cutting_time_ms,

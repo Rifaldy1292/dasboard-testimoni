@@ -16,6 +16,7 @@ import DateTimeShiftSelector from '@/components/common/DateTimeShiftSelector.vue
 // import { ToggleSwitch } from 'primevue'
 import DataNotFound from '@/components/common/DataNotFound.vue'
 import { useToast } from 'primevue'
+import Dropdown from 'primevue/dropdown'
 
 interface Resource {
   id: string
@@ -39,9 +40,27 @@ interface CalendarEvent {
     next_projects: Project[]
   }
 }
+
+interface SlotLabelOption {
+  label: string
+  value: number
+}
+
 const toast = useToast()
 
 const showDetailsInTitle = shallowRef<boolean>(false)
+const slotLabelInterval = shallowRef<number>(1_800_000) // Default 30 menit (30 * 60 * 1000)
+
+// Options untuk slot label interval
+const slotLabelOptions: SlotLabelOption[] = [
+  { label: '5 menit', value: 300_000 },
+  { label: '10 menit', value: 600_000 },
+  { label: '15 menit', value: 900_000 },
+  { label: '30 menit', value: 1_800_000 },
+  { label: '1 jam', value: 3_600_000 },
+  { label: '2 jam', value: 7_200_000 }
+]
+
 const dateTimeModel = ref<{
   date: Date
   shift: ShiftValue
@@ -269,7 +288,7 @@ const calendarOptions = computed<CalendarOptions>(() => {
       hour12: false
     },
     slotDuration: '00:05:00', // Set slot per 5 menit
-    slotLabelInterval: 1_800_000, // Label waktu setiap 30 menit
+    slotLabelInterval: slotLabelInterval.value, // Menggunakan reaktif slotLabelInterval
     slotLabelFormat: {
       hour: '2-digit',
       minute: '2-digit',
@@ -435,7 +454,7 @@ watch(
 )
 
 // Watch perubahan pada toggle untuk memperbarui tampilan
-watch([() => showDetailsInTitle.value, () => events.value], () => {
+watch([() => showDetailsInTitle.value, () => events.value, () => slotLabelInterval.value], () => {
   calendarKey.value += 1 // Ubah key untuk memicu re-render
 })
 </script>
@@ -451,6 +470,16 @@ watch([() => showDetailsInTitle.value, () => events.value], () => {
               <label for="toggleDetails" class="mr-2">Show Details:</label>
               <ToggleSwitch id="toggleDetails" v-model="showDetailsInTitle" />
             </div> -->
+          <div class="flex flex-col">
+            <label for="slotInterval" class="text:black dark:text-white">Gap:</label>
+            <Dropdown
+              v-model="slotLabelInterval"
+              :options="slotLabelOptions"
+              optionLabel="label"
+              optionValue="value"
+              class="border border-gray-300 rounded px-2 py-1"
+            />
+          </div>
         </div>
         <DateTimeShiftSelector v-model="dateTimeModel" />
       </div>
