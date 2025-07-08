@@ -248,26 +248,44 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
         };
       });
 
-      const nextLog =
+      const lastLog =
         machine.MachineLogs[machine.MachineLogs.length - 1] || null;
-      const nextCalculate = nextLog.calculate_total_cutting_time
-        ? Number(nextLog.calculate_total_cutting_time.split(".")[1])
+      const nextCalculate = lastLog.calculate_total_cutting_time
+        ? Number(lastLog.calculate_total_cutting_time.split(".")[1])
         : 0;
       const nextTime = nextCalculate * MILISECOND;
       const nextTimeDifference = formatTimeDifference(nextTime);
 
+      // next_projects
+      const next_projects = lastLog.next_projects?.length ? lastLog.next_projects.map((project) => {
+        const total_cutting_time_ms = project.total_cutting_time * MILISECOND;
+        return {
+          isNext: true,
+          description: "Remaining",
+          createdAt: lastLog.createdAt,
+          operator: lastLog.User?.name || null,
+          remaining: null,
+          timeDifference: formatTimeDifference(total_cutting_time_ms),
+          timeDifferenceMs: total_cutting_time_ms,
+          next_projects: []
+        }
+      }) : [];
+
+
       const extendLogs = isNowDate
         ? [
           ...logs,
+          ...next_projects,
 
-          {
-            isNext: true,
-            createdAt: nextLog.createdAt,
-            timeDifference: nextTimeDifference,
-            timeDifferenceMs: nextTime,
-            operator: nextLog.User?.name || null,
-            description: "Remaining",
-          },
+          // {
+          //   isNext: true,
+          //   createdAt: lastLog.createdAt,
+          //   timeDifference: nextTimeDifference,
+          //   timeDifferenceMs: nextTime,
+          //   operator: lastLog.User?.name || null,
+          //   description: "Remaining",
+          //   next_projects: lastLog.next_projects || [],
+          // },
         ]
         : logs;
       // console.log({ nextLog: extendLogs[extendLogs.length - 1] });
