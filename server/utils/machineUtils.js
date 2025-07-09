@@ -194,9 +194,8 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
       return numberA - numberB;
     });
 
-    if (!sortedMachines.length) {
-      return;
-    }
+    if (!sortedMachines.length) return;
+
     const MILISECOND = 1000;
 
     const formattedMachines = sortedMachines.map((machine) => {
@@ -267,26 +266,40 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
       const nextTime = nextCalculate * MILISECOND;
       const nextTimeDifference = formatTimeDifference(nextTime);
 
-      // next_projects
-      const next_projects = lastLog.next_projects?.length ? lastLog.next_projects.map((project) => {
+      // remainingProjects
+      const remainingProjects = lastLog?.next_projects?.length ? lastLog.next_projects.map((project) => {
         const total_cutting_time_ms = project.total_cutting_time * MILISECOND;
         return {
           ...project,
           isNext: true,
           description: "Next Project",
-          createdAt: new Date().toISOString(),
           operator: lastLog.User?.name || null,
           timeDifference: formatTimeDifference(total_cutting_time_ms),
           timeDifferenceMs: total_cutting_time_ms,
-          next_projects: []
+          next_projects: [],
+          createdAt: new Date().toLocaleString(),
+        }
+      }).map((project, index, array) => {
+        if (index === 0) return project;
+        // createdAt is project.createdAt + calculate all timeDifferenceMs before this project + 5 minutes
+        // const createdAt = new Date(array[index - 1].createdAt);
+        const FIVE_MINUTES = 5 * 60 * 1000;
+        const sliceProjects = Array.isArray(array) && array.slice(0, index) || [];
+        const timeDifferenceMs = sliceProjects.reduce((acc, curr) => acc + curr.timeDifferenceMs, 0);
+        const createdAt = new Date(project.createdAt);
+        createdAt.setTime(createdAt.getTime() + timeDifferenceMs + FIVE_MINUTES);
+        return {
+          ...project,
+          createdAt: createdAt.toLocaleString(),
         }
       }) : [];
+
 
 
       const extendLogs = isNowDate
         ? [
           ...logs,
-          ...next_projects,
+          ...remainingProjects,
 
           // {
           //   isNext: true,

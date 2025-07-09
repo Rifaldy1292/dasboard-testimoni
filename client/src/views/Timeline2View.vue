@@ -167,7 +167,7 @@ const events = computed<CalendarEvent[]>(() => {
         if (!log.timeDifference) {
           // Gunakan waktu default (1 jam)
           const endDate = new Date(startDate.getTime())
-          endDate.setTime(endDate.getTime() + 1) // Tambahkan ms
+          endDate.setTime(endDate.getTime() + 1) // + 1 ms
           const event = {
             id: `${machine.name}-${log.id || Math.random().toString(36).substring(2, 9)}`,
             resourceId,
@@ -182,7 +182,8 @@ const events = computed<CalendarEvent[]>(() => {
               g_code_name: log.g_code_name,
               k_num: log.k_num,
               status: log.current_status,
-              next_projects: log.next_projects
+              next_projects: log.next_projects,
+              remaining: log?.remaining
             }
           }
           // console.log(`Created event with default duration for log ${log.id || 'unknown'}:`, event)
@@ -221,14 +222,14 @@ const events = computed<CalendarEvent[]>(() => {
             g_code_name: log.g_code_name,
             k_num: log.k_num,
             status: log.current_status,
-            next_projects: log.next_projects
+            next_projects: log.next_projects,
+            remaining: log?.remaining
           }
         }
         // console.log(`Created event for log ${log.id || 'unknown'}:`, event)
         allEvents.push(event)
       } catch (error) {
         console.error(`Error processing log ${log.id || 'unknown'}:`, error)
-        // Skip this log on error
       }
     })
   })
@@ -390,10 +391,11 @@ const calendarOptions = computed<CalendarOptions>(() => {
           tooltipText.push(`\nNext Projects:`)
           next_projects.forEach((project: any, index: any) => {
             tooltipText.push(`${index + 1}.`)
+            tooltipText.push(`Time: ${project.total_cutting_time}`)
             tooltipText.push(`G-Code: ${project.g_code_name}`)
             tooltipText.push(`Output WP: ${project.output_wp}`)
             tooltipText.push(`K_NUM: ${project.k_num}`)
-            tooltipText.push(`Time: ${project.total_cutting_time}`)
+            project?.remaining && tooltipText.push(`Remaining: ${project.remaining}`)
             tooltipText.push(' ')
             // tooltipText.push(`Operator: ${project.operator}`)
           })
