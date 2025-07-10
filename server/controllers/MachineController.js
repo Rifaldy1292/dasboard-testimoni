@@ -375,11 +375,14 @@ interface DummyData {
 
   static async getMachineOption(req, res) {
     const { is_zooler } = req.query;
+    const query = { attributes: ["id", "name", 'type', 'ip_address'] }
+    if (is_zooler) {
+      query.attributes.push('is_zooler')
+    } else {
+      query.where = { is_zooler: false }
+    }
     try {
-      const machines = await Machine.findAll({
-        where: { is_zooler: is_zooler ?? false },
-        attributes: ["id", "name", 'type', 'ip_address']
-      });
+      const machines = await Machine.findAll(query);
 
       const sortedMachine = machines.sort((a, b) => {
         const numberA = parseInt(a.name.slice(3));

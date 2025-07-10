@@ -26,8 +26,10 @@ const MachineServices = {
   getCuttingTime: (params: ParamsGetCuttingTime): Promise<AxiosResponse<GetCuttingTimeMachine>> => {
     return API({ params }).get('/machines/cutting-time')
   },
-  getMachineOptions: (): Promise<AxiosResponse<ApiResponse<MachineOption[]>>> => {
-    return API().get('/machines/options')
+  getMachineOptions: (params: {
+    is_zooler?: boolean
+  }): Promise<AxiosResponse<ApiResponse<MachineOption[]>>> => {
+    return API({ params }).get('/machines/options')
   },
 
   postEncryptContentValue: (

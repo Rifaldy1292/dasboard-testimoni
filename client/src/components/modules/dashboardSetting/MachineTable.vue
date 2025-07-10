@@ -22,7 +22,7 @@ const loading = shallowRef<boolean>(false)
 const fetchStartTime = async () => {
   try {
     loading.value = true
-    const { data } = await MachineServices.getMachineOptions()
+    const { data } = await MachineServices.getMachineOptions({ is_zooler: true })
     // console.log(data)
     configs.value = data.data
   } catch (error) {
