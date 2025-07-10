@@ -159,7 +159,7 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
         ],
         "status",
       ],
-      where: whereMachine,
+      where: { ...whereMachine, is_zooler: false },
       include: [
         {
           model: MachineLog,
@@ -358,7 +358,7 @@ const handleGetCuttingTime = async (date, machineIds = null) => {
 
     const [allLogInMonth, allConfigInMonth] = await Promise.all([
       Machine.findAll({
-        where: machineIds ? { id: { [Op.in]: machineIds } } : {},
+        where: machineIds ? { id: { [Op.in]: machineIds }, is_zooler: false } : { is_zooler: false },
         attributes: ["id", "name"],
         include: [
           {

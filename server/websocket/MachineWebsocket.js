@@ -127,6 +127,7 @@ module.exports = class MachineWebsocket {
       const { dateFrom, dateTo } = await getShiftDateRange(date, shift);
       // const { dateFrom, dateTo } = await getShiftDateRange(date, 0);
       const machinesWithLogs = await Machine.findAll({
+        where: { is_zooler: false },
         attributes: [
           [
             literal(

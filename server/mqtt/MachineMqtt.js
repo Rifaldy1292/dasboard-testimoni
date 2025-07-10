@@ -6,6 +6,7 @@ const { machineCache } = require("../cache");
 const setupMachineCache = async () => {
   try {
     const existMachines = await Machine.findAll({
+      where: { is_zooler: false },
       attributes: ["id", "name"],
       raw: true,
     });

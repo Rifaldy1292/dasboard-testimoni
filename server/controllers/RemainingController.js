@@ -20,6 +20,7 @@ class RemainingController {
     try {
       const { dateFrom, dateTo } = await getShiftDateRange(new Date(), 0);
       const allMachinesWithLastLogAndUser = await Machine.findAll({
+        where: { is_zooler: false },
         attributes: [
           "id",
           [

@@ -40,7 +40,7 @@ class FTPController {
 
     const machine = await Machine.findOne({
       where: { id: machine_id },
-      attributes: ["ip_address", "name"],
+      attributes: ["ip_address", "name", 'is_zooler'],
       raw: true,
     });
 
@@ -66,10 +66,12 @@ class FTPController {
     if (!machine) {
       return res.status(404).json({ message: "Machine not found" });
     }
-    const { ip_address, name } = machine;
+    const { ip_address, name, is_zooler } = machine;
+
     if (name === "MC-3") {
       return await FTPMC3Controller.handleMC3TransferFiles(
         ip_address,
+        is_zooler,
         name,
         machine_id,
         files,
@@ -157,7 +159,9 @@ class FTPController {
         message: `Successfully ${isUndo ? "undo" : "transfer"} files`,
       });
 
-      RemainingController.handleChangeMachineOperatorAssignment(machine_id);
+      if (!is_zooler) {
+        RemainingController.handleChangeMachineOperatorAssignment(machine_id);
+      }
     } catch (error) {
       serverError(
         error,

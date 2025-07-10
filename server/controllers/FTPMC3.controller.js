@@ -401,6 +401,7 @@ class FTPMC3Controller {
    */
   static async handleMC3TransferFiles(
     ip_address,
+    is_zooler,
     name,
     machine_id,
     files,
@@ -430,7 +431,9 @@ class FTPMC3Controller {
         `Files uploaded to local folder: ${localDirectory}`,
         "FTPMC3Controller.uploadFileToLocalFolder"
       );
-      RemainingController.handleChangeMachineOperatorAssignment(machine_id);
+      if (!is_zooler) {
+        RemainingController.handleChangeMachineOperatorAssignment(machine_id);
+      }
       return res.status(200).json({
         status: 200,
         message: `Berhasil transfer file ke ${localDirectory}`,

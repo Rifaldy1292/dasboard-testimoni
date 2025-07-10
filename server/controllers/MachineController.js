@@ -149,7 +149,7 @@ interface DummyData {
 
       const [allLogInMonth, allConfigInMonth] = await Promise.all([
         Machine.findAll({
-          where: machineIds ? { id: { [Op.in]: machineIds } } : {},
+          where: machineIds ? { id: { [Op.in]: machineIds }, is_zooler: false } : { is_zooler: false },
           attributes: ["id", "name"],
           include: [
             {
@@ -373,9 +373,13 @@ interface DummyData {
     }
   }
 
-  static async getMachineOption(_, res) {
+  static async getMachineOption(req, res) {
+    const { is_zooler } = req.query;
     try {
-      const machines = await Machine.findAll({ attributes: ["id", "name", 'type', 'ip_address'] });
+      const machines = await Machine.findAll({
+        where: { is_zooler: is_zooler ?? false },
+        attributes: ["id", "name", 'type', 'ip_address']
+      });
 
       const sortedMachine = machines.sort((a, b) => {
         const numberA = parseInt(a.name.slice(3));
@@ -473,6 +477,7 @@ interface DummyData {
 
       const [allMachines, AllDailyConfig] = await Promise.all([
         Machine.findAll({
+          where: { is_zooler: false },
           attributes: ['id', "name"],
           include: [
             {
