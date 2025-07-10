@@ -5,7 +5,6 @@ const { PassThrough } = require("stream"); // ✅ Tambahkan ini
 const fs = require("fs");
 const path = require("path");
 const { Client, FTPError } = require("basic-ftp");
-const { encryptToNumber } = require("../helpers/crypto");
 const { logInfo, logError } = require("../utils/logger");
 const FTPMC3Controller = require("./FTPMC3.controller");
 const RemainingController = require("./RemainingController");

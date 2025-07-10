@@ -157,7 +157,6 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
           ),
           "name",
         ],
-        "status",
       ],
       where: { ...whereMachine, is_zooler: false },
       include: [
