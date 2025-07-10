@@ -13,6 +13,7 @@ interface AdditionalOptions {
   coordinateOptions: Array<number>
   coolantOptions: Array<number>
   processTypeOptions: Array<ProcessType>
+  zoolerOptions: Array<{ label: string; value: boolean }>
 }
 
 const additionalOptions: AdditionalOptions = {
@@ -21,10 +22,14 @@ const additionalOptions: AdditionalOptions = {
   workPositionOptions: Array.from({ length: 6 }, (_, i) => i + 54),
   coordinateOptions: [43, 143],
   coolantOptions: [8, 36, 50],
-  processTypeOptions: ['NC', 'Drill']
+  processTypeOptions: ['NC', 'Drill'],
+  zoolerOptions: [
+    { label: 'Yes', value: true },
+    { label: 'No', value: false }
+  ]
 }
 
-const { coordinateOptions, coolantOptions, processTypeOptions } = additionalOptions
+const { coordinateOptions, coolantOptions, processTypeOptions, zoolerOptions } = additionalOptions
 
 const loadingFetch = shallowRef<boolean>(false)
 const cuttingTimeMachines = ref<CuttingTimeMachine | undefined>(undefined)
@@ -32,6 +37,7 @@ const selectedMachines = ref<MachineOption[]>([])
 const selectedOneMachine = ref<MachineOption | undefined>(undefined)
 const loadingDropdown = shallowRef<boolean>(false)
 const machineOptions = ref<MachineOption[]>([])
+const selectedZooler = ref<boolean>(false)
 
 const defaultMainProgram = 30
 
@@ -84,6 +90,8 @@ export const useMachine = () => {
     selectedCoordinate,
     selectedProgramNumber,
     inputStartPoint,
-    selectedProcessType
+    selectedProcessType,
+    selectedZooler,
+    zoolerOptions
   }
 }

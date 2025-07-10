@@ -26,7 +26,10 @@ const {
   selectedCoolant,
   selectedProcessType,
   selectedCoordinate,
-  inputStartPoint
+  inputStartPoint,
+  zoolerOptions,
+  selectedZooler,
+  selectedProgramNumber
 } = useMachine()
 
 const {
@@ -43,14 +46,19 @@ const { workPositionOptions, coordinateOptions, coolantOptions, processTypeOptio
 
 // Watch for changes in the selected work position
 watch(
-  () => selectedWorkPosition.value,
-  (newVal) => {
+  [() => selectedWorkPosition.value, () => selectedZooler.value],
+  ([newValWorkPosition, newValZooler]) => {
+    if (newValWorkPosition) return
     inputFiles.value = inputFiles.value.map((file) => {
       return {
         ...file,
-        workPosition: newVal
+        workPosition: newValWorkPosition
       }
     })
+
+    if (newValZooler) {
+      selectedProgramNumber.value = 31
+    }
 
     console.log(inputFiles.value, 'new')
   }
@@ -83,6 +91,24 @@ const handleSelectMachine = async (machineValue: MachineOption | undefined) => {
     }"
     class="grid grid-cols-3 gap-5"
   >
+    <div class="mb-0.5">
+      <div>
+        <label class="mb-3 block text-sm font-medium text-black dark:text-white"
+          >Zooler Transfer</label
+        >
+        <div class="relative flex items-center">
+          <Select
+            v-model:model-value="selectedZooler"
+            :options="zoolerOptions"
+            fluid
+            :disabled="isDisableAll"
+            optionLabel="label"
+            optionValue="value"
+          />
+        </div>
+      </div>
+      <!-- </FormField> -->
+    </div>
     <div class="mb-0.5">
       <!-- <FormField name="name"> -->
       <div>
@@ -129,7 +155,7 @@ const handleSelectMachine = async (machineValue: MachineOption | undefined) => {
       <!-- </FormField> -->
     </div>
 
-    <template v-if="selectedAction === 'Upload File'">
+    <template v-if="selectedAction === 'Upload File' && !selectedZooler">
       <!-- Operator Section -->
       <div class="mb-0.5">
         <!-- <FormField name="name"> -->

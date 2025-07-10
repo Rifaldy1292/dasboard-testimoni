@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useFTP } from '@/composables/useFTP'
+import { useMachine } from '@/composables/useMachine'
 import type { ContentFile } from '@/types/ftp.type'
 import { InputNumber, Select, type InputNumberInputEvent } from 'primevue'
 
@@ -10,6 +11,7 @@ const { file, index } = defineProps<{
 }>()
 
 const { inputFiles } = useFTP()
+const { selectedZooler } = useMachine()
 
 const workPositionOptions = Array.from({ length: 6 }, (_, i) => i + 54)
 
@@ -31,7 +33,7 @@ const handleInputToolNumber = (event: InputNumberInputEvent): void => {
     <h3 class="mb-1.5 text-2xl font-medium text-black dark:text-white">
       Preview {{ isResultFile ? 'Main Program' : 'File' }} {{ file.name || '-' }}
     </h3>
-    <div v-if="!isResultFile" class="flex items-center gap-1">
+    <div v-if="!isResultFile && !selectedZooler" class="flex items-center gap-1">
       <div>
         <label class="text-semibold text-black dark:text-white" for="inputToolNumber"
           >Tool Number</label

@@ -147,6 +147,35 @@ export const useFTP = () => {
     }
   }
 
+  const handleUploadZooler = async (event: Event) => {
+    try {
+      loadingUpload.value = true
+      const { files } = event.target as HTMLInputElement
+      if (!files) return
+      const fileWithNames: ContentFile[] = await Promise.all(
+        Array.from(files).map(async (file) => {
+          const res = await readFile(file)
+          return {
+            ...res,
+            name: 'O0031',
+            transfer_file_id: 0
+          }
+        })
+      )
+
+      const combinedFiles = [...inputFiles.value, ...fileWithNames].sort((a, b) =>
+        a.name.localeCompare(b.name)
+      )
+      inputFiles.value = combinedFiles
+
+      // Check if machine has null description timeline before proceeding
+    } catch (error) {
+      console.error('Error in handleChange:', error)
+    } finally {
+      loadingUpload.value = false
+    }
+  }
+
   const readFile = async (file: File): Promise<Omit<ContentFile, 'transfer_file_id'>> => {
     const reader = new FileReader()
     const content = (await new Promise((resolve, reject) => {
@@ -184,6 +213,7 @@ export const useFTP = () => {
     actionOPtions,
     isCreatedMainProgram,
     handleClearFile,
-    selectedWorkPosition
+    selectedWorkPosition,
+    handleUploadZooler
   }
 }

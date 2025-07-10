@@ -36,7 +36,8 @@ const {
   selectedProgramNumber,
   selectedCoordinate,
   inputStartPoint,
-  selectedCoolant
+  selectedCoolant,
+  selectedZooler
 } = useMachine()
 
 const userData = inject('userData') as UserLocalStorage
@@ -49,7 +50,8 @@ const {
   loadingUpload,
   selectedAction,
   isCreatedMainProgram,
-  handleClearFile
+  handleClearFile,
+  handleUploadZooler
 } = useFTP()
 
 const disabled = computed<{ disableExecute: boolean; disableUpload: boolean }>(() => {
@@ -112,9 +114,14 @@ const handleSubmit = async () => {
   }
 }
 
-const handleExecute = (): void => {
+const handleExecute = async (): Promise<void> => {
   try {
     loadingUpload.value = true
+
+    // if zooler is selected, handle submit
+    if (selectedZooler.value) {
+      return await handleSubmit()
+    }
 
     const content = contentMainProgram({
       inputFiles: inputFiles.value,
@@ -198,6 +205,11 @@ const handleChange = async (event: Event) => {
     // Check if machine has null description timeline before proceeding
     await handleNullDescriptionTimeline(selectedOneMachine.value, confirm, toast)
 
+    // if zooler is selected, handle upload file
+    if (selectedZooler.value) {
+      return handleUploadZooler(event)
+    }
+
     // Process file upload if validation passes
     await handleUploadFolder(event)
   } catch (error) {
@@ -237,6 +249,7 @@ const handleChange = async (event: Event) => {
           <!-- File Upload Section -->
           <div
             id="FileUpload"
+            v-tooltip.top="!selectedOneMachine ? 'Please select machine first' : ''"
             :class="`relative mb-2  block w-full h-60 cursor-pointer appearance-none rounded border-2 border-dashed border-primary bg-gray py-4 px-4 dark:bg-meta-4 sm:py-7.5 ${
               disabled.disableUpload ? 'cursor-not-allowed opacity-50' : ''
             }`"
@@ -309,9 +322,10 @@ const handleChange = async (event: Event) => {
             type="submit"
             @click="handleSubmit"
           >
-            Submit
+            Transfer Files
           </button>
           <button
+            v-tooltip.top="!inputFiles.length ? 'Please upload file first' : ''"
             v-if="!isCreatedMainProgram"
             :disabled="disabled.disableExecute"
             @click="handleExecute"
@@ -321,7 +335,7 @@ const handleChange = async (event: Event) => {
             class="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90"
             type="submit"
           >
-            Execute
+            {{ selectedZooler ? 'Transfer File' : 'Execute' }}
           </button>
         </div>
       </template>
