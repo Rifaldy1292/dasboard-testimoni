@@ -154,11 +154,43 @@ export const useFTP = () => {
       if (!files) return
       const fileWithNames: ContentFile[] = await Promise.all(
         Array.from(files).map(async (file) => {
-          const res = await readFile(file)
+          // example content
+          /**
+           * %
+( K-NUM :  25-K0003_57AF)
+( NAMA G CODE : 24232495J3101)
+ ...
+ %
+           */
+
+          //   add O0031 to the content
+          /**
+ * res
+ * %
+ * O0031
+( K-NUM :  25-K0003_57AF)
+( NAMA G CODE : 24232495J3101)
+ ...
+ %
+ */
+
+          const { content, ...res } = await readFile(file)
+          // Find the first % and insert O0031 after it
+          const percentIndex = content.indexOf('%')
+          let newContent = content
+          const name = 'O0031'
+
+          if (percentIndex !== -1) {
+            // Insert O0031 after the % and newline
+            const afterPercent = content.substring(percentIndex + 1)
+            newContent = content.substring(0, percentIndex + 1) + '\n' + name + afterPercent
+          }
+
           return {
             ...res,
-            name: 'O0031',
-            transfer_file_id: 0
+            name,
+            transfer_file_id: 0,
+            content: newContent
           }
         })
       )

@@ -58,6 +58,7 @@ watch(
 
     if (newValZooler) {
       selectedProgramNumber.value = 31
+      inputFiles.value = []
     }
 
     console.log(inputFiles.value, 'new')

@@ -66,7 +66,9 @@ export const useMachine = () => {
   const getMachineOptions = async () => {
     loadingDropdown.value = true
     try {
-      const { data } = await MachineServices.getMachineOptions()
+      const { data } = await MachineServices.getMachineOptions({
+        is_zooler: selectedZooler.value
+      })
       // console.log(data.data)
       machineOptions.value = data.data
     } catch (error) {
