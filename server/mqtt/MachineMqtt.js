@@ -127,9 +127,7 @@ const handleChangeMachineStatus = async (
 ) => {
   const { status, transfer_file_id } = parseMessage;
 
-  if (!machineCache.hasDataChanged(existMachine.name, status, transfer_file_id)) {
-    return;
-  }
+  const hasDataChanged = machineCache.hasDataChanged(existMachine.name, status, transfer_file_id);
 
   try {
 
@@ -138,7 +136,7 @@ const handleChangeMachineStatus = async (
     //  isManualOperation is when the status is "Stopped" but the machine cache is  running
     const isManualOperation = isManualLog(existMachine, parseMessage);
     const effectiveStatus = isManualOperation ? "Running" : status;
-    const allowUpdate = machineCacheStatus === null || machineCacheStatus !== effectiveStatus;
+    const allowUpdate = hasDataChanged || machineCacheStatus === null || machineCacheStatus !== effectiveStatus;
     if (!allowUpdate) return;
     machineLoggerDebug(
       `Change machine status for ${existMachine.name} from ${existMachine.status} to ${effectiveStatus}`,
