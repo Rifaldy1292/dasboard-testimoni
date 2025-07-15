@@ -42,27 +42,27 @@ const NODE_ENV: string = import.meta.env.VITE_NODE_ENV || 'development'
 // protect using public IP and device width mobile, if mobile return false
 // Now using the reactive windowWidth instead of directly accessing window.innerWidth
 const isAllowed = computed<boolean>(() => {
-  return true
-  // if (NODE_ENV !== 'production') return true
-  // if (windowWidth.value < 768) return false
-  // return (
-  //   publicIp.value === import.meta.env.VITE_INTERNAL_IP ||
-  //   publicIp.value === import.meta.env.VITE_INTERNAL_IP2 ||
-  //   publicIp.value === '149.108.189.245 '
-  // )
+  //return true
+  if (NODE_ENV !== 'production') return true
+  if (windowWidth.value < 768) return false
+  return (
+    publicIp.value === import.meta.env.VITE_INTERNAL_IP ||
+    publicIp.value === import.meta.env.VITE_INTERNAL_IP2 ||
+    publicIp.value === '149.108.189.245 '
+  )
 })
 </script>
 
 <template>
-  <template v-if="!isAllowed">
+  <!-- <template v-if="!isAllowed">
     <div class="flex flex-col items-center justify-center h-screen">
       <h1 class="text-2xl font-bold mb-4">Access Denied</h1>
       <p class="text-lg">This application is not available in your region.</p>
     </div>
   </template>
-  <template v-else>
-    <Toast />
-    <ConfirmDialog @show="handleOpenDialogConfirm" />
-    <RouterView />
-  </template>
+  <template v-else> -->
+  <Toast />
+  <ConfirmDialog @show="handleOpenDialogConfirm" />
+  <RouterView />
+  <!-- </template> -->
 </template>
