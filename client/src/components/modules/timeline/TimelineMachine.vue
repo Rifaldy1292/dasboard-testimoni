@@ -2,7 +2,7 @@
 import Timeline from 'primevue/timeline'
 import type { Machine, MachineTimeline, ObjMachineTimeline } from '@/types/machine.type'
 import ModalEditDescription from './ModalEditDescription.vue'
-import { shallowRef } from 'vue'
+import { shallowRef, ref } from 'vue'
 import ModalDocumentation from './ModalDocumentation.vue'
 import { useToast } from 'primevue/usetoast'
 import MachineServices from '@/services/machine.service'
@@ -19,6 +19,7 @@ const visibleDialogForm = shallowRef<boolean>(false)
 const visibleDialogFormDocumentation = shallowRef<boolean>(false)
 const isHover = shallowRef<boolean>(true)
 const selectedLog = shallowRef<ObjMachineTimeline | undefined>()
+const selectedLogIds = ref<number[]>([])
 
 const handleClickIcon = (e: ObjMachineTimeline): void => {
   selectedLog.value = e
@@ -26,25 +27,38 @@ const handleClickIcon = (e: ObjMachineTimeline): void => {
   console.log(selectedLog.value)
 }
 
-const handleDeleteLog = async (log: ObjMachineTimeline) => {
+const toggleSelectionForDelete = (log: ObjMachineTimeline) => {
+  if (!log.id) return
+  const index = selectedLogIds.value.indexOf(log.id)
+  if (index > -1) {
+    selectedLogIds.value.splice(index, 1)
+  } else {
+    selectedLogIds.value.push(log.id)
+  }
+}
+
+const handleBulkDelete = async () => {
+  if (selectedLogIds.value.length === 0) return
   try {
-    if (!log.id) {
-      toast.add({ severity: 'error', summary: 'Error', detail: 'Log ID is missing', life: 3000 })
-      return
+    for (const id of selectedLogIds.value) {
+      await MachineServices.deleteMachineLog(id)
     }
-    await MachineServices.deleteMachineLog(log.id)
     toast.add({
       severity: 'success',
       summary: 'Success',
-      detail: 'Log deleted successfully',
+      detail: `${selectedLogIds.value.length} logs deleted successfully`,
       life: 3000
     })
-    // Emit an event to the parent to refresh the data
+    selectedLogIds.value = []
     emit('log-deleted')
   } catch (error) {
     console.error(error)
-    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete log', life: 3000 })
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete logs', life: 3000 })
   }
+}
+
+const isSelectedForDeletion = (log: ObjMachineTimeline): boolean => {
+  return !!log.id && selectedLogIds.value.includes(log.id)
 }
 
 const iconTimeline = (
@@ -94,7 +108,7 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
   <div class="border border-gray-950 dark:border-gray-500">
     <span
       :style="{ color: iconTimeline(machine.status).color }"
-      class="flex justify-center text-lg font-bold text-black dark:text-white gap-2"
+      class="flex justify-center text-lg font-bold text-black dark:text-white gap-2 items-center"
     >
       <span>{{ machine.name }}</span>
       <span class="cursor-pointer">
@@ -104,6 +118,13 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
           class="pi pi-info-circle cursor-pointer"
           style="font-size: 1rem"
       /></span>
+      <button
+        v-if="selectedLogIds.length > 0"
+        @click="handleBulkDelete"
+        class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-sm font-bold"
+      >
+        Bulk Delete ({{ selectedLogIds.length }})
+      </button>
     </span>
 
     <div :class="`overflow-x-auto ${isHover ? 'h-25' : ''}`">
@@ -133,7 +154,9 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
                 .color,
               width: customWidthBoxTimeline(item)
             }"
-            :class="`text-md ${isHover ? 'h-20' : 'h-70'} text-start flex flex-col  break-words`"
+            :class="`text-md ${isHover ? 'h-20' : 'h-70'} ${
+              isSelectedForDeletion(item) ? 'ring-2 ring-red-500' : ''
+            } text-start flex flex-col break-words`"
           >
             <i :class="`${isHover ? 'text-xs' : ''} font-bold text-white dark:text-black`"
               >{{
@@ -146,8 +169,8 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
               <span class="font-medium text-white dark:text-black">{{ item.timeDifference }} </span>
             </i>
             <i
-              @click="handleDeleteLog(item)"
-              v-tooltip.top="'Delete'"
+              @click.stop="toggleSelectionForDelete(item)"
+              v-tooltip.top="'Select for Deletion'"
               class="pi pi-trash cursor-pointer text-red-500"
               style="font-size: 1rem"
             />
