@@ -76,6 +76,10 @@ const MachineServices = {
     date: string
   }): Promise<AxiosResponse<DownloadMachineLogsMonthly>> {
     return API({ params }).get('/machines/monthly-logs')
+  },
+
+  deleteMachineLog(logId: number): Promise<AxiosResponse> {
+    return API().delete(`/machines/logs/${logId}`)
   }
 }
 

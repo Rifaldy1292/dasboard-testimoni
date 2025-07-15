@@ -4,12 +4,17 @@ import type { Machine, MachineTimeline, ObjMachineTimeline } from '@/types/machi
 import ModalEditDescription from './ModalEditDescription.vue'
 import { shallowRef } from 'vue'
 import ModalDocumentation from './ModalDocumentation.vue'
+import { useToast } from 'primevue/usetoast'
+import MachineServices from '@/services/machine.service'
 
 const { machine, resizeCount } = defineProps<{
   machine: MachineTimeline
   resizeCount: number
 }>()
 
+const emit = defineEmits(['log-deleted'])
+
+const toast = useToast()
 const visibleDialogForm = shallowRef<boolean>(false)
 const visibleDialogFormDocumentation = shallowRef<boolean>(false)
 const isHover = shallowRef<boolean>(true)
@@ -19,6 +24,27 @@ const handleClickIcon = (e: ObjMachineTimeline): void => {
   selectedLog.value = e
   visibleDialogForm.value = true
   console.log(selectedLog.value)
+}
+
+const handleDeleteLog = async (log: ObjMachineTimeline) => {
+  try {
+    if (!log.id) {
+      toast.add({ severity: 'error', summary: 'Error', detail: 'Log ID is missing', life: 3000 })
+      return
+    }
+    await MachineServices.deleteMachineLog(log.id)
+    toast.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: 'Log deleted successfully',
+      life: 3000
+    })
+    // Emit an event to the parent to refresh the data
+    emit('log-deleted')
+  } catch (error) {
+    console.error(error)
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete log', life: 3000 })
+  }
 }
 
 const iconTimeline = (
@@ -120,12 +146,19 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
               <span class="font-medium text-white dark:text-black">{{ item.timeDifference }} </span>
             </i>
             <i
-              v-if="item.current_status === 'Stopped'"
-              @click="handleClickIcon(item)"
-              v-tooltip.top="'Edit'"
-              class="pi pi-pencil cursor-pointer"
+              @click="handleDeleteLog(item)"
+              v-tooltip.top="'Delete'"
+              class="pi pi-trash cursor-pointer text-red-500"
               style="font-size: 1rem"
             />
+            <div v-if="item.current_status === 'Stopped'" class="flex items-center gap-3 mt-2">
+              <i
+                @click="handleClickIcon(item)"
+                v-tooltip.top="'Edit'"
+                class="pi pi-pencil cursor-pointer"
+                style="font-size: 1rem"
+              />
+            </div>
             <template v-if="!isHover">
               <span class="font-medium text-white dark:text-black">{{ item.description }} </span>
               <span class="font-medium text-yellow-300">{{ item.k_num }} </span>

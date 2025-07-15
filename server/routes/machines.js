@@ -76,6 +76,8 @@ machineRouter.patch(
     MachineController.editLogDescription
 )
 
+machineRouter.delete("/logs/:logId", authMiddleware, MachineController.deleteMachineLog)
+
 // Apply check middleware to ready transfer check
 machineRouter.get('/is-ready-transfer-files',
     authMiddleware,

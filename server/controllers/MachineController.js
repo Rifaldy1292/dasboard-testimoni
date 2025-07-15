@@ -583,6 +583,22 @@ interface DummyData {
     }
   }
 
+  static async deleteMachineLog(req, res) {
+    try {
+      const { logId } = req.params;
+      const log = await MachineLog.findByPk(logId);
+
+      if (!log) {
+        return res.status(404).json({ message: "Log not found" });
+      }
+
+      await log.destroy();
+
+      res.status(200).json({ message: "Log deleted successfully" });
+    } catch (error) {
+      serverError(error, res, "Failed to delete machine log");
+    }
+  }
 }
 
 module.exports = MachineController;
