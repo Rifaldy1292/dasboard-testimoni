@@ -1,6 +1,10 @@
 const { MachineLog, Machine, TransferFile } = require("../models");
 const { MqttClient } = require("mqtt");
-const { machineLoggerDebug, machineLoggerError, machineLoggerInfo } = require("../utils/logger");
+const {
+  machineLoggerDebug,
+  machineLoggerError,
+  machineLoggerInfo,
+} = require("../utils/logger");
 const { machineCache } = require("../cache");
 
 const setupMachineCache = async () => {
@@ -11,20 +15,23 @@ const setupMachineCache = async () => {
       raw: true,
     });
 
-    Array.isArray(existMachines) && existMachines.sort((a, b) => {
-      const numberA = parseInt(a.name.slice(3));
-      const numberB = parseInt(b.name.slice(3));
-      return numberA - numberB;
-    }).forEach((machine) => {
-      const { id, name } = machine;
-      machineCache.set(machine.name, {
-        id: id,
-        name: name,
-        status: null,
-        transfer_file_id: null,
-        createdAt: null,
-      });
-    });
+    Array.isArray(existMachines) &&
+      existMachines
+        .sort((a, b) => {
+          const numberA = parseInt(a.name.slice(3));
+          const numberB = parseInt(b.name.slice(3));
+          return numberA - numberB;
+        })
+        .forEach((machine) => {
+          const { id, name } = machine;
+          machineCache.set(machine.name, {
+            id: id,
+            name: name,
+            status: null,
+            transfer_file_id: null,
+            createdAt: null,
+          });
+        });
 
     // console.log(machineCache.getAll(), 444);
 
@@ -35,7 +42,6 @@ const setupMachineCache = async () => {
     machineLoggerError(error, "setupMachineCache");
   }
 };
-
 
 /**
  * Get the transfer file from the database.
@@ -51,7 +57,7 @@ const getTransferFile = async (transfer_file_id) => {
     tool_name: null,
     total_cutting_time: 0,
     calculate_total_cutting_time: null,
-    next_projects: []
+    next_projects: [],
   };
   if (!transfer_file_id) return defaultTransferFile;
   try {
@@ -60,7 +66,6 @@ const getTransferFile = async (transfer_file_id) => {
     });
     if (!transferFile) return defaultTransferFile;
     return transferFile;
-
   } catch (error) {
     machineLoggerError(error, "getTransferFile", { transfer_file_id });
     return defaultTransferFile;
@@ -103,13 +108,9 @@ const isManualLog = (existMachine, parseMessage) => {
     actualMachineStatus === "Stopped" && statusFromCache === "Running";
   if (!isManualOperation) return false;
 
-
   const { createdAt } = existMachine;
   if (!createdAt) return false;
   return isBetweenTimeManualLog(createdAt);
-
-
-
 };
 
 /**
@@ -127,16 +128,27 @@ const handleChangeMachineStatus = async (
 ) => {
   const { status, transfer_file_id } = parseMessage;
 
-  const hasDataChanged = machineCache.hasDataChanged(existMachine.name, status, transfer_file_id);
+  const hasDataChanged = machineCache.hasDataChanged(
+    existMachine.name,
+    status,
+    transfer_file_id
+  );
+  if (!hasDataChanged) return;
 
   try {
-
     const machineCacheStatus = existMachine.status;
+    const hasTransferFileIdChanged = machineCache.hasTransferFileIdChanged(
+      existMachine.name,
+      transfer_file_id
+    );
 
     //  isManualOperation is when the status is "Stopped" but the machine cache is  running
     const isManualOperation = isManualLog(existMachine, parseMessage);
     const effectiveStatus = isManualOperation ? "Running" : status;
-    const allowUpdate = hasDataChanged || machineCacheStatus === null || machineCacheStatus !== effectiveStatus;
+    const allowUpdate =
+      hasTransferFileIdChanged ||
+      machineCacheStatus === null ||
+      machineCacheStatus !== effectiveStatus;
     if (!allowUpdate) return;
     machineLoggerDebug(
       `Change machine status for ${existMachine.name} from ${existMachine.status} to ${effectiveStatus}`,
@@ -154,7 +166,6 @@ const handleChangeMachineStatus = async (
       next_projects,
     } = await getTransferFile(transfer_file_id);
 
-
     await updateDescriptionLastMachineLog(existMachine.id);
     // Create a new log with the updated status
     const newLog = await MachineLog.create({
@@ -170,7 +181,6 @@ const handleChangeMachineStatus = async (
       calculate_total_cutting_time,
       next_projects,
     });
-
 
     const plainNewLog = newLog.get({ plain: true });
     // console.log({ plainNewLog, next_projects }, 777);
@@ -196,17 +206,12 @@ const handleChangeMachineStatus = async (
  * Creates a machine and logs the first entry with the provided message data.
  *
  * @param {{name: string, status: 'Running'|'Stopped' | 'DISCONNECT' | null, transfer_file_id: number, ipAddress?: string}} parseMessage - The parsed message containing machine data.
-* @param {MqttClient} client - The MQTT client or WebSocket client.
+ * @param {MqttClient} client - The MQTT client or WebSocket client.
  * @returns {Promise<void>}
  */
 const createMachineAndLogFirstTime = async (parseMessage, client) => {
-  const {
-    name,
-    status,
-    transfer_file_id,
-  } = parseMessage;
+  const { name, status, transfer_file_id } = parseMessage;
   try {
-
     const createMachine = await Machine.create({
       name,
       ipAddress: parseMessage.ipAddress || null,
@@ -220,7 +225,7 @@ const createMachineAndLogFirstTime = async (parseMessage, client) => {
       tool_name,
       total_cutting_time,
       calculate_total_cutting_time,
-      next_projects
+      next_projects,
     } = await getTransferFile(transfer_file_id);
 
     const newLog = await MachineLog.create({
@@ -234,7 +239,7 @@ const createMachineAndLogFirstTime = async (parseMessage, client) => {
       tool_name,
       total_cutting_time: total_cutting_time || 0,
       calculate_total_cutting_time: calculate_total_cutting_time || null,
-      next_projects
+      next_projects,
     });
 
     const plainNewLog = newLog.get({ plain: true });
