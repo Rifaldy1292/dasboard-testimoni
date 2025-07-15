@@ -39,7 +39,6 @@ class MachineCacheManager {
     return machine ? machine.status === null : true;
   }
 
-
   /**
    * Set machine data in cache
    * @param {string} machineName - Name of the machine
@@ -70,7 +69,12 @@ class MachineCacheManager {
   reset() {
     const machines = this.getAll();
     machines.forEach((machine) => {
-      this.machineCache.set(machine.name, { ...machine, status: null, transfer_file_id: null, createdAt: null });
+      this.machineCache.set(machine.name, {
+        ...machine,
+        status: null,
+        transfer_file_id: null,
+        createdAt: null,
+      });
     });
     return this;
   }
@@ -86,9 +90,17 @@ class MachineCacheManager {
     const machine = this.machineCache.get(machineName);
     if (!machine) return true; // If machine not in cache, consider it as changed
 
-    return machine.status !== newStatus || machine.transfer_file_id !== newTransferFileId;
+    return (
+      machine.status !== newStatus ||
+      machine.transfer_file_id !== newTransferFileId
+    );
   }
 
+  hasTransferFileIdChanged(machineName, newTransferFileId) {
+    const machine = this.machineCache.get(machineName);
+    if (!machine) return true; // If machine not in cache, consider it as changed
+    return machine.transfer_file_id !== newTransferFileId;
+  }
   /**
    * Check if machine exists in cache
    * @param {string} machineName - Name of the machine
@@ -113,8 +125,6 @@ class MachineCacheManager {
   getAllNames() {
     return Array.from(this.machineCache.keys());
   }
-
-
 
   /**
    * Clear all machines from cache
