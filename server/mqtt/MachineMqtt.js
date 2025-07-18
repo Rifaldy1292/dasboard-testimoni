@@ -211,10 +211,11 @@ const handleChangeMachineStatus = async (
  */
 const createMachineAndLogFirstTime = async (parseMessage, client) => {
   const { name, status, transfer_file_id } = parseMessage;
+  console.log(parseMessage.ipAddress, 4444)
   try {
     const createMachine = await Machine.create({
       name,
-      ipAddress: parseMessage.ipAddress || null,
+      ip_address: parseMessage.ipAddress || null,
     });
 
     const {
