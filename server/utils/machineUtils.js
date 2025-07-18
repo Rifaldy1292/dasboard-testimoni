@@ -66,6 +66,56 @@ function convertMilisecondToHour(milliseconds) {
 }
 
 /**
+ * Generates a monthly target data structure for cutting time calculations
+ * @param {number} target - The total target hours for the month
+ * @param {number} totalDayInMonth - The number of days in the month
+ * @returns {Object} An object containing:
+ *   - name: "TARGET" string identifier
+ *   - data: Array of daily target objects, each containing:
+ *     - date: The day of the month (1-31)
+ *     - shifts: Object with shift1, shift2, and combine properties (all null)
+ *     - count: Object containing:
+ *       - calculate: Object with shift calculations
+ *       - shift1: null
+ *       - shift2: null 
+ *       - combine: Calculated cumulative target for that day
+ */
+const objectTargetCuttingTime2 = (target, totalDayInMonth) => {
+  const targetPerDay = target / totalDayInMonth; // Calculate target hours per day
+
+  const calculatedTargets = Array.from(
+    { length: totalDayInMonth },
+    (_, i) => {
+      const date = i + 1;
+      const target = Math.round((date * targetPerDay));
+      return {
+        date,
+        shifts: {
+          shift1: null,
+          shift2: null,
+          combine: null,
+        },
+        count: {
+          calculate: {
+            shift1: null,
+            shift2: null,
+            combine: target,
+          },
+          shift1: null,
+          shift2: null,
+          combine: null,
+        }
+      };
+    }
+  ); // Calculate cumulative target for each day
+
+  return {
+    name: "TARGET",
+    data: calculatedTargets,
+  };
+};
+
+/**
  * Get shift date range based on date and shift
  * @param {Date | string} date - The date to get shift range from
  * @param {number} shift - Shift number (0 = all day, 1 = first shift, 2 = second shift)
@@ -580,5 +630,7 @@ module.exports = {
   getMachineTimeline,
   countRunningTime,
   getShiftDateRange,
-  handleGetCuttingTime
+  handleGetCuttingTime,
+  objectTargetCuttingTime2,
+  convertMilisecondToHour
 };
