@@ -12,8 +12,6 @@ const { machine, resizeCount } = defineProps<{
   resizeCount: number
 }>()
 
-const emit = defineEmits(['log-deleted'])
-
 const toast = useToast()
 const visibleDialogForm = shallowRef<boolean>(false)
 const visibleDialogFormDocumentation = shallowRef<boolean>(false)
@@ -50,15 +48,10 @@ const handleBulkDelete = async () => {
       life: 3000
     })
     selectedLogIds.value = []
-    emit('log-deleted')
   } catch (error) {
     console.error(error)
     toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete logs', life: 3000 })
   }
-}
-
-const isSelectedForDeletion = (log: ObjMachineTimeline): boolean => {
-  return !!log.id && selectedLogIds.value.includes(log.id)
 }
 
 const iconTimeline = (
@@ -154,9 +147,7 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
                 .color,
               width: customWidthBoxTimeline(item)
             }"
-            :class="`text-md ${isHover ? 'h-20' : 'h-70'} ${
-              isSelectedForDeletion(item) ? 'ring-2 ring-red-500' : ''
-            } text-start flex flex-col break-words`"
+            :class="`text-md ${isHover ? 'h-20' : 'h-70'} text-start flex flex-col break-words`"
           >
             <i :class="`${isHover ? 'text-xs' : ''} font-bold text-white dark:text-black`"
               >{{
@@ -169,6 +160,7 @@ const customWidthBoxTimeline = (obj: ObjMachineTimeline): string => {
               <span class="font-medium text-white dark:text-black">{{ item.timeDifference }} </span>
             </i>
             <i
+              v-show="false"
               @click.stop="toggleSelectionForDelete(item)"
               v-tooltip.top="'Select for Deletion'"
               class="pi pi-trash cursor-pointer text-red-500"
