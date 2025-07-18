@@ -4,6 +4,7 @@ const {
   getMachineTimeline,
   countRunningTime,
   getShiftDateRange,
+  handleGetCuttingTime,
 } = require("../utils/machineUtils");
 const { serverError } = require("../utils/serverError");
 
@@ -115,7 +116,87 @@ module.exports = class MachineWebsocket {
     try {
       const { date, shift } = data;
       if (data.monthly) {
-        return client.send(JSON.stringify({ type: "error", message: "Monthly is not supported yet" }));
+        // Handle monthly percentages
+        const nowDate = new Date(date);
+        if (nowDate.getTime() > new Date().getTime()) {
+          return client.send(JSON.stringify({ type: "percentage", data: [] }));
+        }
+
+        let monthlyData;
+        try {
+          monthlyData = await handleGetCuttingTime(date);
+        } catch (monthlyError) {
+          if (monthlyError.message.includes("cutting time not found")) {
+            return client.send(JSON.stringify({ type: 'error', message: 'No cutting time configuration found for this month' }));
+          }
+          throw monthlyError; // Re-throw to be caught by outer try-catch
+        }
+
+        if (!monthlyData || !monthlyData.data || monthlyData.data.length <= 1) {
+          return client.send(JSON.stringify({ type: 'percentage', data: { date: nowDate, dateFrom: nowDate, dateTo: nowDate, data: [] } }));
+        }
+
+        // Get current day of month to calculate progress
+        const currentDay = new Date().getDate();
+        const requestedMonth = new Date(date).getMonth();
+        const currentMonth = new Date().getMonth();
+        const isCurrentMonth = requestedMonth === currentMonth;
+        const lastDayWithData = isCurrentMonth ? Math.min(currentDay, monthlyData.allDateInMonth.length) : monthlyData.allDateInMonth.length;
+
+        // Extract target data (first item in data array)
+        const targetData = monthlyData.data.find(item => item.name === "TARGET");
+        if (!targetData) {
+          return client.send(JSON.stringify({ type: 'error', message: 'No target data found for this month' }));
+        }
+
+        const targetForDay = targetData.data.find(item => item.date === lastDayWithData);
+        const targetHours = targetForDay ? targetForDay.count.calculate.combine : 0;
+        const targetMs = targetHours * 60 * 60 * 1000; // Convert hours to milliseconds
+
+        // Process each machine's data
+        const machineResults = monthlyData.data
+          .filter(item => item.name !== "TARGET")
+          .map(machine => {
+            const dayData = machine.data.find(item => item.date === lastDayWithData);
+            if (!dayData) {
+              return {
+                name: machine.name,
+                status: "Stopped",
+                description: "0 hour 0 minute / 0 hour 0 minute",
+                percentage: [0, 100]
+              };
+            }
+
+            const actualHours = dayData.count.calculate.combine || 0;
+            const actualMs = actualHours * 60 * 60 * 1000;
+
+            const runningPercentage = percentage(actualMs, targetMs);
+            const description = countDescription(actualMs, targetMs);
+
+            return {
+              name: machine.name,
+              status: "Running", // Default status for monthly view
+              description,
+              percentage: [runningPercentage, 100 - runningPercentage]
+            };
+          });
+
+        // Create date range for the month
+        const firstDayOfMonth = new Date(nowDate.getFullYear(), nowDate.getMonth(), 1);
+        const lastDayOfMonth = new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, 0);
+
+        const monthlyResult = {
+          date: nowDate,
+          dateFrom: firstDayOfMonth,
+          dateTo: lastDayOfMonth,
+          data: machineResults.sort((a, b) => {
+            const numberA = parseInt(a.name.slice(3));
+            const numberB = parseInt(b.name.slice(3));
+            return numberA - numberB;
+          })
+        };
+
+        return client.send(JSON.stringify({ type: "percentage", data: monthlyResult }));
       }
       if (!date || shift < 0 || shift > 2) return client.send(JSON.stringify({ type: "error", message: "Bad request!" }));
 
