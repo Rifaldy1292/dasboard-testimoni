@@ -5,6 +5,8 @@
     "client": "cd client && pnpm run dev",
     "server": "cd server && pnpm run start",
     "dev:api": "cd server && nodemon app.js",
+    "stop": "pm2 delete all",
+    "restart": "pm2 delete all && pnpm run build",
     "dev:mqtt": "cd server && nodemon mqtt.js",
     "build": "cd client && pnpm run build-only",
     "pull": "git pull origin main && pnpm run build",
