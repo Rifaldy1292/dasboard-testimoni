@@ -8,19 +8,26 @@ const { Client, FTPError } = require("basic-ftp");
 const { logInfo, logError } = require("../utils/logger");
 const FTPMC3Controller = require("./FTPMC3.controller");
 const RemainingController = require("./RemainingController");
+const { closeConnection, isPortOpen } = require("../utils/ftpUtils");
 
 const localDir = (machine_id) =>
   path.join(__dirname, "..", "public", "cnc_files", machine_id);
 
 const FTPHP = {
-  host: "192.168.18.32",
+  host: "192.168.43.103",
   port: "2221",
   user: "android",
   password: "android",
   secure: false,
 };
 
-// const FTPMachine = (ip_address)
+const ftpMachine = (ip_address) => ({
+  host: ip_address,
+  port: 21, // Default FTP port
+  user: "MC",
+  password: "MC",
+  secure: false,
+});
 
 class FTPController {
   localDir = (machine_id) =>
@@ -79,6 +86,8 @@ class FTPController {
     }
 
     const client = new Client();
+    const ftpConfig = ftpMachine(ip_address);
+    // const ftpConfig = FTPHP;
     try {
       // Buat direktori temp jika belum ada
       const tempDir = path.join(__dirname, "..", "temp");
@@ -87,15 +96,7 @@ class FTPController {
       }
 
       // Konfigurasi dengan timeout yang lebih tinggi
-      await client.access({
-        // ...FTPHP,
-        host: ip_address,
-        port: 21,
-        user: "MC",
-        password: "MC",
-        secure: false,
-        timeout: 300000, // 5 menit
-      });
+      await client.access(ftpConfig, { timeout: 300000 });
 
       // Set mode ASCII
       await client.send("TYPE A");
@@ -169,7 +170,7 @@ class FTPController {
         `Failed to ${isUndo ? "undo" : "transfer"} files`
       );
     } finally {
-      client.close();
+      await closeConnection(client, ftpConfig.port);
     }
   }
 
@@ -242,16 +243,11 @@ class FTPController {
       );
     }
     const client = new Client();
+    const ftpConfig = ftpMachine(ip_address);
+    // const ftpConfig = FTPHP;
     try {
 
-      await client.access({
-        host: ip_address,
-        port: 21,
-        user: "MC",
-        password: "MC",
-        secure: false,
-        // ...FTPHP,
-      });
+      await client.access(ftpConfig);
 
       const customMachine = name === "MC-14" || name === "MC-15";
       const remotePath = "/Storage Card/USER/DataCenter";
@@ -316,7 +312,7 @@ class FTPController {
     } catch (error) {
       //   message: '550 STOR requested action not taken: File exists.'
       // handle file exist
-      if (error instanceof FTPError && error.message.includes("File exists")) {
+      if (error instanceof FTPError && error.message.includes("exists")) {
         return res.status(500).json({
           status: 500,
           message: "File already exist",
@@ -324,7 +320,7 @@ class FTPController {
       }
       serverError(error, res, "Failed to remove file from machine");
     } finally {
-      client.close();
+      await closeConnection(client, ftpConfig.port);
     }
   }
 
@@ -354,18 +350,15 @@ class FTPController {
       );
     }
 
+
     // Handle mesin lain dengan basic-ftp (existing code)
     const client = new Client();
+    const ftpConfig = ftpMachine(ip_address);
+    // const ftpConfig = FTPHP;
     try {
       logInfo(`Connecting to machine ${name} at ${ip_address}`);
 
-      await client.access({
-        host: ip_address,
-        port: 21,
-        user: "MC",
-        password: "MC",
-        secure: false,
-      });
+      await client.access(ftpConfig);
 
       const customDirMachine = name === "MC-14" || name === "MC-15";
       if (customDirMachine) {
@@ -401,7 +394,7 @@ class FTPController {
       console.log(error);
       serverError(error, res, "Failed to get list files");
     } finally {
-      client.close();
+      await closeConnection(client, ftpConfig.port);
     }
   }
 
