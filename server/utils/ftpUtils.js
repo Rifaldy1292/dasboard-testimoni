@@ -29,7 +29,7 @@ async function isPortOpen(port) {
  */
 async function closeConnection(ftpClient, port, isMC3 = false) {
     // Close FTP client connection
-    if (!isMC3) {
+    if (!isMC3 && ftpClient) {
         await ftpClient.close();
         logInfo(`FTP client connection closed successfully`, "ftpUtils.closeConnection");
     }

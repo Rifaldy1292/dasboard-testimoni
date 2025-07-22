@@ -7,6 +7,7 @@ const os = require("os");
 const { PassThrough } = require("stream");
 const RemainingController = require("./RemainingController");
 const Client = require("ftp");
+const { closeConnection } = require("../utils/ftpUtils");
 
 const MAX_TIMEOUT = 10000;
 
@@ -44,6 +45,16 @@ const FTPMachine = {
 
 };
 
+/**
+ * Handle closing the FTP connection
+ * @param {Client} ftp - The FTP client instance
+ */
+const handleCloseConnection = async (ftp) => {
+  await closeConnection(ftp, FTPMachine.port, true);
+  ftp.end();
+  ftp.destroy();
+};
+
 class FTPMC3Controller {
   /**
    * Handle MC-3 dengan mendapatkan list file menggunakan Active Mode
@@ -53,15 +64,10 @@ class FTPMC3Controller {
     let isResponseSent = false;
     // let operationTimeout;
 
-    const closeConnection = () => {
-      ftpClient.end();
-      ftpClient.destroy();
-    };
-
     const sendResponse = (statusCode, message, data = null, error = null) => {
       if (isResponseSent) return;
       isResponseSent = true;
-      closeConnection();
+      handleCloseConnection(ftpClient);
 
       const response = {
         status: statusCode,
@@ -91,7 +97,7 @@ class FTPMC3Controller {
       // }, MAX_TIMEOUT);
 
       ftpClient.on("error", (error) => {
-        closeConnection();
+        handleCloseConnection(ftpClient);
         logError(
           error,
           "FTPController.handleMC3DeleteFiles",
@@ -860,9 +866,6 @@ class FTPMC3Controller {
     res
   ) {
     const Ftp = new ftp();
-    const closeConnection = () => {
-      Ftp.end();
-    };
     try {
       logInfo(
         `Deleting file ${fileName} from ${name} at ${ip_address} (Forced Active Mode)`,
@@ -871,7 +874,7 @@ class FTPMC3Controller {
       // Setup error handlers FIRST untuk mencegah unhandled errors
       Ftp.on("error", (error) => {
         console.log(error, error.message, 999);
-        closeConnection();
+        handleCloseConnection(Ftp);
         logError(
           error,
           "FTPController.handleMC3DeleteFiles.ftp.onError",
@@ -887,7 +890,7 @@ class FTPMC3Controller {
       Ftp.on("ready", () => {
         Ftp.delete(fileName, (error) => {
           if (error) {
-            closeConnection();
+            handleCloseConnection(Ftp);
             logError(
               error,
               "FTPController.handleMC3DeleteFiles",
@@ -898,7 +901,7 @@ class FTPMC3Controller {
               message: `Gagal menghapus file ${fileName} dari MC-3`,
             });
           }
-          closeConnection();
+          handleCloseConnection(Ftp);
           return res.status(200).json({
             status: 200,
             message: `Berhasil menghapus file ${fileName} `
@@ -911,7 +914,7 @@ class FTPMC3Controller {
         ...FTPMachine,
       });
     } catch (error) {
-      closeConnection();
+      handleCloseConnection(Ftp);
       logError(error, "FTPController.handleMC3DeleteFiles");
       return res.status(500).json({
         status: 500,
