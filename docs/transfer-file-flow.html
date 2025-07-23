@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dokumentasi Alur Transfer File</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        strong {
+            color: #0056b3;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background: #ddd;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Dokumentasi Alur Transfer File</h1>
+    <p>Dokumen ini menjelaskan alur kerja fitur transfer file, mencakup interaksi antara frontend (aplikasi web) dan backend (server), serta bagaimana file dimodifikasi dan dikelola.</p>
+
+    <h2>Daftar Isi</h2>
+    <ol>
+        <li><a href="#alur-utama">Alur Utama</a>
+            <ul>
+                <li><a href="#1-alur-upload-file">Upload File</a></li>
+                <li><a href="#2-alur-hapus-file">Hapus File</a></li>
+                <li><a href="#3-alur-undo-hapus-file">Undo Hapus File</a></li>
+            </ul>
+        </li>
+        <li><a href="#modifikasi-file">Modifikasi File</a></li>
+        <li><a href="#penanganan-khusus-mesin-mc-3">Penanganan Khusus Mesin MC-3</a></li>
+        <li><a href="#koneksi-dengan-mqtt">Koneksi dengan MQTT</a></li>
+    </ol>
+
+    <hr>
+
+    <h2 id="alur-utama">Alur Utama</h2>
+
+    <h3 id="1-alur-upload-file">1. Alur Upload File</h3>
+    <p>Proses ini dimulai dari antarmuka pengguna (frontend) hingga file berhasil dikirim ke mesin melalui server (backend).</p>
+    <p><strong>Frontend:</strong></p>
+    <ol>
+        <li><strong>Pemilihan Aksi & Mesin</strong>: Pengguna memilih aksi "Upload File" dan memilih mesin target dari dropdown.</li>
+        <li><strong>Pengecekan Kesiapan Mesin</strong>: Sistem secara otomatis memanggil endpoint <code>GET /machines/is-ready-transfer-files</code> untuk memastikan tidak ada log mesin yang deskripsinya kosong. Jika ada, pengguna akan diminta untuk mengisinya terlebih dahulu.</li>
+        <li><strong>Input Parameter</strong>: Pengguna memasukkan parameter tambahan seperti <em>Work Position</em>, <em>Coordinate</em>, <em>Start Point</em>, dll.</li>
+        <li><strong>Upload File/Folder</strong>: Pengguna memilih file atau folder G-code yang akan di-transfer.</li>
+        <li><strong>Pembuatan Main Program</strong>: Setelah pengguna menekan tombol <strong>"Execute"</strong>, frontend <strong>tidak langsung</strong> meng-upload file. Sebaliknya, ia melakukan modifikasi penting:
+            <ul>
+                <li>Sebuah file G-code baru yang disebut <strong>"Main Program"</strong> (contoh nama: <code>O0031</code>) dibuat secara dinamis di frontend.</li>
+                <li>Isi dari "Main Program" ini adalah gabungan dari template G-code yang spesifik untuk tipe mesin yang dipilih dan perintah untuk memanggil setiap file yang di-upload pengguna (<code>M198P...</code> atau <code>M98P...</code>).</li>
+                <li>Parameter yang diinput pengguna (seperti <em>Work Position</em>, <em>Coolant</em>, dll.) dan <strong>ID Transfer File</strong> (diperoleh dari backend) disisipkan ke dalam "Main Program" ini sebagai variabel makro (contoh: <code>#501=...</code>, <code>#541=...</code>).</li>
+            </ul>
+        </li>
+        <li><strong>Pratinjau</strong>: Pengguna dapat melihat pratinjau dari "Main Program" yang baru dibuat.</li>
+        <li><strong>Kirim ke Server</strong>: Setelah menekan tombol <strong>"Transfer Files"</strong>, semua file (termasuk "Main Program" yang baru dibuat dan file-file asli dari pengguna) dikirim ke backend melalui endpoint <code>POST /machines/transfer</code>.</li>
+    </ol>
+    <p><strong>Backend:</strong></p>
+    <ol>
+        <li><strong>Penerimaan File</strong>: Controller <code>FTPController.js</code> menerima file-file tersebut.</li>
+        <li><strong>Pengecekan Mesin</strong>: Server memeriksa nama mesin yang dituju.
+            <ul>
+                <li><strong>Untuk Mesin MC-3</strong>: File tidak dikirim via FTP. Sebaliknya, file-file tersebut disimpan di direktori lokal server di <code>/transfer_files/MC-3/</code>. (Lihat <a href="#penanganan-khusus-mesin-mc-3">Penanganan Khusus Mesin MC-3</a>).</li>
+                <li><strong>Untuk Mesin Lain</strong>: Server membuat koneksi FTP ke alamat IP mesin yang sesuai.</li>
+            </ul>
+        </li>
+        <li><strong>Transfer FTP</strong>: Semua file di-upload ke direktori penyimpanan pada mesin (misalnya, <code>/Storage Card/USER/DataCenter</code> untuk MC-14/15 atau direktori root untuk mesin lain).</li>
+        <li><strong>Update Status Operator</strong>: Setelah transfer berhasil, status <code>is_using_custom</code> pada tabel <code>MachineOperatorAssignment</code> diubah menjadi <code>false</code> untuk menandakan bahwa tugas kustom (transfer file) telah selesai.</li>
+    </ol>
+
+    <h3 id="2-alur-hapus-file">2. Alur Hapus File</h3>
+    <p><strong>Frontend:</strong></p>
+    <ol>
+        <li><strong>Pemilihan Aksi & Mesin</strong>: Pengguna memilih aksi "Remove File" dan memilih mesin target.</li>
+        <li><strong>Ambil Daftar File</strong>: Frontend memanggil endpoint <code>GET /machines/list-files/{machine_id}</code> untuk mendapatkan daftar file.</li>
+        <li><strong>Tampilkan Daftar File</strong>: Daftar file yang ada di mesin dan yang sudah dihapus (di-backup di server) ditampilkan.</li>
+        <li><strong>Aksi Hapus</strong>: Pengguna menekan ikon hapus pada file yang diinginkan.</li>
+    </ol>
+    <p><strong>Backend:</strong></p>
+    <ol>
+        <li><strong>Permintaan Daftar File</strong>: <code>FTPController.getListFiles</code> menerima permintaan. Ia mengambil daftar file dari mesin via FTP dan juga dari direktori backup lokal di server (<code>/server/public/cnc_files/&lt;machine_id&gt;</code>). File dari direktori lokal ditandai sebagai <code>isDeleted: true</code>.</li>
+        <li><strong>Permintaan Hapus</strong>: <code>FTPController.removeFileFromMachine</code> menerima permintaan hapus.</li>
+        <li><strong>Backup File</strong>: Sebelum menghapus, server <strong>mengunduh (download)</strong> file yang akan dihapus dari mesin ke direktori backup lokal (<code>/server/public/cnc_files/&lt;machine_id&gt;</code>).</li>
+        <li><strong>Hapus File di Mesin</strong>: Setelah backup berhasil, file tersebut dihapus dari mesin melalui perintah FTP <code>remove</code>.</li>
+    </ol>
+
+    <h3 id="3-alur-undo-hapus-file">3. Alur Undo Hapus File</h3>
+    <p><strong>Frontend:</strong></p>
+    <ol>
+        <li><strong>Aksi Undo</strong>: Pada daftar file yang ditampilkan, pengguna menekan ikon "undo" pada file yang berstatus <code>isDeleted: true</code>.</li>
+    </ol>
+    <p><strong>Backend:</strong></p>
+    <ol>
+        <li><strong>Permintaan Undo</strong>: <code>FTPController.undoRemove</code> menerima permintaan.</li>
+        <li><strong>Baca File Backup</strong>: Server membaca file dari direktori backup lokal (<code>/server/public/cnc_files/&lt;machine_id&gt;</code>).</li>
+        <li><strong>Transfer Kembali ke Mesin</strong>: File yang sudah dibaca tersebut kemudian di-upload kembali ke mesin menggunakan alur <code>transferFiles</code> yang sama seperti pada proses upload.</li>
+        <li><strong>Hapus File Backup</strong>: Setelah file berhasil dikembalikan ke mesin, file dari direktori backup lokal akan dihapus.</li>
+    </ol>
+
+    <hr>
+
+    <h2 id="modifikasi-file">Modifikasi File</h2>
+    <p>Modifikasi file G-code <strong>hanya terjadi di sisi frontend</strong> dan merupakan langkah krusial dalam alur upload.</p>
+    <ul>
+        <li><strong>File</strong>: <code>client/src/components/modules/TransferFile/utils/contentMainProgram.util.ts</code></li>
+        <li><strong>Tujuan</strong>: Untuk membuat satu file "Main Program" yang berfungsi sebagai orkestrator atau pemanggil file-file G-code lainnya yang di-upload oleh pengguna.</li>
+        <li><strong>Proses</strong>:
+            <ol>
+                <li>Fungsi <code>contentMainProgram</code> mengambil daftar file yang di-upload dan semua parameter input dari pengguna.</li>
+                <li>Berdasarkan tipe mesin yang dipilih (<code>startMacro</code>), fungsi ini memilih template G-code yang sesuai.</li>
+                <li>Ia melakukan iterasi melalui setiap file yang di-upload dan menghasilkan baris perintah <code>M198P{nama_file}</code> atau <code>M98P{nama_file}</code> untuk memanggil file tersebut.</li>
+                <li>Yang terpenting, ia menyisipkan <strong>ID Transfer File</strong> (<code>transfer_file_id</code>) ke dalam G-code menggunakan variabel makro (misal: <code>#501</code>, <code>#541</code>, dll.). ID ini didapat dari <code>TransferFile</code> model di database.</li>
+                <li>Hasil akhirnya adalah sebuah string berisi G-code lengkap untuk "Main Program" yang siap di-upload bersama file-file lainnya.</li>
+            </ol>
+        </li>
+    </ul>
+
+    <hr>
+
+    <h2 id="penanganan-khusus-mesin-mc-3">Penanganan Khusus Mesin MC-3</h2>
+    <p>Mesin MC-3 tidak mendukung koneksi FTP secara stabil dari aplikasi. Oleh karena itu, alurnya dimodifikasi:</p>
+    <ul>
+        <li><strong>Upload</strong>: Saat pengguna mentransfer file untuk MC-3, backend melalui <code>FTPMC3Controller.handleMC3TransferFiles</code> tidak melakukan koneksi FTP. Sebaliknya, ia hanya menyimpan file-file yang di-upload ke sebuah direktori di dalam server: <code>/transfer_files/MC-3/</code>. Proses transfer dari server ke mesin MC-3 kemudian dilakukan secara manual di luar aplikasi.</li>
+        <li><strong>Hapus & List File</strong>: Koneksi untuk menghapus dan melihat daftar file menggunakan mode "Active" FTP yang dipaksakan, karena ini satu-satunya mode yang cukup stabil untuk operasi sederhana pada MC-3.</li>
+    </ul>
+
+    <hr>
+
+    <h2 id="koneksi-dengan-mqtt">Koneksi dengan MQTT</h2>
+    <p>Meskipun tidak secara langsung terlibat dalam transfer via HTTP/FTP, alur ini sangat terhubung dengan sistem MQTT.</p>
+    <ol>
+        <li><strong>Penyimpanan ID</strong>: Saat frontend membuat "Main Program", ia meminta backend untuk membuat entri di tabel <code>TransferFile</code>. Backend membuat record yang berisi detail transfer (user_id, nama G-code, k_num, dll.) dan mengembalikan <code>id</code> dari record tersebut.</li>
+        <li><strong>Injeksi ID ke G-Code</strong>: Frontend menyuntikkan <code>id</code> ini ke dalam "Main Program" sebagai nilai dari variabel makro (contoh: <code>#501=123</code>).</li>
+        <li><strong>Eksekusi di Mesin</strong>: Ketika "Main Program" dieksekusi di mesin, mesin akan membaca variabel makro tersebut dan mengirimkannya sebagai bagian dari pesan MQTT ke topik <code>machine/status</code>.</li>
+        <li><strong>Pengambilan Konteks oleh Server</strong>: Server MQTT (<code>MachineMqtt.js</code>) menerima pesan, mengekstrak <code>transfer_file_id</code> dari pesan tersebut, dan menggunakan fungsi <code>getTransferFile</code> untuk mengambil detail lengkap dari transfer tersebut dari database.</li>
+        <li><strong>Logging</strong>: Dengan informasi ini, server dapat membuat log (<code>MachineLog</code>) yang akurat, mencatat siapa yang melakukan transfer, file apa yang dijalankan, dan metrik lainnya, sehingga menghubungkan aksi di aplikasi web dengan aktivitas aktual di mesin.</li>
+    </ol>
+
+</body>
+</html>
