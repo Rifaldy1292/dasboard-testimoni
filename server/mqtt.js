@@ -32,25 +32,24 @@ const handleMqtt = () => {
 
   mqttClient.on("message", async (topic, message) => {
     /**
-             * Parses the received MQTT message into a JavaScript object.
-             * @type {{
-             *  name: string,
-             *  status: 'Running' | 'Stopped' | 'DISCONNECT',
-             *  transfer_file_id: number,
-             * }}
-             * @example 
-             *   {
-             *  "name": "mc-1",
-             *  "status": "Running",
-             *  "transfer_file_id": 123
-             *   }
-             */
+     * Parses the received MQTT message into a JavaScript object.
+     * @type {{
+     *  name: string,
+     *  status: 'Running' | 'Stopped' | 'DISCONNECT',
+     *  transfer_file_id: number,
+     * }}
+     * @example
+     *   {
+     *  "name": "mc-1",
+     *  "status": "Running",
+     *  "transfer_file_id": 123
+     *   }
+     */
     const parseMessage = JSON.parse(message.toString());
 
-    // console.log(topic, parseMessage);
+    console.log(topic, parseMessage);
 
     try {
-
       machineLoggerDebug(
         `Received MQTT message on topic ${topic}`,
         "handleMqtt: mqttClient.on",
@@ -109,8 +108,8 @@ const handleMqtt = () => {
 };
 
 function main() {
-  handleCronJob()
-  handleMqtt()
+  handleCronJob();
+  handleMqtt();
 }
 
-main()
+main();
