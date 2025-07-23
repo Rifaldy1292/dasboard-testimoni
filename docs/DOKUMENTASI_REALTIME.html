@@ -1,0 +1,69 @@
+<h1 id="dokumentasi-alur-data-real-time-menggunakan-mqtt-dan-websocket">Dokumentasi Alur Data Real-time Menggunakan MQTT dan WebSocket</h1>
+<p>Dokumen ini menjelaskan bagaimana data dari mesin fisik dapat ditampilkan secara <em>real-time</em> di dasbor antarmuka pengguna (UI) menggunakan protokol MQTT dan WebSocket.</p>
+<h2 id="diagram-alur-data">Diagram Alur Data</h2>
+<pre><code>+-----------------+      +----------------+      +---------------------+      +----------------------+      +-----------------+
+| Mesin Fisik /   |-----&gt;|  MQTT Broker   |-----&gt;|   Node.js Server    |-----&gt;|   Node.js Server     |-----&gt;|   UI/Dashboard  |
+| Sensor (Pabrik) | (1)  | (e.g.Mosquitto)| (2)  | (Subscriber Status) | (3)  | (WebSocket Handler)  | (4)  |   (Vue.js)      |
++-----------------+      +----------------+      +---------------------+      +----------------------+      +-----------------+
+       |                                                 |                            ^
+       |                                                 |                            |
+       | Pesan Status:                                   | Notifikasi Update:         | (5) Kirim data baru
+       | {                                               | &quot;machine/update&quot;           |     via WebSocket
+       |   &quot;name&quot;: &quot;mc-1&quot;,                               |                            |
+       |   &quot;status&quot;: &quot;Running&quot;,                          |                            |
+       |   &quot;transfer_file_id&quot;: 123                       |                            |
+       | }                                               +----------------------------+
+       |                                                      (Internal MQTT Bus)
+       |
+       +------------------------------------------------------------------------------------------------------&gt;</code></pre>
+<h2 id="komponen-utama">Komponen Utama</h2>
+<ol type="1">
+<li><strong><code>server/mqtt.js</code> &amp; <code>server/mqtt/MachineMqtt.js</code></strong>: Bertanggung jawab untuk menerima data langsung dari mesin melalui MQTT.</li>
+<li><strong><code>server/websocket/handleWebsocket.js</code></strong>: Bertanggung jawab untuk mengelola koneksi dengan klien (browser) dan mengirimkan pembaruan data melalui WebSocket.</li>
+<li><strong><code>server/cache/index.js</code> (MachineCache)</strong>: Cache di dalam memori untuk menyimpan status terakhir dari setiap mesin. Tujuannya adalah untuk mengurangi kueri ke database dan dengan cepat mendeteksi perubahan status.</li>
+<li><strong><code>server/cache/userMessageCache.js</code></strong>: Cache yang menyimpan preferensi setiap klien WebSocket yang terhubung. Misalnya, klien A sedang melihat data <em>timeline</em> untuk hari ini, sedangkan klien B sedang melihat data <em>persentase</em> bulanan.</li>
+<li><strong>MQTT Broker</strong>: Perangkat lunak perantara (seperti Mosquitto) yang menangani pengiriman dan penerimaan pesan MQTT.</li>
+</ol>
+<h2 id="langkah-langkah-alur-data">Langkah-langkah Alur Data</h2>
+<h3 id="pengiriman-data-dari-mesin">1. Pengiriman Data dari Mesin</h3>
+<ul>
+<li>Setiap mesin di lantai produksi (atau simulatornya) dikonfigurasi untuk mengirim pesan MQTT ke <strong>MQTT Broker</strong> setiap kali ada perubahan status (misalnya, dari <code>Stopped</code> menjadi <code>Running</code>).</li>
+<li>Pesan ini dikirim ke topik tertentu, misalnya <code>machine/status/mc-1</code>.</li>
+<li>Payload pesan berisi informasi penting seperti nama mesin, status baru, dan <code>transfer_file_id</code> yang mengacu pada pekerjaan yang sedang berjalan.</li>
+</ul>
+<h3 id="penerimaan-data-oleh-server-mqtt-subscriber">2. Penerimaan Data oleh Server (MQTT Subscriber)</h3>
+<ul>
+<li>File <code>server/mqtt.js</code> menginisialisasi klien MQTT yang berlangganan (<em>subscribe</em>) ke topik status dari semua mesin (misalnya <code>machine/status/+</code>).</li>
+<li>Ketika pesan baru masuk, fungsi di dalam <code>server/mqtt/MachineMqtt.js</code> dieksekusi.</li>
+<li><strong>Pengecekan Cache</strong>: Server pertama-tama memeriksa <code>machineCache</code> untuk membandingkan status baru dengan status yang tersimpan. Jika tidak ada perubahan, proses berhenti di sini untuk efisiensi.</li>
+<li><strong>Pencatatan &amp; Pembaruan</strong>: Jika ada perubahan status:
+<ol type="1">
+<li>Server mengambil detail pekerjaan dari database menggunakan <code>transfer_file_id</code>.</li>
+<li>Sebuah log baru disimpan ke dalam tabel <code>MachineLog</code> di database untuk mencatat histori perubahan.</li>
+<li><code>machineCache</code> diperbarui dengan status terbaru.</li>
+<li><strong>Langkah Kunci</strong>: Server menerbitkan (<em>publish</em>) pesan notifikasi sederhana ke topik MQTT <em>internal</em>, yaitu <code>"machine/update"</code>. Pesan ini hanya berfungsi sebagai sinyal bahwa “ada sesuatu yang baru”.</li>
+</ol></li>
+</ul>
+<h3 id="jembatan-dari-mqtt-ke-websocket">3. Jembatan dari MQTT ke WebSocket</h3>
+<ul>
+<li>Di dalam <code>server/websocket/handleWebsocket.js</code>, ada klien MQTT lain yang secara khusus berlangganan (<em>subscribe</em>) ke topik internal <code>"machine/update"</code>.</li>
+<li>Ketika notifikasi diterima dari langkah sebelumnya, kode di dalam <em>handler</em> ini akan terpicu.</li>
+</ul>
+<h3 id="pengiriman-pembaruan-ke-klien-uidashboard">4. Pengiriman Pembaruan ke Klien (UI/Dashboard)</h3>
+<ul>
+<li>Setelah menerima notifikasi <code>"machine/update"</code>, server <em>tidak</em> langsung mengirim data mentah. Sebaliknya, ia melakukan hal berikut:
+<ol type="1">
+<li>Server melakukan iterasi melalui semua klien WebSocket yang sedang terhubung.</li>
+<li>Untuk setiap klien, server memeriksa <code>userMessageCache</code> untuk mengetahui data apa yang sedang dilihat oleh klien tersebut (misalnya, <em>timeline</em> hari ini, shift 1).</li>
+<li><strong>Filter Cerdas</strong>: Server hanya akan memproses lebih lanjut jika pembaruan relevan dengan apa yang sedang dilihat klien. Misalnya, jika klien melihat data kemarin, ia tidak akan menerima pembaruan <em>real-time</em> untuk hari ini.</li>
+<li><strong>Pengambilan Data Baru</strong>: Jika relevan, server akan menjalankan kembali fungsi untuk mengambil data yang sudah diformat dari database (misalnya <code>MachineWebsocket.timelines</code> atau <code>MachineWebsocket.percentages</code>).</li>
+<li>Data yang baru dan segar ini kemudian dikirim langsung ke klien yang bersangkutan melalui koneksi WebSocket yang ada.</li>
+</ol></li>
+</ul>
+<h3 id="pembaruan-antarmuka-pengguna-ui">5. Pembaruan Antarmuka Pengguna (UI)</h3>
+<ul>
+<li>Aplikasi frontend (Vue.js) memiliki <em>listener</em> WebSocket yang siaga.</li>
+<li>Ketika pesan baru masuk dari server, frontend akan memperbarui komponen yang relevan (grafik, tabel, dll.) dengan data baru tersebut, sehingga pengguna melihat perubahan secara instan tanpa perlu me-refresh halaman.</li>
+</ul>
+<h2 id="kesimpulan">Kesimpulan</h2>
+<p>Arsitektur ini secara efektif memisahkan antara proses penerimaan data dari mesin (yang bisa sangat sering) dengan proses pengiriman data ke klien. Penggunaan topik MQTT internal (<code>machine/update</code>) sebagai “bus notifikasi” dan cache preferensi klien memastikan bahwa pembaruan dikirim secara efisien hanya kepada klien yang membutuhkannya, sehingga menghemat sumber daya server dan jaringan.</p>
