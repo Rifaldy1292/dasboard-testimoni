@@ -93,6 +93,19 @@ const resources = computed<Resource[]>(() => {
   }))
 })
 
+const isNowDate = computed(() => {
+  const dateFrom = timelineMachines.value?.dateFrom
+    ? new Date(timelineMachines.value.dateFrom)
+    : new Date()
+  const dateTo = timelineMachines.value?.dateTo
+    ? new Date(timelineMachines.value.dateTo)
+    : new Date()
+  return (
+    dateFrom.toLocaleDateString() === new Date().toLocaleDateString() ||
+    dateTo.toLocaleDateString() === new Date().toLocaleDateString()
+  )
+})
+
 // Fungsi untuk menentukan warna berdasarkan status
 const getColorByStatus = (status: Machine['status']): string => {
   if (status === 'Running') return '#25c205'
@@ -240,8 +253,12 @@ const events = computed<CalendarEvent[]>(() => {
 
 // Opsi untuk FullCalendar
 const calendarOptions = computed<CalendarOptions>(() => {
-  const dateFrom = timelineMachines.value?.dateFrom || new Date()
-  const dateTo = timelineMachines.value?.dateTo || new Date()
+  const dateFrom = timelineMachines.value?.dateFrom
+    ? new Date(timelineMachines.value.dateFrom)
+    : new Date()
+  const dateTo = timelineMachines.value?.dateTo
+    ? new Date(timelineMachines.value.dateTo)
+    : new Date()
   const stringDateTo = new Date(dateTo).toLocaleTimeString('en-US', {
     hour12: false
   })
@@ -255,7 +272,6 @@ const calendarOptions = computed<CalendarOptions>(() => {
 
   return {
     noEventsText: 'No Timeline Found',
-    schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
     plugins: [resourceTimelinePlugin, interactionPlugin, timeGridPlugin, dayGridPlugin],
     resourceOrder: (a: any, b: any) => {
       // Urutkan resources berdasarkan nama mesin
@@ -298,7 +314,8 @@ const calendarOptions = computed<CalendarOptions>(() => {
     snapDuration: '00:05:00', // Snapping events ke interval 5 menit
     scrollTime: '00:00:00', // Mulai scroll dari jam 00:00
     resourceAreaWidth: '15%',
-    nowIndicator: true,
+    nowIndicator: isNowDate.value,
+    // nowIndicator: true,
     eventContent: (arg) => {
       // Custom event content
       const eventEl = document.createElement('div')
@@ -443,6 +460,28 @@ const calendarOptions = computed<CalendarOptions>(() => {
         detail: tooltipText.join('\n'),
         life: 10000
       })
+    },
+    viewDidMount: (arg) => {
+      // Auto-scroll to current time when calendar is mounted
+      setTimeout(() => {
+        const calendarApi = arg.view.calendar
+        const currentTime = new Date()
+
+        // Check if current time is within the calendar's visible range
+        const viewStart = arg.view.currentStart
+        const viewEnd = arg.view.currentEnd
+
+        if (currentTime >= viewStart && currentTime <= viewEnd && isNowDate.value) {
+          // Format current time as HH:MM:SS string for scrollToTime
+          const hours = (currentTime.getHours() - 1).toString().padStart(2, '0')
+          const minutes = currentTime.getMinutes().toString().padStart(2, '0')
+          const seconds = currentTime.getSeconds().toString().padStart(2, '0')
+          const timeString = `${hours}:${minutes}:${seconds}`
+
+          // Use FullCalendar's built-in scrollToTime method
+          calendarApi.scrollToTime(timeString)
+        }
+      }, 100) // Small delay to ensure calendar is fully rendered
     }
   }
 })
@@ -458,6 +497,31 @@ watch(
 // Watch perubahan pada toggle untuk memperbarui tampilan
 watch([() => showDetailsInTitle.value, () => events.value, () => slotLabelInterval.value], () => {
   calendarKey.value += 1 // Ubah key untuk memicu re-render
+})
+
+// Reference to FullCalendar instance
+const calendarRef = ref<InstanceType<typeof FullCalendar>>()
+
+// Auto-scroll to current time after calendar re-renders
+watch(calendarKey, () => {
+  // Wait for next tick to ensure calendar is fully rendered
+  setTimeout(() => {
+    if (calendarRef.value) {
+      const calendarApi = calendarRef.value.getApi()
+      const currentTime = new Date()
+
+      if (!isNowDate.value) return // Skip if not current date
+
+      // Format current time as HH:MM:SS string for scrollToTime
+      const hours = (currentTime.getHours() - 1).toString().padStart(2, '0')
+      const minutes = currentTime.getMinutes().toString().padStart(2, '0')
+      const seconds = currentTime.getSeconds().toString().padStart(2, '0')
+      const timeString = `${hours}:${minutes}:${seconds}`
+
+      // Use FullCalendar's built-in scrollToTime method
+      calendarApi.scrollToTime(timeString)
+    }
+  }, 200)
 })
 </script>
 <template>
@@ -490,6 +554,7 @@ watch([() => showDetailsInTitle.value, () => events.value, () => slotLabelInterv
         </DateTimeShiftSelector>
       </div>
       <FullCalendar
+        ref="calendarRef"
         v-if="timelineMachines?.data?.length"
         :options="calendarOptions"
         :key="calendarKey"
