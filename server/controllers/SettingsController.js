@@ -160,23 +160,59 @@ class SettingsController {
 
             if (!id || (target === undefined && target_shift === undefined)) return res.status(400).json({
                 status: 400,
-                message: "Bad Request: id and at least one of target or target_shift are required"
+                message: "Bad Request"
             });
 
             const updateData = {};
             if (target !== undefined) updateData.target = +target;
             if (target_shift !== undefined) {
-                // Validate target_shift structure
-                if (typeof target_shift !== 'object' || 
-                    !target_shift.hasOwnProperty('green') || 
-                    !target_shift.hasOwnProperty('yellow') || 
-                    !target_shift.hasOwnProperty('red')) {
+                // Validate target_shift structure and values
+                if (typeof target_shift !== 'object' || target_shift === null || Array.isArray(target_shift)) {
                     return res.status(400).json({
                         status: 400,
-                        message: "Bad Request: target_shift must contain green, yellow, and red properties"
+                        message: "target_shift harus berupa objek"
                     });
                 }
-                updateData.target_shift = target_shift;
+
+                const requiredFields = ['green', 'yellow', 'red'];
+                for (const field of requiredFields) {
+                    if (!target_shift.hasOwnProperty(field)) {
+                        return res.status(400).json({
+                            status: 400,
+                            message: `target_shift harus memiliki properti ${field}`
+                        });
+                    }
+
+                    const value = target_shift[field];
+                    if (typeof value !== 'number' || isNaN(value) || value < 1 || value > 100) {
+                        return res.status(400).json({
+                            status: 400,
+                            message: `target_shift.${field} harus berupa angka antara 1 dan 100`
+                        });
+                    }
+                }
+
+                // Validate logical order: green >= yellow >= red
+                if (target_shift.green < target_shift.yellow) {
+                    return res.status(400).json({
+                        status: 400,
+                        message: "Target hijau harus lebih besar atau sama dengan target kuning"
+                    });
+                }
+
+                if (target_shift.yellow < target_shift.red) {
+                    return res.status(400).json({
+                        status: 400,
+                        message: "Target kuning harus lebih besar atau sama dengan target merah"
+                    });
+                }
+
+                // Only allow the required fields
+                updateData.target_shift = {
+                    green: target_shift.green,
+                    yellow: target_shift.yellow,
+                    red: target_shift.red
+                };
             }
 
             const [updateCount] = await CuttingTime.update(updateData, {
@@ -187,7 +223,7 @@ class SettingsController {
 
             if (updateCount === 0) return res.status(404).json({
                 status: 404,
-                message: "CuttingTime not found"
+                message: "Data CuttingTime tidak ditemukan"
             });
 
             res.status(204).send();

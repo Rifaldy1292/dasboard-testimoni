@@ -9,11 +9,11 @@ onMounted(async () => {
   await fetchStartTime()
 })
 
-type CuttingTime = { 
-  id: number; 
-  target: number; 
-  target_shift: { green: number; yellow: number; red: number }; 
-  period: string 
+type CuttingTime = {
+  id: number
+  target: number
+  target_shift: { green: number; yellow: number; red: number }
+  period: string
 }
 
 const configs = shallowRef<CuttingTime[]>([])
@@ -43,33 +43,23 @@ const fetchStartTime = async () => {
 }
 
 const handleEditTable = async (event: DataTableCellEditCompleteEvent) => {
+  const { newData, field, newValue, data } = event as DataTableCellEditCompleteEvent & {
+    newData: CuttingTime
+    field: keyof CuttingTime | string
+    newValue: string | number
+    data: CuttingTime
+  }
+
+  console.log({ newData, field, newValue, data }, 555)
   try {
     loading.value = true
-    const { newData, field, newValue, data } = event as DataTableCellEditCompleteEvent & {
-      newData: CuttingTime
-      field: keyof CuttingTime | string
-      newValue: string | number
-      data: CuttingTime
-    }
-    
-    // Handle different field types
-    let updateBody: { target?: number; target_shift?: { green: number; yellow: number; red: number } } = {}
-    
-    if (field === 'target') {
-      if (data[field] === +newValue) return
-      updateBody.target = +newValue
-    } else if (field?.startsWith('target_shift.')) {
-      const shiftField = field.split('.')[1] as 'green' | 'yellow' | 'red'
-      if (data.target_shift[shiftField] === +newValue) return
-      updateBody.target_shift = { ...data.target_shift, [shiftField]: +newValue }
-    }
 
-    await SettingServices.pacthEditCuttingTime(newData.id, updateBody)
+    await SettingServices.pacthEditCuttingTime(newData.id, newData)
     toast.add({ severity: 'success', summary: 'Success', detail: 'Update success' })
-    await fetchStartTime()
   } catch (error) {
     handleErrorAPI(error, toast)
   } finally {
+    await fetchStartTime()
     loading.value = false
   }
 }
@@ -91,7 +81,7 @@ const handleEditTable = async (event: DataTableCellEditCompleteEvent) => {
           <InputNumber v-model="data[field]" :min="1" />
         </template>
       </Column>
-      
+
       <!-- Target Shift columns -->
       <Column field="target_shift.green" header="Target Green (≥)">
         <template #body="{ data }">
@@ -101,10 +91,16 @@ const handleEditTable = async (event: DataTableCellEditCompleteEvent) => {
           </span>
         </template>
         <template #editor="{ data }">
-          <InputNumber v-model="data.target_shift.green" :min="1" :max="100" />
+          <InputNumber
+            v-model="data.target_shift.green"
+            :min="1"
+            :max="100"
+            :allowEmpty="false"
+            :placeholder="data.target_shift.green?.toString() || '1'"
+          />
         </template>
       </Column>
-      
+
       <Column field="target_shift.yellow" header="Target Yellow (≥)">
         <template #body="{ data }">
           <span class="inline-flex items-center gap-1">
@@ -113,10 +109,16 @@ const handleEditTable = async (event: DataTableCellEditCompleteEvent) => {
           </span>
         </template>
         <template #editor="{ data }">
-          <InputNumber v-model="data.target_shift.yellow" :min="1" :max="100" />
+          <InputNumber
+            v-model="data.target_shift.yellow"
+            :min="1"
+            :max="100"
+            :allowEmpty="false"
+            :placeholder="data.target_shift.yellow?.toString() || '1'"
+          />
         </template>
       </Column>
-      
+
       <Column field="target_shift.red" header="Target Red (<)">
         <template #body="{ data }">
           <span class="inline-flex items-center gap-1">
@@ -125,7 +127,13 @@ const handleEditTable = async (event: DataTableCellEditCompleteEvent) => {
           </span>
         </template>
         <template #editor="{ data }">
-          <InputNumber v-model="data.target_shift.red" :min="1" :max="100" />
+          <InputNumber
+            v-model="data.target_shift.red"
+            :min="1"
+            :max="100"
+            :allowEmpty="false"
+            :placeholder="data.target_shift.red?.toString() || '1'"
+          />
         </template>
       </Column>
     </DataTable>

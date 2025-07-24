@@ -31,6 +31,34 @@ module.exports = (sequelize, DataTypes) => {
         green: 10,
         yellow: 8,
         red: 8
+      },
+      validate: {
+        isValidTargetShift(value) {
+          if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+            throw new Error('target_shift must be an object');
+          }
+
+          const requiredFields = ['green', 'yellow', 'red'];
+          for (const field of requiredFields) {
+            if (!value.hasOwnProperty(field)) {
+              throw new Error(`target_shift must contain ${field} property`);
+            }
+
+            const fieldValue = value[field];
+            if (typeof fieldValue !== 'number' || isNaN(fieldValue) || fieldValue < 1 || fieldValue > 100) {
+              throw new Error(`target_shift.${field} must be a number between 1 and 100`);
+            }
+          }
+
+          // Validate logical order
+          if (value.green < value.yellow) {
+            throw new Error('Green target must be greater than or equal to yellow target');
+          }
+
+          if (value.yellow < value.red) {
+            throw new Error('Yellow target must be greater than or equal to red target');
+          }
+        }
       }
     }
   }, {
