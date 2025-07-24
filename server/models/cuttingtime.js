@@ -23,6 +23,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 600
+    },
+    target_shift: {
+      type: DataTypes.JSONB,
+      allowNull: false,
+      defaultValue: {
+        green: 10,
+        yellow: 8,
+        red: 8
+      }
     }
   }, {
     sequelize,

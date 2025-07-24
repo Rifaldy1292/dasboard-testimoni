@@ -99,7 +99,7 @@ class SettingsController {
     static async getListCuttingTime(req, res) {
         try {
             const data = await CuttingTime.findAll({
-                attributes: ["id", "target", 'period'],
+                attributes: ["id", "target", "target_shift", 'period'],
                 order: [["period", "DESC"]],
             });
 
@@ -156,16 +156,30 @@ class SettingsController {
     static async editCuttingTime(req, res) {
         try {
             const { id } = req.params;
-            const { target } = req.body;
+            const { target, target_shift } = req.body;
 
-            if (!id || target === undefined) return res.status(400).json({
+            if (!id || (target === undefined && target_shift === undefined)) return res.status(400).json({
                 status: 400,
-                message: "Bad Request: id and target are required"
+                message: "Bad Request: id and at least one of target or target_shift are required"
             });
 
-            const [updateCount] = await CuttingTime.update({
-                target: +target
-            }, {
+            const updateData = {};
+            if (target !== undefined) updateData.target = +target;
+            if (target_shift !== undefined) {
+                // Validate target_shift structure
+                if (typeof target_shift !== 'object' || 
+                    !target_shift.hasOwnProperty('green') || 
+                    !target_shift.hasOwnProperty('yellow') || 
+                    !target_shift.hasOwnProperty('red')) {
+                    return res.status(400).json({
+                        status: 400,
+                        message: "Bad Request: target_shift must contain green, yellow, and red properties"
+                    });
+                }
+                updateData.target_shift = target_shift;
+            }
+
+            const [updateCount] = await CuttingTime.update(updateData, {
                 where: {
                     id
                 }
