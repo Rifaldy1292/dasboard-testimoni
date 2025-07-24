@@ -152,5 +152,34 @@ class SettingsController {
             serverError(error, res, "Failed to create daily config");
         }
     }
+
+    static async editCuttingTime(req, res) {
+        try {
+            const { id } = req.params;
+            const { target } = req.body;
+
+            if (!id || target === undefined) return res.status(400).json({
+                status: 400,
+                message: "Bad Request: id and target are required"
+            });
+
+            const [updateCount] = await CuttingTime.update({
+                target: +target
+            }, {
+                where: {
+                    id
+                }
+            });
+
+            if (updateCount === 0) return res.status(404).json({
+                status: 404,
+                message: "CuttingTime not found"
+            });
+
+            res.status(204).send();
+        } catch (error) {
+            serverError(error, res, "Failed to edit cutting time");
+        }
+    }
 }
 module.exports = SettingsController;

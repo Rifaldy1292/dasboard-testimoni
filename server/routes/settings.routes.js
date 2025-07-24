@@ -8,5 +8,10 @@ settingsRoutes.patch('/daily-config', authMiddleware, SettingsController.editDai
 settingsRoutes.delete('/daily-config/:id', authMiddleware, SettingsController.deleteDailyConfig)
 settingsRoutes.get('/cutting-times', authMiddleware, SettingsController.getListCuttingTime)
 settingsRoutes.post('/daily-config', authMiddleware, SettingsController.createDailyConfig)
+settingsRoutes.patch(
+    "/cutting-time/:id",
+    authMiddleware,
+    SettingsController.editCuttingTime
+)
 
 module.exports = settingsRoutes;
