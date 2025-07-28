@@ -28,6 +28,12 @@ export interface MachineInfo {
 
 export interface CuttingTimeMachine {
   period: string
+  target: number
+  target_shift: {
+    green: number
+    yellow: number
+    red: number
+  }
   allDateInMonth: number[]
   data: MachineInfo[]
 }

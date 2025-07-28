@@ -33,6 +33,11 @@ const { coordinateOptions, coolantOptions, processTypeOptions, zoolerOptions } =
 
 const loadingFetch = shallowRef<boolean>(false)
 const cuttingTimeMachines = ref<CuttingTimeMachine | undefined>(undefined)
+const colorThresholds = ref({
+  green: 10,
+  yellow: 8,
+  red: 8
+})
 const selectedMachines = ref<MachineOption[]>([])
 const selectedOneMachine = ref<MachineOption | undefined>(undefined)
 const loadingDropdown = shallowRef<boolean>(false)
@@ -56,6 +61,15 @@ export const useMachine = () => {
       const { data } = await MachineServices.getCuttingTime(params)
       console.log(data.data)
       cuttingTimeMachines.value = data.data
+      
+      // Update color thresholds from backend
+      if (data.data.target_shift) {
+        colorThresholds.value = {
+          green: data.data.target_shift.green,
+          yellow: data.data.target_shift.yellow,
+          red: data.data.target_shift.red
+        }
+      }
     } catch (error) {
       handleErrorAPI(error, toast)
     } finally {
@@ -81,6 +95,7 @@ export const useMachine = () => {
   return {
     loadingFetch,
     cuttingTimeMachines,
+    colorThresholds,
     getCuttingTime,
     loadingDropdown,
     getMachineOptions,

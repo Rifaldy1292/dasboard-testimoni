@@ -28,15 +28,10 @@ interface ColumnDef {
 }
 
 const toast = useToast()
-const { cuttingTimeMachines, loadingFetch } = useMachine()
+const { cuttingTimeMachines, loadingFetch, colorThresholds } = useMachine()
 
 // Define shift types with type safety
 const shiftTypes: Array<keyof ShiftInfo> = ['shift1', 'shift2']
-const colorCount = ref({
-  green: 10,
-  yellow: 8,
-  red: 8
-})
 
 const machineData = computed<MachineInfo[]>(() => {
   if (!cuttingTimeMachines.value) return []
@@ -127,11 +122,11 @@ function isShiftField(field: string): boolean {
 
 const getColorColumn = (value: number) => {
   // green
-  if (value >= colorCount.value.green) return '#22c55e'
+  if (value >= colorThresholds.value.green) return '#22c55e'
   // yellow
-  if (value >= colorCount.value.yellow) return '#f59e0b'
+  if (value >= colorThresholds.value.yellow) return '#f59e0b'
   // red
-  if (value < colorCount.value.red) return '#ef4444'
+  if (value < colorThresholds.value.red) return '#ef4444'
 }
 
 // Export function dengan format yang sama seperti di web
@@ -258,11 +253,11 @@ const exportXLSX = () => {
 
         // Apply color coding berdasarkan nilai
         if (typeof cellValue === 'number') {
-          if (cellValue >= colorCount.value.green) {
+          if (cellValue >= colorThresholds.value.green) {
             fontColor = '22C55E' // green
-          } else if (cellValue >= colorCount.value.yellow) {
+          } else if (cellValue >= colorThresholds.value.yellow) {
             fontColor = 'F59E0B' // yellow
-          } else if (cellValue < colorCount.value.red) {
+          } else if (cellValue < colorThresholds.value.red) {
             fontColor = 'EF4444' // red
           }
         }
@@ -325,7 +320,7 @@ const getTableHeight = computed(() => {
 </script>
 
 <template>
-  <CuttingTimeTarget v-model="colorCount" />
+  <CuttingTimeTarget v-model="colorThresholds" />
   <DataTable
     :value="transformedData"
     :loading="loadingFetch"
