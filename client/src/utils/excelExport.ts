@@ -20,9 +20,12 @@ export function exportTimelineToExcel(data: MonthlyLogs[], filename: string): vo
       Operator: log.operator || '-',
       Description: log.description || '-',
       'Total (in seconds)': log.total || 0,
-      'Total (in hh:mm:ss)': log.total || 0,
+      // Gunakan objek sel untuk format angka kustom
+      'Total (in hh:mm:ss)':
+        log.total > 0 ? { v: log.total / 86400, t: 'n', z: '[hh]:mm:ss' } : '-', // Tetap tampilkan '-' jika tidak ada durasi
+
       Start: log.start || '-',
-      End: log.total2 || '-'
+      End: log.end || '-'
     }))
 
     // Create workbook
@@ -32,7 +35,7 @@ export function exportTimelineToExcel(data: MonthlyLogs[], filename: string): vo
     const worksheet = XLSX.utils.json_to_sheet(excelData)
 
     // Set column widths
-    const columnWidths = [
+    const columnWidths: XLSX.ColInfo[] = [
       { wch: 5 }, // No.
       { wch: 15 }, // Machine Name
       { wch: 12 }, // Date

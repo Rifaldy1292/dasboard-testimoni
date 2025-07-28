@@ -6,24 +6,6 @@ const { getMachineTimeline, handleGetCuttingTime } = require("../utils/machineUt
 const { Op } = require("sequelize");
 
 
-
-/**
- * 
- * @param {number} ms 
- * @returns {string} formatted time difference in hh:mm:ss
- */
-function formatTimeDifference(ms) {
-  const totalSeconds = Math.floor(ms / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  return `${hours.toString().padStart(2, "0")}:${minutes
-    .toString()
-    .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-}
-
-
 class MachineController {
   /**
 interface ShiftTime {
@@ -268,7 +250,6 @@ interface DummyData {
 
             // Time difference seconds
             total: Math.round(timeDifference / 1000), // convert milliseconds to seconds
-            total2: formatTimeDifference(timeDifference), // formatted time difference
           };
 
         })
