@@ -20,9 +20,9 @@ export function exportTimelineToExcel(data: MonthlyLogs[], filename: string): vo
       Operator: log.operator || '-',
       Description: log.description || '-',
       'Total (in seconds)': log.total || 0,
-      'Total (in hh:mm:ss)': log.total2 || '-',
+      'Total (in hh:mm:ss)': log.total || 0,
       Start: log.start || '-',
-      End: log.end || '-'
+      End: log.total2 || '-'
     }))
 
     // Create workbook
@@ -36,16 +36,16 @@ export function exportTimelineToExcel(data: MonthlyLogs[], filename: string): vo
       { wch: 5 }, // No.
       { wch: 15 }, // Machine Name
       { wch: 12 }, // Date
-      { wch: 10 }, // Time
-      { wch: 15 }, // Current Status
-      { wch: 20 }, // G Code Name
-      { wch: 15 }, // K Number
-      { wch: 12 }, // Output WP
-      { wch: 20 }, // Operator
+      { wch: 10 }, // Status
+      { wch: 15 }, // G Code Name
+      { wch: 20 }, // K Number
+      { wch: 15 }, // Output WP
+      { wch: 12 }, // Operator
       { wch: 30 }, // Description
-      { wch: 20 }, // Time Difference (seconds)
-      { wch: 20 }, // Time Difference (minutes)
-      { wch: 20 } // Time Difference (hours)
+      { wch: 20 }, // Total (in seconds)
+      { wch: 20 }, // Total (in hh:mm:ss)
+      { wch: 12 }, // Start
+      { wch: 12 } // End
     ]
     worksheet['!cols'] = columnWidths
 
