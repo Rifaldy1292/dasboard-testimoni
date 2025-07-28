@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Button, Inplace, InputNumber } from 'primevue'
-import { computed, ref } from 'vue'
+import { computed, shallowRef } from 'vue'
 import SettingServices from '@/services/setting.service'
 import useToast from '@/composables/useToast'
 import { useMachine } from '@/composables/useMachine'
@@ -10,31 +10,32 @@ type ColorCount = {
   yellow: number
   red: number
 }
-const colorCount = defineModel<ColorCount>({
-  required: true
-})
 
 const toast = useToast()
-const { currentCuttingTimeId } = useMachine()
-const isUpdating = ref(false)
+const { cuttingTimeMachines } = useMachine()
+const isUpdating = shallowRef(false)
+
+// Get target_shift directly from cutting time data
+const colorCount = computed(() => {
+  return cuttingTimeMachines.value?.target_shift || {
+    green: 10,
+    yellow: 8,
+    red: 8
+  }
+})
 
 // Debounce timer
 let debounceTimer: number | null = null
 
 // Function to update color thresholds in database with debouncing
 const updateColorThreshold = (colorKey: keyof ColorCount, newValue: number) => {
-  if (!currentCuttingTimeId.value) {
-    toast.add({
-      severity: 'error',
-      summary: 'Update Failed',
-      detail: 'No cutting time data available',
-      life: 3000
-    })
+  if (!cuttingTimeMachines.value) {
+    console.error('No cutting time machine data available')
     return
   }
 
   // Update local state immediately for responsive UI
-  colorCount.value[colorKey] = newValue
+  cuttingTimeMachines.value.target_shift[colorKey] = newValue
 
   // Clear existing timer
   if (debounceTimer) {
@@ -48,13 +49,13 @@ const updateColorThreshold = (colorKey: keyof ColorCount, newValue: number) => {
 
       // Prepare the target_shift object for the API
       const target_shift = {
-        green: colorCount.value.green,
-        yellow: colorCount.value.yellow,
-        red: colorCount.value.red
+        green: cuttingTimeMachines.value!.target_shift.green,
+        yellow: cuttingTimeMachines.value!.target_shift.yellow,
+        red: cuttingTimeMachines.value!.target_shift.red
       }
 
       // Call the API to update the database
-      await SettingServices.pacthEditCuttingTime(currentCuttingTimeId.value!, {
+      await SettingServices.pacthEditCuttingTime(cuttingTimeMachines.value?.id!, {
         target_shift
       })
 

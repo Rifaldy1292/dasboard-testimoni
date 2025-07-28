@@ -3,7 +3,7 @@ import MachineServices from '@/services/machine.service'
 import type { MachineOption } from '@/types/machine.type'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import useToast from '@/composables/useToast'
-import { ref, shallowRef, computed } from 'vue'
+import { ref, shallowRef } from 'vue'
 import type { CuttingTimeMachine } from '@/types/cuttingTime.type'
 
 type ProcessType = 'NC' | 'Drill'
@@ -33,11 +33,6 @@ const { coordinateOptions, coolantOptions, processTypeOptions, zoolerOptions } =
 
 const loadingFetch = shallowRef<boolean>(false)
 const cuttingTimeMachines = ref<CuttingTimeMachine | undefined>(undefined)
-const colorThresholds = ref({
-  green: 10,
-  yellow: 8,
-  red: 8
-})
 const selectedMachines = ref<MachineOption[]>([])
 const selectedOneMachine = ref<MachineOption | undefined>(undefined)
 const loadingDropdown = shallowRef<boolean>(false)
@@ -55,26 +50,12 @@ const selectedProcessType = shallowRef<'NC' | 'Drill'>(processTypeOptions[0])
 export const useMachine = () => {
   const toast = useToast()
 
-  // Computed property to get current cutting time ID
-  const currentCuttingTimeId = computed(() => {
-    return cuttingTimeMachines.value?.id || null
-  })
-
   const getCuttingTime = async (params: ParamsGetCuttingTime) => {
     loadingFetch.value = true
     try {
       const { data } = await MachineServices.getCuttingTime(params)
       console.log(data.data)
       cuttingTimeMachines.value = data.data
-      
-      // Update color thresholds from backend
-      if (data.data.target_shift) {
-        colorThresholds.value = {
-          green: data.data.target_shift.green,
-          yellow: data.data.target_shift.yellow,
-          red: data.data.target_shift.red
-        }
-      }
     } catch (error) {
       handleErrorAPI(error, toast)
     } finally {
@@ -100,8 +81,6 @@ export const useMachine = () => {
   return {
     loadingFetch,
     cuttingTimeMachines,
-    colorThresholds,
-    currentCuttingTimeId,
     getCuttingTime,
     loadingDropdown,
     getMachineOptions,

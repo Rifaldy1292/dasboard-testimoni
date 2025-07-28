@@ -28,7 +28,16 @@ interface ColumnDef {
 }
 
 const toast = useToast()
-const { cuttingTimeMachines, loadingFetch, colorThresholds } = useMachine()
+const { cuttingTimeMachines, loadingFetch } = useMachine()
+
+// Get colorThresholds directly from cuttingTimeMachines
+const colorThresholds = computed(() => {
+  return cuttingTimeMachines.value?.target_shift || {
+    green: 10,
+    yellow: 8,
+    red: 8
+  }
+})
 
 // Define shift types with type safety
 const shiftTypes: Array<keyof ShiftInfo> = ['shift1', 'shift2']
@@ -320,7 +329,7 @@ const getTableHeight = computed(() => {
 </script>
 
 <template>
-  <CuttingTimeTarget v-model="colorThresholds" />
+  <CuttingTimeTarget />
   <DataTable
     :value="transformedData"
     :loading="loadingFetch"
