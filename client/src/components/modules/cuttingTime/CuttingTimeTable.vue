@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { DataTable, Column, ColumnGroup, Row, Divider, Button } from 'primevue'
 import type { MachineInfo, ShiftInfo } from '@/types/cuttingTime.type'
 import { useMachine } from '@/composables/useMachine'

@@ -3,7 +3,7 @@ import MachineServices from '@/services/machine.service'
 import type { MachineOption } from '@/types/machine.type'
 import { handleErrorAPI } from '@/utils/handleErrorAPI'
 import useToast from '@/composables/useToast'
-import { ref, shallowRef } from 'vue'
+import { ref, shallowRef, computed } from 'vue'
 import type { CuttingTimeMachine } from '@/types/cuttingTime.type'
 
 type ProcessType = 'NC' | 'Drill'
@@ -55,6 +55,11 @@ const selectedProcessType = shallowRef<'NC' | 'Drill'>(processTypeOptions[0])
 export const useMachine = () => {
   const toast = useToast()
 
+  // Computed property to get current cutting time ID
+  const currentCuttingTimeId = computed(() => {
+    return cuttingTimeMachines.value?.id || null
+  })
+
   const getCuttingTime = async (params: ParamsGetCuttingTime) => {
     loadingFetch.value = true
     try {
@@ -96,6 +101,7 @@ export const useMachine = () => {
     loadingFetch,
     cuttingTimeMachines,
     colorThresholds,
+    currentCuttingTimeId,
     getCuttingTime,
     loadingDropdown,
     getMachineOptions,

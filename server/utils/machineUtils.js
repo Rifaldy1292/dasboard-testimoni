@@ -393,7 +393,7 @@ const handleGetCuttingTime = async (date, machineIds = null) => {
     // {period: "2025-05-31", target: 600, target_shift: {green: 10, yellow: 8, red: 8}}
     const cuttingTime = await CuttingTime.findOne({
       where: { period: dateResult },
-      attributes: ["period", "target", "target_shift"],
+      attributes: ["id", "period", "target", "target_shift"],
       raw: true,
     });
 

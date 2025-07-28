@@ -27,6 +27,7 @@ export interface MachineInfo {
 }
 
 export interface CuttingTimeMachine {
+  id: number
   period: string
   target: number
   target_shift: {

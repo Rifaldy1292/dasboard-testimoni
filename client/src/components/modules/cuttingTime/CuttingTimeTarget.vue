@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { Button, Inplace, InputNumber } from 'primevue'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import SettingServices from '@/services/setting.service'
+import useToast from '@/composables/useToast'
+import { useMachine } from '@/composables/useMachine'
 
 type ColorCount = {
   green: number
@@ -10,6 +13,80 @@ type ColorCount = {
 const colorCount = defineModel<ColorCount>({
   required: true
 })
+
+const toast = useToast()
+const { currentCuttingTimeId } = useMachine()
+const isUpdating = ref(false)
+
+// Debounce timer
+let debounceTimer: number | null = null
+
+// Function to update color thresholds in database with debouncing
+const updateColorThreshold = (colorKey: keyof ColorCount, newValue: number) => {
+  if (!currentCuttingTimeId.value) {
+    toast.add({
+      severity: 'error',
+      summary: 'Update Failed',
+      detail: 'No cutting time data available',
+      life: 3000
+    })
+    return
+  }
+
+  // Update local state immediately for responsive UI
+  colorCount.value[colorKey] = newValue
+
+  // Clear existing timer
+  if (debounceTimer) {
+    clearTimeout(debounceTimer)
+  }
+
+  // Set up debounced API call
+  debounceTimer = setTimeout(async () => {
+    try {
+      isUpdating.value = true
+
+      // Prepare the target_shift object for the API
+      const target_shift = {
+        green: colorCount.value.green,
+        yellow: colorCount.value.yellow,
+        red: colorCount.value.red
+      }
+
+      // Call the API to update the database
+      await SettingServices.pacthEditCuttingTime(currentCuttingTimeId.value!, {
+        target_shift
+      })
+
+      toast.add({
+        severity: 'success',
+        summary: 'Saved',
+        detail: 'Color thresholds updated successfully',
+        life: 3000
+      })
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.add({
+          severity: 'error',
+          summary: 'Update Failed',
+          detail: error.message,
+          life: 3000
+        })
+        return
+      }
+      console.error('Error updating color threshold:', error)
+      toast.add({
+        severity: 'error',
+        summary: 'Update Failed',
+        detail: 'Failed to save color threshold changes',
+        life: 3000
+      })
+    } finally {
+      isUpdating.value = false
+    }
+  }, 800) // Wait 800ms after the last change before saving
+}
+
 const colorInformation = computed<
   { color: string; label: string; value: number; colorText: keyof ColorCount }[]
 >(() => [
@@ -41,14 +118,16 @@ const colorInformation = computed<
         <template #display>
           <div class="w-10 h-10" :style="{ backgroundColor: item.color }" />
           <span>{{ item.label }}</span>
+          <i v-if="isUpdating" class="pi pi-spinner pi-spin ml-2 text-gray-500" />
         </template>
         <template #content="{ closeCallback }">
           <div class="flex gap-2">
             <InputNumber
-              @update:model-value="(e) => (colorCount[item.colorText] = e)"
+              @update:model-value="(newValue) => updateColorThreshold(item.colorText, newValue)"
               :model-value="item.value"
               :min="1"
               :max="100"
+              :disabled="isUpdating"
               inputId="input-number"
               :style="{ backgroundColor: item.color, color: '#fff' }"
               :aria-label="item.label"
