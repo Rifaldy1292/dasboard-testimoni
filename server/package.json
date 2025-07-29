@@ -19,7 +19,10 @@
     "db:restore": "cmd /c \"\"C:\\Program Files\\PostgreSQL\\17\\bin\\pg_restore.exe\" -U postgres -h localhost -p 5432 -d yamaha_dashboard_machine -v D:\\projects\\dashboard-machine\\server\\backup\\dashboard_machine_backup.dump\"",
     "full-restore": "pnpm run db:drop && pnpm run db:create && pnpm run db:restore",
     "full-restore:linux": "pnpm run db:drop && pnpm run db:create && pg_restore -U postgres -h localhost -p 5432 -d yamaha_dashboard_machine -v ./backup/dashboard_machine_backup.dump",
-    "full-restore:prod": "sequelize-cli db:drop && sequelize-cli db:create && cmd /c \"\"C:\\Program Files\\PostgreSQL\\17\\bin\\pg_restore.exe\" -U postgres -h localhost -p 5432 -d yamaha_dashboard_machine -v D:\\dashboard-machine\\server\\backup\\dashboard_machine_backup.dump\""
+    "full-restore:prod": "sequelize-cli db:drop && sequelize-cli db:create && cmd /c \"\"C:\\Program Files\\PostgreSQL\\17\\bin\\pg_restore.exe\" -U postgres -h localhost -p 5432 -d yamaha_dashboard_machine -v D:\\dashboard-machine\\server\\backup\\dashboard_machine_backup.dump\"",
+    "db:restore:new": "cmd /c \"\"C:\\Program Files\\PostgreSQL\\17\\bin\\pg_restore.exe\" -U postgres -h localhost -p 5432 -d yamaha_dashboard_machine -v c:\\Users\\jonfr\\Downloads\\dashboard-machine\\server\\backup\\dashboard_machine_backup.dump\"",
+    "full-restore:new": "pnpm run db:drop && pnpm run db:create && pnpm run db:restore:new",
+    "db:list-backup": "dir c:\\Users\\jonfr\\Downloads\\dashboard-machine\\server\\backup"
   },
   "keywords": [],
   "author": "",

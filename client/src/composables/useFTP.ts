@@ -175,15 +175,20 @@ export const useFTP = () => {
  */
 
           const { content, ...res } = await readFile(file)
-          // Find the first % and insert O0031 after it
-          const percentIndex = content.indexOf('%')
-          let newContent = content
+          // Replace any O followed by 4 digits with O0031
+          // Pattern: O followed by exactly 4 digits
+          const oNumberPattern = /O\d{4}/g
+          let newContent = content.replace(oNumberPattern, 'O0031')
           const name = 'O0031'
 
-          if (percentIndex !== -1) {
-            // Insert O0031 after the % and newline
-            const afterPercent = content.substring(percentIndex + 1)
-            newContent = content.substring(0, percentIndex + 1) + '\n' + name + afterPercent
+          // Check if O0031 already exists in content, if not add it after first %
+          if (!newContent.includes('O0031')) {
+            const percentIndex = newContent.indexOf('%')
+            if (percentIndex !== -1) {
+              // Insert O0031 after the % and newline
+              const afterPercent = newContent.substring(percentIndex + 1)
+              newContent = newContent.substring(0, percentIndex + 1) + '\n' + name + afterPercent
+            }
           }
 
           return {
