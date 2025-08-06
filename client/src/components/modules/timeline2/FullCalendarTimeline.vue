@@ -208,14 +208,23 @@ const calendarOptions = computed<CalendarOptions>(() => {
   const stringDateTo = new Date(dateTo).toLocaleTimeString('en-US', {
     hour12: false
   })
-
+  console.log(dateTo, dateFrom)
   let slotMaxTime: string = stringDateTo
   // if day dateTo > dateFrom, set slotMaxTime to +1 day
   if (new Date(dateTo).getDate() > new Date(dateFrom).getDate()) {
     const newHour = new Date(dateTo).getHours() + 24
     slotMaxTime = `${newHour}:${stringDateTo.split(':')[1]}:${stringDateTo.split(':')[2]}`
+  } else if (
+    [30, 31].includes(new Date(dateFrom).getDate()) &&
+    new Date(dateTo).getDate() === 1 &&
+    new Date(dateFrom).getMonth() !== new Date(dateTo).getMonth() &&
+    new Date(dateTo).getTime() > new Date(dateFrom).getTime()
+  ) {
+    console.log('ini terpanggil')
+    const newHour = new Date(dateTo).getHours() + 24
+    slotMaxTime = `${newHour}:${stringDateTo.split(':')[1]}:${stringDateTo.split(':')[2]}`
   }
-
+  console.log(slotMaxTime)
   return {
     noEventsText: 'No Timeline Found',
     plugins: [resourceTimelinePlugin, interactionPlugin, timeGridPlugin, dayGridPlugin],
@@ -378,6 +387,40 @@ const calendarOptions = computed<CalendarOptions>(() => {
       const tooltipText = []
       // time
       tooltipText.push(`Time: ${info.event.title || '-'}`)
+      // const title = info.event.title || ''
+
+      // const match = title.match(/(?:(\d+)m)?\s*(?:(\d+)s)?/)
+      // let minutes = 0
+      // let seconds = 0
+
+      // if (match) {
+      //   minutes = Number(match[1]) || 0
+      //   seconds = Number(match[2]) || 0
+      // }
+
+      // // total detik × 2
+      // const totalSeconds = (minutes * 60 + seconds) * 2
+
+      // // konversi ke jam-menit-detik
+      // const hours = Math.floor(totalSeconds / 3600)
+      // const remainingSeconds = totalSeconds % 3600
+      // const finalMinutes = Math.floor(remainingSeconds / 60)
+      // const finalSeconds = remainingSeconds % 60
+
+      // // buat string tampilan waktu
+      // let timeText = ''
+      // if (hours > 0) {
+      //   timeText += `${hours}h `
+      // }
+      // if (finalMinutes > 0 || hours > 0) {
+      //   timeText += `${finalMinutes}m `
+      // }
+      // timeText += `${finalSeconds}s`
+
+      // tooltipText.push(`Time: ${timeText.trim()}`)
+
+      console.log(info.event.title)
+      console.log('tes')
       tooltipText.push(`Status: ${status || '-'}`)
       status !== 'Running' && tooltipText.push(`Description: ${description || '-'}`)
       tooltipText.push(`K-NUMBER: ${k_num || '-'}`)
@@ -432,6 +475,7 @@ const calendarRef = ref<InstanceType<typeof FullCalendar>>()
 // Auto-scroll to current time after calendar re-renders
 watch(
   () => props.calendarKey,
+
   () => {
     // Wait for next tick to ensure calendar is fully rendered
     setTimeout(() => {

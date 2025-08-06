@@ -32,11 +32,13 @@ const { cuttingTimeMachines, loadingFetch } = useMachine()
 
 // Get colorThresholds directly from cuttingTimeMachines
 const colorThresholds = computed(() => {
-  return cuttingTimeMachines.value?.target_shift || {
-    green: 10,
-    yellow: 8,
-    red: 8
-  }
+  return (
+    cuttingTimeMachines.value?.target_shift || {
+      green: 10,
+      yellow: 8,
+      red: 8
+    }
+  )
 })
 
 // Define shift types with type safety
@@ -173,7 +175,7 @@ const exportXLSX = () => {
     // Data rows
     transformedData.value.forEach((row) => {
       // Row untuk calculate values (baris atas)
-      const calculateRow = [row.machineName]
+      const calculateRow: (string | number)[] = [row.machineName]
       daysConfig.value.forEach((day) => {
         const shift1Key = `day${day.date}_shift1`
         const shift2Key = `day${day.date}_shift2`
@@ -181,16 +183,13 @@ const exportXLSX = () => {
         const shift1Data = row[shift1Key] as { data: number; combine: number; calculate: number }
         const shift2Data = row[shift2Key] as { data: number; combine: number; calculate: number }
 
-        calculateRow.push(
-          shift1Data?.calculate.toString() || '0',
-          shift2Data?.calculate.toString() || '0'
-        )
+        calculateRow.push(shift1Data?.calculate || 0, shift2Data?.calculate || 0)
       })
       worksheetData.push(calculateRow)
 
       // Row untuk data values (baris bawah) - hanya jika bukan TARGET
       if (row.machineName !== 'TARGET') {
-        const dataRow = [''] // Empty machine name untuk baris kedua
+        const dataRow: (string | number)[] = [''] // Empty machine name untuk baris kedua
         daysConfig.value.forEach((day) => {
           const shift1Key = `day${day.date}_shift1`
           const shift2Key = `day${day.date}_shift2`
@@ -198,7 +197,7 @@ const exportXLSX = () => {
           const shift1Data = row[shift1Key] as { data: number; combine: number; calculate: number }
           const shift2Data = row[shift2Key] as { data: number; combine: number; calculate: number }
 
-          dataRow.push(shift1Data?.data.toString() || '0', shift2Data?.data.toString() || '0')
+          dataRow.push(shift1Data?.data || 0, shift2Data?.data || 0)
         })
         worksheetData.push(dataRow)
       }
