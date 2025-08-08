@@ -22,7 +22,7 @@ import {
   showConfirmTimeline
 } from './utils/handleSelectMachine.util'
 import { AxiosError } from 'axios'
-
+import { watch } from 'vue'
 onUnmounted(() => {
   handleClearFile()
 })
@@ -218,6 +218,17 @@ const handleChange = async (event: Event) => {
     console.error('Error in handleChange:', error)
   }
 }
+
+watch(
+  () => selectedOneMachine.value,
+  (newMachine: MachineOption | undefined) => {
+    if (newMachine?.startMacro) {
+      console.log('Start Macro:', newMachine.startMacro)
+    } else {
+      console.log('Belum ada startMacro atau mesin belum dipilih')
+    }
+  }
+)
 </script>
 
 <template>
