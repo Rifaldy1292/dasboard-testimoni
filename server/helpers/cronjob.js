@@ -10,6 +10,7 @@ const {
 } = require("../utils/logger"); // Import helper functions
 const { machineCache } = require("../cache");
 const { setupMachineCache } = require("../mqtt/MachineMqtt");
+const { runDatabaseBackup } = require("./backupDb");
 
 /**
  * Creates a new cutting time entry for the current period if one doesn't exist.
@@ -92,7 +93,7 @@ const createDailyConfig = async () => {
 const handleResetMachineStatus = async () => {
   const CONTEXT = "handleResetMachineStatus";
   try {
-    console.log('trigger form cronjob handleResetMachineStatus');
+    console.log("trigger form cronjob handleResetMachineStatus");
 
     // Check cache state before reset
     const cacheSize = machineCache.size();
@@ -120,12 +121,9 @@ const handleResetMachineStatus = async () => {
     machineCache.reset();
 
     const afterResetSize = machineCache.size();
-    machineLoggerInfo(
-      `Reset completed: ${afterResetSize} machines`,
-      CONTEXT,
-      { afterResetSize }
-    );
-
+    machineLoggerInfo(`Reset completed: ${afterResetSize} machines`, CONTEXT, {
+      afterResetSize,
+    });
   } catch (error) {
     machineLoggerError(error, CONTEXT);
   }
@@ -247,6 +245,21 @@ const handleCronJob = async () => {
     machineLoggerInfo("Starting weekly log cleanup job");
     cleanupLogFiles();
     machineLoggerInfo("Weekly log cleanup job completed");
+  });
+  cron.schedule("30 0 * * *", async () => {
+    machineLoggerInfo("Executing daily PostgreSQL backup job");
+    const result = await runDatabaseBackup();
+    if (!result.ok) {
+      machineLoggerError(
+        `Database backup failed: ${result.error}`,
+        "dailyPgBackup"
+      );
+    } else {
+      machineLoggerInfo(
+        `Database backup saved to: ${result.path}`,
+        "dailyPgBackup"
+      );
+    }
   });
 };
 
