@@ -1,5 +1,11 @@
 const { Op, literal } = require("sequelize");
-const { MachineLog, Machine, DailyConfig, User, CuttingTime } = require("../models");
+const {
+  MachineLog,
+  Machine,
+  DailyConfig,
+  User,
+  CuttingTime,
+} = require("../models");
 const { serverError } = require("./serverError");
 const dateCuttingTime = require("./dateCuttingTime");
 
@@ -77,37 +83,34 @@ function convertMilisecondToHour(milliseconds) {
  *     - count: Object containing:
  *       - calculate: Object with shift calculations
  *       - shift1: null
- *       - shift2: null 
+ *       - shift2: null
  *       - combine: Calculated cumulative target for that day
  */
 const objectTargetCuttingTime2 = (target, totalDayInMonth) => {
   const targetPerDay = target / totalDayInMonth; // Calculate target hours per day
 
-  const calculatedTargets = Array.from(
-    { length: totalDayInMonth },
-    (_, i) => {
-      const date = i + 1;
-      const target = Math.round((date * targetPerDay));
-      return {
-        date,
-        shifts: {
+  const calculatedTargets = Array.from({ length: totalDayInMonth }, (_, i) => {
+    const date = i + 1;
+    const target = Math.round(date * targetPerDay);
+    return {
+      date,
+      shifts: {
+        shift1: null,
+        shift2: null,
+        combine: null,
+      },
+      count: {
+        calculate: {
           shift1: null,
           shift2: null,
-          combine: null,
+          combine: target,
         },
-        count: {
-          calculate: {
-            shift1: null,
-            shift2: null,
-            combine: target,
-          },
-          shift1: null,
-          shift2: null,
-          combine: null,
-        }
-      };
-    }
-  ); // Calculate cumulative target for each day
+        shift1: null,
+        shift2: null,
+        combine: null,
+      },
+    };
+  }); // Calculate cumulative target for each day
 
   return {
     name: "TARGET",
@@ -224,7 +227,7 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
             "output_wp",
             "createdAt",
             "calculate_total_cutting_time",
-            "next_projects"
+            "next_projects",
           ],
           include: [
             {
@@ -257,8 +260,8 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
           : [];
         const remaining = calculate_total_cutting_time
           ? `remaining ${splitCalculate[0]} project, ${formatTimeDifference(
-            Number(splitCalculate[1]) * MILISECOND
-          )}`
+              Number(splitCalculate[1]) * MILISECOND
+            )}`
           : null;
         const operator = User?.name || null;
         // calculate_total_cutting_time is in seconds
@@ -286,8 +289,8 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
           return {
             ...project,
             total_cutting_time: formatTimeDifference(total_cutting_time_ms),
-          }
-        })
+          };
+        });
 
         return {
           ...rest,
@@ -316,50 +319,59 @@ const getMachineTimeline = async ({ date, reqId, shift }) => {
       const nextTimeDifference = formatTimeDifference(nextTime);
 
       // remainingProjects
-      const remainingProjects = lastLog?.next_projects?.length ? lastLog.next_projects.map((project) => {
-        const total_cutting_time_ms = project.total_cutting_time * MILISECOND;
-        return {
-          ...project,
-          isNext: true,
-          description: "Next Project",
-          operator: lastLog.User?.name || null,
-          timeDifference: formatTimeDifference(total_cutting_time_ms),
-          timeDifferenceMs: total_cutting_time_ms,
-          next_projects: [],
-          createdAt: new Date().toLocaleString(),
-        }
-      }).map((project, index, array) => {
-        if (index === 0) return project;
-        // createdAt is project.createdAt + calculate all timeDifferenceMs before this project + 5 minutes
-        // const createdAt = new Date(array[index - 1].createdAt);
-        const FIVE_MINUTES = 5 * 60 * 1000;
-        const sliceProjects = Array.isArray(array) && array.slice(0, index) || [];
-        const timeDifferenceMs = sliceProjects.reduce((acc, curr) => acc + curr.timeDifferenceMs, 0);
-        const createdAt = new Date(project.createdAt);
-        createdAt.setTime(createdAt.getTime() + timeDifferenceMs + FIVE_MINUTES);
-        return {
-          ...project,
-          createdAt: createdAt.toLocaleString(),
-        }
-      }) : [];
-
-
+      const remainingProjects = lastLog?.next_projects?.length
+        ? lastLog.next_projects
+            .map((project) => {
+              const total_cutting_time_ms =
+                project.total_cutting_time * MILISECOND;
+              return {
+                ...project,
+                isNext: true,
+                description: "Next Project",
+                operator: lastLog.User?.name || null,
+                timeDifference: formatTimeDifference(total_cutting_time_ms),
+                timeDifferenceMs: total_cutting_time_ms,
+                next_projects: [],
+                createdAt: new Date().toLocaleString(),
+              };
+            })
+            .map((project, index, array) => {
+              if (index === 0) return project;
+              // createdAt is project.createdAt + calculate all timeDifferenceMs before this project + 5 minutes
+              // const createdAt = new Date(array[index - 1].createdAt);
+              const FIVE_MINUTES = 5 * 60 * 1000;
+              const sliceProjects =
+                (Array.isArray(array) && array.slice(0, index)) || [];
+              const timeDifferenceMs = sliceProjects.reduce(
+                (acc, curr) => acc + curr.timeDifferenceMs,
+                0
+              );
+              const createdAt = new Date(project.createdAt);
+              createdAt.setTime(
+                createdAt.getTime() + timeDifferenceMs + FIVE_MINUTES
+              );
+              return {
+                ...project,
+                createdAt: createdAt.toLocaleString(),
+              };
+            })
+        : [];
 
       const extendLogs = isNowDate
         ? [
-          ...logs,
-          ...remainingProjects,
+            ...logs,
+            ...remainingProjects,
 
-          // {
-          //   isNext: true,
-          //   createdAt: lastLog.createdAt,
-          //   timeDifference: nextTimeDifference,
-          //   timeDifferenceMs: nextTime,
-          //   operator: lastLog.User?.name || null,
-          //   description: "Remaining",
-          //   next_projects: lastLog.next_projects || [],
-          // },
-        ]
+            // {
+            //   isNext: true,
+            //   createdAt: lastLog.createdAt,
+            //   timeDifference: nextTimeDifference,
+            //   timeDifferenceMs: nextTime,
+            //   operator: lastLog.User?.name || null,
+            //   description: "Remaining",
+            //   next_projects: lastLog.next_projects || [],
+            // },
+          ]
         : logs;
       // console.log({ nextLog: extendLogs[extendLogs.length - 1] });
 
@@ -400,231 +412,306 @@ const handleGetCuttingTime = async (date, machineIds = null) => {
     if (!cuttingTime) {
       throw new Error("cutting time not found, let's create it");
     }
-    const startDateInMonth = new Date(dateResult.getFullYear(), dateResult.getMonth(), 1);
-    const endDateInMonth = new Date(dateResult.getFullYear(), dateResult.getMonth() + 1, 0);
-    const endDateCuttingTime = endDateInMonth
+    const startDateInMonth = new Date(
+      dateResult.getFullYear(),
+      dateResult.getMonth(),
+      1
+    );
+    const endDateInMonth = new Date(
+      dateResult.getFullYear(),
+      dateResult.getMonth() + 1,
+      0
+    );
+
+    const endDateCuttingTime = new Date(endDateInMonth.getTime());
     endDateCuttingTime.setDate(endDateCuttingTime.getDate() + 1); // set to next day to include the last day of the month
 
     const [allLogInMonth, allConfigInMonth] = await Promise.all([
       Machine.findAll({
-        where: machineIds ? { id: { [Op.in]: machineIds }, is_zooler: false } : { is_zooler: false },
+        where: machineIds
+          ? { id: { [Op.in]: machineIds }, is_zooler: false }
+          : { is_zooler: false },
         attributes: ["id", "name"],
         include: [
           {
             model: MachineLog,
-            attributes: [
-              "current_status",
-              "createdAt",
-            ],
+            attributes: ["current_status", "createdAt"],
             where: {
               createdAt: {
-                [Op.between]: [startDateInMonth, endDateCuttingTime]
-              }
+                [Op.between]: [startDateInMonth, endDateCuttingTime],
+              },
             },
-          }
+          },
         ],
         order: [[{ model: MachineLog }, "createdAt", "ASC"]],
       }),
       DailyConfig.findAll({
-        attributes: ["id", "date", "startFirstShift", "endFirstShift", "startSecondShift", "endSecondShift"],
+        attributes: [
+          "id",
+          "date",
+          "startFirstShift",
+          "endFirstShift",
+          "startSecondShift",
+          "endSecondShift",
+        ],
         raw: true,
         order: [["date", "ASC"]],
         where: {
           // date: { [Op.in]: ['2025-06-02', "2025-06-03", "2025-06-04"] },
           date: {
-            [Op.between]: [startDateInMonth, endDateInMonth]
-          }
+            [Op.between]: [startDateInMonth, endDateInMonth],
+          },
         },
-      })
-
+      }),
     ]);
 
     if (!allLogInMonth.length || !allConfigInMonth.length) {
       return res.status(200).json({
         status: 200,
         message: "success get cutting time",
-        data: []
+        data: [],
       });
     }
 
     // sort machine
-    const format = Array.isArray(allLogInMonth) && allLogInMonth.sort((a, b) => {
-      const numberA = parseInt(a.name.slice(3));
-      const numberB = parseInt(b.name.slice(3));
-      return numberA - numberB;
-    }).map((mc) => {
-      const { name, MachineLogs } = mc.get({ plain: true });
+    const format =
+      Array.isArray(allLogInMonth) &&
+      allLogInMonth
+        .sort((a, b) => {
+          const numberA = parseInt(a.name.slice(3));
+          const numberB = parseInt(b.name.slice(3));
+          return numberA - numberB;
+        })
+        .map((mc) => {
+          const { name, MachineLogs } = mc.get({ plain: true });
 
-      const groupLogByShiftInDateConfig = Array.isArray(allConfigInMonth) && allConfigInMonth.map((config) => {
-        const { date, startFirstShift, endFirstShift, startSecondShift, endSecondShift } = config;
+          const groupLogByShiftInDateConfig =
+            Array.isArray(allConfigInMonth) &&
+            allConfigInMonth.map((config) => {
+              const {
+                date,
+                startFirstShift,
+                endFirstShift,
+                startSecondShift,
+                endSecondShift,
+              } = config;
 
-        // example startFirstShift: "07:00:00"
-        const [startHour1, startMinute1, startSecond1] = startFirstShift.split(':').map(Number);
-        const [endHour1, endMinute1, endSecond1] = endFirstShift.split(':').map(Number);
-        const [startHour2, startMinute2, startSecond2] = startSecondShift.split(':').map(Number);
-        const [endHour2, endMinute2, endSecond2] = endSecondShift.split(':').map(Number);
+              // example startFirstShift: "07:00:00"
+              const [startHour1, startMinute1, startSecond1] = startFirstShift
+                .split(":")
+                .map(Number);
+              const [endHour1, endMinute1, endSecond1] = endFirstShift
+                .split(":")
+                .map(Number);
+              const [startHour2, startMinute2, startSecond2] = startSecondShift
+                .split(":")
+                .map(Number);
+              const [endHour2, endMinute2, endSecond2] = endSecondShift
+                .split(":")
+                .map(Number);
 
-        const dateConfig = new Date(date);
-        const startShift1 = new Date(date);
-        const endShift1 = new Date(date);
-        const startShift2 = new Date(date);
-        const endShift2 = new Date(date);
+              const dateConfig = new Date(date);
+              const startShift1 = new Date(date);
+              const endShift1 = new Date(date);
+              const startShift2 = new Date(date);
+              const endShift2 = new Date(date);
 
-        // Set hours, minutes, seconds, and milliseconds to 0
-        startShift1.setHours(startHour1, startMinute1, startSecond1, 0);
-        endShift1.setHours(endHour1, endMinute1, endSecond1, 0);
-        startShift2.setHours(startHour2, startMinute2, startSecond2, 0);
-        endShift2.setHours(endHour2, endMinute2, endSecond2, 0);
-        // shift 2 is end is next day
-        endShift2.setDate(endShift2.getDate() + 1);
+              // Set hours, minutes, seconds, and milliseconds to 0
+              startShift1.setHours(startHour1, startMinute1, startSecond1, 0);
+              endShift1.setHours(endHour1, endMinute1, endSecond1, 0);
+              startShift2.setHours(startHour2, startMinute2, startSecond2, 0);
+              endShift2.setHours(endHour2, endMinute2, endSecond2, 0);
+              // shift 2 is end is next day
+              endShift2.setDate(endShift2.getDate() + 1);
 
-        // Define time range checkers
-        const betweenLogCombine = (logDate) => logDate.getTime() >= startShift1.getTime() && logDate.getTime() <= endShift2.getTime();
-        const betweenLog1 = (logDate) => logDate.getTime() >= startShift1.getTime() && logDate.getTime() <= endShift1.getTime();
-        const betweenLog2 = (logDate) => logDate.getTime() >= startShift2.getTime() && logDate.getTime() <= endShift2.getTime();
+              // Define time range checkers
+              const betweenLogCombine = (logDate) =>
+                logDate.getTime() >= startShift1.getTime() &&
+                logDate.getTime() <= endShift2.getTime();
+              const betweenLog1 = (logDate) =>
+                logDate.getTime() >= startShift1.getTime() &&
+                logDate.getTime() <= endShift1.getTime();
+              const betweenLog2 = (logDate) =>
+                logDate.getTime() >= startShift2.getTime() &&
+                logDate.getTime() <= endShift2.getTime();
 
-        // filter logs by shift
-        const logCombineShift = MachineLogs.filter((log) => betweenLogCombine(new Date(log.createdAt)));
-        const logShift1 = MachineLogs.filter((log) => betweenLog1(new Date(log.createdAt)));
-        const logShift2 = MachineLogs.filter((log) => betweenLog2(new Date(log.createdAt)));
+              // filter logs by shift
+              const logCombineShift = MachineLogs.filter((log) =>
+                betweenLogCombine(new Date(log.createdAt))
+              );
+              const logShift1 = MachineLogs.filter((log) =>
+                betweenLog1(new Date(log.createdAt))
+              );
+              const logShift2 = MachineLogs.filter((log) =>
+                betweenLog2(new Date(log.createdAt))
+              );
 
+              // count running time
+              const runningTimeCombineShift = countRunningTime(logCombineShift);
+              const runningTime1 = countRunningTime(logShift1);
+              const runningTime2 = countRunningTime(logShift2);
 
-        // count running time
-        const runningTimeCombineShift = countRunningTime(logCombineShift);
-        const runningTime1 = countRunningTime(logShift1);
-        const runningTime2 = countRunningTime(logShift2);
+              let countCombineShift = runningTimeCombineShift.totalRunningTime;
+              let count1 = runningTime1.totalRunningTime;
+              let count2 = runningTime2.totalRunningTime;
 
-        let countCombineShift = runningTimeCombineShift.totalRunningTime;
-        let count1 = runningTime1.totalRunningTime;
-        let count2 = runningTime2.totalRunningTime;
+              const isNowDate = (date) =>
+                date.toLocaleDateString() === new Date().toLocaleDateString() &&
+                date.getHours() >= startHour1;
 
-        const isNowDate = (date) => date.toLocaleDateString() === new Date().toLocaleDateString() && date.getHours() >= startHour1
+              // Handle current running calculation
+              if (runningTimeCombineShift.lastRunningTimestamp) {
+                const lastRunningDate = new Date(
+                  runningTimeCombineShift.lastRunningTimestamp
+                );
+                if (
+                  isNowDate(lastRunningDate) &&
+                  betweenLogCombine(lastRunningDate)
+                ) {
+                  countCombineShift +=
+                    new Date().getTime() - lastRunningDate.getTime();
+                } else {
+                  countCombineShift +=
+                    endShift2.getTime() - lastRunningDate.getTime();
+                }
+              }
 
-        // Handle current running calculation
-        if (runningTimeCombineShift.lastRunningTimestamp) {
-          const lastRunningDate = new Date(runningTimeCombineShift.lastRunningTimestamp);
-          if (isNowDate(lastRunningDate) && betweenLogCombine(lastRunningDate)) {
-            countCombineShift += new Date().getTime() - lastRunningDate.getTime();
-          } else {
-            countCombineShift += endShift2.getTime() - lastRunningDate.getTime();
-          }
+              if (runningTime1.lastRunningTimestamp) {
+                const lastRunningDate = new Date(
+                  runningTime1.lastRunningTimestamp
+                );
+                if (
+                  isNowDate(lastRunningDate) &&
+                  betweenLog1(lastRunningDate)
+                ) {
+                  count1 += new Date().getTime() - lastRunningDate.getTime();
+                } else {
+                  count1 += endShift1.getTime() - lastRunningDate.getTime();
+                }
+              }
 
-        }
+              if (runningTime2.lastRunningTimestamp) {
+                const lastRunningDate = new Date(
+                  runningTime2.lastRunningTimestamp
+                );
+                if (
+                  isNowDate(lastRunningDate) &&
+                  betweenLog2(lastRunningDate)
+                ) {
+                  count2 += new Date().getTime() - lastRunningDate.getTime();
+                } else {
+                  count2 += endShift2.getTime() - lastRunningDate.getTime();
+                }
+              }
 
-        if (runningTime1.lastRunningTimestamp) {
-          const lastRunningDate = new Date(runningTime1.lastRunningTimestamp);
-          if (isNowDate(lastRunningDate) && betweenLog1(lastRunningDate)) {
-            count1 += new Date().getTime() - lastRunningDate.getTime();
-          } else {
-            count1 += endShift1.getTime() - lastRunningDate.getTime();
-          }
+              return {
+                date: dateConfig.getDate(),
+                count: {
+                  combine: count1 + count2,
+                  shift1: count1,
+                  shift2: count2,
+                },
+                shifts: {
+                  // without second
+                  combine: `${startFirstShift.slice(
+                    0,
+                    -3
+                  )} - ${endSecondShift.slice(0, -3)}`,
+                  shift1: `${startFirstShift.slice(
+                    0,
+                    -3
+                  )} - ${endFirstShift.slice(0, -3)}`,
+                  shift2: `${startSecondShift.slice(
+                    0,
+                    -3
+                  )} - ${endSecondShift.slice(0, -3)}`,
+                },
+              };
+            });
 
-        }
+          const notFoundConfig = allDateInMonth.filter((day) => {
+            return !groupLogByShiftInDateConfig.some(
+              (item) => item.date === day
+            );
+          });
 
-        if (runningTime2.lastRunningTimestamp) {
-          const lastRunningDate = new Date(runningTime2.lastRunningTimestamp);
-          if (isNowDate(lastRunningDate) && betweenLog2(lastRunningDate)) {
-            count2 += new Date().getTime() - lastRunningDate.getTime();
-          } else {
-            count2 += endShift2.getTime() - lastRunningDate.getTime();
-          }
-        }
+          const notFoundConfigFormatted = notFoundConfig.length
+            ? notFoundConfig.map((day) => {
+                return {
+                  date: day,
+                  count: {
+                    combine: 0,
+                    shift1: 0,
+                    shift2: 0,
+                  },
+                  shifts: {
+                    combine: null,
+                    shift1: null,
+                    shift2: null,
+                  },
+                };
+              })
+            : [];
 
-        return {
-          date: dateConfig.getDate(),
-          count: {
-            combine: count1 + count2,
-            shift1: count1,
-            shift2: count2,
-          },
-          shifts: {
-            // without second
-            combine: `${startFirstShift.slice(0, -3)} - ${endSecondShift.slice(0, -3)}`,
-            shift1: `${startFirstShift.slice(0, -3)} - ${endFirstShift.slice(0, -3)}`,
-            shift2: `${startSecondShift.slice(0, -3)} - ${endSecondShift.slice(0, -3)}`,
-          }
-        };
-      });
+          // if notFoundConfig.length, add to groupLogByShiftInDateConfig and sort by date
+          const combinedData = [
+            ...groupLogByShiftInDateConfig,
+            ...notFoundConfigFormatted,
+          ].sort((a, b) => a.date - b.date);
 
+          // index 1 + index 2
 
+          const formattedLogCount =
+            Array.isArray(combinedData) &&
+            combinedData.map((item, index) => {
+              let sumCombine = 0;
+              let sumShift1 = 0;
+              let sumShift2 = 0;
 
+              for (let j = 0; j <= index; j++) {
+                const { count } = combinedData[j];
+                sumCombine += count.combine || 0;
+                sumShift1 += count.shift1 || 0;
+                sumShift2 += count.shift2 || 0;
+              }
 
+              const { combine, shift1, shift2 } = item.count;
 
-      const notFoundConfig = allDateInMonth.filter((day) => {
-        return !groupLogByShiftInDateConfig.some((item) => item.date === day);
-      });
+              return {
+                ...item,
+                count: {
+                  combine: convertMilisecondToHour(combine),
+                  shift1: convertMilisecondToHour(shift1),
+                  shift2: convertMilisecondToHour(shift2),
+                  calculate: {
+                    combine: convertMilisecondToHour(sumCombine),
+                    shift1: convertMilisecondToHour(sumShift1),
+                    shift2: convertMilisecondToHour(sumShift2),
+                  },
+                },
+              };
+            });
 
-      const notFoundConfigFormatted = notFoundConfig.length ? notFoundConfig.map((day) => {
-        return {
-          date: day,
-          count: {
-            combine: 0,
-            shift1: 0,
-            shift2: 0,
-          },
-          shifts: {
-            combine: null,
-            shift1: null,
-            shift2: null,
-          }
-        };
-      }) : [];
-
-      // if notFoundConfig.length, add to groupLogByShiftInDateConfig and sort by date
-      const combinedData = [...groupLogByShiftInDateConfig, ...notFoundConfigFormatted].sort((a, b) => a.date - b.date)
-
-      // index 1 + index 2
-
-      const formattedLogCount = Array.isArray(combinedData) && combinedData.map((item, index) => {
-        let sumCombine = 0
-        let sumShift1 = 0
-        let sumShift2 = 0
-
-        for (let j = 0; j <= index; j++) {
-          const { count } = combinedData[j];
-          sumCombine += count.combine || 0;
-          sumShift1 += count.shift1 || 0;
-          sumShift2 += count.shift2 || 0;
-        }
-
-        const { combine, shift1, shift2 } = item.count
-
-        return {
-          ...item,
-          count: {
-            combine: convertMilisecondToHour(combine),
-            shift1: convertMilisecondToHour(shift1),
-            shift2: convertMilisecondToHour(shift2),
-            calculate: {
-              combine: convertMilisecondToHour(sumCombine),
-              shift1: convertMilisecondToHour(sumShift1),
-              shift2: convertMilisecondToHour(sumShift2),
-            }
-          }
-        }
-      })
-
-      return {
-        name,
-        data: formattedLogCount,
-      };
-    });
+          return {
+            name,
+            data: formattedLogCount,
+          };
+        });
 
     const extendedWithTarget = [
       objectTargetCuttingTime2(cuttingTime.target, allDateInMonth.length),
-      ...format
+      ...format,
     ];
 
     return {
       ...cuttingTime,
       allDateInMonth,
       data: extendedWithTarget,
-    }
+    };
   } catch (error) {
     throw error;
   }
-
-}
+};
 
 module.exports = {
   getMachineTimeline,
@@ -632,5 +719,5 @@ module.exports = {
   getShiftDateRange,
   handleGetCuttingTime,
   objectTargetCuttingTime2,
-  convertMilisecondToHour
+  convertMilisecondToHour,
 };
