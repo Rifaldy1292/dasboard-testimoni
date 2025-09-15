@@ -190,11 +190,10 @@ export const useFTP = () => {
               newContent = newContent.substring(0, percentIndex + 1) + '\n' + name + afterPercent
             }
           }
-          const lines = newContent.split('\n')
-          if (lines.length >= 2 && lines[lines.length - 2].trim().toUpperCase() === 'M30') {
-            lines[lines.length - 2] = 'M99'
-          }
-          newContent = lines.join('\n')
+          newContent = newContent.replace(
+            /(^|\r?\n)M30(\r?\n|$)/i,
+            (match, before, after) => `${before}M99${after}`
+          )
           return {
             ...res,
             name,
