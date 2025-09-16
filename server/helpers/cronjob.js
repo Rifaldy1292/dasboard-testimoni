@@ -247,16 +247,27 @@ const handleCronJob = async () => {
     machineLoggerInfo("Weekly log cleanup job completed");
   });
   cron.schedule("30 0 * * *", async () => {
-    machineLoggerInfo("Executing daily PostgreSQL backup job");
-    const result = await runDatabaseBackup();
-    if (!result.ok) {
-      machineLoggerError(
-        `Database backup failed: ${result.error}`,
+    try {
+      machineLoggerInfo(
+        "Executing daily PostgreSQL backup job",
         "dailyPgBackup"
       );
-    } else {
-      machineLoggerInfo(
-        `Database backup saved to: ${result.path}`,
+      const result = await runDatabaseBackup();
+      if (!result.ok) {
+        machineLoggerError(
+          `Database backup failed: ${result.error}`,
+          "dailyPgBackup"
+        );
+      } else {
+        machineLoggerInfo(
+          `Database backup saved to: ${result.path}`,
+          "dailyPgBackup"
+        );
+      }
+    } catch (error) {
+      // Ini akan menangkap SEMUA error fatal, termasuk yang tidak di-handle di runDatabaseBackup
+      machineLoggerError(
+        `Unhandled error in backup job: ${error?.message || error}`,
         "dailyPgBackup"
       );
     }
