@@ -22,11 +22,7 @@ onMounted(() => {
     <div class="min-h-screen flex flex-col items-center justify-center py-10 px-4">
       <div class="max-w-md w-full">
         <a href="#">
-          <img
-            src="@/assets/images/logo/yamaha-motor.svg"
-            alt="logo"
-            class="w-40 mb-6 mx-auto block brightness-200 contrast-125"
-          />
+          <img alt="logo" class="w-40 mb-6 mx-auto block brightness-200 contrast-125" />
         </a>
 
         <div class="p-8 rounded-2xl bg-white/10 shadow-xl backdrop-blur-xl border border-white/20">
