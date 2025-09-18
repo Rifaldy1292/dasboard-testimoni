@@ -55,7 +55,7 @@ const sidebarStore = useSidebarStore()
         <ul class="flex items-center gap-2 2xsm:gap-4">
           <li>
             <!-- Dark Mode Toggler -->
-            <DarkModeSwitcher />
+            <!-- <DarkModeSwitcher /> -->
             <!-- Dark Mode Toggler -->
           </li>
 
